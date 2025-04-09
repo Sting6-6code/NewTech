@@ -1,56 +1,59 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package model;
 
 /**
  *
- * @author wangsiting
+ * @author archil
  */
 public class Product {
-    
-    private String productId;
-    private String name;
-    private String description;
+
+    private String prodName;
     private double price;
-    private int quantity;
-    private String status;  // "Active" or "Inactive"
+    private int modelNumber;
+    private int avail;
 
-    // Constructor
-    public Product(String productId, String name, String description, 
-                  double price, int quantity) {
-        this.productId = productId;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.quantity = quantity;
-        this.status = "Active";
+    private static int count = 0;
+
+    
+
+    @Override
+    public String toString() {
+        return prodName; //To change body of generated methods, choose Tools | Templates.
     }
 
-    public String getProductId() {
-        return productId;
+    public Product() {
+        count++;
+        modelNumber = count;
     }
 
-    public void setProductId(String productId) {
-        this.productId = productId;
+    public String getProdName() {
+        return prodName;
     }
 
-    public String getName() {
-        return name;
+    public void setProdName(String prodName) {
+        this.prodName = prodName;
+    }
+    
+    public int getAvail() {
+        return avail;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setAvail(int avail) {
+        this.avail = avail;
     }
 
-    public String getDescription() {
-        return description;
+    public static int getCount() {
+        return count;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public static void setCount(int count) {
+        Product.count = count;
     }
+    
 
     public double getPrice() {
         return price;
@@ -60,21 +63,12 @@ public class Product {
         this.price = price;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public int getModelNumber() {
+        return modelNumber;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setModelNumber(int modelNumber) {
+        this.modelNumber = modelNumber;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-    
-    
 }
