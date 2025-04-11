@@ -1,6 +1,6 @@
 package ui.MerchantRole;
 
-import model.Product;
+import Business.Product.Product;
 //import model.Supplier;
 import java.awt.CardLayout;
 import java.awt.Component;
