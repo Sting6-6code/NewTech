@@ -1,25 +1,18 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Business.Role;
 
-import Business.EcoSystem;
-import Business.Enterprise.Enterprise;
-import Business.Organization.Organization;
-import Business.UserAccount.UserAccount;
-import ui.SystemAdminWorkArea.SystemAdminWorkAreaJPanel;
-import javax.swing.JPanel;
+import Business.Role.Role;
 
 /**
  *
- * @author raunak
+ * @author wangsiting
  */
-public class SystemAdminRole extends Role{
+public class SystemAdminRole extends Role {
 
-    @Override
-    public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem system) {
-        return new SystemAdminWorkAreaJPanel(userProcessContainer, system);
+    public SystemAdminRole() {
     }
     
 }
