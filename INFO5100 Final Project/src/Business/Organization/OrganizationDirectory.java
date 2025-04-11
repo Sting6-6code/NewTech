@@ -30,7 +30,7 @@ public class OrganizationDirectory {
             organizationList.add(organization);
         }
         else if (type.getValue().equals(Type.Ecommerce.getValue())){
-            organization = new  ECommercePlatformOrganization();
+            organization = new ECommercePlatformOrganization();
             organizationList.add(organization);
         }
         return organization;

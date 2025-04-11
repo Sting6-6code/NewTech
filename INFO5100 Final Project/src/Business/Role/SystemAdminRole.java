@@ -4,15 +4,26 @@
  */
 package Business.Role;
 
-import Business.Role.Role;
+import Business.EcoSystem;
+import Business.Enterprise.Enterprise;
+import Business.Organization.Organization;
+import Business.UserAccount.UserAccount;
+//import ui.SystemAdminWorkArea.SystemAdminWorkAreaJPanel;
+import javax.swing.JPanel;
 
 /**
  *
  * @author wangsiting
  */
-public class SystemAdminRole extends Role {
+public class SystemAdminRole extends Role{
 
     public SystemAdminRole() {
+        
+    }
+
+    @Override
+    public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
+        throw new UnsupportedOperationException("Not supported yet."); 
     }
     
 }
