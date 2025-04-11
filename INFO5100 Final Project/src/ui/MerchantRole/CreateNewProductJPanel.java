@@ -1,7 +1,7 @@
 package ui.MerchantRole;
 
 import model.Product;
-import model.Supplier;
+//import model.Supplier;
 import java.awt.CardLayout;
 import java.awt.Component;
 import javax.swing.JOptionPane;
@@ -15,11 +15,11 @@ import javax.swing.JPanel;
 public class CreateNewProductJPanel extends javax.swing.JPanel {
 
     JPanel userProcessContainer;
-    Supplier supplier;
-    public CreateNewProductJPanel(JPanel upc, Supplier s){
+//    Supplier supplier;
+    public CreateNewProductJPanel(JPanel upc){
         initComponents();
         userProcessContainer = upc;
-        supplier = s;
+       
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -157,10 +157,10 @@ public class CreateNewProductJPanel extends javax.swing.JPanel {
         }
         
         
-        Product p = supplier.getProductCatalog().addProduct();
-        p.setProdName(txtName.getText());
-        p.setPrice(price);
-        p.setAvail(quantity);
+//        Product p = supplier.getProductCatalog().addProduct();
+//        p.setProdName(txtName.getText());
+//        p.setPrice(price);
+//        p.setAvail(quantity);
         
         JOptionPane.showMessageDialog(this, "Product added!", "Info", JOptionPane.INFORMATION_MESSAGE);
 }//GEN-LAST:event_btnAddActionPerformed
@@ -170,10 +170,10 @@ public class CreateNewProductJPanel extends javax.swing.JPanel {
         userProcessContainer.remove(this);
         Component[] componentArray = userProcessContainer.getComponents();
         Component component = componentArray[componentArray.length - 1];
-        ManageProductCatalogJPanel manageProductCatalogJPanel = (ManageProductCatalogJPanel) component;
-        manageProductCatalogJPanel.refreshTable();
-        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
-        layout.previous(userProcessContainer);
+//        ManageProductCatalogJPanel manageProductCatalogJPanel = (ManageProductCatalogJPanel) component;
+//        manageProductCatalogJPanel.refreshTable();
+//        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+//        layout.previous(userProcessContainer);
     }//GEN-LAST:event_btnBackActionPerformed
    
     // Variables declaration - do not modify//GEN-BEGIN:variables
