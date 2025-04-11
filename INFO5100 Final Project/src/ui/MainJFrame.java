@@ -28,7 +28,7 @@ public class MainJFrame extends javax.swing.JFrame {
 
     public MainJFrame() {
         initComponents();
-        system = dB4OUtil.retrieveSystem();
+//        system = dB4OUtil.retrieveSystem();
         this.setSize(1680, 1050);
     }
 
@@ -53,6 +53,7 @@ public class MainJFrame extends javax.swing.JFrame {
         container = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new java.awt.CardLayout());
 
         loginJButton.setText("Login");
         loginJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -117,7 +118,7 @@ public class MainJFrame extends javax.swing.JFrame {
         container.setLayout(new java.awt.CardLayout());
         jSplitPane1.setRightComponent(container);
 
-        getContentPane().add(jSplitPane1, java.awt.BorderLayout.CENTER);
+        getContentPane().add(jSplitPane1, "card2");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -173,7 +174,7 @@ public class MainJFrame extends javax.swing.JFrame {
         }
         else{
             CardLayout layout=(CardLayout)container.getLayout();
-            container.add("workArea",userAccount.getRole().createWorkArea(container, userAccount, inOrganization, inEnterprise, system));
+//            container.add("workArea",userAccount.getRole().createWorkArea(container, userAccount, inOrganization, inEnterprise, system));
             layout.next(container);
         }
         
@@ -197,7 +198,7 @@ public class MainJFrame extends javax.swing.JFrame {
         container.add("blank", blankJP);
         CardLayout crdLyt = (CardLayout) container.getLayout();
         crdLyt.next(container);
-        dB4OUtil.storeSystem(system);
+//        dB4OUtil.storeSystem(system);
     }//GEN-LAST:event_logoutJButtonActionPerformed
 
     /**
