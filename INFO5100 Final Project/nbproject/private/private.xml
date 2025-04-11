@@ -3,31 +3,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/model/Product.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Network/Network.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/AdminRole.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/MerchantRole/CreateNewProductJPanel.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/model/Enterprise.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/model/Network.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/model/UserAccountDirectory.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/ManageAllUsers.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/model/EnterpriseDirectory.java</file>
             <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/SystemAdminRole.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/MaintenanceTroubleshoot.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/model/PurchaseOrder.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/model/OrganizationDirectory.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/model/UserAccount.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/MainJFrame.java</file>
             <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/AdminHomePage.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/DB4OUtil/DB4OUtil.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/Role.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Enterprise/EnterpriseDirectory.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/ConfigureASystem.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/model/Organization.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/model/CustomerComplaint.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/EcoSystem.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Organization/AdminOrganization.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Organization/OrganizationDirectory.java</file>
             <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/ManageOwnProfile.java</file>
         </group>
     </open-files>
