@@ -25,6 +25,7 @@ public class OrganizationDirectory {
     
     public Organization createOrganization(Type type){
         Organization organization = null;
+<<<<<<< HEAD
         if (type.getValue().equals(Type.Doctor.getValue())){
 //            organization = new DoctorOrganization();
             organizationList.add(organization);
@@ -33,6 +34,16 @@ public class OrganizationDirectory {
 //            organization = new LabOrganization();
             organizationList.add(organization);
         }
+=======
+//        if (type.getValue().equals(Type.Doctor.getValue())){
+//            organization = new DoctorOrganization();
+//            organizationList.add(organization);
+//        }
+//        else if (type.getValue().equals(Type.Lab.getValue())){
+//            organization = new LabOrganization();
+//            organizationList.add(organization);
+//        }
+>>>>>>> f6192ac37608c4cc926617e1b37a663c2456afd2
         return organization;
     }
 }

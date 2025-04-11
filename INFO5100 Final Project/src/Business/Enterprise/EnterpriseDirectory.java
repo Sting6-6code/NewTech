@@ -31,10 +31,17 @@ public class EnterpriseDirectory {
     //Create enterprise
     public Enterprise createAndAddEnterprise(String name,Enterprise.EnterpriseType type){
         Enterprise enterprise=null;
+<<<<<<< HEAD
         if(type==Enterprise.EnterpriseType.Hospital){
 //            enterprise=new HospitalEnterprise(name);
             enterpriseList.add(enterprise);
         }
+=======
+//        if(type==Enterprise.EnterpriseType.Hospital){
+//            enterprise=new HospitalEnterprise(name);
+//            enterpriseList.add(enterprise);
+//        }
+>>>>>>> f6192ac37608c4cc926617e1b37a663c2456afd2
         return enterprise;
     }
 }

@@ -1,7 +1,7 @@
 package Business;
 
 import Business.Employee.Employee;
-import Business.Role.LabManagerRole;
+//import Business.Role.LabManagerRole;
 import Business.Role.SystemAdminRole;
 import Business.UserAccount.UserAccount;
 
@@ -25,7 +25,7 @@ public class ConfigureASystem {
         Employee employee = system.getEmployeeDirectory().createEmployee("sysadmin");
         
         UserAccount ua = system.getUserAccountDirectory().createUserAccount("sysadmin", "sysadmin", employee, new SystemAdminRole());
-        UserAccount labManager = system.getUserAccountDirectory().createUserAccount("labManager", "sysadmin", employee, new LabManagerRole());
+//        UserAccount labManager = system.getUserAccountDirectory().createUserAccount("labManager", "sysadmin", employee, new LabManagerRole());
         
         return system;
     }

@@ -4,7 +4,7 @@
  */
 package model;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -15,12 +15,12 @@ public class PurchaseOrder {
     
     private String orderId;
     private String warehouseRequestId;
-    private List<Product> products;
+    private ArrayList<Product> products;
     private String status;  // "Pending", "Ordered", "Received"
     private Date orderDate;
 
     public PurchaseOrder(String orderId, String warehouseRequestId, 
-                        List<Product> products) {
+                        ArrayList<Product> products) {
         this.orderId = orderId;
         this.warehouseRequestId = warehouseRequestId;
         this.products = products;
@@ -48,11 +48,11 @@ public class PurchaseOrder {
         this.warehouseRequestId = warehouseRequestId;
     }
 
-    public List<Product> getProducts() {
+    public ArrayList<Product> getProducts() {
         return products;
     }
 
-    public void setProducts(List<Product> products) {
+    public void setProducts(ArrayList<Product> products) {
         this.products = products;
     }
 
