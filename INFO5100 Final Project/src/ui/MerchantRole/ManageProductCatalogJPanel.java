@@ -50,7 +50,6 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         tblProductCatalog = new javax.swing.JTable();
         btnView = new javax.swing.JButton();
         btnCreate = new javax.swing.JButton();
-        btnSearch = new javax.swing.JButton();
         btnBack = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
         btnRefresh = new javax.swing.JButton();
@@ -86,13 +85,13 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         tblProductCatalog.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         tblProductCatalog.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Product Name", "Product ID", "Price", "Availability"
+                "Product Name", "Product ID", "Price", "Quantity", "Stock Status", "Last Updated"
             }
         ));
         jScrollPane1.setViewportView(tblProductCatalog);
@@ -104,17 +103,10 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             }
         });
 
-        btnCreate.setText("New Product");
+        btnCreate.setText("ItemUpshelf");
         btnCreate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCreateActionPerformed(evt);
-            }
-        });
-
-        btnSearch.setText("Search");
-        btnSearch.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSearchActionPerformed(evt);
             }
         });
 
@@ -125,7 +117,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             }
         });
 
-        btnDelete.setText("Delete Product");
+        btnDelete.setText("ItemDownshelf");
         btnDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDeleteActionPerformed(evt);
@@ -179,7 +171,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
                 btnUpdate1ActionPerformed(evt);
             }
         });
-        jPanel2.add(btnUpdate1, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 170, 134, -1));
+        jPanel2.add(btnUpdate1, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 210, 134, -1));
 
         txtIdView1.setEditable(false);
         jPanel2.add(txtIdView1, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 90, 250, -1));
@@ -194,16 +186,21 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
                 btnSave1ActionPerformed(evt);
             }
         });
-        jPanel2.add(btnSave1, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 210, 134, -1));
+        jPanel2.add(btnSave1, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 250, 134, -1));
 
         ComboBoxProduct1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jPanel2.add(ComboBoxProduct1, new org.netbeans.lib.awtextra.AbsoluteConstraints(174, 56, 226, -1));
+        ComboBoxProduct1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ComboBoxProduct1ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(ComboBoxProduct1, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 56, 220, -1));
 
         lblPID1.setText("Product ID:");
         jPanel2.add(lblPID1, new org.netbeans.lib.awtextra.AbsoluteConstraints(78, 91, -1, 30));
 
         txtId2.setEditable(false);
-        jPanel2.add(txtId2, new org.netbeans.lib.awtextra.AbsoluteConstraints(174, 95, 226, -1));
+        jPanel2.add(txtId2, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 95, 220, -1));
 
         lblPrice1.setText("Product Price:");
         jPanel2.add(lblPrice1, new org.netbeans.lib.awtextra.AbsoluteConstraints(61, 130, -1, 30));
@@ -213,7 +210,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
                 txtPrice1ActionPerformed(evt);
             }
         });
-        jPanel2.add(txtPrice1, new org.netbeans.lib.awtextra.AbsoluteConstraints(174, 134, 226, -1));
+        jPanel2.add(txtPrice1, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 134, 220, -1));
 
         btnAdd1.setText("Add Product");
         btnAdd1.addActionListener(new java.awt.event.ActionListener() {
@@ -221,18 +218,18 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
                 btnAdd1ActionPerformed(evt);
             }
         });
-        jPanel2.add(btnAdd1, new org.netbeans.lib.awtextra.AbsoluteConstraints(174, 214, -1, -1));
+        jPanel2.add(btnAdd1, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 250, -1, -1));
 
         lblPN1.setText("Product Name:");
         jPanel2.add(lblPN1, new org.netbeans.lib.awtextra.AbsoluteConstraints(61, 52, -1, 30));
 
-        lblAvaila1.setText("Product Availability:");
-        jPanel2.add(lblAvaila1, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 166, -1, 30));
-        jPanel2.add(txtAva1, new org.netbeans.lib.awtextra.AbsoluteConstraints(174, 170, 226, -1));
+        lblAvaila1.setText("Stock Warning Threshold:");
+        jPanel2.add(lblAvaila1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 170, -1, 30));
+        jPanel2.add(txtAva1, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 180, 220, -1));
 
         jLabel2.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
-        jLabel2.setText("Create New Product:");
-        jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 24, -1, -1));
+        jLabel2.setText("            ItemUpshelf");
+        jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 20, 220, -1));
 
         lblTitle2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         lblTitle2.setText("View Product Details");
@@ -243,65 +240,67 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnBack, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 1389, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(lblTitle)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(btnRefresh)
-                                    .addGap(78, 78, 78)
-                                    .addComponent(lblProductId1)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(txtId1, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(btnSearch1)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(lblSupplier, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(btnCreate, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(btnView, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(btnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1381, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(45, Short.MAX_VALUE))
+                .addGap(6, 6, 6)
+                .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addComponent(lblTitle)
+                .addGap(12, 12, 12)
+                .addComponent(btnRefresh)
+                .addGap(78, 78, 78)
+                .addComponent(lblProductId1)
+                .addGap(18, 18, 18)
+                .addComponent(txtId1, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addComponent(btnSearch1)
+                .addGap(6, 6, 6)
+                .addComponent(lblSupplier, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1381, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addComponent(btnCreate, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addComponent(btnView, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 1389, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(27, 27, 27)
                 .addComponent(btnBack)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(lblSupplier)
-                        .addGap(38, 38, 38))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblTitle)
-                            .addComponent(btnRefresh)
-                            .addComponent(txtId1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lblProductId1)
-                            .addComponent(btnSearch1))
-                        .addGap(18, 18, 18)))
+                    .addComponent(lblTitle)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addComponent(btnRefresh))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(5, 5, 5)
+                        .addComponent(lblProductId1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addComponent(txtId1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addComponent(btnSearch1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(5, 5, 5)
+                        .addComponent(lblSupplier)))
+                .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGap(6, 6, 6)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnCreate)
                     .addComponent(btnView)
-                    .addComponent(btnSearch)
                     .addComponent(btnDelete))
-                .addGap(91, 91, 91)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(388, 388, 388))
+                .addGap(95, 95, 95)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
     private void btnViewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewActionPerformed
@@ -326,14 +325,6 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.next(userProcessContainer);
     }//GEN-LAST:event_btnCreateActionPerformed
-
-    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-
-        SearchForProductJPanel sfpjp = new SearchForProductJPanel(userProcessContainer, supplier);
-        userProcessContainer.add("SearchForProductJPanel", sfpjp);
-        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
-        layout.next(userProcessContainer);
-    }//GEN-LAST:event_btnSearchActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
 
@@ -405,6 +396,10 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnAdd1ActionPerformed
 
+    private void ComboBoxProduct1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ComboBoxProduct1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_ComboBoxProduct1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> ComboBoxProduct1;
     private javax.swing.JButton btnAdd1;
@@ -413,7 +408,6 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnRefresh;
     private javax.swing.JButton btnSave1;
-    private javax.swing.JButton btnSearch;
     private javax.swing.JButton btnSearch1;
     private javax.swing.JButton btnUpdate1;
     private javax.swing.JButton btnView;
