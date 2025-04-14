@@ -71,7 +71,7 @@ public class ManageOwnProfile extends javax.swing.JPanel {
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(txtPW, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(txtUN, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(140, Short.MAX_VALUE))
+                .addContainerGap(1084, Short.MAX_VALUE))
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {txtPW, txtUN});
@@ -93,7 +93,7 @@ public class ManageOwnProfile extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnUpdate)
                     .addComponent(btnSave))
-                .addContainerGap(87, Short.MAX_VALUE))
+                .addContainerGap(447, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
