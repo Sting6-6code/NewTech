@@ -4,6 +4,11 @@
  */
 package ui.MerchantRole;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author wangsiting
@@ -26,19 +31,218 @@ public class SalesReport extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        cSV1 = new org.jfree.data.io.CSV();
+        cSV2 = new org.jfree.data.io.CSV();
+        startDateChooser = new com.toedter.calendar.JDateChooser();
+        btnBack = new javax.swing.JButton();
+        lblFrom = new javax.swing.JLabel();
+        lblTo = new javax.swing.JLabel();
+        endDateChooser = new com.toedter.calendar.JDateChooser();
+        reportArea = new javax.swing.JScrollPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        lblTitle = new javax.swing.JLabel();
+        btnGenerate = new javax.swing.JButton();
+        btnExport = new javax.swing.JButton();
+        btnPrint = new javax.swing.JButton();
+        chartPanel = new javax.swing.JPanel();
+        chartPanelBean1 = new Business.ChartPanelBean();
+        lblTitle1 = new javax.swing.JLabel();
+        lblTitle2 = new javax.swing.JLabel();
+
+        btnBack.setText("<< Back");
+        btnBack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBackActionPerformed(evt);
+            }
+        });
+
+        lblFrom.setText("📅 Start Date");
+
+        lblTo.setText("📅 End Date");
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
+
+        reportArea.setViewportView(jScrollPane1);
+
+        lblTitle.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTitle.setText("Sales Report Page");
+
+        btnGenerate.setText("🔘 Generate Report");
+        btnGenerate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGenerateActionPerformed(evt);
+            }
+        });
+
+        btnExport.setText("📤 Export CSV");
+        btnExport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExportActionPerformed(evt);
+            }
+        });
+
+        btnPrint.setText("🖨 Print");
+        btnPrint.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPrintActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout chartPanelLayout = new javax.swing.GroupLayout(chartPanel);
+        chartPanel.setLayout(chartPanelLayout);
+        chartPanelLayout.setHorizontalGroup(
+            chartPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(chartPanelLayout.createSequentialGroup()
+                .addGap(229, 229, 229)
+                .addComponent(chartPanelBean1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        chartPanelLayout.setVerticalGroup(
+            chartPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(chartPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(chartPanelBean1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        lblTitle1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblTitle1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTitle1.setText(" 📊 Chart Panel");
+
+        lblTitle2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblTitle2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTitle2.setText("📄 Report Area");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(lblTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(chartPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 938, Short.MAX_VALUE)
+                        .addComponent(lblFrom)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(startDateChooser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblTo)
+                        .addGap(18, 18, 18)
+                        .addComponent(endDateChooser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnGenerate, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnExport, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(lblTitle1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblTitle2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(reportArea, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(31, 31, 31)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(endDateChooser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblTo)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(startDateChooser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblFrom, javax.swing.GroupLayout.Alignment.LEADING)))
+                    .addComponent(btnBack))
+                .addGap(24, 24, 24)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnGenerate, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnExport, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lblTitle2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(reportArea, javax.swing.GroupLayout.PREFERRED_SIZE, 261, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(45, 45, 45)
+                .addComponent(lblTitle1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(chartPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
+    }//GEN-LAST:event_btnBackActionPerformed
+
+    private void btnGenerateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerateActionPerformed
+        // TODO add your handling code here:
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    String start = sdf.format(startDateChooser.getDate());
+    String end = sdf.format(endDateChooser.getDate());
+
+    // 模拟查询结果
+    String report = "Sales Report from " + start + " to " + end + ":\n\n";
+    report += "Order #1001 - $120.00\n";
+    report += "Order #1002 - $98.50\n";
+    // 你可以从数据库中读取真实数据
+
+    reportArea.setText(report);        
+        
+    }//GEN-LAST:event_btnGenerateActionPerformed
+
+    private void btnExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportActionPerformed
+        // TODO add your handling code here:
+        try {
+    FileWriter writer = new FileWriter("sales_report.csv");
+    writer.write(reportArea.getText());
+    writer.close();
+    JOptionPane.showMessageDialog(null, "Exported to sales_report.csv!");
+} catch (IOException e) {
+    e.printStackTrace();
+}
+    }//GEN-LAST:event_btnExportActionPerformed
+
+    private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
+        // TODO add your handling code here:
+        
+            try {
+        reportArea.print();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    }//GEN-LAST:event_btnPrintActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBack;
+    private javax.swing.JButton btnExport;
+    private javax.swing.JButton btnGenerate;
+    private javax.swing.JButton btnPrint;
+    private org.jfree.data.io.CSV cSV1;
+    private org.jfree.data.io.CSV cSV2;
+    private javax.swing.JPanel chartPanel;
+    private Business.ChartPanelBean chartPanelBean1;
+    private com.toedter.calendar.JDateChooser endDateChooser;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JLabel lblFrom;
+    private javax.swing.JLabel lblTitle;
+    private javax.swing.JLabel lblTitle1;
+    private javax.swing.JLabel lblTitle2;
+    private javax.swing.JLabel lblTo;
+    private javax.swing.JScrollPane reportArea;
+    private com.toedter.calendar.JDateChooser startDateChooser;
     // End of variables declaration//GEN-END:variables
 }
