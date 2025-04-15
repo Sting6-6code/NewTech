@@ -4,17 +4,39 @@
  */
 package ui.MerchantRole;
 
+import Business.Product.SalesRecord;
+import Business.Product.SalesReportModel;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.CardLayout;
+import javax.swing.JPanel;
+
 /**
  *
  * @author wangsiting
  */
 public class SalesReport extends javax.swing.JPanel {
 
+    private List<SalesRecord> salesRecords;
+    private SalesReportModel reportModel;
+    private JPanel userProcessContainer;
+
     /**
      * Creates new form SalesReport
      */
-    public SalesReport() {
+    public SalesReport(JPanel userProcessContainer) {
         initComponents();
+        this.userProcessContainer = userProcessContainer;
+        this.salesRecords = new ArrayList<>();
+        this.reportModel = new SalesReportModel();
     }
 
     /**
@@ -26,19 +48,321 @@ public class SalesReport extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        cSV1 = new org.jfree.data.io.CSV();
+        cSV2 = new org.jfree.data.io.CSV();
+        startDateChooser = new com.toedter.calendar.JDateChooser();
+        btnBack = new javax.swing.JButton();
+        lblFrom = new javax.swing.JLabel();
+        lblTo = new javax.swing.JLabel();
+        endDateChooser = new com.toedter.calendar.JDateChooser();
+        reportArea = new javax.swing.JScrollPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        lblTitle = new javax.swing.JLabel();
+        btnGenerate = new javax.swing.JButton();
+        btnExport = new javax.swing.JButton();
+        btnPrint = new javax.swing.JButton();
+        chartPanel = new javax.swing.JPanel();
+        chartPanelBean1 = new Business.ChartPanelBean();
+        lblTitle1 = new javax.swing.JLabel();
+        lblTitle2 = new javax.swing.JLabel();
+        btnSwitchChart = new javax.swing.JButton();
+
+        btnBack.setText("<< Back");
+        btnBack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBackActionPerformed(evt);
+            }
+        });
+
+        lblFrom.setText("📅 Start Date");
+
+        lblTo.setText("📅 End Date");
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
+
+        reportArea.setViewportView(jScrollPane1);
+
+        lblTitle.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTitle.setText("Sales Report Page");
+
+        btnGenerate.setText("🔘 Generate Report");
+        btnGenerate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGenerateActionPerformed(evt);
+            }
+        });
+
+        btnExport.setText("📤 Export CSV");
+        btnExport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExportActionPerformed(evt);
+            }
+        });
+
+        btnPrint.setText("🖨 Print");
+        btnPrint.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPrintActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout chartPanelLayout = new javax.swing.GroupLayout(chartPanel);
+        chartPanel.setLayout(chartPanelLayout);
+        chartPanelLayout.setHorizontalGroup(
+            chartPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(chartPanelLayout.createSequentialGroup()
+                .addGap(170, 170, 170)
+                .addComponent(chartPanelBean1, javax.swing.GroupLayout.PREFERRED_SIZE, 347, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        chartPanelLayout.setVerticalGroup(
+            chartPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, chartPanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(chartPanelBean1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        lblTitle1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblTitle1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTitle1.setText(" 📊 Chart Panel");
+
+        lblTitle2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblTitle2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblTitle2.setText("📄 Report Area");
+
+        btnSwitchChart.setText("📊 Bar Chart");
+        btnSwitchChart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSwitchChartActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(lblTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(chartPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 938, Short.MAX_VALUE)
+                        .addComponent(lblFrom)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(startDateChooser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblTo)
+                        .addGap(18, 18, 18)
+                        .addComponent(endDateChooser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(btnGenerate, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnExport, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(btnSwitchChart, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblTitle1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(lblTitle2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(reportArea))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(31, 31, 31)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(endDateChooser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblTo)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(startDateChooser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblFrom, javax.swing.GroupLayout.Alignment.LEADING)))
+                    .addComponent(btnBack))
+                .addGap(24, 24, 24)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnGenerate, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnExport, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lblTitle2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(reportArea, javax.swing.GroupLayout.PREFERRED_SIZE, 261, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(45, 45, 45)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblTitle1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnSwitchChart))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(chartPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
+    }//GEN-LAST:event_btnBackActionPerformed
+
+    private void btnGenerateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerateActionPerformed
+        // TODO add your handling code here:
+        if (startDateChooser.getDate() == null || endDateChooser.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Please select both start and end dates");
+            return;
+        }
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String start = sdf.format(startDateChooser.getDate());
+        String end = sdf.format(endDateChooser.getDate());
+        
+        // 生成示例数据
+        salesRecords.clear();
+        salesRecords.add(new SalesRecord(1, "P001", "Laptop", 999.99, 2, 1999.98, 
+            startDateChooser.getDate(), "C001"));
+        salesRecords.add(new SalesRecord(2, "P002", "Mouse", 49.99, 5, 249.95, 
+            startDateChooser.getDate(), "C002"));
+        
+        // 创建报表模型
+        reportModel = new SalesReportModel(salesRecords, startDateChooser.getDate(), endDateChooser.getDate());
+        
+        // 生成报表文本
+        StringBuilder report = new StringBuilder();
+        report.append("Sales Report from ").append(start).append(" to ").append(end).append("\n\n");
+        
+        // 添加总销售额
+        report.append("Total Sales: $").append(String.format("%.2f", reportModel.getTotalSales())).append("\n\n");
+        
+        // 添加每日销售数据
+        report.append("Daily Sales:\n");
+        Map<Date, Double> dailySales = reportModel.getDailySales();
+        for (Map.Entry<Date, Double> entry : dailySales.entrySet()) {
+            report.append(sdf.format(entry.getKey()))
+                 .append(": $")
+                 .append(String.format("%.2f", entry.getValue()))
+                 .append("\n");
+        }
+        
+        // 添加产品销售数据
+        report.append("\nSales by Product:\n");
+        Map<String, Double> productSales = reportModel.getSalesByProduct();
+        for (Map.Entry<String, Double> entry : productSales.entrySet()) {
+            String productId = entry.getKey();
+            String productName = "Unknown";
+            for (SalesRecord record : salesRecords) {
+                if (record.getProductId().equals(productId)) {
+                    productName = record.getProductName();
+                    break;
+                }
+            }
+            report.append(productName)
+                 .append(" (").append(productId).append(")")
+                 .append(": $")
+                 .append(String.format("%.2f", entry.getValue()))
+                 .append("\n");
+        }
+        
+        jTextArea1.setText(report.toString());
+        
+        // 更新图表
+        chartPanelBean1.updateChart(reportModel);
+    }//GEN-LAST:event_btnGenerateActionPerformed
+
+    private void btnExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportActionPerformed
+        // TODO add your handling code here:
+        if (jTextArea1.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please generate report first");
+            return;
+        }
+        
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save Report");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("CSV files (*.csv)", "csv"));
+        
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            String filePath = fileChooser.getSelectedFile().getPath();
+            if (!filePath.toLowerCase().endsWith(".csv")) {
+                filePath += ".csv";
+            }
+            
+            try (FileWriter writer = new FileWriter(filePath)) {
+                String[] lines = jTextArea1.getText().split("\n");
+                for (String line : lines) {
+                    // 移除货币符号和其他特殊字符
+                    line = line.replace("$", "")
+                             .replace(":", ",")
+                             .replace(" ", ",")
+                             .trim();
+                    if (!line.isEmpty()) {
+                        writer.write(line + "\r\n");
+                    }
+                }
+                JOptionPane.showMessageDialog(this, "Report exported successfully!");
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Error exporting report: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }//GEN-LAST:event_btnExportActionPerformed
+
+    private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
+        // TODO add your handling code here:
+        try {
+            boolean complete = jTextArea1.print();
+            if (complete) {
+                JOptionPane.showMessageDialog(this, "Print completed successfully!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Print was cancelled");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error printing: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_btnPrintActionPerformed
+
+    private void btnSwitchChartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSwitchChartActionPerformed
+        // TODO add your handling code here:
+        if (btnSwitchChart.getText().equals("📊 Bar Chart")) {
+        chartPanelBean1.setBarChart();
+        btnSwitchChart.setText("📈 Line Chart");
+    } else {
+        chartPanelBean1.setLineChart();
+        btnSwitchChart.setText("📊 Bar Chart");
+    }
+        
+        
+    }//GEN-LAST:event_btnSwitchChartActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBack;
+    private javax.swing.JButton btnExport;
+    private javax.swing.JButton btnGenerate;
+    private javax.swing.JButton btnPrint;
+    private javax.swing.JButton btnSwitchChart;
+    private org.jfree.data.io.CSV cSV1;
+    private org.jfree.data.io.CSV cSV2;
+    private javax.swing.JPanel chartPanel;
+    private Business.ChartPanelBean chartPanelBean1;
+    private com.toedter.calendar.JDateChooser endDateChooser;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JLabel lblFrom;
+    private javax.swing.JLabel lblTitle;
+    private javax.swing.JLabel lblTitle1;
+    private javax.swing.JLabel lblTitle2;
+    private javax.swing.JLabel lblTo;
+    private javax.swing.JScrollPane reportArea;
+    private com.toedter.calendar.JDateChooser startDateChooser;
     // End of variables declaration//GEN-END:variables
 }
