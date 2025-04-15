@@ -359,7 +359,9 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
             // 通知仓库
             notifyWarehouse(order);
             
-           ******** //notifypayment
+           //notifypayment
+           
+           
         }
 
         // 清空购物车

@@ -1,11 +1,14 @@
 package ui.MerchantRole;
 
 import Business.Product.Product;
-//import model.Supplier;
+import Business.Supplier.Supplier;
+import org.netbeans.lib.awtextra.AbsoluteLayout;
+import org.netbeans.lib.awtextra.AbsoluteConstraints;
 import java.awt.CardLayout;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
+
 
 /**
  *
@@ -32,11 +35,13 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         model.setRowCount(0);
 
         for (Product p : supplier.getProductCatalog().getProductcatalog()) {
-            Object row[] = new Object[4];
-            row[0] = p;
-            row[1] = p.getModelNumber();
+            Object row[] = new Object[6];  // Changed to 6 to match table columns
+            row[0] = p.getName();  // Assuming Product has getName() method
+            row[1] = p.getId();    // Assuming Product has getId() method
             row[2] = p.getPrice();
-            row[3] = p.getAvail();
+            row[3] = p.getQuantity(); // Assuming Product has getQuantity() method
+            row[4] = p.getStockStatus(); // Assuming Product has getStockStatus() method
+            row[5] = p.getLastUpdated(); // Assuming Product has getLastUpdated() method
             model.addRow(row);
         }
     }

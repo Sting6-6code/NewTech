@@ -6,6 +6,7 @@
 package Business.Enterprise;
 
 import Business.Role.Role;
+import Business.Role.SystemAdminRole;
 import java.util.ArrayList;
 
 /**
@@ -19,7 +20,9 @@ public class RetailCorpEnterprise extends Enterprise {
     }
     @Override
     public ArrayList<Role> getSupportedRole() {
-        return null;
+        ArrayList<Role> roles = new ArrayList<>();
+        roles.add(new SystemAdminRole());
+        return roles;
     }
     
 }
