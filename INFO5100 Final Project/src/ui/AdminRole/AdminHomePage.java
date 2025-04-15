@@ -37,6 +37,11 @@ public class AdminHomePage extends javax.swing.JFrame {
         lblWelcomeMsg.setText("Welcome! Admin");
 
         btnMngUsers.setText("Manage All Users");
+        btnMngUsers.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMngUsersActionPerformed(evt);
+            }
+        });
 
         btnMaintenance.setText("Maintenance & Troubleshoot");
 
@@ -80,6 +85,10 @@ public class AdminHomePage extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnMngUsersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMngUsersActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnMngUsersActionPerformed
 
     /**
      * @param args the command line arguments
