@@ -1,14 +1,11 @@
 package ui.MerchantRole;
 
 import Business.Product.Product;
-import Business.Supplier.Supplier;
-import org.netbeans.lib.awtextra.AbsoluteLayout;
-import org.netbeans.lib.awtextra.AbsoluteConstraints;
+//import model.Supplier;
 import java.awt.CardLayout;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
-
 
 /**
  *

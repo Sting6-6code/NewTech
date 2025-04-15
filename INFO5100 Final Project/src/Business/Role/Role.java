@@ -15,7 +15,7 @@ import javax.swing.JPanel;
  *
  * @author wangsiting
  */
-public abstract class Role {
+public class Role {
     private String name;
 
     public String getName() {
@@ -26,9 +26,5 @@ public abstract class Role {
         this.name = name;
     }
     
-    public abstract JPanel createWorkArea(JPanel userProcessContainer, 
-            UserAccount account, 
-            Organization organization, 
-            Enterprise enterprise, 
-            EcoSystem business);
+    
 }
