@@ -124,12 +124,18 @@ public class MerchantHP extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnProductCatalogActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductCatalogActionPerformed
-        // TODO add your handling code here:
+        // Check if supplier is null
+        if (supplier == null) {
+            // Create a default supplier if not set
+            supplier = new Business.Supplier.Supplier();
+            supplier.setSupplyName("Default Supplier");
+        }
+        
+        // Create the product catalog panel
         ManageProductCatalogJPanel manageProductCatalogJPanel = new ManageProductCatalogJPanel(MerchantWorkAreajPanel, supplier);
         MerchantWorkAreajPanel.add("ManageProductCatalogJPanel", manageProductCatalogJPanel);
         CardLayout layout = (CardLayout) MerchantWorkAreajPanel.getLayout();
         layout.next(MerchantWorkAreajPanel);    
-        
     }//GEN-LAST:event_btnProductCatalogActionPerformed
 
     private void btnReportsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportsActionPerformed

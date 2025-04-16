@@ -8,6 +8,8 @@ import java.awt.CardLayout;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
+import java.util.Date;
+import java.util.UUID;
 
 
 /**
@@ -26,7 +28,16 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         initComponents();
         userProcessContainer = upc;
         supplier = s;
-        lblSupplier.setText("Supplier : " + s.getSupplyName());
+        
+        // 初始化商品下拉框
+        ComboBoxProduct2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { 
+            "Smartphone", "Laptop", "Headphones", "Smartwatch", "Tablet", 
+            "Camera", "Speaker", "Power Bank", "Monitor", "Keyboard" 
+        }));
+        
+        // 设置标题
+        lblTitle1.setText("Product Management System for " + s.getSupplyName());
+        
         refreshTable();
     }
 
@@ -50,7 +61,6 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         lblTitle = new javax.swing.JLabel();
-        lblSupplier = new javax.swing.JLabel();
         btnView = new javax.swing.JButton();
         btnCreate = new javax.swing.JButton();
         btnBack = new javax.swing.JButton();
@@ -299,7 +309,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         });
         jPanel3.add(btnSave2, new org.netbeans.lib.awtextra.AbsoluteConstraints(920, 250, 134, -1));
 
-        ComboBoxProduct2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        ComboBoxProduct2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Smartphone", "Laptop", "Headphones", "Smartwatch", "Tablet", "Camera", "Speaker", "Power Bank", "Monitor", "Keyboard" }));
         ComboBoxProduct2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ComboBoxProduct2ActionPerformed(evt);
@@ -377,9 +387,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
                 .addComponent(txtId1, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(12, 12, 12)
                 .addComponent(btnSearch1)
-                .addGap(6, 6, 6)
-                .addComponent(lblSupplier, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(550, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -402,7 +410,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
                         .addComponent(btnView, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(43, 43, 43)
                         .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 131, Short.MAX_VALUE)
                 .addComponent(ViewProductDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 564, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(200, 200, 200))
         );
@@ -427,13 +435,10 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
                         .addComponent(txtId1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(2, 2, 2)
-                        .addComponent(btnSearch1))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(5, 5, 5)
-                        .addComponent(lblSupplier)))
+                        .addComponent(btnSearch1)))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(28, 28, 28)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnCreate)
                     .addComponent(btnView)
@@ -452,43 +457,43 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             return;
         }
 
-        Product p = (Product) tblProductCatalog.getValueAt(selectedRowIndex, 0);
+        // 注意:表格按照索引0获取的是真正的Product对象，不是显示值
+        Product p = supplier.getProductCatalog().get(selectedRowIndex);
 
         // 填充右侧ViewProductDetails面板里的控件
-        txtProductNameView3.setText(String.valueOf(p.getProductName()));
-        txtIdView3.setText(String.valueOf(p.getProductId()));
+        txtProductNameView3.setText(p.getProductName());
+        txtIdView3.setText(p.getProductId());
         txtPriceView3.setText(String.valueOf(p.getPrice()));
 
         // 切换到ViewProductDetails卡片
         CardLayout layout = (CardLayout) ViewProductDetails.getLayout();
         layout.show(ViewProductDetails, "card2");
-        refreshTable();
     }//GEN-LAST:event_btnViewActionPerformed
 
     private void btnCreateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateActionPerformed
-        // 
+        // 显示商品添加界面
         CardLayout layout = (CardLayout) itemupshelf.getLayout();
-        layout.show(itemupshelf, "card1");
-        refreshTable();
+        layout.show(itemupshelf, "card2");
     }//GEN-LAST:event_btnCreateActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-
         userProcessContainer.remove(this);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.previous(userProcessContainer);
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-
         int selectedRowIndex = tblProductCatalog.getSelectedRow();
 
         if (selectedRowIndex < 0) {
             JOptionPane.showMessageDialog(null, "Please select a row from the table first", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        Product s = (Product) tblProductCatalog.getValueAt(selectedRowIndex, 0);
-        supplier.getProductCatalog().remove(s);
+        
+        // 获取选中的产品并下架
+        Product p = supplier.getProductCatalog().get(selectedRowIndex);
+        p.downShelf();
+        JOptionPane.showMessageDialog(null, "Product has been removed from shelf", "Success", JOptionPane.INFORMATION_MESSAGE);
         refreshTable();
     }//GEN-LAST:event_btnDeleteActionPerformed
 
@@ -498,17 +503,17 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
 
     private void btnSearch1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearch1ActionPerformed
         try {
-            int productId = Integer.parseInt(txtId1.getText());
+            String productId = txtId1.getText();
             Product p = null;
             for (Product prod : supplier.getProductCatalog()) {
-                if (Integer.parseInt(String.valueOf(prod.getProductId())) == productId) {
+                if (prod.getProductId().equals(productId)) {
                     p = prod;
                     break;
                 }
             }
             if (p != null) {
-                txtProductNameView3.setText(String.valueOf(p.getProductName()));
-                txtIdView3.setText(String.valueOf(p.getProductId()));
+                txtProductNameView3.setText(p.getProductName());
+                txtIdView3.setText(p.getProductId());
                 txtPriceView3.setText(String.valueOf(p.getPrice()));
                 CardLayout layout = (CardLayout) ViewProductDetails.getLayout();
                 layout.show(ViewProductDetails, "card2");
@@ -545,7 +550,33 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_txtProductPrice2ActionPerformed
 
     private void btnAdd2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd2ActionPerformed
-        // TODO add your handling code here:
+        // 添加新产品
+        try {
+            String productName = ComboBoxProduct2.getSelectedItem().toString();
+            double price = Double.parseDouble(txtProductPrice2.getText());
+            int threshold = Integer.parseInt(txtThresholdStock.getText());
+            
+            // 生成随机ID
+            String productId = "P" + UUID.randomUUID().toString().substring(0, 8);
+            
+            // 创建新产品 (设初始库存为20)
+            Product product = new Product(productId, productName, price, 20, threshold);
+            product.upShelf(); // 标记为上架
+            
+            // 添加到供应商目录
+            supplier.addProduct(product);
+            
+            JOptionPane.showMessageDialog(null, "Product added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            refreshTable();
+            
+            // 清空字段
+            txtProductPrice2.setText("");
+            txtThresholdStock.setText("");
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Please enter valid numeric values", "Input Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnAdd2ActionPerformed
 
     private void txtProductNameView3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtProductNameView3ActionPerformed
@@ -570,7 +601,8 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(null, "Please select a row from the table first", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        Product p = (Product) tblProductCatalog.getValueAt(selectedRowIndex, 0);
+        
+        Product p = supplier.getProductCatalog().get(selectedRowIndex);
         p.setProductName(txtProductNameView3.getText());
         try {
             p.setPrice(Double.parseDouble(txtPriceView3.getText()));
@@ -578,10 +610,15 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(null, "Invalid price format!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        
+        // 更新时间戳
+        p.setLastUpdated(new Date());
+        
         // 保存后禁止编辑
         txtProductNameView3.setEditable(false);
         txtPriceView3.setEditable(false);
         btnSave3.setEnabled(false);
+        
         refreshTable();
         JOptionPane.showMessageDialog(null, "Product updated successfully!", "Info", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnSave3ActionPerformed
@@ -616,7 +653,6 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
     private javax.swing.JLabel lblProductName3;
     private javax.swing.JLabel lblProductPrice2;
     private javax.swing.JLabel lblProductPrice3;
-    private javax.swing.JLabel lblSupplier;
     private javax.swing.JLabel lblTitle;
     private javax.swing.JLabel lblTitle1;
     private javax.swing.JLabel lblTitle3;
