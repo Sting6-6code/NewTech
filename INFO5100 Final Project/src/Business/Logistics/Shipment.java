@@ -9,5 +9,19 @@ package Business.Logistics;
  * @author zhuchenyan
  */
 public class Shipment {
+    private String shipmentId;
+    private String trackingNumber;
     
+    public Shipment(String shipmentId, String trackingNumber) {
+        this.shipmentId = shipmentId;
+        this.trackingNumber = trackingNumber;
+    }
+    
+    public String getShipmentId() {
+        return shipmentId;
+    }
+    
+    public String getTrackingNumber() {
+        return trackingNumber;
+    }
 }
