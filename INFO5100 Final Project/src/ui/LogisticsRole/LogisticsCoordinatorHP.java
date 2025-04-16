@@ -14,7 +14,10 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
      * Creates new form LogisticsCoordinatorHP
      */
     public LogisticsCoordinatorHP() {
+        
+        
         initComponents();
+        this.setPreferredSize(new java.awt.Dimension(1450, 800));
     }
 
     /**
@@ -26,19 +29,353 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jSplitPane = new javax.swing.JSplitPane();
+        logisticsControljPanel = new javax.swing.JPanel();
+        btnDashBoard = new javax.swing.JButton();
+        btnShipmentTra = new javax.swing.JButton();
+        btnCustomsDeclar = new javax.swing.JButton();
+        btnReports = new javax.swing.JButton();
+        btnProfile = new javax.swing.JButton();
+        btnLogout = new javax.swing.JButton();
+        logisticsWorkAreajPanel = new javax.swing.JPanel();
+        IssuesReportedJPanel = new javax.swing.JPanel();
+        lblCustomerComplaint = new javax.swing.JLabel();
+        actShipmentJPanel = new javax.swing.JPanel();
+        lblActiveShipments = new javax.swing.JLabel();
+        CompletedDeliveriesJPanel = new javax.swing.JPanel();
+        lblPendingCustoms = new javax.swing.JLabel();
+        pendingCustomsJPanel = new javax.swing.JPanel();
+        lblCompletedDeliveries = new javax.swing.JLabel();
+        AlertJPanel = new javax.swing.JPanel();
+        lblAlerts = new javax.swing.JLabel();
+        pendingTasksJPanel = new javax.swing.JPanel();
+        lblPendingTasks = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblPendingTasks = new javax.swing.JTable();
+        recentShipJPanel = new javax.swing.JPanel();
+        lblRecentShip = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblRecentShipment = new javax.swing.JTable();
+
+        btnDashBoard.setText("DashBoard");
+
+        btnShipmentTra.setText("Shipment Tracking");
+
+        btnCustomsDeclar.setText("Customs Declaration");
+        btnCustomsDeclar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCustomsDeclarActionPerformed(evt);
+            }
+        });
+
+        btnReports.setText("Reports");
+
+        btnProfile.setText("My Profile");
+
+        btnLogout.setText("Logout");
+
+        javax.swing.GroupLayout logisticsControljPanelLayout = new javax.swing.GroupLayout(logisticsControljPanel);
+        logisticsControljPanel.setLayout(logisticsControljPanelLayout);
+        logisticsControljPanelLayout.setHorizontalGroup(
+            logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(logisticsControljPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(logisticsControljPanelLayout.createSequentialGroup()
+                        .addGroup(logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(btnProfile, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnCustomsDeclar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnShipmentTra, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnDashBoard, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnReports, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(btnLogout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        logisticsControljPanelLayout.setVerticalGroup(
+            logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(logisticsControljPanelLayout.createSequentialGroup()
+                .addGap(161, 161, 161)
+                .addComponent(btnDashBoard, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(35, 35, 35)
+                .addComponent(btnShipmentTra)
+                .addGap(33, 33, 33)
+                .addComponent(btnCustomsDeclar)
+                .addGap(36, 36, 36)
+                .addComponent(btnReports)
+                .addGap(39, 39, 39)
+                .addComponent(btnProfile)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 241, Short.MAX_VALUE)
+                .addComponent(btnLogout)
+                .addGap(47, 47, 47))
+        );
+
+        logisticsControljPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnCustomsDeclar, btnDashBoard, btnProfile, btnReports, btnShipmentTra});
+
+        jSplitPane.setLeftComponent(logisticsControljPanel);
+
+        logisticsWorkAreajPanel.setBackground(new java.awt.Color(255, 255, 255));
+        logisticsWorkAreajPanel.setMaximumSize(new java.awt.Dimension(1450, 800));
+        logisticsWorkAreajPanel.setMinimumSize(new java.awt.Dimension(1450, 800));
+        logisticsWorkAreajPanel.setLayout(null);
+
+        IssuesReportedJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        IssuesReportedJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblCustomerComplaint.setText("Customer Complaint");
+
+        javax.swing.GroupLayout IssuesReportedJPanelLayout = new javax.swing.GroupLayout(IssuesReportedJPanel);
+        IssuesReportedJPanel.setLayout(IssuesReportedJPanelLayout);
+        IssuesReportedJPanelLayout.setHorizontalGroup(
+            IssuesReportedJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(IssuesReportedJPanelLayout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(lblCustomerComplaint)
+                .addContainerGap(163, Short.MAX_VALUE))
+        );
+        IssuesReportedJPanelLayout.setVerticalGroup(
+            IssuesReportedJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(IssuesReportedJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblCustomerComplaint)
+                .addContainerGap(153, Short.MAX_VALUE))
+        );
+
+        logisticsWorkAreajPanel.add(IssuesReportedJPanel);
+        IssuesReportedJPanel.setBounds(1080, 40, 300, 180);
+
+        actShipmentJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        actShipmentJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblActiveShipments.setText("Active Shipments");
+
+        javax.swing.GroupLayout actShipmentJPanelLayout = new javax.swing.GroupLayout(actShipmentJPanel);
+        actShipmentJPanel.setLayout(actShipmentJPanelLayout);
+        actShipmentJPanelLayout.setHorizontalGroup(
+            actShipmentJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(actShipmentJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblActiveShipments)
+                .addContainerGap(188, Short.MAX_VALUE))
+        );
+        actShipmentJPanelLayout.setVerticalGroup(
+            actShipmentJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(actShipmentJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblActiveShipments)
+                .addContainerGap(153, Short.MAX_VALUE))
+        );
+
+        logisticsWorkAreajPanel.add(actShipmentJPanel);
+        actShipmentJPanel.setBounds(40, 40, 300, 180);
+
+        CompletedDeliveriesJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        CompletedDeliveriesJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblPendingCustoms.setText("Pending Customs");
+
+        javax.swing.GroupLayout CompletedDeliveriesJPanelLayout = new javax.swing.GroupLayout(CompletedDeliveriesJPanel);
+        CompletedDeliveriesJPanel.setLayout(CompletedDeliveriesJPanelLayout);
+        CompletedDeliveriesJPanelLayout.setHorizontalGroup(
+            CompletedDeliveriesJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(CompletedDeliveriesJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblPendingCustoms)
+                .addContainerGap(187, Short.MAX_VALUE))
+        );
+        CompletedDeliveriesJPanelLayout.setVerticalGroup(
+            CompletedDeliveriesJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(CompletedDeliveriesJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblPendingCustoms)
+                .addContainerGap(153, Short.MAX_VALUE))
+        );
+
+        logisticsWorkAreajPanel.add(CompletedDeliveriesJPanel);
+        CompletedDeliveriesJPanel.setBounds(380, 40, 300, 180);
+
+        pendingCustomsJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        pendingCustomsJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblCompletedDeliveries.setText("Completed Deliveries");
+
+        javax.swing.GroupLayout pendingCustomsJPanelLayout = new javax.swing.GroupLayout(pendingCustomsJPanel);
+        pendingCustomsJPanel.setLayout(pendingCustomsJPanelLayout);
+        pendingCustomsJPanelLayout.setHorizontalGroup(
+            pendingCustomsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pendingCustomsJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblCompletedDeliveries)
+                .addContainerGap(165, Short.MAX_VALUE))
+        );
+        pendingCustomsJPanelLayout.setVerticalGroup(
+            pendingCustomsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pendingCustomsJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblCompletedDeliveries)
+                .addContainerGap(153, Short.MAX_VALUE))
+        );
+
+        logisticsWorkAreajPanel.add(pendingCustomsJPanel);
+        pendingCustomsJPanel.setBounds(730, 40, 300, 180);
+
+        AlertJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        AlertJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblAlerts.setText("Alerts & Notifications");
+
+        javax.swing.GroupLayout AlertJPanelLayout = new javax.swing.GroupLayout(AlertJPanel);
+        AlertJPanel.setLayout(AlertJPanelLayout);
+        AlertJPanelLayout.setHorizontalGroup(
+            AlertJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(AlertJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblAlerts)
+                .addContainerGap(509, Short.MAX_VALUE))
+        );
+        AlertJPanelLayout.setVerticalGroup(
+            AlertJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(AlertJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblAlerts)
+                .addContainerGap(243, Short.MAX_VALUE))
+        );
+
+        logisticsWorkAreajPanel.add(AlertJPanel);
+        AlertJPanel.setBounds(740, 260, 640, 270);
+
+        pendingTasksJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        pendingTasksJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblPendingTasks.setText("Pending Tasks");
+
+        tblPendingTasks.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        tblPendingTasks.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Task", "Priority", "Due Date", "Status"
+            }
+        ));
+        jScrollPane2.setViewportView(tblPendingTasks);
+
+        javax.swing.GroupLayout pendingTasksJPanelLayout = new javax.swing.GroupLayout(pendingTasksJPanel);
+        pendingTasksJPanel.setLayout(pendingTasksJPanelLayout);
+        pendingTasksJPanelLayout.setHorizontalGroup(
+            pendingTasksJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pendingTasksJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pendingTasksJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblPendingTasks)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 606, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(24, Short.MAX_VALUE))
+        );
+        pendingTasksJPanelLayout.setVerticalGroup(
+            pendingTasksJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pendingTasksJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblPendingTasks)
+                .addGap(26, 26, 26)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(41, Short.MAX_VALUE))
+        );
+
+        logisticsWorkAreajPanel.add(pendingTasksJPanel);
+        pendingTasksJPanel.setBounds(40, 260, 640, 270);
+
+        recentShipJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        recentShipJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblRecentShip.setText("Recent Shipment");
+
+        tblRecentShipment.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        tblRecentShipment.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
+            },
+            new String [] {
+                "Tracking Number", "Shipping Date", "Shipping Method", "Destination", "Status", "Estimated Delivery Date"
+            }
+        ));
+        jScrollPane1.setViewportView(tblRecentShipment);
+
+        javax.swing.GroupLayout recentShipJPanelLayout = new javax.swing.GroupLayout(recentShipJPanel);
+        recentShipJPanel.setLayout(recentShipJPanelLayout);
+        recentShipJPanelLayout.setHorizontalGroup(
+            recentShipJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(recentShipJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(recentShipJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblRecentShip)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1310, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(20, Short.MAX_VALUE))
+        );
+        recentShipJPanelLayout.setVerticalGroup(
+            recentShipJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(recentShipJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblRecentShip)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(9, Short.MAX_VALUE))
+        );
+
+        logisticsWorkAreajPanel.add(recentShipJPanel);
+        recentShipJPanel.setBounds(40, 550, 1340, 230);
+
+        jSplitPane.setRightComponent(logisticsWorkAreajPanel);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(jSplitPane)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addComponent(jSplitPane)
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnCustomsDeclarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCustomsDeclarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnCustomsDeclarActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel AlertJPanel;
+    private javax.swing.JPanel CompletedDeliveriesJPanel;
+    private javax.swing.JPanel IssuesReportedJPanel;
+    private javax.swing.JPanel actShipmentJPanel;
+    private javax.swing.JButton btnCustomsDeclar;
+    private javax.swing.JButton btnDashBoard;
+    private javax.swing.JButton btnLogout;
+    private javax.swing.JButton btnProfile;
+    private javax.swing.JButton btnReports;
+    private javax.swing.JButton btnShipmentTra;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JSplitPane jSplitPane;
+    private javax.swing.JLabel lblActiveShipments;
+    private javax.swing.JLabel lblAlerts;
+    private javax.swing.JLabel lblCompletedDeliveries;
+    private javax.swing.JLabel lblCustomerComplaint;
+    private javax.swing.JLabel lblPendingCustoms;
+    private javax.swing.JLabel lblPendingTasks;
+    private javax.swing.JLabel lblRecentShip;
+    private javax.swing.JPanel logisticsControljPanel;
+    private javax.swing.JPanel logisticsWorkAreajPanel;
+    private javax.swing.JPanel pendingCustomsJPanel;
+    private javax.swing.JPanel pendingTasksJPanel;
+    private javax.swing.JPanel recentShipJPanel;
+    private javax.swing.JTable tblPendingTasks;
+    private javax.swing.JTable tblRecentShipment;
     // End of variables declaration//GEN-END:variables
 }
