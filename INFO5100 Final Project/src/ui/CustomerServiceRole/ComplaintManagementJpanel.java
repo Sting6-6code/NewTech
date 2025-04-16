@@ -4,17 +4,20 @@
  */
 package ui.CustomerServiceRole;
 
+import java.awt.CardLayout;
+import javax.swing.JPanel;
+
 /**
  *
  * @author wangsiting
  */
-public class ComplaintManagementJpanel extends javax.swing.JPanel {
+public class ComplaintManagementJPanel extends javax.swing.JPanel {
 
-    /**
-     * Creates new form ComplaintJpanel
-     */
-    public ComplaintManagementJpanel() {
+    private JPanel userProcessContainer;
+    
+    public ComplaintManagementJPanel(JPanel userProcessContainer) {
         initComponents();
+        this.userProcessContainer = userProcessContainer;
     }
 
     /**
@@ -55,7 +58,7 @@ public class ComplaintManagementJpanel extends javax.swing.JPanel {
 
         lblTitle.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblTitle.setText("Customer Service Management System");
+        lblTitle.setText("Complaint Management");
 
         jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 
@@ -301,7 +304,6 @@ public class ComplaintManagementJpanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnRefreshActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-
         userProcessContainer.remove(this);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.previous(userProcessContainer);
