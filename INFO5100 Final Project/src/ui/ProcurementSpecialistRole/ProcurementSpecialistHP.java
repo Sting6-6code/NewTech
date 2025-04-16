@@ -22,6 +22,8 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
     
     public ProcurementSpecialistHP() {
         initComponents();
+        // Set CardLayout for ProcurementSpecialistWorkAreajPanel
+        ProcurementSpecialistWorkAreajPanel.setLayout(new CardLayout());
     }
     
     public void setSupplier(Supplier supplier) {

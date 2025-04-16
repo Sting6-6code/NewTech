@@ -4,10 +4,25 @@
  */
 package Business.Role;
 
+import Business.EcoSystem;
+import Business.Enterprise.Enterprise;
+import Business.Organization.Organization;
+import Business.UserAccount.UserAccount;
+import javax.swing.JPanel;
+
 /**
  *
  * @author zhuchenyan
  */
-public class CustomsAgentRole {
+public class CustomsAgentRole extends Role {
     
+    public CustomsAgentRole() {
+    }
+    
+    @Override
+    public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
+        // 这里应该实例化并返回海关代理的工作界面
+        // 暂时抛出异常
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

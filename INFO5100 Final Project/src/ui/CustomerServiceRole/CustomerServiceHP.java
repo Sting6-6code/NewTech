@@ -6,7 +6,7 @@ package ui.CustomerServiceRole;
 
 
 
-import ui.ProcurementSpecialistRole.*;
+
 import Business.Supplier.Supplier;
 import java.awt.CardLayout;
 
@@ -23,6 +23,8 @@ public class CustomerServiceHP extends javax.swing.JPanel {
     
     public CustomerServiceHP() {
         initComponents();
+        // Set CardLayout for ComplaintWorkAreajPanel
+        ComplaintWorkAreajPanel.setLayout(new CardLayout());
     }
     
     public void setSupplier(Supplier supplier) {
