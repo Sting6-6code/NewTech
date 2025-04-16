@@ -58,6 +58,9 @@ public class Shipment extends javax.swing.JPanel {
         lblTrackPath = new javax.swing.JLabel();
         btnSave = new javax.swing.JButton();
 
+        setMaximumSize(new java.awt.Dimension(1450, 800));
+        setMinimumSize(new java.awt.Dimension(1450, 800));
+
         btnBack.setText("<< Back");
         btnBack.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -119,6 +122,8 @@ public class Shipment extends javax.swing.JPanel {
                 btnUpdateStatusActionPerformed(evt);
             }
         });
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         lblTraNo.setText("Tracking No:");
 
@@ -198,32 +203,32 @@ public class Shipment extends javax.swing.JPanel {
                                     .addComponent(txtTrcNo, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(txtShippingMethod, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(lblDestination)
-                                        .addGap(37, 37, 37)
-                                        .addComponent(txtDestination, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(62, 62, 62)
-                                        .addComponent(lblStatus)
-                                        .addGap(37, 37, 37)
-                                        .addComponent(txtStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addGap(34, 34, 34)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                            .addComponent(lblDestination)
+                                            .addGap(37, 37, 37)
+                                            .addComponent(txtDestination, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                            .addComponent(lblStatus)
+                                            .addGap(37, 37, 37)
+                                            .addComponent(txtStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                 .addGroup(jPanel1Layout.createSequentialGroup()
                                     .addComponent(btnBasicInfo)
                                     .addGap(32, 32, 32)
-                                    .addComponent(btnCustomsInfo)
-                                    .addGap(43, 43, 43)
-                                    .addComponent(btnPackageInfo)
-                                    .addGap(45, 45, 45)
-                                    .addComponent(btnFinancialInfo)))))
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(lblTrackDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                            .addComponent(btnCustomsInfo)
+                                            .addGap(43, 43, 43)
+                                            .addComponent(btnPackageInfo)
+                                            .addGap(45, 45, 45)
+                                            .addComponent(btnFinancialInfo)))))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(0, 464, Short.MAX_VALUE)
                         .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(93, 93, 93))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(193, 193, 193)
-                .addComponent(lblTrackDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -259,6 +264,8 @@ public class Shipment extends javax.swing.JPanel {
                 .addComponent(btnUpdate)
                 .addGap(17, 17, 17))
         );
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         lblTrackPath.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblTrackPath.setText("Track Path（Google Map API）");
@@ -352,11 +359,11 @@ public class Shipment extends javax.swing.JPanel {
                     .addComponent(btnViewDetails)
                     .addComponent(btnTrackPath)
                     .addComponent(btnUpdateStatus))
-                .addGap(64, 64, 64)
+                .addGap(56, 56, 56)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 32, Short.MAX_VALUE))
+                .addGap(0, 36, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
