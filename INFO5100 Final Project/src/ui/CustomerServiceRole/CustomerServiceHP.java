@@ -131,7 +131,7 @@ public class CustomerServiceHP extends javax.swing.JPanel {
 
     private void btnComplaintManagementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComplaintManagementActionPerformed
         // TODO add your handling code here:
-        ComplaintManagementJPanel complaintManagementJPanel = new ComplaintManagementJPanel(ComplaintWorkAreajPanel);
+        ComplaintManagementJpanel complaintManagementJPanel = new ComplaintManagementJpanel(ComplaintWorkAreajPanel);
         ComplaintWorkAreajPanel.add("ComplaintManagementJPanel", complaintManagementJPanel);
         CardLayout layout = (CardLayout) ComplaintWorkAreajPanel.getLayout();
         layout.next(ComplaintWorkAreajPanel);    

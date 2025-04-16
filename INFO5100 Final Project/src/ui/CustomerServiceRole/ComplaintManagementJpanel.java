@@ -11,11 +11,11 @@ import javax.swing.JPanel;
  *
  * @author wangsiting
  */
-public class ComplaintManagementJPanel extends javax.swing.JPanel {
+public class ComplaintManagementJpanel extends javax.swing.JPanel {
 
     private JPanel userProcessContainer;
     
-    public ComplaintManagementJPanel(JPanel userProcessContainer) {
+    public ComplaintManagementJpanel(JPanel userProcessContainer) {
         initComponents();
         this.userProcessContainer = userProcessContainer;
     }

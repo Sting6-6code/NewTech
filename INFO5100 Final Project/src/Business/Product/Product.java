@@ -17,7 +17,7 @@ public class Product {
     private String productName;
     private double price;
     private int quantity;
-    private String stockStatus; // "Normal", "Low", "Excess"
+    private String stockStatus; // "Normal", "Low", "Excess"，"DOWNSHELF"
     private Date lastUpdated;
     private int warningThreshold; // 库存预警阈值
     private boolean onShelf; // 是否上架
@@ -60,7 +60,7 @@ public class Product {
 
     // 商品下架
     public void downShelf() {
-        this.onShelf = false;
+        this.setStockStatus("DOWNSHELF");
     }
 
     
