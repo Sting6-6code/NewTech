@@ -4,17 +4,42 @@
  */
 package ui.LogisticsRole;
 
+import Business.Enterprise.Enterprise;
+import Business.Organization.LogisticsOrganization;
+import Business.UserAccount.UserAccount;
+import Business.Logistics.Shipment;
+import Business.Logistics.TrackingInfo;
+import java.awt.CardLayout;
+import java.util.ArrayList;
+import java.util.Date;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author zhuchenyan
  */
-public class Shipment extends javax.swing.JPanel {
+public class ShipmentPanel extends javax.swing.JPanel {
 
+    private JPanel userProcessContainer;
+    private UserAccount userAccount;
+    private Enterprise enterprise;
+    private LogisticsOrganization organization;
     /**
      * Creates new form Shipment
      */
-    public Shipment() {
+    public ShipmentPanel(JPanel userProcessContainer, UserAccount account, 
+               Enterprise enterprise, LogisticsOrganization organization) {
+        
+        this.userProcessContainer = userProcessContainer;
+        this.userAccount = account;
+        this.enterprise = enterprise;
+        this.organization = organization;
+        
         initComponents();
+        
+        populateTable();
     }
 
     /**
@@ -368,21 +393,32 @@ public class Shipment extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
       
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
         // TODO add your handling code here:
+        populateTable();
     }//GEN-LAST:event_btnRefreshActionPerformed
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-
+        String searchQuery = txtSearchBox.getText().trim();
+        if (!searchQuery.isEmpty()) {
+            searchShipment(searchQuery);
+        }
         
     }//GEN-LAST:event_btnSearchActionPerformed
 
     private void btnViewDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewDetailsActionPerformed
-
+        int selectedRow = tblShipment.getSelectedRow();
+        if (selectedRow >= 0) {
+            displayShipmentDetails(selectedRow);
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a shipment first", "Information", JOptionPane.INFORMATION_MESSAGE);
+    }
         
     }//GEN-LAST:event_btnViewDetailsActionPerformed
 
@@ -392,7 +428,12 @@ public class Shipment extends javax.swing.JPanel {
     }//GEN-LAST:event_btnTrackPathActionPerformed
 
     private void btnUpdateStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateStatusActionPerformed
-
+        int selectedRow = tblShipment.getSelectedRow();
+        if (selectedRow >= 0) {
+            updateShipmentStatus(selectedRow);
+        } else {
+            JOptionPane.showMessageDialog(this,"Please select a shipment first", "Information", JOptionPane.INFORMATION_MESSAGE);
+    }
       
     }//GEN-LAST:event_btnUpdateStatusActionPerformed
 
@@ -418,6 +459,7 @@ public class Shipment extends javax.swing.JPanel {
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
         // TODO add your handling code here:
+        updateShipmentInfo();
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
@@ -458,4 +500,149 @@ public class Shipment extends javax.swing.JPanel {
     private javax.swing.JTextField txtStatus;
     private javax.swing.JTextField txtTrcNo;
     // End of variables declaration//GEN-END:variables
+
+
+   private void populateTable() {
+    DefaultTableModel model = (DefaultTableModel) tblShipment.getModel();
+    model.setRowCount(0);
+    
+    // 从logistics org获取货件列表
+    if (organization != null && organization.getShipmentDirectory() != null) {
+        ArrayList<Shipment> shipments = organization.getShipmentDirectory().getShipments();
+        
+        for (Shipment shipment : shipments) {
+            Object[] row = new Object[6];
+            row[0] = shipment.getTrackingNumber();
+            row[1] = shipment.getShipDate();
+            row[2] = shipment.getShippingMethod();
+            row[3] = shipment.getDestination();
+            row[4] = shipment.getStatus();
+            row[5] = shipment.getEstimatedDeliveryDate();
+            
+            model.addRow(row);
+        }
+    }
+}
+    
+   
+   private void searchShipment(String query) {
+    DefaultTableModel model = (DefaultTableModel) tblShipment.getModel();
+    model.setRowCount(0); // 清空表格
+    
+    if (organization != null && organization.getShipmentDirectory() != null) {
+        ArrayList<Shipment> shipments = organization.getShipmentDirectory().getShipments();
+        
+        for (Shipment shipment : shipments) {
+            // 搜索匹配运单号或目的地或状态
+            if (shipment.getTrackingNumber().contains(query) || 
+                shipment.getDestination().contains(query) ||
+                shipment.getStatus().contains(query)) {
+                
+                Object[] row = new Object[6];
+                row[0] = shipment.getTrackingNumber();
+                row[1] = shipment.getShipDate();
+                row[2] = shipment.getShippingMethod();
+                row[3] = shipment.getDestination();
+                row[4] = shipment.getStatus();
+                row[5] = shipment.getEstimatedDeliveryDate();
+                
+                model.addRow(row);
+            }
+        }
+    }
+}
+    
+   
+   private void displayShipmentDetails(int selectedRow) {
+    String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
+    
+    // 获取货件
+    Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+    if (shipment != null) {
+        // 在详情面板显示信息
+        txtTrcNo.setText(shipment.getTrackingNumber());
+        txtShippingDate.setText(shipment.getShipDate() != null ? shipment.getShipDate().toString() : "");
+        txtShippingMethod.setText(shipment.getShippingMethod());
+        txtDestination.setText(shipment.getDestination());
+        txtStatus.setText(shipment.getStatus());
+        
+        // 激活基本信息Tab
+        btnBasicInfo.doClick();
+    }
+}
+   
+   private void updateShipmentStatus(int selectedRow) {
+    String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
+    
+    // Get shipment
+    Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+    if (shipment != null) {
+        // Show status update dialog
+        String[] statuses = {"Shipped", "In Transit", "Customs Processing", "Customs Cleared", "Out for Delivery", "Delivered", "Exception"};
+        String newStatus = (String) JOptionPane.showInputDialog(
+                this,
+                "Select new status:",
+                "Update Status",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                statuses,
+                shipment.getStatus());
+        
+        if (newStatus != null && !newStatus.isEmpty()) {
+            // Update status
+            shipment.setStatus(newStatus);
+            
+            // Add new tracking record
+            String location = JOptionPane.showInputDialog(this, "Current Location:", "");
+            String description = JOptionPane.showInputDialog(this, "Status Description:", "");
+            
+            if (location != null && description != null) {
+                TrackingInfo newTracking = new TrackingInfo();
+                newTracking.setShipmentId(shipment.getShipmentId());
+                newTracking.setTimestamp(new Date());
+                newTracking.setLocation(location);
+                newTracking.setDescription(description);
+                newTracking.setStatus("Completed");
+                
+                shipment.addTrackingInfo(newTracking);
+            }
+            
+            // Refresh table
+            populateTable();
+            JOptionPane.showMessageDialog(this, "Status has been updated", "Success", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+}
+
+private void updateShipmentInfo() {
+    String trackingNumber = txtTrcNo.getText();
+    if (trackingNumber == null || trackingNumber.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please select a shipment first", "Information", JOptionPane.INFORMATION_MESSAGE);
+        return;
+    }
+    
+    Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+    if (shipment != null) {
+        // Update shipment information
+        shipment.setStatus(txtStatus.getText());
+        shipment.setDestination(txtDestination.getText());
+        shipment.setShippingMethod(txtShippingMethod.getText());
+        
+        // More field updates...
+        
+        // Refresh table
+        populateTable();
+        JOptionPane.showMessageDialog(this, "Shipment information has been updated", "Success", JOptionPane.INFORMATION_MESSAGE);
+    }
+}
+   
+   
+   
+   private Shipment findShipmentByTrackingNumber(String trackingNumber) {
+    if (organization != null && organization.getShipmentDirectory() != null) {
+        return organization.getShipmentDirectory().findShipmentByTrackingNumber(trackingNumber);
+    }
+    return null;
+}
+   
 }

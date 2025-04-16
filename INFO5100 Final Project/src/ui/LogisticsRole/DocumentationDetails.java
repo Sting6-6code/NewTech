@@ -103,6 +103,11 @@ public class DocumentationDetails extends javax.swing.JPanel {
         jButton1.setBackground(new java.awt.Color(102, 204, 0));
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("Create New");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         tblList.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -208,6 +213,11 @@ public class DocumentationDetails extends javax.swing.JPanel {
         jScrollPane1.setViewportView(tblGoodsInfo);
 
         btnAddItem.setText("Add Item");
+        btnAddItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddItemActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout goodsInfoJPanelLayout = new javax.swing.GroupLayout(goodsInfoJPanel);
         goodsInfoJPanel.setLayout(goodsInfoJPanelLayout);
@@ -555,6 +565,14 @@ public class DocumentationDetails extends javax.swing.JPanel {
     private void txtCommentsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCommentsActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtCommentsActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void btnAddItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddItemActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnAddItemActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
