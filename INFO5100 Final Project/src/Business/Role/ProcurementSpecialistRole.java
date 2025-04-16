@@ -21,7 +21,8 @@ public class ProcurementSpecialistRole extends Role {
     }
 
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        ui.ProcurementSpecialistRole.ProcurementSpecialistHP procurementSpecialistHP = new ui.ProcurementSpecialistRole.ProcurementSpecialistHP();
+        return procurementSpecialistHP;
     }
     
 }

@@ -21,6 +21,8 @@ public class MerchantHP extends javax.swing.JPanel {
     
     public MerchantHP() {
         initComponents();
+        // Set CardLayout for jPanel
+        MerchantWorkAreajPanel.setLayout(new CardLayout());
     }
     
     public void setSupplier(Supplier supplier) {
