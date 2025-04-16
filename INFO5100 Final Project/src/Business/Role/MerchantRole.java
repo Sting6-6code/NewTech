@@ -20,9 +20,9 @@ public class MerchantRole extends Role{
         
     }
 
-    @Override
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        ui.MerchantRole.MerchantHP merchantHP = new ui.MerchantRole.MerchantHP();
+        return merchantHP;
     }
     
     

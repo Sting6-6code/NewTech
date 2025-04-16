@@ -4,17 +4,63 @@
  */
 package ui.LogisticsRole;
 
+import Business.Enterprise.Enterprise;
+import Business.Logistics.Shipment;
+import Business.Organization.LogisticsOrganization;
+import Business.UserAccount.UserAccount;
+import java.awt.CardLayout;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import ui.LogisticsRole.ShipmentPanel;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import Business.Customer.ComplaintDirectory;
+import Business.Customer.CustomerComplaint;
+import Business.Logistics.Task;
+import Business.Organization.CustomerExperienceOrganization;
+import Business.Organization.Organization;
+import java.util.Date;
+import ui.MainJFrame;
+
 /**
  *
  * @author zhuchenyan
  */
 public class LogisticsCoordinatorHP extends javax.swing.JPanel {
+    
+    private JPanel userProcessContainer;
+    private UserAccount userAccount;
+    private Enterprise enterprise;
+    private LogisticsOrganization organization;
 
     /**
      * Creates new form LogisticsCoordinatorHP
      */
     public LogisticsCoordinatorHP() {
+        
+        
         initComponents();
+        this.setPreferredSize(new java.awt.Dimension(1450, 800));
+    }
+    
+    public LogisticsCoordinatorHP(JPanel userProcessContainer, UserAccount account, 
+                                Enterprise enterprise, LogisticsOrganization organization) {
+        this.userProcessContainer = userProcessContainer;
+        this.userAccount = account;
+        this.enterprise = enterprise;
+        this.organization = organization;
+        
+        initComponents();
+        this.setPreferredSize(new java.awt.Dimension(1450, 800));
+        
+        // 初始化欢迎信息
+        // 可以添加一个标签显示欢迎信息，例如：
+        // lblWelcome.setText("Welcome, " + userAccount.getUsername());
+        
+        // 加载初始数据
+        populateDashboard();
+        
     }
 
     /**
@@ -26,32 +72,78 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jSplitPane1 = new javax.swing.JSplitPane();
+        jSplitPane = new javax.swing.JSplitPane();
         logisticsControljPanel = new javax.swing.JPanel();
         btnDashBoard = new javax.swing.JButton();
         btnShipmentTra = new javax.swing.JButton();
         btnCustomsDeclar = new javax.swing.JButton();
         btnReports = new javax.swing.JButton();
         btnProfile = new javax.swing.JButton();
+        btnLogout = new javax.swing.JButton();
         logisticsWorkAreajPanel = new javax.swing.JPanel();
-        jPanel1 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tblRecentShip = new javax.swing.JTable();
-        jLabel1 = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
+        CustomerCompJPanel = new javax.swing.JPanel();
+        lblCustomerComplaint = new javax.swing.JLabel();
+        actShipmentJPanel = new javax.swing.JPanel();
+        lblActiveShipments = new javax.swing.JLabel();
+        CompletedDeliveriesJPanel = new javax.swing.JPanel();
+        lblPendingCustoms = new javax.swing.JLabel();
+        pendingCustomsJPanel = new javax.swing.JPanel();
+        lblCompletedDeliveries = new javax.swing.JLabel();
+        AlertJPanel = new javax.swing.JPanel();
+        lblAlerts = new javax.swing.JLabel();
+        pendingTasksJPanel = new javax.swing.JPanel();
+        lblPendingTasks = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tblRefund = new javax.swing.JTable();
-        jLabel2 = new javax.swing.JLabel();
+        tblPendingTasks = new javax.swing.JTable();
+        recentShipJPanel = new javax.swing.JPanel();
+        lblRecentShip = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblRecentShipment = new javax.swing.JTable();
+
+        setMaximumSize(new java.awt.Dimension(1450, 800));
+        setMinimumSize(new java.awt.Dimension(1450, 800));
 
         btnDashBoard.setText("DashBoard");
+        btnDashBoard.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDashBoardActionPerformed(evt);
+            }
+        });
 
         btnShipmentTra.setText("Shipment Tracking");
+        btnShipmentTra.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnShipmentTraActionPerformed(evt);
+            }
+        });
 
         btnCustomsDeclar.setText("Customs Declaration");
+        btnCustomsDeclar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCustomsDeclarActionPerformed(evt);
+            }
+        });
 
         btnReports.setText("Reports");
+        btnReports.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReportsActionPerformed(evt);
+            }
+        });
 
         btnProfile.setText("My Profile");
+        btnProfile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnProfileActionPerformed(evt);
+            }
+        });
+
+        btnLogout.setText("Logout");
+        btnLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLogoutActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout logisticsControljPanelLayout = new javax.swing.GroupLayout(logisticsControljPanel);
         logisticsControljPanel.setLayout(logisticsControljPanelLayout);
@@ -59,13 +151,17 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(logisticsControljPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(btnProfile, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnCustomsDeclar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnShipmentTra, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnDashBoard, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnReports, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(logisticsControljPanelLayout.createSequentialGroup()
+                        .addGroup(logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(btnProfile, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnCustomsDeclar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnShipmentTra, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnDashBoard, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnReports, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(btnLogout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         logisticsControljPanelLayout.setVerticalGroup(
             logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -80,50 +176,152 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
                 .addComponent(btnReports)
                 .addGap(39, 39, 39)
                 .addComponent(btnProfile)
-                .addContainerGap(2399, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 241, Short.MAX_VALUE)
+                .addComponent(btnLogout)
+                .addGap(47, 47, 47))
         );
 
         logisticsControljPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnCustomsDeclar, btnDashBoard, btnProfile, btnReports, btnShipmentTra});
 
-        jSplitPane1.setLeftComponent(logisticsControljPanel);
+        jSplitPane.setLeftComponent(logisticsControljPanel);
 
-        tblRecentShip.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        tblRecentShip.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
-            },
-            new String [] {
-                "Tracking Number", "Shipping Date", "Origin", "Destination", "Status"
-            }
-        ));
-        jScrollPane1.setViewportView(tblRecentShip);
+        logisticsWorkAreajPanel.setBackground(new java.awt.Color(255, 255, 255));
+        logisticsWorkAreajPanel.setMaximumSize(new java.awt.Dimension(1250, 800));
+        logisticsWorkAreajPanel.setMinimumSize(new java.awt.Dimension(1000, 800));
+        logisticsWorkAreajPanel.setLayout(null);
 
-        jLabel1.setText("Recent Shipments");
+        CustomerCompJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        CustomerCompJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(0, 13, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1372, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        lblCustomerComplaint.setText("Customer Complaint");
+
+        javax.swing.GroupLayout CustomerCompJPanelLayout = new javax.swing.GroupLayout(CustomerCompJPanel);
+        CustomerCompJPanel.setLayout(CustomerCompJPanelLayout);
+        CustomerCompJPanelLayout.setHorizontalGroup(
+            CustomerCompJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(CustomerCompJPanelLayout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(lblCustomerComplaint)
+                .addContainerGap(163, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 31, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(21, 21, 21))
+        CustomerCompJPanelLayout.setVerticalGroup(
+            CustomerCompJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(CustomerCompJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblCustomerComplaint)
+                .addContainerGap(153, Short.MAX_VALUE))
         );
 
-        tblRefund.setModel(new javax.swing.table.DefaultTableModel(
+        logisticsWorkAreajPanel.add(CustomerCompJPanel);
+        CustomerCompJPanel.setBounds(970, 40, 300, 180);
+
+        actShipmentJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        actShipmentJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblActiveShipments.setText("Active Shipments");
+
+        javax.swing.GroupLayout actShipmentJPanelLayout = new javax.swing.GroupLayout(actShipmentJPanel);
+        actShipmentJPanel.setLayout(actShipmentJPanelLayout);
+        actShipmentJPanelLayout.setHorizontalGroup(
+            actShipmentJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(actShipmentJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblActiveShipments)
+                .addContainerGap(188, Short.MAX_VALUE))
+        );
+        actShipmentJPanelLayout.setVerticalGroup(
+            actShipmentJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(actShipmentJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblActiveShipments)
+                .addContainerGap(153, Short.MAX_VALUE))
+        );
+
+        logisticsWorkAreajPanel.add(actShipmentJPanel);
+        actShipmentJPanel.setBounds(40, 40, 300, 180);
+
+        CompletedDeliveriesJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        CompletedDeliveriesJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblPendingCustoms.setText("Pending Customs");
+
+        javax.swing.GroupLayout CompletedDeliveriesJPanelLayout = new javax.swing.GroupLayout(CompletedDeliveriesJPanel);
+        CompletedDeliveriesJPanel.setLayout(CompletedDeliveriesJPanelLayout);
+        CompletedDeliveriesJPanelLayout.setHorizontalGroup(
+            CompletedDeliveriesJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(CompletedDeliveriesJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblPendingCustoms)
+                .addContainerGap(187, Short.MAX_VALUE))
+        );
+        CompletedDeliveriesJPanelLayout.setVerticalGroup(
+            CompletedDeliveriesJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(CompletedDeliveriesJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblPendingCustoms)
+                .addContainerGap(153, Short.MAX_VALUE))
+        );
+
+        logisticsWorkAreajPanel.add(CompletedDeliveriesJPanel);
+        CompletedDeliveriesJPanel.setBounds(350, 40, 300, 180);
+
+        pendingCustomsJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        pendingCustomsJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblCompletedDeliveries.setText("Completed Deliveries");
+
+        javax.swing.GroupLayout pendingCustomsJPanelLayout = new javax.swing.GroupLayout(pendingCustomsJPanel);
+        pendingCustomsJPanel.setLayout(pendingCustomsJPanelLayout);
+        pendingCustomsJPanelLayout.setHorizontalGroup(
+            pendingCustomsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pendingCustomsJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblCompletedDeliveries)
+                .addContainerGap(165, Short.MAX_VALUE))
+        );
+        pendingCustomsJPanelLayout.setVerticalGroup(
+            pendingCustomsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pendingCustomsJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblCompletedDeliveries)
+                .addContainerGap(153, Short.MAX_VALUE))
+        );
+
+        logisticsWorkAreajPanel.add(pendingCustomsJPanel);
+        pendingCustomsJPanel.setBounds(660, 40, 300, 180);
+
+        AlertJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        AlertJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblAlerts.setText("Alerts & Notifications");
+
+        javax.swing.GroupLayout AlertJPanelLayout = new javax.swing.GroupLayout(AlertJPanel);
+        AlertJPanel.setLayout(AlertJPanelLayout);
+        AlertJPanelLayout.setHorizontalGroup(
+            AlertJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(AlertJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblAlerts)
+                .addContainerGap(479, Short.MAX_VALUE))
+        );
+        AlertJPanelLayout.setVerticalGroup(
+            AlertJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(AlertJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblAlerts)
+                .addContainerGap(243, Short.MAX_VALUE))
+        );
+
+        logisticsWorkAreajPanel.add(AlertJPanel);
+        AlertJPanel.setBounds(660, 260, 610, 270);
+
+        pendingTasksJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        pendingTasksJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblPendingTasks.setText("Pending Tasks");
+
+        tblPendingTasks.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        tblPendingTasks.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -131,91 +329,472 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
                 {null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Task", "Priority", "Due Date", "Status"
             }
         ));
-        jScrollPane2.setViewportView(tblRefund);
+        jScrollPane2.setViewportView(tblPendingTasks);
 
-        jLabel2.setText("Refund");
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        javax.swing.GroupLayout pendingTasksJPanelLayout = new javax.swing.GroupLayout(pendingTasksJPanel);
+        pendingTasksJPanel.setLayout(pendingTasksJPanelLayout);
+        pendingTasksJPanelLayout.setHorizontalGroup(
+            pendingTasksJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pendingTasksJPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 751, Short.MAX_VALUE)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                .addGroup(pendingTasksJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblPendingTasks)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 579, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(16, Short.MAX_VALUE)
-                .addComponent(jLabel2)
+        pendingTasksJPanelLayout.setVerticalGroup(
+            pendingTasksJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pendingTasksJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblPendingTasks)
+                .addGap(26, 26, 26)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(41, Short.MAX_VALUE))
+        );
+
+        logisticsWorkAreajPanel.add(pendingTasksJPanel);
+        pendingTasksJPanel.setBounds(40, 260, 610, 270);
+
+        recentShipJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        recentShipJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblRecentShip.setText("Recent Shipment");
+
+        tblRecentShipment.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        tblRecentShipment.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
+            },
+            new String [] {
+                "Tracking Number", "Shipping Date", "Shipping Method", "Destination", "Status", "Estimated Delivery Date"
+            }
+        ));
+        jScrollPane1.setViewportView(tblRecentShipment);
+
+        javax.swing.GroupLayout recentShipJPanelLayout = new javax.swing.GroupLayout(recentShipJPanel);
+        recentShipJPanel.setLayout(recentShipJPanelLayout);
+        recentShipJPanelLayout.setHorizontalGroup(
+            recentShipJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(recentShipJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(recentShipJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblRecentShip)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1208, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(12, Short.MAX_VALUE))
+        );
+        recentShipJPanelLayout.setVerticalGroup(
+            recentShipJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(recentShipJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblRecentShip)
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(9, Short.MAX_VALUE))
         );
 
-        javax.swing.GroupLayout logisticsWorkAreajPanelLayout = new javax.swing.GroupLayout(logisticsWorkAreajPanel);
-        logisticsWorkAreajPanel.setLayout(logisticsWorkAreajPanelLayout);
-        logisticsWorkAreajPanelLayout.setHorizontalGroup(
-            logisticsWorkAreajPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(logisticsWorkAreajPanelLayout.createSequentialGroup()
-                .addGroup(logisticsWorkAreajPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(logisticsWorkAreajPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(logisticsWorkAreajPanelLayout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(24, Short.MAX_VALUE))
-        );
-        logisticsWorkAreajPanelLayout.setVerticalGroup(
-            logisticsWorkAreajPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(logisticsWorkAreajPanelLayout.createSequentialGroup()
-                .addContainerGap(2207, Short.MAX_VALUE)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(62, 62, 62)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(70, 70, 70))
-        );
+        logisticsWorkAreajPanel.add(recentShipJPanel);
+        recentShipJPanel.setBounds(40, 550, 1230, 230);
 
-        jSplitPane1.setRightComponent(logisticsWorkAreajPanel);
+        jSplitPane.setRightComponent(logisticsWorkAreajPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1)
+            .addComponent(jSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 1450, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1)
+            .addComponent(jSplitPane)
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnCustomsDeclarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCustomsDeclarActionPerformed
+        // TODO add your handling code here:
+        // Create and display customs declaration panel
+        DocumentationDetails documentPanel = new DocumentationDetails();
+        documentPanel.setSize(1450, 800);
+        userProcessContainer.add("CustomsDeclaration", documentPanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "CustomsDeclaration");
+    }//GEN-LAST:event_btnCustomsDeclarActionPerformed
+
+    private void btnDashBoardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDashBoardActionPerformed
+        // TODO add your handling code here:
+        // Refresh dashboard data
+        populateDashboard();
+    
+        // Display the dashboard panel (which is this panel)
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "LogisticsCoordinator");
+    }//GEN-LAST:event_btnDashBoardActionPerformed
+
+    private void btnShipmentTraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipmentTraActionPerformed
+        // TODO add your handling code here:
+        // Create and display Shipment panel
+        ShipmentPanel shipmentPanel = new ShipmentPanel(userProcessContainer, userAccount, enterprise, organization);
+        shipmentPanel.setSize(1450, 800);
+        userProcessContainer.add("Shipment", shipmentPanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "Shipment");
+    }//GEN-LAST:event_btnShipmentTraActionPerformed
+
+    private void btnReportsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportsActionPerformed
+        // TODO add your handling code here:
+        // 需要考虑
+    }//GEN-LAST:event_btnReportsActionPerformed
+
+    private void btnProfileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfileActionPerformed
+        // TODO add your handling code here:
+        // Create and display profile management panel
+        ManageOwnProfile profilePanel = new ManageOwnProfile(userProcessContainer, userAccount);
+        profilePanel.setSize(1450, 800);
+        userProcessContainer.add("ManageProfile", profilePanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "ManageProfile");
+    }//GEN-LAST:event_btnProfileActionPerformed
+
+    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        // TODO add your handling code here:
+        // Logout operation
+        userProcessContainer.removeAll();
+    
+        // Create a blank panel to return to login screen
+        JPanel blankJP = new JPanel();
+        userProcessContainer.add("blank", blankJP);
+    
+        // Return to the first card (login screen)
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.first(userProcessContainer);
+    }//GEN-LAST:event_btnLogoutActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel AlertJPanel;
+    private javax.swing.JPanel CompletedDeliveriesJPanel;
+    private javax.swing.JPanel CustomerCompJPanel;
+    private javax.swing.JPanel actShipmentJPanel;
     private javax.swing.JButton btnCustomsDeclar;
     private javax.swing.JButton btnDashBoard;
+    private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnProfile;
     private javax.swing.JButton btnReports;
     private javax.swing.JButton btnShipmentTra;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JSplitPane jSplitPane;
+    private javax.swing.JLabel lblActiveShipments;
+    private javax.swing.JLabel lblAlerts;
+    private javax.swing.JLabel lblCompletedDeliveries;
+    private javax.swing.JLabel lblCustomerComplaint;
+    private javax.swing.JLabel lblPendingCustoms;
+    private javax.swing.JLabel lblPendingTasks;
+    private javax.swing.JLabel lblRecentShip;
     private javax.swing.JPanel logisticsControljPanel;
     private javax.swing.JPanel logisticsWorkAreajPanel;
-    private javax.swing.JTable tblRecentShip;
-    private javax.swing.JTable tblRefund;
+    private javax.swing.JPanel pendingCustomsJPanel;
+    private javax.swing.JPanel pendingTasksJPanel;
+    private javax.swing.JPanel recentShipJPanel;
+    private javax.swing.JTable tblPendingTasks;
+    private javax.swing.JTable tblRecentShipment;
     // End of variables declaration//GEN-END:variables
+
+
+
+/**
+ * Populate dashboard with relevant data from the organization
+ */
+private void populateDashboard() {
+    // Populate Active Shipments panel with count
+    int activeShipments = 0;
+    if (organization != null && organization.getShipmentDirectory() != null) {
+        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+            if (!"Delivered".equals(shipment.getStatus()) && !"Cancelled".equals(shipment.getStatus())) {
+                activeShipments++;
+            }
+        }
+    }
+    lblActiveShipments.setText("Active Shipments: " + activeShipments);
+    
+    // Populate Pending Customs panel with count
+    int pendingCustoms = 0;
+    if (organization != null && organization.getShipmentDirectory() != null) {
+        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+            if ("Customs Processing".equals(shipment.getStatus())) {
+                pendingCustoms++;
+            }
+        }
+    }
+    lblPendingCustoms.setText("Pending Customs: " + pendingCustoms);
+    
+    // Populate Completed Deliveries panel with count
+    int completedDeliveries = 0;
+    if (organization != null && organization.getShipmentDirectory() != null) {
+        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+            if ("Delivered".equals(shipment.getStatus())) {
+                completedDeliveries++;
+            }
+        }
+    }
+    lblCompletedDeliveries.setText("Completed Deliveries: " + completedDeliveries);
+    
+    // Populate Customer Complaints panel with count
+    int customerComplaints = 0;
+    if (enterprise != null) {
+        // Search for Customer Experience Organization in the enterprise
+        for (Organization org : enterprise.getOrganizationDirectory().getOrganizationList()) {
+            if (org instanceof CustomerExperienceOrganization) {
+                // Get complaint directory from the Customer Experience Organization
+                ComplaintDirectory complaintDirectory = ((CustomerExperienceOrganization) org).getComplaintDirectory();
+                if (complaintDirectory != null) {
+                    customerComplaints = complaintDirectory.getComplaintCount();
+                }
+                break;
+            }
+        }
+    }
+    lblCustomerComplaint.setText("Customer Complaints: " + customerComplaints);
+    
+    // Populate Alerts panel with recent notifications
+    updateAlertsPanel();
+    
+    // Populate Pending Tasks table
+    populatePendingTasksTable();
+    
+    // Populate Recent Shipments table
+    populateRecentShipmentsTable();
+}
+
+
+private void populatePendingTasksTable() {
+    // Create a table model
+    javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblPendingTasks.getModel();
+    model.setRowCount(0); // Clear existing data
+    
+    // Get pending tasks from the organization
+    ArrayList<Task> pendingTasks = new ArrayList<>();
+    if (organization != null && organization.getTaskDirectory() != null) {
+        pendingTasks = organization.getTaskDirectory().getPendingTasks();
+    }
+    
+    // Add rows to the table model
+    if (pendingTasks != null && !pendingTasks.isEmpty()) {
+        for (Task task : pendingTasks) {
+            Object[] row = new Object[4];
+            row[0] = task.getDescription();
+            row[1] = task.getPriority();
+            row[2] = new java.text.SimpleDateFormat("MM/dd/yyyy").format(task.getDueDate());
+            row[3] = task.getStatus();
+            model.addRow(row);
+        }
+    } else {
+        // Add sample data if no tasks are available
+        java.util.Date today = new java.util.Date();
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.setTime(today);
+        
+        // Tomorrow
+        cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
+        java.util.Date tomorrow = cal.getTime();
+        
+        // Day after tomorrow 
+        cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
+        java.util.Date dayAfter = cal.getTime();
+        
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM/dd/yyyy");
+        
+        model.addRow(new Object[]{"Review pending shipment documentation", "High", sdf.format(tomorrow), "Pending"});
+        model.addRow(new Object[]{"Update customer on delivery delay", "Medium", sdf.format(today), "In Progress"});
+        model.addRow(new Object[]{"Process customs declaration for shipment #TRK123456", "High", sdf.format(today), "Pending"});
+        model.addRow(new Object[]{"Contact carrier about damaged package", "Medium", sdf.format(dayAfter), "Not Started"});
+    }
+}
+
+private void populateRecentShipmentsTable() {
+    // Create a table model
+    javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblRecentShipment.getModel();
+    model.setRowCount(0); // Clear existing data
+    
+    // Get recent shipments from the organization
+    if (organization != null && organization.getShipmentDirectory() != null) {
+        ArrayList<Shipment> shipments = organization.getShipmentDirectory().getShipments();
+        
+        // Sort shipments by date (most recent first)
+        Collections.sort(shipments, new Comparator<Shipment>() {
+            @Override
+            public int compare(Shipment s1, Shipment s2) {
+                if (s1.getShipDate() == null && s2.getShipDate() == null) {
+                    return 0;
+                }
+                if (s1.getShipDate() == null) {
+                    return 1;
+                }
+                if (s2.getShipDate() == null) {
+                    return -1;
+                }
+                return s2.getShipDate().compareTo(s1.getShipDate());
+            }
+        });
+        
+        // Take the most recent 10 shipments
+        int count = 0;
+        for (Shipment shipment : shipments) {
+            if (count >= 10) {
+                break;
+            }
+            
+            Object[] row = new Object[6];
+            row[0] = shipment.getTrackingNumber();
+            row[1] = shipment.getShipDate();
+            row[2] = shipment.getShippingMethod();
+            row[3] = shipment.getDestination();
+            row[4] = shipment.getStatus();
+            row[5] = shipment.getEstimatedDeliveryDate();
+            model.addRow(row);
+            count++;
+        }
+        
+        // If no shipments found, add sample data
+        if (count == 0) {
+            addSampleShipmentData(model);
+        }
+    } else {
+        // Add sample data if shipment directory is null
+        addSampleShipmentData(model);
+    }
+}
+
+private void updateAlertsPanel() {
+    // Create a StringBuilder to build the alerts text
+    StringBuilder alertsText = new StringBuilder("<html>");
+    boolean hasAlerts = false;
+    
+    // Check for urgent shipments
+    if (organization != null && organization.getShipmentDirectory() != null) {
+        int urgentShipments = 0;
+        int delayedShipments = 0;
+        Date currentDate = new Date();
+        
+        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+            // Count urgent shipments
+            if ("Urgent".equals(shipment.getStatus())) {
+                urgentShipments++;
+            }
+            
+            // Check for delayed shipments
+            if (shipment.getEstimatedDeliveryDate() != null && 
+                currentDate.after(shipment.getEstimatedDeliveryDate()) && 
+                !"Delivered".equals(shipment.getStatus())) {
+                delayedShipments++;
+            }
+        }
+        
+        // Add urgent shipments alert
+        if (urgentShipments > 0) {
+            alertsText.append("<p style='color: red;'>⚠ ")
+                     .append(urgentShipments)
+                     .append(" urgent shipment(s) requiring immediate attention</p>");
+            hasAlerts = true;
+        }
+        
+        // Add delayed shipments alert
+        if (delayedShipments > 0) {
+            alertsText.append("<p style='color: orange;'>⚠ ")
+                     .append(delayedShipments)
+                     .append(" shipment(s) are delayed</p>");
+            hasAlerts = true;
+        }
+    }
+    
+    // Check for pending customs declarations
+    if (organization != null && organization.getShipmentDirectory() != null) {
+        int pendingCustoms = 0;
+        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+            if (shipment.getCustomsDeclaration() != null && 
+                "Pending".equals(shipment.getCustomsDeclaration().getStatus())) {
+                pendingCustoms++;
+            }
+        }
+        
+        if (pendingCustoms > 0) {
+            alertsText.append("<p style='color: blue;'>ℹ ")
+                     .append(pendingCustoms)
+                     .append(" customs declaration(s) pending review</p>");
+            hasAlerts = true;
+        }
+    }
+    
+    // Check for high-priority tasks
+    if (organization != null && organization.getTaskDirectory() != null) {
+        int urgentTasks = 0;
+        Date currentDate = new Date();
+        
+        for (Task task : organization.getTaskDirectory().getTasks()) {
+            if ("High".equals(task.getPriority()) && 
+                !task.getStatus().equals("Completed") &&
+                task.getDueDate() != null && 
+                currentDate.after(task.getDueDate())) {
+                urgentTasks++;
+            }
+        }
+        
+        if (urgentTasks > 0) {
+            alertsText.append("<p style='color: red;'>⚠ ")
+                     .append(urgentTasks)
+                     .append(" overdue high-priority task(s)</p>");
+            hasAlerts = true;
+        }
+    }
+    
+    // If no alerts, show a message
+    if (!hasAlerts) {
+        alertsText.append("<p style='color: green;'>✓ No urgent alerts at this time</p>");
+    }
+    
+    alertsText.append("</html>");
+    
+    // Update the alerts label
+    lblAlerts.setText(alertsText.toString());
+}
+
+private void addSampleShipmentData(javax.swing.table.DefaultTableModel model) {
+    java.util.Date today = new java.util.Date();
+    java.util.Calendar cal = java.util.Calendar.getInstance();
+    cal.setTime(today);
+    
+    // Yesterday
+    cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
+    java.util.Date yesterday = cal.getTime();
+    
+    // Two days ago
+    cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
+    java.util.Date twoDaysAgo = cal.getTime();
+    
+    // Three days ago
+    cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
+    java.util.Date threeDaysAgo = cal.getTime();
+    
+    // Future date (estimated delivery)
+    cal.setTime(today);
+    cal.add(java.util.Calendar.DAY_OF_MONTH, 5);
+    java.util.Date futureDate = cal.getTime();
+    
+    // Tomorrow
+    cal.setTime(today);
+    cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
+    java.util.Date tomorrow = cal.getTime();
+    
+    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM/dd/yyyy");
+    
+    model.addRow(new Object[]{"TRK123456", sdf.format(yesterday), "Air Freight", "Shanghai, China", "In Transit", sdf.format(futureDate)});
+    model.addRow(new Object[]{"TRK789012", sdf.format(twoDaysAgo), "Sea Freight", "Rotterdam, Netherlands", "Customs Clearance", sdf.format(futureDate)});
+    model.addRow(new Object[]{"TRK345678", sdf.format(threeDaysAgo), "Ground", "New York, USA", "Delivered", sdf.format(yesterday)});
+    model.addRow(new Object[]{"TRK901234", sdf.format(threeDaysAgo), "Express Air", "Tokyo, Japan", "In Transit", sdf.format(tomorrow)});
+}
 }

@@ -26,9 +26,7 @@ public abstract class Role {
         this.name = name;
     }
     
-    public abstract JPanel createWorkArea(JPanel userProcessContainer, 
-            UserAccount account, 
-            Organization organization, 
-            Enterprise enterprise, 
-            EcoSystem business);
+    public abstract JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, 
+                                          Organization organization, Enterprise enterprise, 
+                                          EcoSystem business);
 }

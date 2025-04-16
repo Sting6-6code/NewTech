@@ -558,7 +558,6 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
 
     private void btnUpdate3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdate3ActionPerformed
         // 允许编辑产品名称和价格
-        
         txtProductNameView3.setEditable(true);
         txtPriceView3.setEditable(true);
         btnSave3.setEnabled(true);

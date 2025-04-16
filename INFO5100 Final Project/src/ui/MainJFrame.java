@@ -28,7 +28,7 @@ public class MainJFrame extends javax.swing.JFrame {
 
     public MainJFrame() {
         initComponents();
-//        system = dB4OUtil.retrieveSystem();
+        system = dB4OUtil.retrieveSystem();
         this.setSize(1680, 1050);
     }
 
@@ -67,7 +67,6 @@ public class MainJFrame extends javax.swing.JFrame {
         jLabel2.setText("Password");
 
         logoutJButton.setText("Logout");
-        logoutJButton.setEnabled(false);
         logoutJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 logoutJButtonActionPerformed(evt);
@@ -132,6 +131,7 @@ public class MainJFrame extends javax.swing.JFrame {
         //Step1: Check in the system admin user account directory if you have the user
         UserAccount userAccount=system.getUserAccountDirectory().authenticateUser(userName, password);
         
+        
         Enterprise inEnterprise=null;
         Organization inOrganization=null;
         
@@ -173,7 +173,8 @@ public class MainJFrame extends javax.swing.JFrame {
         }
         else{
             CardLayout layout=(CardLayout)container.getLayout();
-//            container.add("workArea",userAccount.getRole().createWorkArea(container, userAccount, inOrganization, inEnterprise, system));
+            container.add("workArea",userAccount.getRole().createWorkArea(container, userAccount, inOrganization, inEnterprise, system));
+            
             layout.next(container);
         }
         
@@ -197,7 +198,7 @@ public class MainJFrame extends javax.swing.JFrame {
         container.add("blank", blankJP);
         CardLayout crdLyt = (CardLayout) container.getLayout();
         crdLyt.next(container);
-//        dB4OUtil.storeSystem(system);
+        dB4OUtil.storeSystem(system);
     }//GEN-LAST:event_logoutJButtonActionPerformed
 
     /**
