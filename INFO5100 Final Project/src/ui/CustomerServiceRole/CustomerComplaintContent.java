@@ -4,17 +4,23 @@
  */
 package ui.CustomerServiceRole;
 
+import java.awt.CardLayout;
+import javax.swing.JPanel;
+
 /**
  *
  * @author wangsiting
  */
 public class CustomerComplaintContent extends javax.swing.JPanel {
 
+    private JPanel userProcessContainer;
+    
     /**
      * Creates new form CustomerComplaintContent
      */
-    public CustomerComplaintContent() {
+    public CustomerComplaintContent(JPanel userProcessContainer) {
         initComponents();
+        this.userProcessContainer = userProcessContainer;
     }
 
     /**
@@ -269,7 +275,6 @@ public class CustomerComplaintContent extends javax.swing.JPanel {
     }//GEN-LAST:event_btnSearchActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-
         userProcessContainer.remove(this);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.previous(userProcessContainer);
