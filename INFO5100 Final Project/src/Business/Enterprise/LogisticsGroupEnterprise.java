@@ -8,6 +8,6 @@ package Business.Enterprise;
  *
  * @author zhuchenyan
  */
-public class LogisticsGroupEnterprise {
+public class LogisticsGroupEnterprise{
     
 }

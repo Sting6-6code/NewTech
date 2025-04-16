@@ -92,11 +92,17 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="DashBoard"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDashBoardActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="btnShipmentTra">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Shipment Tracking"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnShipmentTraActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="btnCustomsDeclar">
               <Properties>
@@ -110,16 +116,25 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Reports"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReportsActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="btnProfile">
               <Properties>
                 <Property name="text" type="java.lang.String" value="My Profile"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnProfileActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="btnLogout">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Logout"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnLogoutActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

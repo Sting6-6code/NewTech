@@ -4,11 +4,35 @@
  */
 package ui.LogisticsRole;
 
+import Business.Enterprise.Enterprise;
+import Business.Logistics.Shipment;
+import Business.Organization.LogisticsOrganization;
+import Business.UserAccount.UserAccount;
+import java.awt.CardLayout;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import ui.LogisticsRole.ShipmentPanel;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import Business.Customer.ComplaintDirectory;
+import Business.Customer.CustomerComplaint;
+import Business.Logistics.Task;
+import Business.Organization.CustomerExperienceOrganization;
+import Business.Organization.Organization;
+import java.util.Date;
+import ui.MainJFrame;
+
 /**
  *
  * @author zhuchenyan
  */
 public class LogisticsCoordinatorHP extends javax.swing.JPanel {
+    
+    private JPanel userProcessContainer;
+    private UserAccount userAccount;
+    private Enterprise enterprise;
+    private LogisticsOrganization organization;
 
     /**
      * Creates new form LogisticsCoordinatorHP
@@ -18,6 +42,25 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         
         initComponents();
         this.setPreferredSize(new java.awt.Dimension(1450, 800));
+    }
+    
+    public LogisticsCoordinatorHP(JPanel userProcessContainer, UserAccount account, 
+                                Enterprise enterprise, LogisticsOrganization organization) {
+        this.userProcessContainer = userProcessContainer;
+        this.userAccount = account;
+        this.enterprise = enterprise;
+        this.organization = organization;
+        
+        initComponents();
+        this.setPreferredSize(new java.awt.Dimension(1450, 800));
+        
+        // 初始化欢迎信息
+        // 可以添加一个标签显示欢迎信息，例如：
+        // lblWelcome.setText("Welcome, " + userAccount.getUsername());
+        
+        // 加载初始数据
+        populateDashboard();
+        
     }
 
     /**
@@ -61,8 +104,18 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         setMinimumSize(new java.awt.Dimension(1450, 800));
 
         btnDashBoard.setText("DashBoard");
+        btnDashBoard.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDashBoardActionPerformed(evt);
+            }
+        });
 
         btnShipmentTra.setText("Shipment Tracking");
+        btnShipmentTra.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnShipmentTraActionPerformed(evt);
+            }
+        });
 
         btnCustomsDeclar.setText("Customs Declaration");
         btnCustomsDeclar.addActionListener(new java.awt.event.ActionListener() {
@@ -72,10 +125,25 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         });
 
         btnReports.setText("Reports");
+        btnReports.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReportsActionPerformed(evt);
+            }
+        });
 
         btnProfile.setText("My Profile");
+        btnProfile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnProfileActionPerformed(evt);
+            }
+        });
 
         btnLogout.setText("Logout");
+        btnLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLogoutActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout logisticsControljPanelLayout = new javax.swing.GroupLayout(logisticsControljPanel);
         logisticsControljPanel.setLayout(logisticsControljPanelLayout);
@@ -349,7 +417,62 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
 
     private void btnCustomsDeclarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCustomsDeclarActionPerformed
         // TODO add your handling code here:
+        // Create and display customs declaration panel
+        DocumentationDetails documentPanel = new DocumentationDetails();
+        documentPanel.setSize(1450, 800);
+        userProcessContainer.add("CustomsDeclaration", documentPanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "CustomsDeclaration");
     }//GEN-LAST:event_btnCustomsDeclarActionPerformed
+
+    private void btnDashBoardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDashBoardActionPerformed
+        // TODO add your handling code here:
+        // Refresh dashboard data
+        populateDashboard();
+    
+        // Display the dashboard panel (which is this panel)
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "LogisticsCoordinator");
+    }//GEN-LAST:event_btnDashBoardActionPerformed
+
+    private void btnShipmentTraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipmentTraActionPerformed
+        // TODO add your handling code here:
+        // Create and display Shipment panel
+        ShipmentPanel shipmentPanel = new ShipmentPanel(userProcessContainer, userAccount, enterprise, organization);
+        shipmentPanel.setSize(1450, 800);
+        userProcessContainer.add("Shipment", shipmentPanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "Shipment");
+    }//GEN-LAST:event_btnShipmentTraActionPerformed
+
+    private void btnReportsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportsActionPerformed
+        // TODO add your handling code here:
+        // 需要考虑
+    }//GEN-LAST:event_btnReportsActionPerformed
+
+    private void btnProfileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfileActionPerformed
+        // TODO add your handling code here:
+        // Create and display profile management panel
+        ManageOwnProfile profilePanel = new ManageOwnProfile(userProcessContainer, userAccount);
+        profilePanel.setSize(1450, 800);
+        userProcessContainer.add("ManageProfile", profilePanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "ManageProfile");
+    }//GEN-LAST:event_btnProfileActionPerformed
+
+    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        // TODO add your handling code here:
+        // Logout operation
+        userProcessContainer.removeAll();
+    
+        // Create a blank panel to return to login screen
+        JPanel blankJP = new JPanel();
+        userProcessContainer.add("blank", blankJP);
+    
+        // Return to the first card (login screen)
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.first(userProcessContainer);
+    }//GEN-LAST:event_btnLogoutActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -381,4 +504,297 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     private javax.swing.JTable tblPendingTasks;
     private javax.swing.JTable tblRecentShipment;
     // End of variables declaration//GEN-END:variables
+
+
+
+/**
+ * Populate dashboard with relevant data from the organization
+ */
+private void populateDashboard() {
+    // Populate Active Shipments panel with count
+    int activeShipments = 0;
+    if (organization != null && organization.getShipmentDirectory() != null) {
+        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+            if (!"Delivered".equals(shipment.getStatus()) && !"Cancelled".equals(shipment.getStatus())) {
+                activeShipments++;
+            }
+        }
+    }
+    lblActiveShipments.setText("Active Shipments: " + activeShipments);
+    
+    // Populate Pending Customs panel with count
+    int pendingCustoms = 0;
+    if (organization != null && organization.getShipmentDirectory() != null) {
+        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+            if ("Customs Processing".equals(shipment.getStatus())) {
+                pendingCustoms++;
+            }
+        }
+    }
+    lblPendingCustoms.setText("Pending Customs: " + pendingCustoms);
+    
+    // Populate Completed Deliveries panel with count
+    int completedDeliveries = 0;
+    if (organization != null && organization.getShipmentDirectory() != null) {
+        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+            if ("Delivered".equals(shipment.getStatus())) {
+                completedDeliveries++;
+            }
+        }
+    }
+    lblCompletedDeliveries.setText("Completed Deliveries: " + completedDeliveries);
+    
+    // Populate Customer Complaints panel with count
+    int customerComplaints = 0;
+    if (enterprise != null) {
+        // Search for Customer Experience Organization in the enterprise
+        for (Organization org : enterprise.getOrganizationDirectory().getOrganizationList()) {
+            if (org instanceof CustomerExperienceOrganization) {
+                // Get complaint directory from the Customer Experience Organization
+                ComplaintDirectory complaintDirectory = ((CustomerExperienceOrganization) org).getComplaintDirectory();
+                if (complaintDirectory != null) {
+                    customerComplaints = complaintDirectory.getComplaintCount();
+                }
+                break;
+            }
+        }
+    }
+    lblCustomerComplaint.setText("Customer Complaints: " + customerComplaints);
+    
+    // Populate Alerts panel with recent notifications
+    updateAlertsPanel();
+    
+    // Populate Pending Tasks table
+    populatePendingTasksTable();
+    
+    // Populate Recent Shipments table
+    populateRecentShipmentsTable();
+}
+
+
+private void populatePendingTasksTable() {
+    // Create a table model
+    javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblPendingTasks.getModel();
+    model.setRowCount(0); // Clear existing data
+    
+    // Get pending tasks from the organization
+    ArrayList<Task> pendingTasks = new ArrayList<>();
+    if (organization != null && organization.getTaskDirectory() != null) {
+        pendingTasks = organization.getTaskDirectory().getPendingTasks();
+    }
+    
+    // Add rows to the table model
+    if (pendingTasks != null && !pendingTasks.isEmpty()) {
+        for (Task task : pendingTasks) {
+            Object[] row = new Object[4];
+            row[0] = task.getDescription();
+            row[1] = task.getPriority();
+            row[2] = new java.text.SimpleDateFormat("MM/dd/yyyy").format(task.getDueDate());
+            row[3] = task.getStatus();
+            model.addRow(row);
+        }
+    } else {
+        // Add sample data if no tasks are available
+        java.util.Date today = new java.util.Date();
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.setTime(today);
+        
+        // Tomorrow
+        cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
+        java.util.Date tomorrow = cal.getTime();
+        
+        // Day after tomorrow 
+        cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
+        java.util.Date dayAfter = cal.getTime();
+        
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM/dd/yyyy");
+        
+        model.addRow(new Object[]{"Review pending shipment documentation", "High", sdf.format(tomorrow), "Pending"});
+        model.addRow(new Object[]{"Update customer on delivery delay", "Medium", sdf.format(today), "In Progress"});
+        model.addRow(new Object[]{"Process customs declaration for shipment #TRK123456", "High", sdf.format(today), "Pending"});
+        model.addRow(new Object[]{"Contact carrier about damaged package", "Medium", sdf.format(dayAfter), "Not Started"});
+    }
+}
+
+private void populateRecentShipmentsTable() {
+    // Create a table model
+    javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblRecentShipment.getModel();
+    model.setRowCount(0); // Clear existing data
+    
+    // Get recent shipments from the organization
+    if (organization != null && organization.getShipmentDirectory() != null) {
+        ArrayList<Shipment> shipments = organization.getShipmentDirectory().getShipments();
+        
+        // Sort shipments by date (most recent first)
+        Collections.sort(shipments, new Comparator<Shipment>() {
+            @Override
+            public int compare(Shipment s1, Shipment s2) {
+                if (s1.getShipDate() == null && s2.getShipDate() == null) {
+                    return 0;
+                }
+                if (s1.getShipDate() == null) {
+                    return 1;
+                }
+                if (s2.getShipDate() == null) {
+                    return -1;
+                }
+                return s2.getShipDate().compareTo(s1.getShipDate());
+            }
+        });
+        
+        // Take the most recent 10 shipments
+        int count = 0;
+        for (Shipment shipment : shipments) {
+            if (count >= 10) {
+                break;
+            }
+            
+            Object[] row = new Object[6];
+            row[0] = shipment.getTrackingNumber();
+            row[1] = shipment.getShipDate();
+            row[2] = shipment.getShippingMethod();
+            row[3] = shipment.getDestination();
+            row[4] = shipment.getStatus();
+            row[5] = shipment.getEstimatedDeliveryDate();
+            model.addRow(row);
+            count++;
+        }
+        
+        // If no shipments found, add sample data
+        if (count == 0) {
+            addSampleShipmentData(model);
+        }
+    } else {
+        // Add sample data if shipment directory is null
+        addSampleShipmentData(model);
+    }
+}
+
+private void updateAlertsPanel() {
+    // Create a StringBuilder to build the alerts text
+    StringBuilder alertsText = new StringBuilder("<html>");
+    boolean hasAlerts = false;
+    
+    // Check for urgent shipments
+    if (organization != null && organization.getShipmentDirectory() != null) {
+        int urgentShipments = 0;
+        int delayedShipments = 0;
+        Date currentDate = new Date();
+        
+        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+            // Count urgent shipments
+            if ("Urgent".equals(shipment.getStatus())) {
+                urgentShipments++;
+            }
+            
+            // Check for delayed shipments
+            if (shipment.getEstimatedDeliveryDate() != null && 
+                currentDate.after(shipment.getEstimatedDeliveryDate()) && 
+                !"Delivered".equals(shipment.getStatus())) {
+                delayedShipments++;
+            }
+        }
+        
+        // Add urgent shipments alert
+        if (urgentShipments > 0) {
+            alertsText.append("<p style='color: red;'>⚠ ")
+                     .append(urgentShipments)
+                     .append(" urgent shipment(s) requiring immediate attention</p>");
+            hasAlerts = true;
+        }
+        
+        // Add delayed shipments alert
+        if (delayedShipments > 0) {
+            alertsText.append("<p style='color: orange;'>⚠ ")
+                     .append(delayedShipments)
+                     .append(" shipment(s) are delayed</p>");
+            hasAlerts = true;
+        }
+    }
+    
+    // Check for pending customs declarations
+    if (organization != null && organization.getShipmentDirectory() != null) {
+        int pendingCustoms = 0;
+        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+            if (shipment.getCustomsDeclaration() != null && 
+                "Pending".equals(shipment.getCustomsDeclaration().getStatus())) {
+                pendingCustoms++;
+            }
+        }
+        
+        if (pendingCustoms > 0) {
+            alertsText.append("<p style='color: blue;'>ℹ ")
+                     .append(pendingCustoms)
+                     .append(" customs declaration(s) pending review</p>");
+            hasAlerts = true;
+        }
+    }
+    
+    // Check for high-priority tasks
+    if (organization != null && organization.getTaskDirectory() != null) {
+        int urgentTasks = 0;
+        Date currentDate = new Date();
+        
+        for (Task task : organization.getTaskDirectory().getTasks()) {
+            if ("High".equals(task.getPriority()) && 
+                !task.getStatus().equals("Completed") &&
+                task.getDueDate() != null && 
+                currentDate.after(task.getDueDate())) {
+                urgentTasks++;
+            }
+        }
+        
+        if (urgentTasks > 0) {
+            alertsText.append("<p style='color: red;'>⚠ ")
+                     .append(urgentTasks)
+                     .append(" overdue high-priority task(s)</p>");
+            hasAlerts = true;
+        }
+    }
+    
+    // If no alerts, show a message
+    if (!hasAlerts) {
+        alertsText.append("<p style='color: green;'>✓ No urgent alerts at this time</p>");
+    }
+    
+    alertsText.append("</html>");
+    
+    // Update the alerts label
+    lblAlerts.setText(alertsText.toString());
+}
+
+private void addSampleShipmentData(javax.swing.table.DefaultTableModel model) {
+    java.util.Date today = new java.util.Date();
+    java.util.Calendar cal = java.util.Calendar.getInstance();
+    cal.setTime(today);
+    
+    // Yesterday
+    cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
+    java.util.Date yesterday = cal.getTime();
+    
+    // Two days ago
+    cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
+    java.util.Date twoDaysAgo = cal.getTime();
+    
+    // Three days ago
+    cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
+    java.util.Date threeDaysAgo = cal.getTime();
+    
+    // Future date (estimated delivery)
+    cal.setTime(today);
+    cal.add(java.util.Calendar.DAY_OF_MONTH, 5);
+    java.util.Date futureDate = cal.getTime();
+    
+    // Tomorrow
+    cal.setTime(today);
+    cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
+    java.util.Date tomorrow = cal.getTime();
+    
+    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM/dd/yyyy");
+    
+    model.addRow(new Object[]{"TRK123456", sdf.format(yesterday), "Air Freight", "Shanghai, China", "In Transit", sdf.format(futureDate)});
+    model.addRow(new Object[]{"TRK789012", sdf.format(twoDaysAgo), "Sea Freight", "Rotterdam, Netherlands", "Customs Clearance", sdf.format(futureDate)});
+    model.addRow(new Object[]{"TRK345678", sdf.format(threeDaysAgo), "Ground", "New York, USA", "Delivered", sdf.format(yesterday)});
+    model.addRow(new Object[]{"TRK901234", sdf.format(threeDaysAgo), "Express Air", "Tokyo, Japan", "In Transit", sdf.format(tomorrow)});
+}
 }

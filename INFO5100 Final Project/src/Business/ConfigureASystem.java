@@ -2,6 +2,8 @@ package Business;
 
 import Business.Employee.Employee;
 import Business.Role.CustomerServiceRepRole;
+import Business.Role.CustomsAgentRole;
+import Business.Role.LogisticsCoordinatorRole;
 import Business.Role.MerchantRole;
 import Business.Role.ProcurementSpecialistRole;
 //import Business.Role.LabManagerRole;
@@ -31,6 +33,8 @@ public class ConfigureASystem {
         Employee employee2 = system.getEmployeeDirectory().createEmployee("customerservice");
         Employee employee3 = system.getEmployeeDirectory().createEmployee("merchant");
         Employee employee4 = system.getEmployeeDirectory().createEmployee("procurement");
+        Employee employee5 = system.getEmployeeDirectory().createEmployee("customsagent");
+        Employee employee6 = system.getEmployeeDirectory().createEmployee("logistics");
         
         UserAccount ua = system.getUserAccountDirectory().createUserAccount("sysadmin", "sysadmin", employee1, new SystemAdminRole());
 //      UserAccount labManager = system.getUserAccountDirectory().createUserAccount("labManager", "sysadmin", employee, new LabManagerRole());
