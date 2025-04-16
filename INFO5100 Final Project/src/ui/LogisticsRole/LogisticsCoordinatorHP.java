@@ -38,7 +38,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         btnProfile = new javax.swing.JButton();
         btnLogout = new javax.swing.JButton();
         logisticsWorkAreajPanel = new javax.swing.JPanel();
-        IssuesReportedJPanel = new javax.swing.JPanel();
+        CustomerCompJPanel = new javax.swing.JPanel();
         lblCustomerComplaint = new javax.swing.JLabel();
         actShipmentJPanel = new javax.swing.JPanel();
         lblActiveShipments = new javax.swing.JLabel();
@@ -56,6 +56,9 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         lblRecentShip = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblRecentShipment = new javax.swing.JTable();
+
+        setMaximumSize(new java.awt.Dimension(1450, 800));
+        setMinimumSize(new java.awt.Dimension(1450, 800));
 
         btnDashBoard.setText("DashBoard");
 
@@ -115,34 +118,34 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         jSplitPane.setLeftComponent(logisticsControljPanel);
 
         logisticsWorkAreajPanel.setBackground(new java.awt.Color(255, 255, 255));
-        logisticsWorkAreajPanel.setMaximumSize(new java.awt.Dimension(1450, 800));
-        logisticsWorkAreajPanel.setMinimumSize(new java.awt.Dimension(1450, 800));
+        logisticsWorkAreajPanel.setMaximumSize(new java.awt.Dimension(1250, 800));
+        logisticsWorkAreajPanel.setMinimumSize(new java.awt.Dimension(1000, 800));
         logisticsWorkAreajPanel.setLayout(null);
 
-        IssuesReportedJPanel.setBackground(new java.awt.Color(255, 255, 255));
-        IssuesReportedJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        CustomerCompJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        CustomerCompJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         lblCustomerComplaint.setText("Customer Complaint");
 
-        javax.swing.GroupLayout IssuesReportedJPanelLayout = new javax.swing.GroupLayout(IssuesReportedJPanel);
-        IssuesReportedJPanel.setLayout(IssuesReportedJPanelLayout);
-        IssuesReportedJPanelLayout.setHorizontalGroup(
-            IssuesReportedJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(IssuesReportedJPanelLayout.createSequentialGroup()
+        javax.swing.GroupLayout CustomerCompJPanelLayout = new javax.swing.GroupLayout(CustomerCompJPanel);
+        CustomerCompJPanel.setLayout(CustomerCompJPanelLayout);
+        CustomerCompJPanelLayout.setHorizontalGroup(
+            CustomerCompJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(CustomerCompJPanelLayout.createSequentialGroup()
                 .addGap(14, 14, 14)
                 .addComponent(lblCustomerComplaint)
                 .addContainerGap(163, Short.MAX_VALUE))
         );
-        IssuesReportedJPanelLayout.setVerticalGroup(
-            IssuesReportedJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(IssuesReportedJPanelLayout.createSequentialGroup()
+        CustomerCompJPanelLayout.setVerticalGroup(
+            CustomerCompJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(CustomerCompJPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lblCustomerComplaint)
                 .addContainerGap(153, Short.MAX_VALUE))
         );
 
-        logisticsWorkAreajPanel.add(IssuesReportedJPanel);
-        IssuesReportedJPanel.setBounds(1080, 40, 300, 180);
+        logisticsWorkAreajPanel.add(CustomerCompJPanel);
+        CustomerCompJPanel.setBounds(970, 40, 300, 180);
 
         actShipmentJPanel.setBackground(new java.awt.Color(255, 255, 255));
         actShipmentJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -192,7 +195,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         );
 
         logisticsWorkAreajPanel.add(CompletedDeliveriesJPanel);
-        CompletedDeliveriesJPanel.setBounds(380, 40, 300, 180);
+        CompletedDeliveriesJPanel.setBounds(350, 40, 300, 180);
 
         pendingCustomsJPanel.setBackground(new java.awt.Color(255, 255, 255));
         pendingCustomsJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -217,7 +220,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         );
 
         logisticsWorkAreajPanel.add(pendingCustomsJPanel);
-        pendingCustomsJPanel.setBounds(730, 40, 300, 180);
+        pendingCustomsJPanel.setBounds(660, 40, 300, 180);
 
         AlertJPanel.setBackground(new java.awt.Color(255, 255, 255));
         AlertJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -231,7 +234,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             .addGroup(AlertJPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lblAlerts)
-                .addContainerGap(509, Short.MAX_VALUE))
+                .addContainerGap(479, Short.MAX_VALUE))
         );
         AlertJPanelLayout.setVerticalGroup(
             AlertJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -242,7 +245,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         );
 
         logisticsWorkAreajPanel.add(AlertJPanel);
-        AlertJPanel.setBounds(740, 260, 640, 270);
+        AlertJPanel.setBounds(660, 260, 610, 270);
 
         pendingTasksJPanel.setBackground(new java.awt.Color(255, 255, 255));
         pendingTasksJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -271,8 +274,8 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(pendingTasksJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblPendingTasks)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 606, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(24, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 579, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
         pendingTasksJPanelLayout.setVerticalGroup(
             pendingTasksJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -285,7 +288,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         );
 
         logisticsWorkAreajPanel.add(pendingTasksJPanel);
-        pendingTasksJPanel.setBounds(40, 260, 640, 270);
+        pendingTasksJPanel.setBounds(40, 260, 610, 270);
 
         recentShipJPanel.setBackground(new java.awt.Color(255, 255, 255));
         recentShipJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -314,8 +317,8 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(recentShipJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblRecentShip)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1310, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(20, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1208, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(12, Short.MAX_VALUE))
         );
         recentShipJPanelLayout.setVerticalGroup(
             recentShipJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -328,7 +331,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         );
 
         logisticsWorkAreajPanel.add(recentShipJPanel);
-        recentShipJPanel.setBounds(40, 550, 1340, 230);
+        recentShipJPanel.setBounds(40, 550, 1230, 230);
 
         jSplitPane.setRightComponent(logisticsWorkAreajPanel);
 
@@ -336,7 +339,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane)
+            .addComponent(jSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 1450, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -352,7 +355,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel AlertJPanel;
     private javax.swing.JPanel CompletedDeliveriesJPanel;
-    private javax.swing.JPanel IssuesReportedJPanel;
+    private javax.swing.JPanel CustomerCompJPanel;
     private javax.swing.JPanel actShipmentJPanel;
     private javax.swing.JButton btnCustomsDeclar;
     private javax.swing.JButton btnDashBoard;

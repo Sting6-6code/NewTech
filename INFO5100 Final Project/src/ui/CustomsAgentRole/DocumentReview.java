@@ -26,19 +26,436 @@ public class DocumentReview extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        btnBack = new javax.swing.JButton();
+        lblTitle = new javax.swing.JLabel();
+        lblSearchID = new javax.swing.JLabel();
+        txtSearchBox = new javax.swing.JTextField();
+        btnSearch = new javax.swing.JButton();
+        DocQueueJPanel = new javax.swing.JPanel();
+        lblListTitle = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblList = new javax.swing.JTable();
+        comBoFilter = new javax.swing.JComboBox<>();
+        declarDetailsJPanel = new javax.swing.JPanel();
+        lblReviewDoc = new javax.swing.JLabel();
+        btnApprove = new javax.swing.JButton();
+        btnReject = new javax.swing.JButton();
+        docContenJPanel = new javax.swing.JPanel();
+        lblDocContent = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        txtDocPreview = new javax.swing.JTextArea();
+        docInfoJPanel = new javax.swing.JPanel();
+        lblDocInfo = new javax.swing.JLabel();
+        lblDocID = new javax.swing.JLabel();
+        txtDocID = new javax.swing.JTextField();
+        lblSubmissionDate = new javax.swing.JLabel();
+        txtSubmissionDate = new javax.swing.JTextField();
+        lblDocType = new javax.swing.JLabel();
+        txtDocType = new javax.swing.JTextField();
+        lblSubBy = new javax.swing.JLabel();
+        txtSubBy = new javax.swing.JTextField();
+        txtDocName = new javax.swing.JTextField();
+        btnRequestInfo = new javax.swing.JButton();
+        reviewNotesJPanel = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        txtReviewNotes = new javax.swing.JTextField();
+
+        setMaximumSize(new java.awt.Dimension(1450, 800));
+        setMinimumSize(new java.awt.Dimension(1450, 800));
+
+        btnBack.setText("<< Back");
+        btnBack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBackActionPerformed(evt);
+            }
+        });
+
+        lblTitle.setText("Document Review");
+
+        lblSearchID.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblSearchID.setText("Search by ID");
+
+        btnSearch.setText("Search");
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
+
+        DocQueueJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        DocQueueJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblListTitle.setText("Document Queue");
+
+        tblList.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "", "", ""
+            }
+        ));
+        jScrollPane2.setViewportView(tblList);
+
+        comBoFilter.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pending", "Approved", "Canceled" }));
+        comBoFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comBoFilterActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout DocQueueJPanelLayout = new javax.swing.GroupLayout(DocQueueJPanel);
+        DocQueueJPanel.setLayout(DocQueueJPanelLayout);
+        DocQueueJPanelLayout.setHorizontalGroup(
+            DocQueueJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(DocQueueJPanelLayout.createSequentialGroup()
+                .addGroup(DocQueueJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(DocQueueJPanelLayout.createSequentialGroup()
+                        .addComponent(lblListTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(81, 81, 81)
+                        .addComponent(comBoFilter, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(DocQueueJPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 419, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(23, Short.MAX_VALUE))
+        );
+        DocQueueJPanelLayout.setVerticalGroup(
+            DocQueueJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(DocQueueJPanelLayout.createSequentialGroup()
+                .addGroup(DocQueueJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblListTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(comBoFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 625, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 162, Short.MAX_VALUE))
+        );
+
+        declarDetailsJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        declarDetailsJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblReviewDoc.setText("Review Document:");
+
+        btnApprove.setBackground(new java.awt.Color(102, 204, 0));
+        btnApprove.setForeground(new java.awt.Color(255, 255, 255));
+        btnApprove.setText("Approve");
+        btnApprove.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnApproveActionPerformed(evt);
+            }
+        });
+
+        btnReject.setBackground(new java.awt.Color(255, 0, 0));
+        btnReject.setForeground(new java.awt.Color(255, 255, 255));
+        btnReject.setText("Reject");
+        btnReject.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRejectActionPerformed(evt);
+            }
+        });
+
+        docContenJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        docContenJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblDocContent.setText("Document Content");
+
+        txtDocPreview.setColumns(20);
+        txtDocPreview.setRows(5);
+        jScrollPane3.setViewportView(txtDocPreview);
+
+        javax.swing.GroupLayout docContenJPanelLayout = new javax.swing.GroupLayout(docContenJPanel);
+        docContenJPanel.setLayout(docContenJPanelLayout);
+        docContenJPanelLayout.setHorizontalGroup(
+            docContenJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(docContenJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblDocContent)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, docContenJPanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 874, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18))
+        );
+        docContenJPanelLayout.setVerticalGroup(
+            docContenJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(docContenJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblDocContent)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(28, Short.MAX_VALUE))
+        );
+
+        docInfoJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        docInfoJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblDocInfo.setText("Document Information");
+
+        lblDocID.setText("Document ID:");
+
+        txtDocID.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtDocIDActionPerformed(evt);
+            }
+        });
+
+        lblSubmissionDate.setText("Submission Date:");
+
+        txtSubmissionDate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSubmissionDateActionPerformed(evt);
+            }
+        });
+
+        lblDocType.setText("Document Type:");
+
+        lblSubBy.setText("Submitted By:");
+
+        javax.swing.GroupLayout docInfoJPanelLayout = new javax.swing.GroupLayout(docInfoJPanel);
+        docInfoJPanel.setLayout(docInfoJPanelLayout);
+        docInfoJPanelLayout.setHorizontalGroup(
+            docInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(docInfoJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblDocInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(docInfoJPanelLayout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addGroup(docInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(docInfoJPanelLayout.createSequentialGroup()
+                        .addComponent(lblDocID, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(36, 36, 36)
+                        .addComponent(txtDocID, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(docInfoJPanelLayout.createSequentialGroup()
+                        .addComponent(lblSubmissionDate, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(36, 36, 36)
+                        .addComponent(txtSubmissionDate, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
+                .addGroup(docInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(docInfoJPanelLayout.createSequentialGroup()
+                        .addComponent(lblDocType, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(36, 36, 36)
+                        .addComponent(txtDocType, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(docInfoJPanelLayout.createSequentialGroup()
+                        .addComponent(lblSubBy, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(36, 36, 36)
+                        .addComponent(txtSubBy, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+        );
+        docInfoJPanelLayout.setVerticalGroup(
+            docInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(docInfoJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblDocInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(27, 27, 27)
+                .addGroup(docInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblDocID)
+                    .addComponent(txtDocID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblDocType)
+                    .addComponent(txtDocType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(docInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblSubmissionDate)
+                    .addComponent(txtSubmissionDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblSubBy)
+                    .addComponent(txtSubBy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(35, Short.MAX_VALUE))
+        );
+
+        btnRequestInfo.setBackground(new java.awt.Color(255, 153, 0));
+        btnRequestInfo.setForeground(new java.awt.Color(255, 255, 255));
+        btnRequestInfo.setText("Request Info");
+        btnRequestInfo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRequestInfoActionPerformed(evt);
+            }
+        });
+
+        reviewNotesJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        reviewNotesJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jLabel1.setText("Review Notes");
+
+        javax.swing.GroupLayout reviewNotesJPanelLayout = new javax.swing.GroupLayout(reviewNotesJPanel);
+        reviewNotesJPanel.setLayout(reviewNotesJPanelLayout);
+        reviewNotesJPanelLayout.setHorizontalGroup(
+            reviewNotesJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(reviewNotesJPanelLayout.createSequentialGroup()
+                .addGroup(reviewNotesJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(reviewNotesJPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1))
+                    .addGroup(reviewNotesJPanelLayout.createSequentialGroup()
+                        .addGap(34, 34, 34)
+                        .addComponent(txtReviewNotes, javax.swing.GroupLayout.PREFERRED_SIZE, 851, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        reviewNotesJPanelLayout.setVerticalGroup(
+            reviewNotesJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(reviewNotesJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtReviewNotes, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(18, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout declarDetailsJPanelLayout = new javax.swing.GroupLayout(declarDetailsJPanel);
+        declarDetailsJPanel.setLayout(declarDetailsJPanelLayout);
+        declarDetailsJPanelLayout.setHorizontalGroup(
+            declarDetailsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(declarDetailsJPanelLayout.createSequentialGroup()
+                .addGroup(declarDetailsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(declarDetailsJPanelLayout.createSequentialGroup()
+                        .addComponent(lblReviewDoc)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtDocName, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnApprove, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnReject, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnRequestInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(declarDetailsJPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(declarDetailsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(docInfoJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(docContenJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(reviewNotesJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addContainerGap())
+        );
+        declarDetailsJPanelLayout.setVerticalGroup(
+            declarDetailsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(declarDetailsJPanelLayout.createSequentialGroup()
+                .addGroup(declarDetailsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblReviewDoc, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnApprove, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnReject, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtDocName, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnRequestInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(29, 29, 29)
+                .addComponent(docInfoJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(docContenJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(reviewNotesJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(DocQueueJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(declarDetailsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(lblSearchID, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(txtSearchBox, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(24, 24, 24))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(22, 22, 22)
+                .addComponent(btnBack)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnSearch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtSearchBox)
+                        .addComponent(lblSearchID, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(declarDetailsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(DocQueueJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+
+    }//GEN-LAST:event_btnBackActionPerformed
+
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+
+    }//GEN-LAST:event_btnSearchActionPerformed
+
+    private void btnApproveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnApproveActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnApproveActionPerformed
+
+    private void btnRejectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRejectActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnRejectActionPerformed
+
+    private void txtDocIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDocIDActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtDocIDActionPerformed
+
+    private void comBoFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comBoFilterActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_comBoFilterActionPerformed
+
+    private void btnRequestInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRequestInfoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnRequestInfoActionPerformed
+
+    private void txtSubmissionDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSubmissionDateActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtSubmissionDateActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel DocQueueJPanel;
+    private javax.swing.JButton btnApprove;
+    private javax.swing.JButton btnBack;
+    private javax.swing.JButton btnReject;
+    private javax.swing.JButton btnRequestInfo;
+    private javax.swing.JButton btnSearch;
+    private javax.swing.JComboBox<String> comBoFilter;
+    private javax.swing.JPanel declarDetailsJPanel;
+    private javax.swing.JPanel docContenJPanel;
+    private javax.swing.JPanel docInfoJPanel;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JLabel lblDocContent;
+    private javax.swing.JLabel lblDocID;
+    private javax.swing.JLabel lblDocInfo;
+    private javax.swing.JLabel lblDocType;
+    private javax.swing.JLabel lblListTitle;
+    private javax.swing.JLabel lblReviewDoc;
+    private javax.swing.JLabel lblSearchID;
+    private javax.swing.JLabel lblSubBy;
+    private javax.swing.JLabel lblSubmissionDate;
+    private javax.swing.JLabel lblTitle;
+    private javax.swing.JPanel reviewNotesJPanel;
+    private javax.swing.JTable tblList;
+    private javax.swing.JTextField txtDocID;
+    private javax.swing.JTextField txtDocName;
+    private javax.swing.JTextArea txtDocPreview;
+    private javax.swing.JTextField txtDocType;
+    private javax.swing.JTextField txtReviewNotes;
+    private javax.swing.JTextField txtSearchBox;
+    private javax.swing.JTextField txtSubBy;
+    private javax.swing.JTextField txtSubmissionDate;
     // End of variables declaration//GEN-END:variables
 }
