@@ -38,6 +38,8 @@ public class ConfigureASystem {
         Employee employee4 = system.getEmployeeDirectory().createEmployee("procurement");
         Employee employee5 = system.getEmployeeDirectory().createEmployee("customsagent");
         Employee employee6 = system.getEmployeeDirectory().createEmployee("logistics");
+        Employee employee7 = system.getEmployeeDirectory().createEmployee("warehouse");
+        Employee employee8 = system.getEmployeeDirectory().createEmployee("fintech");
         
 
         UserAccount ua = system.getUserAccountDirectory().createUserAccount("sysadmin", "sysadmin", employee1, new AdminRole());
