@@ -29,10 +29,9 @@ public class LogisticsCoordinatorRole extends Role {
     
     @Override
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-        ui.LogisticsRole.LogisticsCoordinatorHP logisticsHP = new ui.LogisticsRole.LogisticsCoordinatorHP();
-    
+        LogisticsCoordinatorHP logisticsHP = new LogisticsCoordinatorHP(userProcessContainer, account, enterprise, (LogisticsOrganization)organization);
         return logisticsHP;
-}
+    }
     
     /**
      * 创建新的货件

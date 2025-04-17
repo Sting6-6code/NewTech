@@ -9,10 +9,14 @@ import Business.Role.LogisticsCoordinatorRole;
 import Business.Role.Role;
 import java.util.ArrayList;
 
+import java.util.ArrayList;
+import Business.Role.Role;
+
 /**
  *
  * @author zhuchenyan
  */
+public class LogisticsGroupEnterprise extends Enterprise{
 public class LogisticsGroupEnterprise extends Enterprise{
     
     public LogisticsGroupEnterprise(String name){
@@ -24,6 +28,15 @@ public class LogisticsGroupEnterprise extends Enterprise{
         ArrayList<Role> roles = new ArrayList<>();
         roles.add(new LogisticsCoordinatorRole());
         roles.add(new CustomsAgentRole());
+        return roles;
+    }
+    public LogisticsGroupEnterprise(String name){
+        super(name,EnterpriseType.LogisticsGroupEnterprise);
+    }
+    
+    @Override
+    public ArrayList<Role> getSupportedRole() {
+        ArrayList<Role> roles = new ArrayList<>();
         return roles;
     }
 }

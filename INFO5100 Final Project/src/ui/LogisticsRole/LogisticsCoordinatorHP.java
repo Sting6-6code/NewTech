@@ -38,10 +38,9 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
      * Creates new form LogisticsCoordinatorHP
      */
     public LogisticsCoordinatorHP() {
-        
-        
         initComponents();
         this.setPreferredSize(new java.awt.Dimension(1450, 800));
+        logisticsWorkAreajPanel.setLayout(new CardLayout());
     }
     
     public LogisticsCoordinatorHP(JPanel userProcessContainer, UserAccount account, 
