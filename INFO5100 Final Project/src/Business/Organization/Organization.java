@@ -50,7 +50,9 @@ public abstract class Organization {
     public UserAccountDirectory getUserAccountDirectory() {
         return userAccountDirectory;
     }
-
+    
+    
+    
     public int getOrganizationID() {
         return organizationID;
     }
