@@ -6,6 +6,7 @@ package Business.Organization;
 
 import Business.Role.AdminRole;
 import Business.Role.Role;
+import Business.UserAccount.UserAccountDirectory;
 import java.util.ArrayList;
 
 /**
@@ -14,6 +15,8 @@ import java.util.ArrayList;
  */
 public class AdminOrganization extends Organization{
 
+    UserAccountDirectory uad;
+    
     public AdminOrganization() {
         super(Type.Admin.getValue());
     }
@@ -24,5 +27,7 @@ public class AdminOrganization extends Organization{
         roles.add(new AdminRole());
         return roles;
     }
+    
+    
      
 }

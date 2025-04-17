@@ -7,9 +7,11 @@ package ui.AdminRole;
 import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
 import Business.Organization.AdminOrganization;
+import Business.Organization.Organization;
 import Business.UserAccount.UserAccount;
 import java.awt.CardLayout;
 import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -20,26 +22,32 @@ public class AdminHP extends javax.swing.JPanel {
     private JPanel workArea;
     private UserAccount userAccount;
     private Enterprise enterprise;
-    private AdminOrganization adminOrg;
+    private Organization adminOrg;
+    private EcoSystem business;
     
     
   
     public AdminHP() {
-        System.out.println("⚠️ Warning: Default constructor used — make sure this is intentional!");
-        initComponents();
-        this.setPreferredSize(new java.awt.Dimension(1450, 800));
+//        System.out.println("⚠️ Warning: Default constructor used — make sure this is intentional!");
+//        initComponents();
+//        this.setPreferredSize(new java.awt.Dimension(1450, 800));
+//        populateTable();
+        
+         throw new RuntimeException("🚨 Default constructor of AdminHP used! Stack trace below:");
     }
     
-    public AdminHP(JPanel jp, UserAccount ua, Enterprise e, AdminOrganization ao) {
+    public AdminHP(JPanel jp, UserAccount ua, Enterprise e, Organization o, EcoSystem b) {
         System.out.println("⚠️ Warning: Default constructor used — make sure this is intentional!");
         this.setPreferredSize(new java.awt.Dimension(1450, 800));
         this.workArea = jp;
         this.userAccount = ua;
         this.enterprise = e;
-        adminOrg = ao;
+        adminOrg = o;
+        business = b;
         System.out.println("Received JPanel: " + (jp != null ? "Not null ✅" : "NULL ❌"));
         System.out.println("JPanel class: " + (jp != null ? jp.getClass().getName() : "null"));
         initComponents();
+        populateTable();
 //        System.out.println(workArea.getName());
     }
 
@@ -91,6 +99,11 @@ public class AdminHP extends javax.swing.JPanel {
         viewUsersScrollPane.setViewportView(tblUsers);
 
         btnAddUser.setText("Add User");
+        btnAddUser.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddUserActionPerformed(evt);
+            }
+        });
 
         btnModify.setText("Modify User");
 
@@ -219,6 +232,14 @@ public class AdminHP extends javax.swing.JPanel {
         
     }//GEN-LAST:event_btnMngOwnProfileActionPerformed
 
+    private void btnAddUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddUserActionPerformed
+        // TODO add your handling code here:
+        AddNewUser anu = new AddNewUser();
+        workArea.add("AddNewUser", anu);
+        CardLayout l = (CardLayout) workArea.getLayout();
+        l.show(workArea, "AddNewUser");
+    }//GEN-LAST:event_btnAddUserActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel WelcomeMsg;
@@ -236,4 +257,21 @@ public class AdminHP extends javax.swing.JPanel {
     private javax.swing.JTable tblUsers;
     private javax.swing.JScrollPane viewUsersScrollPane;
     // End of variables declaration//GEN-END:variables
+    
+    
+    // operations
+    private void populateTable() {
+        DefaultTableModel m = (DefaultTableModel) tblUsers.getModel();
+        m.setRowCount(0);
+        
+        for (UserAccount ua : adminOrg.getUserAccountDirectory().getUserAccountList()) {
+            Object[] row = new Object[5];
+            row[0] = ua;
+            row[1] = ua.getPassword();
+            row[2] = ua.getEmployee().getId();
+            row[3] = ua.getEmployee().toString();
+            row[5] = ua.getRole();
+            m.addRow(row);
+        }
+    }
 }
