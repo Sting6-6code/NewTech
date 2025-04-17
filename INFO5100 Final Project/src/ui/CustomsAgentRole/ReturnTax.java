@@ -20,43 +20,41 @@ import javax.swing.table.DefaultTableModel;
  * @author zhuchenyan
  */
 public class ReturnTax extends javax.swing.JPanel {
-    
+
     private JPanel userProcessContainer;
     private UserAccount userAccount;
     private CustomsLiaisonOrganization organization;
-    
+
     /**
      * Creates new form ReturnTax
      */
     public ReturnTax(JPanel userProcessContainer, UserAccount account, CustomsLiaisonOrganization organization) {
-        
+
         initComponents();
-        
+
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.organization = organization;
-        
+
         // Initialize
         setupTable();
         populateTable();
-        
-        
-        
+
     }
-    
+
     private void setupTable() {
         DefaultTableModel model = (DefaultTableModel) tblReturnApp.getModel();
         model.setColumnIdentifiers(new Object[]{
             "Application ID", "Related Decl.", "Amount", "Date", "Status"
         });
     }
-    
+
     private void populateTable() {
         DefaultTableModel model = (DefaultTableModel) tblReturnApp.getModel();
         model.setRowCount(0);
-        
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        
+
         for (TaxReturn taxReturn : organization.getTaxReturnDirectory().getTaxReturnList()) {
             Object[] row = {
                 taxReturn.getApplicationId(),
@@ -68,7 +66,7 @@ public class ReturnTax extends javax.swing.JPanel {
             model.addRow(row);
         }
     }
-    
+
     private void clearFields() {
         comBoAppType.setSelectedIndex(0);
         txtRelatedDeclaration.setText("");
@@ -79,27 +77,27 @@ public class ReturnTax extends javax.swing.JPanel {
         txtBankInfo.setText("");
         txtNotes.setText("");
     }
-    
+
     private boolean validateInputs() {
         if (txtRelatedDeclaration.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter related declaration ID");
             return false;
         }
-        
+
         if (txtTaxID.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter tax ID");
             return false;
         }
-        
+
         try {
             double originalAmount = Double.parseDouble(txtOriginalTaxAmount.getText().trim());
             double returnAmount = Double.parseDouble(txtReturnAmount.getText().trim());
-            
+
             if (originalAmount <= 0) {
                 JOptionPane.showMessageDialog(this, "Original tax amount must be greater than 0");
                 return false;
             }
-            
+
             if (returnAmount <= 0 || returnAmount > originalAmount) {
                 JOptionPane.showMessageDialog(this, "Return amount must be greater than 0 and less than original amount");
                 return false;
@@ -108,17 +106,17 @@ public class ReturnTax extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Please enter valid amounts");
             return false;
         }
-        
+
         if (txtReturnReason.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter return reason");
             return false;
         }
-        
+
         if (txtBankInfo.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter bank information");
             return false;
         }
-        
+
         return true;
     }
 
@@ -502,20 +500,20 @@ public class ReturnTax extends javax.swing.JPanel {
         if (!validateInputs()) {
             return;
         }
-        
+
         // Verify declaration exists
         String declarationId = txtRelatedDeclaration.getText().trim();
         CustomsDeclaration declaration = organization.getCustomsDeclarationDirectory()
                 .findDeclarationById(declarationId);
-        
+
         if (declaration == null) {
-            JOptionPane.showMessageDialog(this, 
+            JOptionPane.showMessageDialog(this,
                     "Declaration not found: " + declarationId,
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         // Create new tax return application
         TaxReturn taxReturn = new TaxReturn();
         taxReturn.setApplicationId("TR" + System.currentTimeMillis());
@@ -529,15 +527,15 @@ public class ReturnTax extends javax.swing.JPanel {
         taxReturn.setNotes(txtNotes.getText().trim());
         taxReturn.setSubmissionDate(new Date());
         taxReturn.setStatus("Pending");
-        
+
         // Add to directory
         organization.getTaxReturnDirectory().addTaxReturn(taxReturn);
-        
+
         // Update UI
         populateTable();
         clearFields();
-        
-        JOptionPane.showMessageDialog(this, 
+
+        JOptionPane.showMessageDialog(this,
                 "Tax return application submitted successfully\nApplication ID: " + taxReturn.getApplicationId(),
                 "Success",
                 JOptionPane.INFORMATION_MESSAGE);

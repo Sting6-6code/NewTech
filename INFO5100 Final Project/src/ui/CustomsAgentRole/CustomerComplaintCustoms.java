@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 public class CustomerComplaintCustoms extends javax.swing.JPanel {
 
     private JPanel userProcessContainer;
-    
+
     /**
      * Creates new form CustomerComplaintContent
      */

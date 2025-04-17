@@ -9,15 +9,28 @@ import Business.Organization.LogisticsOrganization;
 import Business.UserAccount.UserAccount;
 import Business.Logistics.Shipment;
 import Business.Logistics.TrackingInfo;
+import Business.Organization.Organization;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.table.DefaultTableModel;
 import jdk.tools.jlink.internal.Platform;
-
 
 /**
  *
@@ -29,24 +42,59 @@ public class ShipmentPanel extends javax.swing.JPanel {
     private UserAccount userAccount;
     private Enterprise enterprise;
     private LogisticsOrganization organization;
-  
+    private JPanel mapPanel;
+    private JEditorPane mapView;
+    private static final String GOOGLE_MAPS_API_KEY = "AIzaSyCsxjLs6wmSHnIQDKTxAtynpNfMAecSWqY";
+
     /**
      * Creates new form Shipment
      */
-    public ShipmentPanel(JPanel userProcessContainer, UserAccount account, 
-               Enterprise enterprise, LogisticsOrganization organization) {
-        
+    public ShipmentPanel(JPanel userProcessContainer, UserAccount account,
+            Enterprise enterprise, LogisticsOrganization organization) {
+
+        initComponents();
+
+        this.organization = organization;
+
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.enterprise = enterprise;
-        this.organization = organization;
-        
-        initComponents();
-        
+
         populateTable();
+
+        // debug
+        System.out.println("ShipmentPanel initialized with organization: "
+                + (this.organization != null ? "Yes" : "No"));
+        if (this.organization != null && this.organization.getShipmentDirectory() != null) {
+            System.out.println("Number of shipments: "
+                    + this.organization.getShipmentDirectory().getShipments().size());
+        }
     }
-    
-    
+
+    private void initializeMapComponents() {
+        // Ensure trackPathJPanel uses BorderLayout
+        trackPathJPanel.setLayout(new BorderLayout());
+
+        // Create map view component
+        mapView = new JEditorPane();
+        mapView.setContentType("text/html");
+        mapView.setEditable(false);
+
+        // Add scroll support
+        JScrollPane scrollPane = new JScrollPane(mapView);
+
+        // Add map view to trackPathJPanel
+        trackPathJPanel.add(scrollPane, BorderLayout.CENTER);
+
+        // Add panel for tracking information
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        infoPanel.setPreferredSize(new Dimension(300, 0)); // Set info panel width
+
+        // Add to the right side of trackPathJPanel
+        trackPathJPanel.add(infoPanel, BorderLayout.EAST);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -85,7 +133,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
         btnCustomsInfo = new javax.swing.JButton();
         btnPackageInfo = new javax.swing.JButton();
         btnFinancialInfo = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
+        trackPathJPanel = new javax.swing.JPanel();
         lblTrackPath = new javax.swing.JLabel();
         btnSave = new javax.swing.JButton();
 
@@ -296,7 +344,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
                 .addGap(17, 17, 17))
         );
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        trackPathJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         lblTrackPath.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblTrackPath.setText("Track Path（Google Map API）");
@@ -308,22 +356,22 @@ public class ShipmentPanel extends javax.swing.JPanel {
             }
         });
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+        javax.swing.GroupLayout trackPathJPanelLayout = new javax.swing.GroupLayout(trackPathJPanel);
+        trackPathJPanel.setLayout(trackPathJPanelLayout);
+        trackPathJPanelLayout.setHorizontalGroup(
+            trackPathJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, trackPathJPanelLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnSave)
                 .addGap(110, 110, 110))
-            .addGroup(jPanel2Layout.createSequentialGroup()
+            .addGroup(trackPathJPanelLayout.createSequentialGroup()
                 .addGap(149, 149, 149)
                 .addComponent(lblTrackPath, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(181, Short.MAX_VALUE))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        trackPathJPanelLayout.setVerticalGroup(
+            trackPathJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(trackPathJPanelLayout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addComponent(lblTrackPath, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 268, Short.MAX_VALUE)
@@ -360,7 +408,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
                             .addGap(6, 6, 6)
                             .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(trackPathJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 1403, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(32, Short.MAX_VALUE))
         );
@@ -393,7 +441,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
                 .addGap(56, 56, 56)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(trackPathJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 36, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -402,7 +450,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
         userProcessContainer.remove(this);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.previous(userProcessContainer);
-      
+
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
@@ -415,7 +463,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
         if (!searchQuery.isEmpty()) {
             searchShipment(searchQuery);
         }
-        
+
     }//GEN-LAST:event_btnSearchActionPerformed
 
     private void btnViewDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewDetailsActionPerformed
@@ -424,13 +472,25 @@ public class ShipmentPanel extends javax.swing.JPanel {
             displayShipmentDetails(selectedRow);
         } else {
             JOptionPane.showMessageDialog(this, "Please select a shipment first", "Information", JOptionPane.INFORMATION_MESSAGE);
-    }
-        
+        }
+
     }//GEN-LAST:event_btnViewDetailsActionPerformed
 
     private void btnTrackPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTrackPathActionPerformed
 
-        
+        int selectedRow = tblShipment.getSelectedRow();
+        if (selectedRow >= 0) {
+            String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
+            Shipment shipment = organization.getShipmentDirectory().findShipmentByTrackingNumber(trackingNumber);
+            if (shipment != null) {
+                showTrackingMap(shipment);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Please select a shipment first",
+                    "Information",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
     }//GEN-LAST:event_btnTrackPathActionPerformed
 
     private void btnUpdateStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateStatusActionPerformed
@@ -438,9 +498,9 @@ public class ShipmentPanel extends javax.swing.JPanel {
         if (selectedRow >= 0) {
             updateShipmentStatus(selectedRow);
         } else {
-            JOptionPane.showMessageDialog(this,"Please select a shipment first", "Information", JOptionPane.INFORMATION_MESSAGE);
-    }
-      
+            JOptionPane.showMessageDialog(this, "Please select a shipment first", "Information", JOptionPane.INFORMATION_MESSAGE);
+        }
+
     }//GEN-LAST:event_btnUpdateStatusActionPerformed
 
     private void txtTrcNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTrcNoActionPerformed
@@ -487,7 +547,6 @@ public class ShipmentPanel extends javax.swing.JPanel {
     private javax.swing.JButton btnUpdateStatus;
     private javax.swing.JButton btnViewDetails;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblDestination;
     private javax.swing.JLabel lblLogisticsTracking;
@@ -499,6 +558,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
     private javax.swing.JLabel lblTrackPath;
     private javax.swing.JLabel lblTrackingNo;
     private javax.swing.JTable tblShipment;
+    private javax.swing.JPanel trackPathJPanel;
     private javax.swing.JTextField txtDestination;
     private javax.swing.JTextField txtSearchBox;
     private javax.swing.JTextField txtShippingDate;
@@ -507,171 +567,344 @@ public class ShipmentPanel extends javax.swing.JPanel {
     private javax.swing.JTextField txtTrcNo;
     // End of variables declaration//GEN-END:variables
 
+    private void populateTable() {
+        DefaultTableModel model = (DefaultTableModel) tblShipment.getModel();
+        model.setRowCount(0);
 
-   private void populateTable() {
-    DefaultTableModel model = (DefaultTableModel) tblShipment.getModel();
-    model.setRowCount(0);
-    
-    // 从logistics org获取货件列表
-    if (organization != null && organization.getShipmentDirectory() != null) {
-        ArrayList<Shipment> shipments = organization.getShipmentDirectory().getShipments();
-        
-        for (Shipment shipment : shipments) {
-            Object[] row = new Object[6];
-            row[0] = shipment.getTrackingNumber();
-            row[1] = shipment.getShipDate();
-            row[2] = shipment.getShippingMethod();
-            row[3] = shipment.getDestination();
-            row[4] = shipment.getShipmentStatus();
-            row[5] = shipment.getEstimatedDeliveryDate();
-            
-            model.addRow(row);
-        }
-    }
-}
-    
-   
-   private void searchShipment(String query) {
-    DefaultTableModel model = (DefaultTableModel) tblShipment.getModel();
-    model.setRowCount(0); // 清空表格
-    
-    if (organization != null && organization.getShipmentDirectory() != null) {
-        ArrayList<Shipment> shipments = organization.getShipmentDirectory().getShipments();
-        
-        for (Shipment shipment : shipments) {
-            // 搜索匹配运单号或目的地或状态
-            if (shipment.getTrackingNumber().contains(query) || 
-                shipment.getDestination().contains(query) ||
-                shipment.getShipmentStatus().contains(query)) {
-                
+        // 从logistics org获取货件列表
+        if (organization != null && organization.getShipmentDirectory() != null) {
+            System.out.println("Populating shipment table with data...");
+
+            for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
                 Object[] row = new Object[6];
                 row[0] = shipment.getTrackingNumber();
-                row[1] = shipment.getShipDate();
+                row[1] = new SimpleDateFormat("yyyy-MM-dd").format(shipment.getShipDate());
                 row[2] = shipment.getShippingMethod();
                 row[3] = shipment.getDestination();
                 row[4] = shipment.getShipmentStatus();
-                row[5] = shipment.getEstimatedDeliveryDate();
-                
+                row[5] = shipment.getEstimatedDeliveryDate() != null
+                        ? new SimpleDateFormat("yyyy-MM-dd").format(shipment.getEstimatedDeliveryDate()) : "";
                 model.addRow(row);
+            }
+        } else {
+            System.out.println("Error: Organization or ShipmentDirectory is null");
+        }
+    }
+
+    private void searchShipment(String query) {
+        DefaultTableModel model = (DefaultTableModel) tblShipment.getModel();
+        model.setRowCount(0); // 清空表格
+
+        if (organization != null && organization.getShipmentDirectory() != null) {
+            ArrayList<Shipment> shipments = organization.getShipmentDirectory().getShipments();
+
+            for (Shipment shipment : shipments) {
+                // 搜索匹配运单号或目的地或状态
+                if (shipment.getTrackingNumber().contains(query)
+                        || shipment.getDestination().contains(query)
+                        || shipment.getShipmentStatus().contains(query)) {
+
+                    Object[] row = new Object[6];
+                    row[0] = shipment.getTrackingNumber();
+                    row[1] = shipment.getShipDate();
+                    row[2] = shipment.getShippingMethod();
+                    row[3] = shipment.getDestination();
+                    row[4] = shipment.getShipmentStatus();
+                    row[5] = shipment.getEstimatedDeliveryDate();
+
+                    model.addRow(row);
+                }
             }
         }
     }
-}
-    
-   
-   private void displayShipmentDetails(int selectedRow) {
-    String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
-    
-    // 获取货件
-    Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
-    if (shipment != null) {
-        // 在详情面板显示信息
-        txtTrcNo.setText(shipment.getTrackingNumber());
-        txtShippingDate.setText(shipment.getShipDate() != null ? shipment.getShipDate().toString() : "");
-        txtShippingMethod.setText(shipment.getShippingMethod());
-        txtDestination.setText(shipment.getDestination());
-        txtStatus.setText(shipment.getShipmentStatus());
-        
-        // 激活基本信息Tab
-        btnBasicInfo.doClick();
-    }
-}
-   
-   private void updateShipmentStatus(int selectedRow) {
-    String orderId = tblShipment.getValueAt(selectedRow, 0).toString();
-    
-    // 获取货件
-    Shipment shipment = organization.getShipmentDirectory().findShipmentByOrderId(orderId);
-    
-    if (shipment != null) {
-        // 显示状态更新对话框
-        String[] statuses = {
-            Shipment.STATUS_PENDING,
-            Shipment.STATUS_PROCESSING,
-            Shipment.STATUS_SHIPPED,
-            Shipment.STATUS_IN_TRANSIT,
-            Shipment.STATUS_DELIVERING,
-            Shipment.STATUS_DELIVERED,
-            Shipment.STATUS_EXCEPTION
-        };
-        
-        String newStatus = (String) JOptionPane.showInputDialog(
-                this,
-                "Select new status:",
-                "Update Status",
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                statuses,
-                shipment.getShipmentStatus());
-        
-        if (newStatus != null && !newStatus.isEmpty()) {
-            // 更新状态（会自动添加跟踪记录）
-            shipment.setShipmentStatus(newStatus);
-            
-            // 刷新表格
-            populateTable();
-            JOptionPane.showMessageDialog(this, 
-                "Status has been updated successfully", 
-                "Success", 
-                JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
-}
 
-private void updateShipmentInfo() {
-    String trackingNumber = txtTrcNo.getText();
-    if (trackingNumber == null || trackingNumber.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please select a shipment first", "Information", JOptionPane.INFORMATION_MESSAGE);
-        return;
-    }
-    
-    Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
-    if (shipment != null) {
-        // Update shipment information
-        shipment.setShipmentStatus(txtStatus.getText());
-        shipment.setDestination(txtDestination.getText());
-        shipment.setShippingMethod(txtShippingMethod.getText());
-        
-        // More field updates...
-        
-        // Refresh table
-        populateTable();
-        JOptionPane.showMessageDialog(this, "Shipment information has been updated", "Success", JOptionPane.INFORMATION_MESSAGE);
-    }
-}
-   
-   
-   
-   private Shipment findShipmentByTrackingNumber(String trackingNumber) {
-    if (organization != null && organization.getShipmentDirectory() != null) {
-        return organization.getShipmentDirectory().findShipmentByTrackingNumber(trackingNumber);
-    }
-    return null;
-}
-   private void updateShipmentLocation(int selectedRow) {
-    String orderId = tblShipment.getValueAt(selectedRow, 0).toString();
-    Shipment shipment = organization.getShipmentDirectory().findShipmentByOrderId(orderId);
-    
-    if (shipment != null) {
-        String newLocation = JOptionPane.showInputDialog(
-            this,
-            "Enter new location:",
-            "Update Location",
-            JOptionPane.QUESTION_MESSAGE);
-            
-        if (newLocation != null && !newLocation.trim().isEmpty()) {
-            shipment.updateLocation(newLocation.trim());
-            populateTable();
-            JOptionPane.showMessageDialog(this,
-                "Location has been updated successfully",
-                "Success",
-                JOptionPane.INFORMATION_MESSAGE);
+    private void displayShipmentDetails(int selectedRow) {
+        String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
+
+        // 获取货件
+        Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+        if (shipment != null) {
+            // 在详情面板显示信息
+            txtTrcNo.setText(shipment.getTrackingNumber());
+            txtShippingDate.setText(shipment.getShipDate() != null ? shipment.getShipDate().toString() : "");
+            txtShippingMethod.setText(shipment.getShippingMethod());
+            txtDestination.setText(shipment.getDestination());
+            txtStatus.setText(shipment.getShipmentStatus());
+
+            // 激活基本信息Tab
+            btnBasicInfo.doClick();
         }
     }
-}
-   
-   
-   
-   
-   
+
+    private void updateShipmentStatus(int selectedRow) {
+        String orderId = tblShipment.getValueAt(selectedRow, 0).toString();
+
+        // 获取货件
+        Shipment shipment = organization.getShipmentDirectory().findShipmentByOrderId(orderId);
+
+        if (shipment != null) {
+            // 显示状态更新对话框
+            String[] statuses = {
+                Shipment.STATUS_PENDING,
+                Shipment.STATUS_PROCESSING,
+                Shipment.STATUS_SHIPPED,
+                Shipment.STATUS_IN_TRANSIT,
+                Shipment.STATUS_DELIVERING,
+                Shipment.STATUS_DELIVERED,
+                Shipment.STATUS_EXCEPTION
+            };
+
+            String newStatus = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Select new status:",
+                    "Update Status",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    statuses,
+                    shipment.getShipmentStatus());
+
+            if (newStatus != null && !newStatus.isEmpty()) {
+                // 更新状态（会自动添加跟踪记录）
+                shipment.setShipmentStatus(newStatus);
+
+                // 刷新表格
+                populateTable();
+                JOptionPane.showMessageDialog(this,
+                        "Status has been updated successfully",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+    }
+
+    private void updateShipmentInfo() {
+        String trackingNumber = txtTrcNo.getText();
+        if (trackingNumber == null || trackingNumber.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please select a shipment first", "Information", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+        if (shipment != null) {
+            // Update shipment information
+            shipment.setShipmentStatus(txtStatus.getText());
+            shipment.setDestination(txtDestination.getText());
+            shipment.setShippingMethod(txtShippingMethod.getText());
+
+            // More field updates...
+            // Refresh table
+            populateTable();
+            JOptionPane.showMessageDialog(this, "Shipment information has been updated", "Success", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private Shipment findShipmentByTrackingNumber(String trackingNumber) {
+        if (organization != null && organization.getShipmentDirectory() != null) {
+            return organization.getShipmentDirectory().findShipmentByTrackingNumber(trackingNumber);
+        }
+        return null;
+    }
+
+    private void updateShipmentLocation(int selectedRow) {
+        String orderId = tblShipment.getValueAt(selectedRow, 0).toString();
+        Shipment shipment = organization.getShipmentDirectory().findShipmentByOrderId(orderId);
+
+        if (shipment != null) {
+            String newLocation = JOptionPane.showInputDialog(
+                    this,
+                    "Enter new location:",
+                    "Update Location",
+                    JOptionPane.QUESTION_MESSAGE);
+
+            if (newLocation != null && !newLocation.trim().isEmpty()) {
+                shipment.updateLocation(newLocation.trim());
+                populateTable();
+                JOptionPane.showMessageDialog(this,
+                        "Location has been updated successfully",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+    }
+
+    private void showTrackingMap(Shipment shipment) {
+        if (shipment == null) {
+            return;
+        }
+
+        List<TrackingInfo> trackingHistory = shipment.getTrackingHistory();
+        if (trackingHistory.isEmpty()) {
+            return;
+        }
+
+        StringBuilder mapHtml = new StringBuilder();
+        mapHtml.append("<!DOCTYPE html>")
+                .append("<html>")
+                .append("<head>")
+                .append("<style>")
+                .append("body { margin: 0; padding: 0; }")
+                .append("#map { height: 100vh; width: 100%; }")
+                .append("</style>")
+                .append("<script src=\"https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY\"></script>")
+                .append("<script>")
+                .append("function initMap() {")
+                .append("  const map = new google.maps.Map(document.getElementById('map'), {")
+                .append("    zoom: 4,")
+                .append("    center: { lat: 31.2304, lng: 121.4737 }") // Default center (Shanghai)
+                .append("  });")
+                .append("  const locations = [");
+
+        // Add all tracking points
+        for (TrackingInfo info : trackingHistory) {
+            mapHtml.append("{")
+                    .append("position: { lat: ").append(info.getLatitude())
+                    .append(", lng: ").append(info.getLongitude()).append(" },")
+                    .append("title: '").append(escapeJavaScript(info.getLocation())).append("',")
+                    .append("info: '").append(escapeJavaScript(info.getDescription())).append("',")
+                    .append("time: '").append(escapeJavaScript(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(info.getTimestamp()))).append("'")
+                    .append("},");
+        }
+
+        mapHtml.append("];")
+                // Add path line
+                .append("const path = new google.maps.Polyline({")
+                .append("  path: locations.map(loc => loc.position),")
+                .append("  geodesic: true,")
+                .append("  strokeColor: '#FF0000',")
+                .append("  strokeOpacity: 1.0,")
+                .append("  strokeWeight: 2")
+                .append("});")
+                .append("path.setMap(map);")
+                // Add markers and info windows
+                .append("const infoWindow = new google.maps.InfoWindow();")
+                .append("locations.forEach((location, i) => {")
+                .append("  const marker = new google.maps.Marker({")
+                .append("    position: location.position,")
+                .append("    map: map,")
+                .append("    title: location.title,")
+                .append("    label: (i + 1).toString()")
+                .append("  });")
+                .append("  marker.addListener('click', () => {")
+                .append("    infoWindow.setContent(")
+                .append("      '<div style=\"padding: 10px;\">' +")
+                .append("      '<h3>' + location.title + '</h3>' +")
+                .append("      '<p><strong>Time: </strong>' + location.time + '</p>' +")
+                .append("      '<p><strong>Description: </strong>' + location.info + '</p>' +")
+                .append("      '</div>'")
+                .append("    );")
+                .append("    infoWindow.open(map, marker);")
+                .append("  });")
+                .append("});")
+                // Auto-adjust map viewport to show all markers
+                .append("const bounds = new google.maps.LatLngBounds();")
+                .append("locations.forEach(location => bounds.extend(location.position));")
+                .append("map.fitBounds(bounds);")
+                .append("}")
+                .append("</script>")
+                .append("</head>")
+                .append("<body onload=\"initMap()\">")
+                .append("<div id=\"map\"></div>")
+                .append("</body></html>");
+
+        try {
+            mapView.setText(mapHtml.toString());
+            updateTrackingInfo(shipment, trackingHistory);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error displaying map: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private JPanel createControlPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        // 添加返回按钮
+        JButton btnBack = new JButton("Back to list");
+        btnBack.addActionListener(e -> {
+            CardLayout layout = (CardLayout) getLayout();
+            layout.show(this, "listPanel");
+        });
+        panel.add(btnBack);
+
+        // 添加刷新按钮
+        JButton btnRefresh = new JButton("Refresh Map");
+        btnRefresh.addActionListener(e -> {
+            int selectedRow = tblShipment.getSelectedRow();
+            if (selectedRow >= 0) {
+                String orderId = tblShipment.getValueAt(selectedRow, 0).toString();
+                Shipment shipment = organization.getShipmentDirectory().findShipmentByOrderId(orderId);
+                if (shipment != null) {
+                    showTrackingMap(shipment);
+                }
+            }
+        });
+        panel.add(btnRefresh);
+
+        return panel;
+    }
+
+    // Update right side information panel
+    private void updateTrackingInfo(Shipment shipment, List<TrackingInfo> trackingHistory) {
+        JPanel infoPanel = (JPanel) trackPathJPanel.getComponent(1); // Get right side info panel
+        infoPanel.removeAll();
+
+        // Add shipment basic information
+        JLabel titleLabel = new JLabel("Shipment Information");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        infoPanel.add(titleLabel);
+
+        addInfoLabel(infoPanel, "Order ID: " + shipment.getOrderId());
+        addInfoLabel(infoPanel, "Tracking Number: " + shipment.getTrackingNumber());
+        addInfoLabel(infoPanel, "Current Status: " + shipment.getShipmentStatus());
+        addInfoLabel(infoPanel, "Destination: " + shipment.getDestination());
+
+        // Add separator
+        infoPanel.add(new JSeparator());
+
+        // Add tracking history
+        JLabel historyLabel = new JLabel("Tracking History");
+        historyLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        infoPanel.add(historyLabel);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for (TrackingInfo info : trackingHistory) {
+            JPanel trackPoint = new JPanel();
+            trackPoint.setLayout(new BoxLayout(trackPoint, BoxLayout.Y_AXIS));
+            trackPoint.setBorder(BorderFactory.createEtchedBorder());
+
+            addInfoLabel(trackPoint, "Time: " + dateFormat.format(info.getTimestamp()));
+            addInfoLabel(trackPoint, "Location: " + info.getLocation());
+            addInfoLabel(trackPoint, "Status: " + info.getStatus());
+            addInfoLabel(trackPoint, "Description: " + info.getDescription());
+
+            infoPanel.add(trackPoint);
+            infoPanel.add(Box.createVerticalStrut(10));
+        }
+
+        infoPanel.revalidate();
+        infoPanel.repaint();
+    }
+
+    private void addInfoLabel(JPanel panel, String text) {
+        JLabel label = new JLabel(text);
+        label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        panel.add(label);
+    }
+
+    // Helper method to escape JavaScript strings
+    private String escapeJavaScript(String str) {
+        if (str == null) {
+            return "";
+        }
+        return str.replace("\\", "\\\\")
+                .replace("'", "\\'")
+                .replace("\"", "\\\"")
+                .replace("\r", "\\r")
+                .replace("\n", "\\n");
+    }
+
 }

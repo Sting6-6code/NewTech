@@ -17,7 +17,12 @@ import Business.Organization.Organization;
 import Business.Role.AdminRole;
 import Business.Customer.ComplaintDirectory;
 import Business.Customer.CustomerComplaint;
+import Business.Logistics.Shipment;
+import Business.Logistics.ShipmentDirectory;
+import Business.Logistics.TrackingInfo;
 import Business.Organization.CustomerExperienceOrganization;
+import Business.Organization.LogisticsOrganization;
+import java.util.Date;
 
 /**
  *
@@ -93,11 +98,12 @@ public class ConfigureASystem {
         }
         
         // Create logistics organizations
-        if (logisticsEnterprise != null && logisticsEnterprise.getOrganizationDirectory() != null) {
+        if (logisticsEnterprise != null) {
             // Create logistics organization
             Organization logisticsOrg = logisticsEnterprise.getOrganizationDirectory().createOrganization(Organization.Type.Logistics);
-            if (logisticsOrg != null) {
-                logisticsOrg.getUserAccountDirectory().getUserAccountList().add(logistics);
+            if (logisticsOrg instanceof LogisticsOrganization) {
+                LogisticsOrganization logisticsOrganization = (LogisticsOrganization) logisticsOrg;
+                createSampleShipments(logisticsOrganization);
             }
             
             // Create customs organization
@@ -106,6 +112,8 @@ public class ConfigureASystem {
                 customsOrg.getUserAccountDirectory().getUserAccountList().add(customsagent);
             }
         }
+        
+        
         
         return system;
     }
@@ -139,4 +147,126 @@ public class ConfigureASystem {
         complaintDirectory.updateComplaintStatus("C007", "Resolved");
         complaintDirectory.updateComplaintStatus("C009", "Resolved");
     }
+    
+    private static void createSampleShipments(LogisticsOrganization logistics) {
+        if (logistics == null || logistics.getShipmentDirectory() == null) {
+            System.out.println("Error: Cannot create sample shipments - invalid organization");
+            return;
+        }
+        
+        ShipmentDirectory shipmentDir = logistics.getShipmentDirectory();
+        
+        // Create sample shipments
+        Shipment shipment1 = shipmentDir.createShipment("SHP001", "TRK001");
+        setupDeliveredShipment(shipment1);
+        
+        Shipment shipment2 = shipmentDir.createShipment("SHP002", "TRK002");
+        setupInTransitShipment(shipment2);
+        
+        Shipment shipment3 = shipmentDir.createShipment("SHP003", "TRK003");
+        setupNewlyShippedShipment(shipment3);
+    }
+    
+    private static void setupDeliveredShipment(Shipment shipment) {
+        // 设置基本信息
+        shipment.setOrderId("ORD001");
+        shipment.setProductName("iPhone 15");
+        shipment.setQuantity(1);
+        shipment.setShipDate(new Date(System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000)); // 7天前
+        shipment.setShippingMethod("Express");
+        shipment.setOrigin("Shanghai Warehouse");
+        shipment.setDestination("Boston, MA");
+        shipment.setCurrentLocation("Boston, MA");
+        shipment.setSender("Apple Store Shanghai");
+        shipment.setReceiver("John Smith");
+        shipment.setWeight(0.5);
+        
+        // 添加跟踪记录
+        addTrackingInfo(shipment, -7, "Shanghai Warehouse", 31.2304, 121.4737,
+                "Package received at warehouse", Shipment.STATUS_PENDING);
+        
+        addTrackingInfo(shipment, -6, "Shanghai International Airport", 31.1443, 121.8083,
+                "Package departed from Shanghai", Shipment.STATUS_SHIPPED);
+        
+        addTrackingInfo(shipment, -4, "Los Angeles International Airport", 33.9416, -118.4085,
+                "Package arrived at transit point", Shipment.STATUS_IN_TRANSIT);
+        
+        addTrackingInfo(shipment, -2, "Boston Logan Airport", 42.3656, -71.0096,
+                "Package arrived at destination city", Shipment.STATUS_IN_TRANSIT);
+        
+        addTrackingInfo(shipment, -1, "Boston Local Facility", 42.3601, -71.0589,
+                "Out for delivery", Shipment.STATUS_DELIVERING);
+        
+        addTrackingInfo(shipment, 0, "Boston, MA", 42.3601, -71.0589,
+                "Package delivered", Shipment.STATUS_DELIVERED);
+    }
+    
+    private static void setupInTransitShipment(Shipment shipment) {
+        // 设置基本信息
+        shipment.setOrderId("ORD002");
+        shipment.setProductName("MacBook Pro");
+        shipment.setQuantity(1);
+        shipment.setShipDate(new Date(System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000)); // 3天前
+        shipment.setShippingMethod("Express");
+        shipment.setOrigin("Shanghai Warehouse");
+        shipment.setDestination("New York, NY");
+        shipment.setCurrentLocation("Los Angeles, CA");
+        shipment.setSender("Apple Store Shanghai");
+        shipment.setReceiver("Jane Doe");
+        shipment.setWeight(2.5);
+        
+        // 添加跟踪记录
+        addTrackingInfo(shipment, -3, "Shanghai Warehouse", 31.2304, 121.4737,
+                "Package received at warehouse", Shipment.STATUS_PENDING);
+        
+        addTrackingInfo(shipment, -2, "Shanghai International Airport", 31.1443, 121.8083,
+                "Package departed from Shanghai", Shipment.STATUS_SHIPPED);
+        
+        addTrackingInfo(shipment, 0, "Los Angeles International Airport", 33.9416, -118.4085,
+                "Package in transit", Shipment.STATUS_IN_TRANSIT);
+    }
+    
+    private static void setupNewlyShippedShipment(Shipment shipment) {
+        // 设置基本信息
+        shipment.setOrderId("ORD003");
+        shipment.setProductName("iPad Pro");
+        shipment.setQuantity(1);
+        shipment.setShipDate(new Date()); // 今天
+        shipment.setShippingMethod("Standard");
+        shipment.setOrigin("Shanghai Warehouse");
+        shipment.setDestination("Chicago, IL");
+        shipment.setCurrentLocation("Shanghai International Airport");
+        shipment.setSender("Apple Store Shanghai");
+        shipment.setReceiver("Bob Wilson");
+        shipment.setWeight(1.0);
+        
+        // 添加跟踪记录
+        addTrackingInfo(shipment, 0, "Shanghai Warehouse", 31.2304, 121.4737,
+                "Package received and processed", Shipment.STATUS_PENDING);
+        
+        addTrackingInfo(shipment, 0, "Shanghai International Airport", 31.1443, 121.8083,
+                "Package ready for departure", Shipment.STATUS_SHIPPED);
+    }
+    
+    private static void addTrackingInfo(Shipment shipment, int daysOffset, 
+            String location, double latitude, double longitude, 
+            String description, String status) {
+        
+        TrackingInfo tracking = new TrackingInfo();
+        tracking.setShipmentId(shipment.getShipmentId());
+        tracking.setTimestamp(new Date(System.currentTimeMillis() + daysOffset * 24 * 60 * 60 * 1000));
+        tracking.setLocation(location);
+        tracking.setLatitude(latitude);
+        tracking.setLongitude(longitude);
+        tracking.setDescription(description);
+        tracking.setStatus(status);
+        
+        shipment.addTrackingInfo(tracking);
+        shipment.setShipmentStatus(status);
+    }
+    
+    
+    
+    
+        
 }
