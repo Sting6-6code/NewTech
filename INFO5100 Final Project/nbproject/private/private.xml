@@ -2,6 +2,29 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Enterprise/Enterprise.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/WarehouseManagerRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/MainJFrame.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/MerchantRole/ManageProductCatalogJPanel.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Logistics/Shipment.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/AdminRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Product/Product.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/UserAccount/UserAccount.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/Role.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/DB4OUtil/DB4OUtil.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Supplier/Supplier.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/fintech/FintechHomepage.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Fintech/Payment.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/ConfigureASystem.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Warehouse/Warehouse.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Warehouse/Stock.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/AdminHP.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/EcoSystem.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/SystemAdminRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/ManageOwnProfile.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/FintechRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/WarehouseManager/WarehouseManagerHomePage.java</file>
+        </group>
     </open-files>
 </project-private>
