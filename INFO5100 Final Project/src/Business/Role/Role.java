@@ -8,14 +8,14 @@ import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
 import Business.Organization.Organization;
 import Business.UserAccount.UserAccount;
-import java.awt.Component;
 import javax.swing.JPanel;
+import ui.CustomerServiceRole.CustomerServiceHP;
 
 /**
  *
  * @author wangsiting
  */
-public class Role {
+public abstract class Role {
     private String name;
 
     public String getName() {
@@ -26,5 +26,7 @@ public class Role {
         this.name = name;
     }
     
-    
+    public abstract JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, 
+                                          Organization organization, Enterprise enterprise, 
+                                          EcoSystem business);
 }

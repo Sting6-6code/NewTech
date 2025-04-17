@@ -4,11 +4,32 @@
  */
 package ui.CustomsAgentRole;
 
+import Business.Logistics.CustomsDeclaration;
+import Business.Organization.CustomsLiaisonOrganization;
+import Business.UserAccount.UserAccount;
+import java.awt.CardLayout;
+import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author zhuchenyan
  */
 public class SubmitDoc extends javax.swing.JPanel {
+    
+    private JPanel userProcessContainer;
+    private UserAccount userAccount;
+    private CustomsLiaisonOrganization organization;
+    private DefaultTableModel model;
+    private SimpleDateFormat dateFormat;
+
 
     /**
      * Creates new form SubmitDoc
@@ -16,7 +37,67 @@ public class SubmitDoc extends javax.swing.JPanel {
     public SubmitDoc() {
         initComponents();
     }
+    
+    public SubmitDoc(JPanel userProcessContainer, UserAccount userAccount, CustomsLiaisonOrganization organization) {
+        initComponents();
+        
+        this.userProcessContainer = userProcessContainer;
+        this.userAccount = userAccount;
+        this.organization = organization;
+        
+        // Initialize date format
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        
+        // Set current date as default
+        txtDocDate.setText(dateFormat.format(new Date()));
+        
+        // Auto-generate document ID
+        generateDocumentId();
+        
+        // Populate recently submitted documents table
+        populateRecentDocumentsTable();
+    }
+    
+    private void generateDocumentId() {
+        String docType = comBoDocType.getSelectedItem().toString().substring(0, 3).toUpperCase();
+        String uniqueId = organization.getCustomsDeclarationDirectory().generateNewDeclarationId();
+        txtDocID.setText(docType + "-" + uniqueId);
+    }
 
+    private void populateRecentDocumentsTable() {
+        model = (DefaultTableModel) tblRecSubDoc.getModel();
+        model.setRowCount(0); // Clear existing rows
+        
+        // Get recent declarations
+        List<CustomsDeclaration> recentDeclarations = organization.getCustomsDeclarationDirectory().getRecentDeclarations();
+        
+        // Populate the table
+        for (CustomsDeclaration declaration : recentDeclarations) {
+            Object[] row = {
+                declaration.getDeclarationId(),
+                getDocumentTypeFromNotes(declaration),
+                dateFormat.format(declaration.getDeclarationDate()),
+                declaration.getStatus()
+            };
+            model.addRow(row);
+        }
+    }
+    
+    private String getDocumentTypeFromNotes(CustomsDeclaration declaration) {
+        String notes = declaration.getNotes();
+        if (notes != null && notes.startsWith("Document Type:")) {
+            int endIndex = notes.indexOf('\n');
+            if (endIndex > 0) {
+                return notes.substring("Document Type:".length(), endIndex).trim();
+            } else {
+                return notes.substring("Document Type:".length()).trim();
+            }
+        }
+        return "Customs Declaration"; // Default
+    }
+
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -26,19 +107,498 @@ public class SubmitDoc extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        submitDocJPanel = new javax.swing.JPanel();
+        docSubFormJPanel = new javax.swing.JPanel();
+        lblDocSubForm = new javax.swing.JLabel();
+        lblDocType = new javax.swing.JLabel();
+        comBoDocType = new javax.swing.JComboBox<>();
+        lblRelatedShipment = new javax.swing.JLabel();
+        lblExpiryDate = new javax.swing.JLabel();
+        lblDocDate = new javax.swing.JLabel();
+        lblDocID = new javax.swing.JLabel();
+        lblNotes = new javax.swing.JLabel();
+        lblIssuAuth = new javax.swing.JLabel();
+        lblUploadDoc = new javax.swing.JLabel();
+        txtRelatedShipment = new javax.swing.JTextField();
+        txtDocDate = new javax.swing.JTextField();
+        txtNotes = new javax.swing.JTextField();
+        txtExpiryDate = new javax.swing.JTextField();
+        txtDocID = new javax.swing.JTextField();
+        txtIssuAuth = new javax.swing.JTextField();
+        txtUploadDoc = new javax.swing.JTextField();
+        btnReset = new javax.swing.JButton();
+        btnSubmit = new javax.swing.JButton();
+        recentSubDocJPanel = new javax.swing.JPanel();
+        lblRecSubDoc = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblRecSubDoc = new javax.swing.JTable();
+        guideJPanel = new javax.swing.JPanel();
+        lblGuide = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTextArea2 = new javax.swing.JTextArea();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTextArea3 = new javax.swing.JTextArea();
+        btnBack = new javax.swing.JButton();
+        lblTitle = new javax.swing.JLabel();
+
+        setMaximumSize(new java.awt.Dimension(1450, 800));
+        setMinimumSize(new java.awt.Dimension(1450, 800));
+
+        submitDocJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        submitDocJPanel.setLocation(new java.awt.Point(1450, 700));
+        submitDocJPanel.setMaximumSize(new java.awt.Dimension(1450, 600));
+
+        docSubFormJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        docSubFormJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblDocSubForm.setText("Document Submission Form");
+
+        lblDocType.setText("Document Type:");
+
+        comBoDocType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Customs Declaration", "Commercial Invoice", "Packing List", "Certificate of Orgin", "Shipping Document" }));
+
+        lblRelatedShipment.setText("Related Shipment:");
+
+        lblExpiryDate.setText("Expiry Date (if applicable):");
+
+        lblDocDate.setText("Document Date:");
+
+        lblDocID.setText("Document ID:");
+
+        lblNotes.setText("Notes/Comments:");
+
+        lblIssuAuth.setText("Issuing Authority:");
+
+        lblUploadDoc.setText("Upload Document:");
+
+        txtDocID.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtDocIDActionPerformed(evt);
+            }
+        });
+
+        txtUploadDoc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtUploadDocActionPerformed(evt);
+            }
+        });
+
+        btnReset.setText("Reset");
+        btnReset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnResetActionPerformed(evt);
+            }
+        });
+
+        btnSubmit.setBackground(new java.awt.Color(102, 204, 0));
+        btnSubmit.setForeground(new java.awt.Color(255, 255, 255));
+        btnSubmit.setText("Submit");
+        btnSubmit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSubmitActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout docSubFormJPanelLayout = new javax.swing.GroupLayout(docSubFormJPanel);
+        docSubFormJPanel.setLayout(docSubFormJPanelLayout);
+        docSubFormJPanelLayout.setHorizontalGroup(
+            docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(docSubFormJPanelLayout.createSequentialGroup()
+                .addGroup(docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(docSubFormJPanelLayout.createSequentialGroup()
+                        .addGap(16, 16, 16)
+                        .addComponent(lblDocSubForm))
+                    .addGroup(docSubFormJPanelLayout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addGroup(docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(docSubFormJPanelLayout.createSequentialGroup()
+                                .addGroup(docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblUploadDoc, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(lblNotes, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(txtNotes)
+                                    .addComponent(txtUploadDoc, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)))
+                            .addGroup(docSubFormJPanelLayout.createSequentialGroup()
+                                .addGroup(docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(lblDocID, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(lblExpiryDate, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 194, Short.MAX_VALUE)
+                                    .addComponent(lblDocDate, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(lblRelatedShipment, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(lblDocType, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(lblIssuAuth, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(18, 18, 18)
+                                .addGroup(docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtIssuAuth, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtRelatedShipment, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(comBoDocType, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtDocDate, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtExpiryDate, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtDocID, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                .addContainerGap(54, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, docSubFormJPanelLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(btnReset, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(59, 59, 59))
+        );
+        docSubFormJPanelLayout.setVerticalGroup(
+            docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(docSubFormJPanelLayout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(lblDocSubForm)
+                .addGroup(docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(docSubFormJPanelLayout.createSequentialGroup()
+                        .addGroup(docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(docSubFormJPanelLayout.createSequentialGroup()
+                                .addGap(39, 39, 39)
+                                .addComponent(lblDocType, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, docSubFormJPanelLayout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(comBoDocType, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
+                        .addGroup(docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtRelatedShipment)
+                            .addComponent(lblRelatedShipment, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblDocDate, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtDocDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(lblExpiryDate, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(docSubFormJPanelLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(txtExpiryDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addGroup(docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblDocID, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtDocID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(11, 11, 11)
+                .addGroup(docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblIssuAuth, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtIssuAuth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblNotes, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtNotes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblUploadDoc, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtUploadDoc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(61, 61, 61)
+                .addGroup(docSubFormJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnReset)
+                    .addComponent(btnSubmit))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        recentSubDocJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        recentSubDocJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblRecSubDoc.setText("Recently Submitted Docments");
+
+        tblRecSubDoc.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Document ID", "Type", "Date", "Status"
+            }
+        ));
+        jScrollPane1.setViewportView(tblRecSubDoc);
+
+        guideJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        guideJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        lblGuide.setText("Document Requirement Guide");
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jTextArea1.setText("Customs Declaration\nRequired for all international shipments. \nMust include HS codes, values, and country of origin for all items.");
+        jScrollPane2.setViewportView(jTextArea1);
+
+        jTextArea2.setColumns(20);
+        jTextArea2.setRows(5);
+        jTextArea2.setText("Commercial Invoice\nMust include seller and buyer information, product details, quantity, unit price, and total value.\n");
+        jScrollPane3.setViewportView(jTextArea2);
+
+        jTextArea3.setColumns(20);
+        jTextArea3.setRows(5);
+        jTextArea3.setText("Certificate of Origin\nMust be issued by an authorized chamber of commerce or government agency. \nRequired for preferential duty treatments.");
+        jScrollPane4.setViewportView(jTextArea3);
+
+        javax.swing.GroupLayout guideJPanelLayout = new javax.swing.GroupLayout(guideJPanel);
+        guideJPanel.setLayout(guideJPanelLayout);
+        guideJPanelLayout.setHorizontalGroup(
+            guideJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(guideJPanelLayout.createSequentialGroup()
+                .addGroup(guideJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(guideJPanelLayout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addComponent(lblGuide))
+                    .addGroup(guideJPanelLayout.createSequentialGroup()
+                        .addGap(35, 35, 35)
+                        .addGroup(guideJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 605, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 605, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 605, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(26, Short.MAX_VALUE))
+        );
+        guideJPanelLayout.setVerticalGroup(
+            guideJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(guideJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblGuide)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(34, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout recentSubDocJPanelLayout = new javax.swing.GroupLayout(recentSubDocJPanel);
+        recentSubDocJPanel.setLayout(recentSubDocJPanelLayout);
+        recentSubDocJPanelLayout.setHorizontalGroup(
+            recentSubDocJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(recentSubDocJPanelLayout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addGroup(recentSubDocJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(guideJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblRecSubDoc)
+                    .addComponent(jScrollPane1))
+                .addContainerGap(145, Short.MAX_VALUE))
+        );
+        recentSubDocJPanelLayout.setVerticalGroup(
+            recentSubDocJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(recentSubDocJPanelLayout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addComponent(lblRecSubDoc)
+                .addGap(33, 33, 33)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 274, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
+                .addComponent(guideJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(95, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout submitDocJPanelLayout = new javax.swing.GroupLayout(submitDocJPanel);
+        submitDocJPanel.setLayout(submitDocJPanelLayout);
+        submitDocJPanelLayout.setHorizontalGroup(
+            submitDocJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(submitDocJPanelLayout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addComponent(docSubFormJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(recentSubDocJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        submitDocJPanelLayout.setVerticalGroup(
+            submitDocJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(submitDocJPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(submitDocJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(submitDocJPanelLayout.createSequentialGroup()
+                        .addComponent(docSubFormJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addComponent(recentSubDocJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+        );
+
+        btnBack.setText("<< Back");
+        btnBack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBackActionPerformed(evt);
+            }
+        });
+
+        lblTitle.setText("Submit Documents");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(submitDocJPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(btnBack)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(submitDocJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        // Return to the previous panel
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
+    }//GEN-LAST:event_btnBackActionPerformed
+
+    private void txtUploadDocActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUploadDocActionPerformed
+        // TODO add your handling code here:
+        // Show file chooser dialog
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Select Document");
+        
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            txtUploadDoc.setText(selectedFile.getAbsolutePath());
+        }
+    }//GEN-LAST:event_txtUploadDocActionPerformed
+
+    private void txtDocIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDocIDActionPerformed
+        // TODO add your handling code here:
+        // Auto-generate document ID if empty
+        if (txtDocID.getText().isEmpty()) {
+            generateDocumentId();
+        }
+    }//GEN-LAST:event_txtDocIDActionPerformed
+
+    private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
+        // TODO add your handling code here:
+        // Reset all form fields
+        comBoDocType.setSelectedIndex(0);
+        txtRelatedShipment.setText("");
+        txtDocDate.setText(dateFormat.format(new Date()));
+        txtExpiryDate.setText("");
+        generateDocumentId(); // Generate a new ID
+        txtIssuAuth.setText("");
+        txtNotes.setText("");
+        txtUploadDoc.setText("");
+    }//GEN-LAST:event_btnResetActionPerformed
+
+    private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
+        // TODO add your handling code here:
+        // Validate form inputs
+        if (txtDocID.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Document ID is required", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (txtDocDate.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Document Date is required", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (txtRelatedShipment.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Related Shipment is required", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        try {
+            // Check if a declaration with this ID already exists
+            if (organization.getCustomsDeclarationDirectory().findDeclarationById(txtDocID.getText()) != null) {
+                JOptionPane.showMessageDialog(this, "A document with this ID already exists", 
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Parse date fields
+            Date docDate = dateFormat.parse(txtDocDate.getText());
+            Date expiryDate = null;
+            if (!txtExpiryDate.getText().isEmpty()) {
+                expiryDate = dateFormat.parse(txtExpiryDate.getText());
+            }
+            
+            // Create new document object
+            CustomsDeclaration declaration = new CustomsDeclaration();
+            declaration.setDeclarationId(txtDocID.getText());
+            declaration.setShipmentId(txtRelatedShipment.getText());
+            declaration.setDeclarationDate(docDate);
+            declaration.setSubmissionDate(new Date());
+            declaration.setStatus("Pending");
+            
+            // Store document type and other fields in notes
+            StringBuilder notesBuilder = new StringBuilder();
+            notesBuilder.append("Document Type: ").append(comBoDocType.getSelectedItem().toString()).append("\n");
+            notesBuilder.append("Issuing Authority: ").append(txtIssuAuth.getText()).append("\n");
+            
+            if (!txtNotes.getText().isEmpty()) {
+                notesBuilder.append("Additional Notes: ").append(txtNotes.getText()).append("\n");
+            }
+            
+            if (!txtUploadDoc.getText().isEmpty()) {
+                notesBuilder.append("Document Path: ").append(txtUploadDoc.getText());
+            }
+            
+            declaration.setNotes(notesBuilder.toString());
+            
+            // Add document to the directory
+            organization.getCustomsDeclarationDirectory().addCustomsDeclaration(declaration);
+            
+            // Show success message
+            JOptionPane.showMessageDialog(this, "Document submitted successfully");
+            
+            // Reset form fields
+            btnResetActionPerformed(evt);
+            
+            // Refresh the recent documents table
+            populateRecentDocumentsTable();
+            
+        } catch (ParseException e) {
+            JOptionPane.showMessageDialog(this, "Invalid date format. Please use yyyy-MM-dd format.", 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error submitting document: " + e.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    
+    }//GEN-LAST:event_btnSubmitActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnBack;
+    private javax.swing.JButton btnReset;
+    private javax.swing.JButton btnSubmit;
+    private javax.swing.JComboBox<String> comBoDocType;
+    private javax.swing.JPanel docSubFormJPanel;
+    private javax.swing.JPanel guideJPanel;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jTextArea2;
+    private javax.swing.JTextArea jTextArea3;
+    private javax.swing.JLabel lblDocDate;
+    private javax.swing.JLabel lblDocID;
+    private javax.swing.JLabel lblDocSubForm;
+    private javax.swing.JLabel lblDocType;
+    private javax.swing.JLabel lblExpiryDate;
+    private javax.swing.JLabel lblGuide;
+    private javax.swing.JLabel lblIssuAuth;
+    private javax.swing.JLabel lblNotes;
+    private javax.swing.JLabel lblRecSubDoc;
+    private javax.swing.JLabel lblRelatedShipment;
+    private javax.swing.JLabel lblTitle;
+    private javax.swing.JLabel lblUploadDoc;
+    private javax.swing.JPanel recentSubDocJPanel;
+    private javax.swing.JPanel submitDocJPanel;
+    private javax.swing.JTable tblRecSubDoc;
+    private javax.swing.JTextField txtDocDate;
+    private javax.swing.JTextField txtDocID;
+    private javax.swing.JTextField txtExpiryDate;
+    private javax.swing.JTextField txtIssuAuth;
+    private javax.swing.JTextField txtNotes;
+    private javax.swing.JTextField txtRelatedShipment;
+    private javax.swing.JTextField txtUploadDoc;
     // End of variables declaration//GEN-END:variables
+
 }

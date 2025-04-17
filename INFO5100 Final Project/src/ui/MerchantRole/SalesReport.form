@@ -29,14 +29,15 @@
                   <Component id="chartPanel" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="btnBack" min="-2" pref="110" max="-2" attributes="0"/>
-                      <EmptySpace pref="938" max="32767" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                       <Component id="lblFrom" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="startDateChooser" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <Component id="startDateChooser" min="-2" pref="200" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
                       <Component id="lblTo" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="endDateChooser" min="-2" max="-2" attributes="0"/>
+                      <Component id="endDateChooser" min="-2" pref="200" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="74" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="btnGenerate" min="-2" pref="150" max="-2" attributes="0"/>
@@ -64,16 +65,14 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="lblTitle" max="32767" attributes="0"/>
               <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="endDateChooser" min="-2" max="-2" attributes="0"/>
-                      <Component id="lblTo" min="-2" max="-2" attributes="0"/>
-                      <Group type="103" alignment="0" groupAlignment="1" attributes="0">
-                          <Component id="startDateChooser" min="-2" max="-2" attributes="0"/>
-                          <Component id="lblFrom" alignment="0" min="-2" max="-2" attributes="0"/>
-                      </Group>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Component id="endDateChooser" max="32767" attributes="0"/>
+                  <Component id="lblTo" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="startDateChooser" alignment="0" max="32767" attributes="0"/>
+                  <Group type="103" alignment="1" groupAlignment="3" attributes="0">
+                      <Component id="btnBack" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="lblFrom" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="btnBack" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -99,6 +98,9 @@
   </Layout>
   <SubComponents>
     <Component class="com.toedter.calendar.JDateChooser" name="startDateChooser">
+      <Properties>
+        <Property name="dateFormatString" type="java.lang.String" value="yyyy-MM-dd"/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="btnBack">
       <Properties>
@@ -119,6 +121,9 @@
       </Properties>
     </Component>
     <Component class="com.toedter.calendar.JDateChooser" name="endDateChooser">
+      <Properties>
+        <Property name="dateFormatString" type="java.lang.String" value="yyyy-MM-dd"/>
+      </Properties>
     </Component>
     <Container class="javax.swing.JScrollPane" name="reportArea">
 
@@ -182,7 +187,7 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" pref="170" max="-2" attributes="0"/>
                   <Component id="chartPanelBean1" min="-2" pref="347" max="-2" attributes="0"/>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="921" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
