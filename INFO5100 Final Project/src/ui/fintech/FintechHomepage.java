@@ -26,30 +26,139 @@ public class FintechHomepage extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        lblTitle = new javax.swing.JLabel();
+        viewPaymentsScrollPane = new javax.swing.JScrollPane();
+        tblPayments = new javax.swing.JTable();
+        btnReceive = new javax.swing.JButton();
+        btnReport = new javax.swing.JButton();
+        btnRefund = new javax.swing.JButton();
+        btnViewDetail = new javax.swing.JButton();
+        viewDetailJP = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        txtShipmentID = new javax.swing.JTextField();
+        txtAmt = new javax.swing.JTextField();
 
-        jLabel1.setText("<Welcome Msg>");
+        lblTitle.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblTitle.setText("Welcome to Payment Center!");
+
+        tblPayments.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Payment ID", "Shipment Info", "Amount"
+            }
+        ));
+        viewPaymentsScrollPane.setViewportView(tblPayments);
+
+        btnReceive.setText("Receive");
+
+        btnReport.setText("Report Suspicious");
+
+        btnRefund.setText("Refund");
+
+        btnViewDetail.setText("View Detail..");
+
+        viewDetailJP.setBackground(new java.awt.Color(255, 255, 255));
+
+        jLabel1.setText("Shipment ID:");
+
+        jLabel2.setText("Amount:");
+
+        javax.swing.GroupLayout viewDetailJPLayout = new javax.swing.GroupLayout(viewDetailJP);
+        viewDetailJP.setLayout(viewDetailJPLayout);
+        viewDetailJPLayout.setHorizontalGroup(
+            viewDetailJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(viewDetailJPLayout.createSequentialGroup()
+                .addGap(130, 130, 130)
+                .addGroup(viewDetailJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2))
+                .addGap(39, 39, 39)
+                .addGroup(viewDetailJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtAmt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtShipmentID, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(182, Short.MAX_VALUE))
+        );
+
+        viewDetailJPLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {txtAmt, txtShipmentID});
+
+        viewDetailJPLayout.setVerticalGroup(
+            viewDetailJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(viewDetailJPLayout.createSequentialGroup()
+                .addGap(48, 48, 48)
+                .addGroup(viewDetailJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(txtShipmentID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(34, 34, 34)
+                .addGroup(viewDetailJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(txtAmt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(133, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(162, 162, 162)
-                .addComponent(jLabel1)
-                .addContainerGap(329, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(357, 357, 357)
+                        .addComponent(lblTitle))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(169, 169, 169)
+                        .addComponent(viewPaymentsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 716, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(232, 232, 232)
+                        .addComponent(btnReceive)
+                        .addGap(87, 87, 87)
+                        .addComponent(btnReport)
+                        .addGap(85, 85, 85)
+                        .addComponent(btnRefund)
+                        .addGap(67, 67, 67)
+                        .addComponent(btnViewDetail))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(266, 266, 266)
+                        .addComponent(viewDetailJP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(134, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(44, 44, 44)
-                .addComponent(jLabel1)
-                .addContainerGap(400, Short.MAX_VALUE))
+                .addGap(46, 46, 46)
+                .addComponent(lblTitle)
+                .addGap(86, 86, 86)
+                .addComponent(viewPaymentsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(67, 67, 67)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnReceive)
+                    .addComponent(btnReport)
+                    .addComponent(btnRefund)
+                    .addComponent(btnViewDetail))
+                .addGap(70, 70, 70)
+                .addComponent(viewDetailJP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(25, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnReceive;
+    private javax.swing.JButton btnRefund;
+    private javax.swing.JButton btnReport;
+    private javax.swing.JButton btnViewDetail;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel lblTitle;
+    private javax.swing.JTable tblPayments;
+    private javax.swing.JTextField txtAmt;
+    private javax.swing.JTextField txtShipmentID;
+    private javax.swing.JPanel viewDetailJP;
+    private javax.swing.JScrollPane viewPaymentsScrollPane;
     // End of variables declaration//GEN-END:variables
 }
