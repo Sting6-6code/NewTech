@@ -32,6 +32,21 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
     /**
      * Creates new form CustomsLiaisionOfficeHP
      */
+    
+    public CustomsLiaisonOfficeHP() {
+        
+        
+        initComponents();
+        this.setPreferredSize(new java.awt.Dimension(1450, 800));
+        
+        // 设置默认值或展示静态内容，不依赖于 organization 或 userAccount
+        lblPendingReviews.setText("Pending Reviews: 0");
+        lblApprovedDocs.setText("Approved Documents: 0");
+        lblRejectedDocs.setText("Rejected Documents: 0");
+        lblTaxReturns.setText("Tax Returns: 0");
+        lblAlerts.setText("No urgent notifications");
+    }
+    
     public CustomsLiaisonOfficeHP(JPanel userProcessContainer, UserAccount account, 
                                 Enterprise enterprise, CustomsLiaisonOrganization organization) {
         

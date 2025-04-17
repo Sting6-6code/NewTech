@@ -41,6 +41,8 @@ public class ConfigureASystem {
         UserAccount customerservice = system.getUserAccountDirectory().createUserAccount("c","****",employee2, new CustomerServiceRepRole());
         UserAccount merchant = system.getUserAccountDirectory().createUserAccount("m","****",employee3, new MerchantRole());
         UserAccount procurement = system.getUserAccountDirectory().createUserAccount("p","****",employee4, new ProcurementSpecialistRole());
+        UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("a", "****", employee5, new CustomsAgentRole());
+        UserAccount logistics = system.getUserAccountDirectory().createUserAccount("logistics", "****", employee6, new LogisticsCoordinatorRole());
         
         // 创建一个默认供应商
         Supplier techSupplier = new Supplier();
