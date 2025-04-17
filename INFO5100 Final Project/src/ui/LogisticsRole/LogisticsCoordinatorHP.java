@@ -4,6 +4,7 @@
  */
 package ui.LogisticsRole;
 
+import Business.ConfigureASystem;
 import Business.Enterprise.Enterprise;
 import Business.Logistics.Shipment;
 import Business.Organization.LogisticsOrganization;
@@ -92,11 +93,11 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         jSplitPane = new javax.swing.JSplitPane();
         logisticsControljPanel = new javax.swing.JPanel();
         btnDashBoard = new javax.swing.JButton();
-        btnShipmentTra = new javax.swing.JButton();
         btnCustomsDeclar = new javax.swing.JButton();
         btnCusComplaint = new javax.swing.JButton();
         btnProfile = new javax.swing.JButton();
         btnLogout = new javax.swing.JButton();
+        btnShipmentTra = new javax.swing.JButton();
         logisticsWorkAreajPanel = new javax.swing.JPanel();
         CustomerCompJPanel = new javax.swing.JPanel();
         lblCustomerComplaint = new javax.swing.JLabel();
@@ -124,13 +125,6 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         btnDashBoard.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDashBoardActionPerformed(evt);
-            }
-        });
-
-        btnShipmentTra.setText("Shipment Tracking");
-        btnShipmentTra.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnShipmentTraActionPerformed(evt);
             }
         });
 
@@ -162,6 +156,13 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             }
         });
 
+        btnShipmentTra.setText("Shipment Tracking");
+        btnShipmentTra.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnShipmentTraActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout logisticsControljPanelLayout = new javax.swing.GroupLayout(logisticsControljPanel);
         logisticsControljPanel.setLayout(logisticsControljPanelLayout);
         logisticsControljPanelLayout.setHorizontalGroup(
@@ -169,15 +170,15 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             .addGroup(logisticsControljPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnLogout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(logisticsControljPanelLayout.createSequentialGroup()
                         .addGroup(logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(btnProfile, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnCustomsDeclar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnShipmentTra, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnDashBoard, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnCusComplaint, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(btnLogout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(btnCusComplaint, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnShipmentTra, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         logisticsControljPanelLayout.setVerticalGroup(
@@ -185,15 +186,15 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             .addGroup(logisticsControljPanelLayout.createSequentialGroup()
                 .addGap(161, 161, 161)
                 .addComponent(btnDashBoard, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(35, 35, 35)
-                .addComponent(btnShipmentTra)
+                .addGap(40, 40, 40)
+                .addComponent(btnShipmentTra, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(33, 33, 33)
                 .addComponent(btnCustomsDeclar)
                 .addGap(36, 36, 36)
                 .addComponent(btnCusComplaint)
                 .addGap(39, 39, 39)
                 .addComponent(btnProfile)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 241, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 236, Short.MAX_VALUE)
                 .addComponent(btnLogout)
                 .addGap(47, 47, 47))
         );
@@ -452,14 +453,6 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         layout.show(userProcessContainer, "LogisticsCoordinator");
     }//GEN-LAST:event_btnDashBoardActionPerformed
 
-    private void btnShipmentTraActionPerformed(java.awt.event.ActionEvent evt) {
-        // Create and display Shipment panel
-        ShipmentPanel shipmentPanel = new ShipmentPanel(userProcessContainer, userAccount, enterprise, organization);
-        shipmentPanel.setSize(1450, 800);
-        userProcessContainer.add("Shipment", shipmentPanel);
-        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
-        layout.show(userProcessContainer, "Shipment");
-    }
 
     private void btnCusComplaintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCusComplaintActionPerformed
         // TODO add your handling code here:
@@ -495,6 +488,32 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.first(userProcessContainer);
     }//GEN-LAST:event_btnLogoutActionPerformed
+
+    private void btnShipmentTraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipmentTraActionPerformed
+        // TODO add your handling code here:
+        // First check if the organization reference is valid
+        LogisticsOrganization logisticsOrg = this.organization;
+        if (logisticsOrg == null || logisticsOrg.getShipmentDirectory() == null) {
+            // If invalid, get the global one
+            logisticsOrg = ConfigureASystem.getLogisticsOrganization();
+            System.out.println("Using global LogisticsOrganization");
+        }
+
+        // Debug print
+        System.out.println("Creating ShipmentPanel with organization: "
+                + (logisticsOrg != null ? "Yes" : "No"));
+        if (logisticsOrg != null && logisticsOrg.getShipmentDirectory() != null) {
+            System.out.println("Number of shipments before creating ShipmentPanel: "
+                    + logisticsOrg.getShipmentDirectory().getShipments().size());
+        }
+
+        ShipmentPanel shipmentPanel = new ShipmentPanel(userProcessContainer, userAccount, enterprise, logisticsOrg);
+        shipmentPanel.setSize(1450, 800);
+        userProcessContainer.add("Shipment", shipmentPanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "Shipment");
+
+    }//GEN-LAST:event_btnShipmentTraActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

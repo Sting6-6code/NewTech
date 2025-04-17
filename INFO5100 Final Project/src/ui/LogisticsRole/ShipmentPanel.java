@@ -4,6 +4,7 @@
  */
 package ui.LogisticsRole;
 
+import Business.ConfigureASystem;
 import Business.Enterprise.Enterprise;
 import Business.Organization.LogisticsOrganization;
 import Business.UserAccount.UserAccount;
@@ -54,8 +55,17 @@ public class ShipmentPanel extends javax.swing.JPanel {
 
         initComponents();
 
-        this.organization = organization;
+//        this.organization = organization;
 
+        // Use the passed organization if it's valid, otherwise get the global one
+        if (organization != null && organization.getShipmentDirectory() != null) {
+            this.organization = organization;
+        } else {
+            // Fallback to the global instance if the passed one is invalid
+            this.organization = ConfigureASystem.getLogisticsOrganization();
+            System.out.println("WARNING: Using global LogisticsOrganization instance because the passed instance was invalid");
+        }
+        
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.enterprise = enterprise;
@@ -568,26 +578,35 @@ public class ShipmentPanel extends javax.swing.JPanel {
     // End of variables declaration//GEN-END:variables
 
     private void populateTable() {
+        System.out.println("Starting populateTable...");
+        System.out.println("Organization: " + (organization != null ? "exists" : "null"));
+        System.out.println("ShipmentDirectory: " + (organization != null && organization.getShipmentDirectory() != null ? "exists" : "null"));
+    
         DefaultTableModel model = (DefaultTableModel) tblShipment.getModel();
         model.setRowCount(0);
 
         // 从logistics org获取货件列表
         if (organization != null && organization.getShipmentDirectory() != null) {
-            System.out.println("Populating shipment table with data...");
-
-            for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-                Object[] row = new Object[6];
-                row[0] = shipment.getTrackingNumber();
-                row[1] = new SimpleDateFormat("yyyy-MM-dd").format(shipment.getShipDate());
-                row[2] = shipment.getShippingMethod();
-                row[3] = shipment.getDestination();
-                row[4] = shipment.getShipmentStatus();
-                row[5] = shipment.getEstimatedDeliveryDate() != null
-                        ? new SimpleDateFormat("yyyy-MM-dd").format(shipment.getEstimatedDeliveryDate()) : "";
-                model.addRow(row);
-            }
-        } else {
-            System.out.println("Error: Organization or ShipmentDirectory is null");
+        System.out.println("Populating table with shipments...");
+        
+        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+            Object[] row = new Object[6];
+            row[0] = shipment.getTrackingNumber();
+            row[1] = shipment.getShipDate() != null ? 
+                    new SimpleDateFormat("yyyy-MM-dd").format(shipment.getShipDate()) : "";
+            row[2] = shipment.getShippingMethod();
+            row[3] = shipment.getDestination();
+            row[4] = shipment.getShipmentStatus();
+            row[5] = shipment.getEstimatedDeliveryDate() != null ? 
+                    new SimpleDateFormat("yyyy-MM-dd").format(shipment.getEstimatedDeliveryDate()) : "";
+            
+            model.addRow(row);
+            System.out.println("Added shipment: " + shipment.getTrackingNumber());
+        }
+        
+        System.out.println("Added " + model.getRowCount() + " shipments to table");
+    } else {
+        System.out.println("Error: Organization or ShipmentDirectory is null");
         }
     }
 
