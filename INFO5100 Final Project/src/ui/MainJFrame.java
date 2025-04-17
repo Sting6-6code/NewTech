@@ -6,11 +6,21 @@ package ui;
 
 import Business.EcoSystem;
 import Business.DB4OUtil.DB4OUtil;
+import Business.Employee.Employee;
 import Business.Enterprise.Enterprise;
 import Business.Network.Network;
+import Business.Organization.AdminOrganization;
 import Business.Organization.Organization;
+import Business.Role.AdminRole;
+import Business.Role.CustomerServiceRepRole;
+import Business.Role.CustomsAgentRole;
+import Business.Role.LogisticsCoordinatorRole;
+import Business.Role.MerchantRole;
+import Business.Role.ProcurementSpecialistRole;
+import Business.Role.Role;
 import Business.UserAccount.UserAccount;
 import java.awt.CardLayout;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import Business.ConfigureASystem;
@@ -46,6 +56,11 @@ public class MainJFrame extends javax.swing.JFrame {
                 dB4OUtil.storeSystem(system);
             }
         });
+        for (UserAccount ua: system.getUserAccountDirectory().getUserAccountList()) {
+            System.out.println(ua.getUsername() + ua.getPassword());
+        }
+        
+//        demo();
     }
 
     /**
@@ -188,8 +203,10 @@ public class MainJFrame extends javax.swing.JFrame {
             return;
         }
         else{
-            CardLayout layout=(CardLayout)container.getLayout();
-            container.add("workArea",userAccount.getRole().createWorkArea(container, userAccount, inOrganization, inEnterprise, system));
+            CardLayout layout=(CardLayout) container.getLayout();
+            container.add("workArea",userAccount.getRole().
+                    createWorkArea(container, userAccount, 
+                    inOrganization, inEnterprise, system));
             
             layout.next(container);
         }
@@ -198,6 +215,12 @@ public class MainJFrame extends javax.swing.JFrame {
         logoutJButton.setEnabled(true);
         userNameJTextField.setEnabled(false);
         passwordField.setEnabled(false);
+        
+        //
+//        System.out.println("userAccount: " + userAccount);
+//        System.out.println("role: " + userAccount.getRole());
+//        System.out.println("container: " + container);
+        //
     }//GEN-LAST:event_loginJButtonActionPerformed
 
     private void logoutJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutJButtonActionPerformed
@@ -267,4 +290,25 @@ public class MainJFrame extends javax.swing.JFrame {
     private javax.swing.JPasswordField passwordField;
     private javax.swing.JTextField userNameJTextField;
     // End of variables declaration//GEN-END:variables
+    
+    // operations
+    private void demo() {
+        system.setName("Newegg");
+        
+        Employee employee1 = system.getEmployeeDirectory().createEmployee("sysadmin");
+        Employee employee2 = system.getEmployeeDirectory().createEmployee("customerservice");
+        Employee employee3 = system.getEmployeeDirectory().createEmployee("merchant");
+        Employee employee4 = system.getEmployeeDirectory().createEmployee("procurement");
+        Employee employee5 = system.getEmployeeDirectory().createEmployee("customsagent");
+        Employee employee6 = system.getEmployeeDirectory().createEmployee("logistics");
+        UserAccount ua = system.getUserAccountDirectory().createUserAccount("sysadmin", "sysadmin", employee1, new AdminRole());
+        UserAccount customerservice = system.getUserAccountDirectory().createUserAccount("c","****",employee2, new CustomerServiceRepRole());
+        UserAccount merchant = system.getUserAccountDirectory().createUserAccount("m","****",employee3, new MerchantRole());
+        UserAccount procurement = system.getUserAccountDirectory().createUserAccount("p","****",employee4, new ProcurementSpecialistRole());
+        UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("l","****", employee5, new CustomsAgentRole());
+        UserAccount logistics = system.getUserAccountDirectory().createUserAccount("t","****", employee6, new LogisticsCoordinatorRole());
+        
+        
+    }
+
 }

@@ -14,6 +14,7 @@ import Business.Enterprise.Enterprise;
 import Business.Enterprise.RetailCorpEnterprise;
 import Business.Enterprise.LogisticsGroupEnterprise;
 import Business.Organization.Organization;
+import Business.Role.AdminRole;
 import Business.Customer.ComplaintDirectory;
 import Business.Customer.CustomerComplaint;
 import Business.Organization.CustomerExperienceOrganization;
@@ -41,14 +42,16 @@ public class ConfigureASystem {
         Employee employee4 = system.getEmployeeDirectory().createEmployee("procurement");
         Employee employee5 = system.getEmployeeDirectory().createEmployee("customsagent");
         Employee employee6 = system.getEmployeeDirectory().createEmployee("logistics");
+        Employee employee7 = system.getEmployeeDirectory().createEmployee("warehouse");
+        Employee employee8 = system.getEmployeeDirectory().createEmployee("fintech");
         
         // Create user accounts
         UserAccount ua = system.getUserAccountDirectory().createUserAccount("sysadmin", "sysadmin", employee1, new SystemAdminRole());
         UserAccount customerservice = system.getUserAccountDirectory().createUserAccount("c","****",employee2, new CustomerServiceRepRole());
         UserAccount merchant = system.getUserAccountDirectory().createUserAccount("m","****",employee3, new MerchantRole());
         UserAccount procurement = system.getUserAccountDirectory().createUserAccount("p","****",employee4, new ProcurementSpecialistRole());
-        UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("a", "****", employee5, new CustomsAgentRole());
-        UserAccount logistics = system.getUserAccountDirectory().createUserAccount("logistics", "****", employee6, new LogisticsCoordinatorRole());
+        UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("l","****", employee5, new CustomsAgentRole());
+        UserAccount logistics = system.getUserAccountDirectory().createUserAccount("t","****", employee6, new LogisticsCoordinatorRole());
         
         // Create supplier
         Supplier techSupplier1 = new Supplier();

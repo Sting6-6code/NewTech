@@ -20,7 +20,7 @@ public class LogisticsOrganization extends Organization {
     private TaskDirectory taskDirectory;
     
     public LogisticsOrganization() {
-        super("Logistics Organization");
+        super(Organization.Type.Logistics.getValue());
         shipmentDirectory = new ShipmentDirectory();
         taskDirectory = new TaskDirectory();
     }
