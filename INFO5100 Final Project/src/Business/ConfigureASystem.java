@@ -43,8 +43,8 @@ public class ConfigureASystem {
         UserAccount customerservice = system.getUserAccountDirectory().createUserAccount("c","****",employee2, new CustomerServiceRepRole());
         UserAccount merchant = system.getUserAccountDirectory().createUserAccount("m","****",employee3, new MerchantRole());
         UserAccount procurement = system.getUserAccountDirectory().createUserAccount("p","****",employee4, new ProcurementSpecialistRole());
-        UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("a", "password123", employee5, new CustomsAgentRole());
-        UserAccount logistics = system.getUserAccountDirectory().createUserAccount("logistics", "****", employee6, new LogisticsCoordinatorRole());
+        UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("l","****", employee5, new CustomsAgentRole());
+        UserAccount logistics = system.getUserAccountDirectory().createUserAccount("t","****", employee6, new LogisticsCoordinatorRole());
         
         
         // 

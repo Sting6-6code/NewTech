@@ -17,7 +17,6 @@ import Business.Role.Role;
  * @author zhuchenyan
  */
 public class LogisticsGroupEnterprise extends Enterprise{
-public class LogisticsGroupEnterprise extends Enterprise{
     
     public LogisticsGroupEnterprise(String name){
         super(name, EnterpriseType.LogisticsGroupEnterprise);
@@ -28,15 +27,6 @@ public class LogisticsGroupEnterprise extends Enterprise{
         ArrayList<Role> roles = new ArrayList<>();
         roles.add(new LogisticsCoordinatorRole());
         roles.add(new CustomsAgentRole());
-        return roles;
-    }
-    public LogisticsGroupEnterprise(String name){
-        super(name,EnterpriseType.LogisticsGroupEnterprise);
-    }
-    
-    @Override
-    public ArrayList<Role> getSupportedRole() {
-        ArrayList<Role> roles = new ArrayList<>();
         return roles;
     }
 }
