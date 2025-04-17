@@ -22,6 +22,19 @@ import Business.Organization.CustomerExperienceOrganization;
 import Business.Organization.Organization;
 import java.util.Date;
 import ui.MainJFrame;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.LayoutManager;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.Box;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import java.text.SimpleDateFormat;
+import Business.Logistics.CustomsDeclaration;
+import Business.Logistics.CustomsDeclarationDirectory;
 
 /**
  *
@@ -33,6 +46,9 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     private UserAccount userAccount;
     private Enterprise enterprise;
     private LogisticsOrganization organization;
+    private JLabel deltaLabel;
+    private CustomsDeclarationDirectory declarationDirectory;
+    private CustomsDeclaration currentDeclaration;
 
     /**
      * Creates new form LogisticsCoordinatorHP
@@ -49,17 +65,18 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         this.userAccount = account;
         this.enterprise = enterprise;
         this.organization = organization;
+        this.declarationDirectory = organization.getCustomsDeclarationDirectory();
         
         initComponents();
+        
+        // 设置所有统计卡片
+        setupStatisticsPanel(actShipmentJPanel, "Active Shipments", "24", "+12% from last week", new Color(51, 51, 255));
+        setupStatisticsPanel(CompletedDeliveriesJPanel, "Pending Customs", "18", "+5% from last week", new Color(255, 165, 0));
+        setupStatisticsPanel(pendingCustomsJPanel, "Completed Deliveries", "156", "+8% from last month", new Color(46, 204, 113));
+        setupStatisticsPanel(CustomerCompJPanel, "Customer Complaints", "3", "-25% from last week", new Color(231, 76, 60));
+        
         this.setPreferredSize(new java.awt.Dimension(1450, 800));
-        
-        // 初始化欢迎信息
-        // 可以添加一个标签显示欢迎信息 
-        // lblWelcome.setText("Welcome, " + userAccount.getUsername());
-        
-        // 加载初始数据
         populateDashboard();
-        
     }
 
     /**
@@ -76,7 +93,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         btnDashBoard = new javax.swing.JButton();
         btnShipmentTra = new javax.swing.JButton();
         btnCustomsDeclar = new javax.swing.JButton();
-        btnReports = new javax.swing.JButton();
+        btnCusComplaint = new javax.swing.JButton();
         btnProfile = new javax.swing.JButton();
         btnLogout = new javax.swing.JButton();
         logisticsWorkAreajPanel = new javax.swing.JPanel();
@@ -123,10 +140,10 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             }
         });
 
-        btnReports.setText("Reports");
-        btnReports.addActionListener(new java.awt.event.ActionListener() {
+        btnCusComplaint.setText("Customer Complaint");
+        btnCusComplaint.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnReportsActionPerformed(evt);
+                btnCusComplaintActionPerformed(evt);
             }
         });
 
@@ -157,7 +174,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
                             .addComponent(btnCustomsDeclar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnShipmentTra, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnDashBoard, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnReports, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(btnCusComplaint, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(btnLogout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -172,7 +189,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
                 .addGap(33, 33, 33)
                 .addComponent(btnCustomsDeclar)
                 .addGap(36, 36, 36)
-                .addComponent(btnReports)
+                .addComponent(btnCusComplaint)
                 .addGap(39, 39, 39)
                 .addComponent(btnProfile)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 241, Short.MAX_VALUE)
@@ -180,7 +197,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
                 .addGap(47, 47, 47))
         );
 
-        logisticsControljPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnCustomsDeclar, btnDashBoard, btnProfile, btnReports, btnShipmentTra});
+        logisticsControljPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnCusComplaint, btnCustomsDeclar, btnDashBoard, btnProfile, btnShipmentTra});
 
         jSplitPane.setLeftComponent(logisticsControljPanel);
 
@@ -417,7 +434,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     private void btnCustomsDeclarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCustomsDeclarActionPerformed
         // TODO add your handling code here:
         // Create and display customs declaration panel
-        DocumentationDetails documentPanel = new DocumentationDetails();
+        DocumentationDetails documentPanel = new DocumentationDetails(userProcessContainer, userAccount, enterprise, organization);
         documentPanel.setSize(1450, 800);
         userProcessContainer.add("CustomsDeclaration", documentPanel);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
@@ -434,20 +451,25 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         layout.show(userProcessContainer, "LogisticsCoordinator");
     }//GEN-LAST:event_btnDashBoardActionPerformed
 
-    private void btnShipmentTraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipmentTraActionPerformed
-        // TODO add your handling code here:
+    private void btnShipmentTraActionPerformed(java.awt.event.ActionEvent evt) {
         // Create and display Shipment panel
         ShipmentPanel shipmentPanel = new ShipmentPanel(userProcessContainer, userAccount, enterprise, organization);
         shipmentPanel.setSize(1450, 800);
         userProcessContainer.add("Shipment", shipmentPanel);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.show(userProcessContainer, "Shipment");
-    }//GEN-LAST:event_btnShipmentTraActionPerformed
+    }
 
-    private void btnReportsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportsActionPerformed
+    private void btnCusComplaintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCusComplaintActionPerformed
         // TODO add your handling code here:
-        // 需要考虑
-    }//GEN-LAST:event_btnReportsActionPerformed
+        // Create and display customer complaint panel
+        CustomerComplaintLogistics complaintPanel = new CustomerComplaintLogistics(userProcessContainer);
+        complaintPanel.setSize(1450, 800);
+        userProcessContainer.add("CustomerComplaint", complaintPanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "CustomerComplaint");
+
+    }//GEN-LAST:event_btnCusComplaintActionPerformed
 
     private void btnProfileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfileActionPerformed
         // TODO add your handling code here:
@@ -479,11 +501,11 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     private javax.swing.JPanel CompletedDeliveriesJPanel;
     private javax.swing.JPanel CustomerCompJPanel;
     private javax.swing.JPanel actShipmentJPanel;
+    private javax.swing.JButton btnCusComplaint;
     private javax.swing.JButton btnCustomsDeclar;
     private javax.swing.JButton btnDashBoard;
     private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnProfile;
-    private javax.swing.JButton btnReports;
     private javax.swing.JButton btnShipmentTra;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -510,64 +532,55 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
  * Populate dashboard with relevant data from the organization
  */
 private void populateDashboard() {
-    // Populate Active Shipments panel with count
-    int activeShipments = 0;
-    if (organization != null && organization.getShipmentDirectory() != null) {
-        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-            if (!"Delivered".equals(shipment.getStatus()) && !"Cancelled".equals(shipment.getStatus())) {
-                activeShipments++;
-            }
-        }
-    }
-    lblActiveShipments.setText("Active Shipments: " + activeShipments);
-    
-    // Populate Pending Customs panel with count
-    int pendingCustoms = 0;
-    if (organization != null && organization.getShipmentDirectory() != null) {
-        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-            if ("Customs Processing".equals(shipment.getStatus())) {
-                pendingCustoms++;
-            }
-        }
-    }
-    lblPendingCustoms.setText("Pending Customs: " + pendingCustoms);
-    
-    // Populate Completed Deliveries panel with count
-    int completedDeliveries = 0;
-    if (organization != null && organization.getShipmentDirectory() != null) {
-        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-            if ("Delivered".equals(shipment.getStatus())) {
-                completedDeliveries++;
-            }
-        }
-    }
-    lblCompletedDeliveries.setText("Completed Deliveries: " + completedDeliveries);
-    
-    // Populate Customer Complaints panel with count
-    int customerComplaints = 0;
-    if (enterprise != null) {
-        // Search for Customer Experience Organization in the enterprise
-        for (Organization org : enterprise.getOrganizationDirectory().getOrganizationList()) {
-            if (org instanceof CustomerExperienceOrganization) {
-                // Get complaint directory from the Customer Experience Organization
-                ComplaintDirectory complaintDirectory = ((CustomerExperienceOrganization) org).getComplaintDirectory();
-                if (complaintDirectory != null) {
-                    customerComplaints = complaintDirectory.getComplaintCount();
+    try {
+        // 获取实际数据
+        int activeShipments = 0;
+        int pendingCustoms = 0;
+        int completedDeliveries = 0;
+        int customerComplaints = 0;
+        
+        if (organization != null && organization.getShipmentDirectory() != null) {
+            for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+                if ("Active".equals(shipment.getShipmentStatus())) {
+                    activeShipments++;
+                } else if ("Pending Customs".equals(shipment.getShipmentStatus())) {
+                    pendingCustoms++;
+                } else if ("Delivered".equals(shipment.getShipmentStatus())) {
+                    completedDeliveries++;
                 }
-                break;
             }
         }
+        
+        // 获取客户投诉数量
+        if (enterprise != null) {
+            for (Organization org : enterprise.getOrganizationDirectory().getOrganizationList()) {
+                if (org instanceof CustomerExperienceOrganization) {
+                    CustomerExperienceOrganization ceo = (CustomerExperienceOrganization) org;
+                    customerComplaints = ceo.getComplaintDirectory().getComplaints().size();
+                    break;
+                }
+            }
+        }
+        
+        // 更新统计卡片
+        setupStatisticsPanel(actShipmentJPanel, "Active Shipments", 
+            String.valueOf(activeShipments), "+12% from last week", new Color(51, 51, 255));
+        
+        setupStatisticsPanel(CompletedDeliveriesJPanel, "Pending Customs", 
+            String.valueOf(pendingCustoms), "+5% from last week", new Color(255, 165, 0));
+        
+        setupStatisticsPanel(pendingCustomsJPanel, "Completed Deliveries", 
+            String.valueOf(completedDeliveries), "+8% from last month", new Color(46, 204, 113));
+        
+        setupStatisticsPanel(CustomerCompJPanel, "Customer Complaints", 
+            String.valueOf(customerComplaints), "-25% from last week", new Color(231, 76, 60));
+        
+        // ... 其他现有的仪表板更新代码 ...
+        
+    } catch (Exception e) {
+        System.out.println("Error in populateDashboard: " + e.getMessage());
+        e.printStackTrace();
     }
-    lblCustomerComplaint.setText("Customer Complaints: " + customerComplaints);
-    
-    // Populate Alerts panel with recent notifications
-    updateAlertsPanel();
-    
-    // Populate Pending Tasks table
-    populatePendingTasksTable();
-    
-    // Populate Recent Shipments table
-    populateRecentShipmentsTable();
 }
 
 
@@ -653,7 +666,7 @@ private void populateRecentShipmentsTable() {
             row[1] = shipment.getShipDate();
             row[2] = shipment.getShippingMethod();
             row[3] = shipment.getDestination();
-            row[4] = shipment.getStatus();
+            row[4] = shipment.getShipmentStatus();
             row[5] = shipment.getEstimatedDeliveryDate();
             model.addRow(row);
             count++;
@@ -682,14 +695,14 @@ private void updateAlertsPanel() {
         
         for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
             // Count urgent shipments
-            if ("Urgent".equals(shipment.getStatus())) {
+            if ("Urgent".equals(shipment.getShipmentStatus())) {
                 urgentShipments++;
             }
             
             // Check for delayed shipments
             if (shipment.getEstimatedDeliveryDate() != null && 
                 currentDate.after(shipment.getEstimatedDeliveryDate()) && 
-                !"Delivered".equals(shipment.getStatus())) {
+                !"Delivered".equals(shipment.getShipmentStatus())) {
                 delayedShipments++;
             }
         }
@@ -796,4 +809,108 @@ private void addSampleShipmentData(javax.swing.table.DefaultTableModel model) {
     model.addRow(new Object[]{"TRK345678", sdf.format(threeDaysAgo), "Ground", "New York, USA", "Delivered", sdf.format(yesterday)});
     model.addRow(new Object[]{"TRK901234", sdf.format(threeDaysAgo), "Express Air", "Tokyo, Japan", "In Transit", sdf.format(tomorrow)});
 }
+
+private void setupActiveShipmentsPanel() {
+    try {
+        // 设置面板样式
+        actShipmentJPanel.setBackground(Color.WHITE);
+        actShipmentJPanel.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230), 1, true));
+        actShipmentJPanel.setLayout(new BoxLayout(actShipmentJPanel, BoxLayout.Y_AXIS));
+        
+        // 清除现有组件
+        actShipmentJPanel.removeAll();
+        
+        // 创建面板来包含所有组件
+        javax.swing.JPanel contentPanel = new javax.swing.JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        // 添加标题
+        JLabel titleLabel = new JLabel("Active Shipments");
+        titleLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        titleLabel.setForeground(new Color(128, 128, 128));
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(titleLabel);
+        contentPanel.add(Box.createVerticalStrut(10));
+        
+        // 设置数字标签
+        lblActiveShipments.setFont(new Font("Tahoma", Font.BOLD, 36));
+        lblActiveShipments.setForeground(new Color(51, 51, 255));
+        lblActiveShipments.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(lblActiveShipments);
+        contentPanel.add(Box.createVerticalStrut(5));
+        
+        // 添加增长率标签
+        deltaLabel = new JLabel("+12% from last week");
+        deltaLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
+        deltaLabel.setForeground(new Color(128, 128, 128));
+        deltaLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(deltaLabel);
+        
+        // 将内容面板添加到主面板
+        actShipmentJPanel.add(contentPanel);
+        
+        // 刷新面板
+        actShipmentJPanel.revalidate();
+        actShipmentJPanel.repaint();
+        
+    } catch (Exception e) {
+        System.out.println("Error in setupActiveShipmentsPanel: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+
+private void setupStatisticsPanel(JPanel panel, String title, String value, String deltaText, Color valueColor) {
+    try {
+        // 保持原有的边框样式
+        panel.setBorder(BorderFactory.createEtchedBorder());
+        panel.setBackground(Color.WHITE);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        
+        // 清除现有组件
+        panel.removeAll();
+        
+        // 创建内容面板
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        // 添加标题
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        titleLabel.setForeground(new Color(128, 128, 128));
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(titleLabel);
+        contentPanel.add(Box.createVerticalStrut(10));
+        
+        // 添加数值
+        JLabel valueLabel = new JLabel(value);
+        valueLabel.setFont(new Font("Tahoma", Font.BOLD, 36));
+        valueLabel.setForeground(valueColor);
+        valueLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(valueLabel);
+        contentPanel.add(Box.createVerticalStrut(5));
+        
+        // 添加增长率文本
+        JLabel deltaLabel = new JLabel(deltaText);
+        deltaLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
+        deltaLabel.setForeground(new Color(128, 128, 128));
+        deltaLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(deltaLabel);
+        
+        // 将内容面板添加到主面板
+        panel.add(contentPanel);
+        
+        // 刷新面板
+        panel.revalidate();
+        panel.repaint();
+    } catch (Exception e) {
+        System.out.println("Error in setupStatisticsPanel: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+
+
 }

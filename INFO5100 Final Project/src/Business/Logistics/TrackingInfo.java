@@ -17,6 +17,8 @@ public class TrackingInfo {
     private String location;
     private String description;
     private String status;
+    private double latitude;
+    private double longitude;
     
     public TrackingInfo() {
         this.timestamp = new Date(); // Default to current time
@@ -69,6 +71,28 @@ public class TrackingInfo {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+    
+    public void setLocationWithCoordinates(String location, double lat, double lng) {
+        this.location = location;
+        this.latitude = lat;
+        this.longitude = lng;
     }
     
     @Override

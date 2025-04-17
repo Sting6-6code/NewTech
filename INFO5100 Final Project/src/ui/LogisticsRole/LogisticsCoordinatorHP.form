@@ -57,7 +57,7 @@
                                   <Component id="btnCustomsDeclar" alignment="0" max="32767" attributes="0"/>
                                   <Component id="btnShipmentTra" alignment="0" max="32767" attributes="0"/>
                                   <Component id="btnDashBoard" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="btnReports" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="btnCusComplaint" alignment="0" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           </Group>
@@ -77,7 +77,7 @@
                       <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
                       <Component id="btnCustomsDeclar" linkSize="2" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="36" max="-2" attributes="0"/>
-                      <Component id="btnReports" linkSize="2" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnCusComplaint" linkSize="2" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
                       <Component id="btnProfile" linkSize="2" min="-2" max="-2" attributes="0"/>
                       <EmptySpace pref="241" max="32767" attributes="0"/>
@@ -112,12 +112,12 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCustomsDeclarActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="btnReports">
+            <Component class="javax.swing.JButton" name="btnCusComplaint">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Reports"/>
+                <Property name="text" type="java.lang.String" value="Customer Complaint"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnReportsActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCusComplaintActionPerformed"/>
               </Events>
             </Component>
             <Component class="javax.swing.JButton" name="btnProfile">

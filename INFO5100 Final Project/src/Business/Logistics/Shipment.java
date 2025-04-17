@@ -19,13 +19,28 @@ public class Shipment {
     private String shippingMethod;
     private String origin;
     private String destination;
-    private String status;
+    private String currentLocation;
+    private String shipmentStatus; 
     private Date estimatedDeliveryDate;
     private String sender;
     private String receiver;
     private double weight;
     private CustomsDeclaration customsDeclaration;
     private ArrayList<TrackingInfo> trackingHistory;
+//    private String warehouseId; // only one warehouse 
+    private String orderId;      
+    private String productName;   
+    private int quantity; 
+     
+    
+    // define shipmentStatus
+    public static final String STATUS_PENDING = "Pending";           // 订单已创建，等待仓库处理
+    public static final String STATUS_PROCESSING = "Processing";     // 仓库正在处理（拣货/包装）
+    public static final String STATUS_SHIPPED = "Shipped";          // 已从仓库发出
+    public static final String STATUS_IN_TRANSIT = "In Transit";    // 运输中
+    public static final String STATUS_DELIVERING = "Delivering";    // 派送中
+    public static final String STATUS_DELIVERED = "Delivered";      // 已送达
+    public static final String STATUS_EXCEPTION = "Exception";      // 异常状态
     
     public Shipment() {
         this.trackingHistory = new ArrayList<>();
@@ -35,6 +50,8 @@ public class Shipment {
         this.shipmentId = shipmentId;
         this.trackingNumber = trackingNumber;
         this.trackingHistory = new ArrayList<>();
+        this.shipmentStatus = STATUS_PENDING;
+        this.currentLocation = "Warehouse";
     }
     
     // Getters and Setters
@@ -84,14 +101,6 @@ public class Shipment {
 
     public void setDestination(String destination) {
         this.destination = destination;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public Date getEstimatedDeliveryDate() {
@@ -144,6 +153,119 @@ public class Shipment {
             this.trackingHistory.add(info);
         }
     }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public String getShipmentStatus() {
+        return shipmentStatus;
+    }
+
+    public void setShipmentStatus(String shipmentStatus) {
+        this.shipmentStatus = shipmentStatus;
+        // 根据状态自动更新当前位置
+        switch(shipmentStatus) {
+            case STATUS_PENDING:
+            case STATUS_PROCESSING:
+                this.currentLocation = "Warehouse";
+                break;
+            case STATUS_SHIPPED:
+                this.currentLocation = "Departed from Warehouse";
+                break;
+            case STATUS_IN_TRANSIT:
+                // 保持当前位置不变，需要手动更新
+                break;
+            case STATUS_DELIVERING:
+            case STATUS_DELIVERED:
+                this.currentLocation = this.destination;
+                break;
+            case STATUS_EXCEPTION:
+                // 保持当前位置不变，需要手动更新
+                break;
+        }
+        
+        // 添加跟踪记录
+        addStatusTrackingInfo(shipmentStatus);
+    }
+
+    public String getCurrentLocation() {
+        return currentLocation;
+    }
+
+    public void setCurrentLocation(String currentLocation) {
+        this.currentLocation = currentLocation;
+    }
+
+    
+    private void addStatusTrackingInfo(String newStatus) {
+        TrackingInfo tracking = new TrackingInfo();
+        tracking.setShipmentId(this.shipmentId);
+        tracking.setTimestamp(new Date());
+        tracking.setLocation(this.currentLocation);
+        
+        // 根据不同状态设置不同的描述
+        switch(newStatus) {
+            case STATUS_PENDING:
+                tracking.setDescription("Order received, waiting for processing");
+                break;
+            case STATUS_PROCESSING:
+                tracking.setDescription("Order is being processed in warehouse");
+                break;
+            case STATUS_SHIPPED:
+                tracking.setDescription("Package has been shipped from warehouse");
+                break;
+            case STATUS_IN_TRANSIT:
+                tracking.setDescription("Package is in transit at " + this.currentLocation);
+                break;
+            case STATUS_DELIVERING:
+                tracking.setDescription("Package is out for delivery to " + this.destination);
+                break;
+            case STATUS_DELIVERED:
+                tracking.setDescription("Package has been delivered to " + this.destination);
+                break;
+            case STATUS_EXCEPTION:
+                tracking.setDescription("Exception occurred at " + this.currentLocation);
+                break;
+        }
+        
+        tracking.setStatus(newStatus);
+        this.addTrackingInfo(tracking);
+    }
+    
+    public void updateLocation(String newLocation) {
+        this.currentLocation = newLocation;
+        
+        // 添加位置更新的跟踪记录
+        TrackingInfo tracking = new TrackingInfo();
+        tracking.setShipmentId(this.shipmentId);
+        tracking.setTimestamp(new Date());
+        tracking.setLocation(newLocation);
+        tracking.setDescription("Package arrived at " + newLocation);
+        tracking.setStatus(this.shipmentStatus);
+        this.addTrackingInfo(tracking);
+    }
+    
     
     @Override
     public String toString() {
