@@ -37,38 +37,45 @@ public class ConfigureASystem {
         Employee employee6 = system.getEmployeeDirectory().createEmployee("logistics");
         
         UserAccount ua = system.getUserAccountDirectory().createUserAccount("sysadmin", "sysadmin", employee1, new SystemAdminRole());
-//      UserAccount labManager = system.getUserAccountDirectory().createUserAccount("labManager", "sysadmin", employee, new LabManagerRole());
         UserAccount customerservice = system.getUserAccountDirectory().createUserAccount("c","****",employee2, new CustomerServiceRepRole());
         UserAccount merchant = system.getUserAccountDirectory().createUserAccount("m","****",employee3, new MerchantRole());
         UserAccount procurement = system.getUserAccountDirectory().createUserAccount("p","****",employee4, new ProcurementSpecialistRole());
         UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("a", "****", employee5, new CustomsAgentRole());
         UserAccount logistics = system.getUserAccountDirectory().createUserAccount("logistics", "****", employee6, new LogisticsCoordinatorRole());
         
-        // 创建一个默认供应商
-        Supplier techSupplier = new Supplier();
-        techSupplier.setSupplyName("TechGadgets Inc.");
         
-        // 创建几个示例产品
-        Product p1 = new Product("P001", "iPhone 14 Pro", 999.99, 50, 10);
-        Product p2 = new Product("P002", "Samsung Galaxy S22", 899.99, 45, 8);
-        Product p3 = new Product("P003", "MacBook Pro M2", 1999.99, 30, 5);
-        Product p4 = new Product("P004", "Dell XPS 15", 1599.99, 25, 5);
-        Product p5 = new Product("P005", "Sony WH-1000XM5", 349.99, 100, 20);
+        // 
+        Supplier techSupplier1 = new Supplier();
         
-        //upshelf
-        p1.upShelf();
-        p2.upShelf();
-        p3.upShelf();
+        techSupplier1.setSupplyName("TechGadgets Inc.");
         
+        
+        
+//        // 创建几个示例产品
+//        Product p1 = new Product("P001", "iPhone 14 Pro", 999.99, 50, 10);
+//        Product p2 = new Product("P002", "Samsung Galaxy S22", 899.99, 45, 8);
+//        Product p3 = new Product("P003", "MacBook Pro M2", 1999.99, 30, 5);
+//        Product p4 = new Product("P004", "Dell XPS 15", 1599.99, 25, 5);
+//        Product p5 = new Product("P005", "Sony WH-1000XM5", 349.99, 100, 20);
+//        
+//        
+//        
+//        //upshelf
+//        p1.upShelf();
+//        p2.upShelf();
+//        p3.upShelf();
+//        
+//
+//        
+//        // 将产品添加到供应商目录
+//        techSupplier1.addProduct(p1);
+//        techSupplier1.addProduct(p2);
+//        techSupplier1.addProduct(p3);
+//        techSupplier1.addProduct(p4);
+//        techSupplier1.addProduct(p5);
 
         
-        // 将产品添加到供应商目录
-        techSupplier.addProduct(p1);
-        techSupplier.addProduct(p2);
-        techSupplier.addProduct(p3);
-        techSupplier.addProduct(p4);
-        techSupplier.addProduct(p5);
-
+        
 
         
 
@@ -78,9 +85,11 @@ public class ConfigureASystem {
 
         
         // 将创建的示例供应商设置为MerchantRole的默认供应商
-        MerchantRole.setDemoSupplier(techSupplier);
-        System.out.println("Demo supplier created with 5 products: " + techSupplier.getSupplyName());
+        MerchantRole.setDemoSupplier(techSupplier1);
+        System.out.println("Demo supplier created with 5 products: " + techSupplier1.getSupplyName());
 
+        
+        
         return system;
     }
     
