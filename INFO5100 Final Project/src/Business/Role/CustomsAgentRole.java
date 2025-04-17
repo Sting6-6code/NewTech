@@ -23,15 +23,22 @@ public class CustomsAgentRole extends Role {
     
     @Override
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-        // 这里应该实例化并返回海关代理的工作界面
-        // 暂时抛出异常
-        return new CustomsLiaisonOfficeHP(userProcessContainer, account, enterprise, 
-                                        (CustomsLiaisonOrganization)organization);
+    System.out.println("Creating customs work area...");
+    try {
+        ui.CustomsAgentRole.CustomsLiaisonOfficeHP customsHP = new ui.CustomsAgentRole.CustomsLiaisonOfficeHP();
+        System.out.println("Customs work area created successfully");
+        return customsHP;
+    } catch (Exception e) {
+        System.out.println("Error creating customs work area: " + e.getMessage());
+        e.printStackTrace();
+        // 返回一个基本面板作为回退
+        return new JPanel();
+    }
     }
     
     
     @Override
-    public String toString() {
+    public String toString() { 
         return "Customs Liaison Officer";
     }
 }

@@ -55,7 +55,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         this.setPreferredSize(new java.awt.Dimension(1450, 800));
         
         // 初始化欢迎信息
-        // 可以添加一个标签显示欢迎信息，例如：
+        // 可以添加一个标签显示欢迎信息 
         // lblWelcome.setText("Welcome, " + userAccount.getUsername());
         
         // 加载初始数据
