@@ -11,6 +11,9 @@ import Business.Role.SystemAdminRole;
 import Business.UserAccount.UserAccount;
 import Business.Supplier.Supplier;
 import Business.Product.Product;
+import Business.Network.Network;
+import Business.Enterprise.Enterprise;
+import Business.Organization.Organization;
 
 /**
  *
@@ -77,18 +80,20 @@ public class ConfigureASystem {
         
         
 
-        
-
-
-
-
 
         
+
+
+
         // 将创建的示例供应商设置为MerchantRole的默认供应商
         MerchantRole.setDemoSupplier(techSupplier1);
         System.out.println("Demo supplier created with 5 products: " + techSupplier1.getSupplyName());
 
         
+        Network network = system.createAndAddNetwork();
+        network.setName("Main Network");
+        
+       
         
         return system;
     }
