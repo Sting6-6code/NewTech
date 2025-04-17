@@ -4,17 +4,137 @@
  */
 package ui.CustomsAgentRole;
 
+import Business.Logistics.CustomsDeclaration;
+import Business.Organization.CustomsLiaisonOrganization;
+import Business.UserAccount.UserAccount;
+import java.awt.CardLayout;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author zhuchenyan
  */
 public class DocumentReview extends javax.swing.JPanel {
+    
+    private JPanel userProcessContainer;
+    private UserAccount userAccount;
+    private CustomsLiaisonOrganization organization;
+    private CustomsDeclaration selectedDeclaration;
 
     /**
      * Creates new form DocumentReview
      */
-    public DocumentReview() {
+    public DocumentReview(JPanel userProcessContainer, UserAccount account, 
+                         CustomsLiaisonOrganization organization) {
         initComponents();
+        
+        this.userProcessContainer = userProcessContainer;
+        this.userAccount = account;
+        this.organization = organization;
+        
+        // Initialize the UI
+        setupTable();
+        populateTable();
+        clearFields();
+    }
+    
+    private void setupTable() {
+        DefaultTableModel model = (DefaultTableModel) tblList.getModel();
+        model.setColumnIdentifiers(new Object[]{"Document ID", "Type", "Submission Date", "Status"});
+        
+        // Set up table selection listener
+        tblList.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = tblList.getSelectedRow();
+                if (selectedRow >= 0) {
+                    String docId = tblList.getValueAt(selectedRow, 0).toString();
+                    displayDeclarationDetails(docId);
+                }
+            }
+        });
+    }
+    
+    private void populateTable() {
+        DefaultTableModel model = (DefaultTableModel) tblList.getModel();
+        model.setRowCount(0);
+        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        String filterStatus = comBoFilter.getSelectedItem().toString();
+        
+        List<CustomsDeclaration> declarations;
+        if (filterStatus.equals("All")) {
+            declarations = organization.getCustomsDeclarationDirectory().getCustomsDeclarationList();
+        } else {
+            declarations = organization.getCustomsDeclarationDirectory().getDeclarationsByStatus(filterStatus);
+        }
+        
+        for (CustomsDeclaration declaration : declarations) {
+            Object[] row = {
+                declaration.getDeclarationId(),
+                "Customs Declaration",
+                dateFormat.format(declaration.getSubmissionDate()),
+                declaration.getStatus()
+            };
+            model.addRow(row);
+        }
+    }
+    
+    private void displayDeclarationDetails(String declarationId) {
+        selectedDeclaration = organization.getCustomsDeclarationDirectory().findDeclarationById(declarationId);
+        
+        if (selectedDeclaration != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            
+            txtDocID.setText(selectedDeclaration.getDeclarationId());
+            txtDocName.setText("Customs Declaration - " + selectedDeclaration.getDeclarationId());
+            txtDocType.setText("Customs Declaration");
+            txtSubmissionDate.setText(dateFormat.format(selectedDeclaration.getSubmissionDate()));
+            txtSubBy.setText(selectedDeclaration.getConsignor());
+            
+            // Populate document preview
+            StringBuilder preview = new StringBuilder();
+            preview.append("Declaration Details:\n\n");
+            preview.append("Consignor: ").append(selectedDeclaration.getConsignor()).append("\n");
+            preview.append("Consignee: ").append(selectedDeclaration.getConsignee()).append("\n");
+            preview.append("Origin Country: ").append(selectedDeclaration.getCountryOfOrigin()).append("\n");
+            preview.append("Destination Country: ").append(selectedDeclaration.getDestinationCountry()).append("\n");
+            preview.append("\nDeclared Items:\n");
+            
+            if (selectedDeclaration.getItems() != null) {
+                for (CustomsDeclaration.CustomsLineItem item : selectedDeclaration.getItems()) {
+                    preview.append("\n- ").append(item.getDescription())
+                           .append("\n  HS Code: ").append(item.getHsCode())
+                           .append("\n  Quantity: ").append(item.getQuantity()).append(" ").append(item.getUnit())
+                           .append("\n  Value: $").append(String.format("%.2f", item.getTotalValue()));
+                }
+            }
+            
+            txtDocPreview.setText(preview.toString());
+            
+            // Enable/disable buttons based on status
+            boolean isPending = "Pending".equals(selectedDeclaration.getStatus());
+            btnApprove.setEnabled(isPending);
+            btnReject.setEnabled(isPending);
+            btnRequestInfo.setEnabled(isPending);
+        }
+    }
+    
+    private void clearFields() {
+        txtDocID.setText("");
+        txtDocName.setText("");
+        txtDocType.setText("");
+        txtSubmissionDate.setText("");
+        txtSubBy.setText("");
+        txtDocPreview.setText("");
+        txtReviewNotes.setText("");
+        
+        btnApprove.setEnabled(false);
+        btnReject.setEnabled(false);
+        btnRequestInfo.setEnabled(false);
     }
 
     /**
@@ -391,19 +511,65 @@ public class DocumentReview extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-
+        String searchId = txtSearchBox.getText().trim();
+        if (!searchId.isEmpty()) {
+            CustomsDeclaration declaration = organization.getCustomsDeclarationDirectory()
+                    .findDeclarationById(searchId);
+            if (declaration != null) {
+                displayDeclarationDetails(searchId);
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                        "No declaration found with ID: " + searchId,
+                        "Search Result",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
     }//GEN-LAST:event_btnSearchActionPerformed
 
     private void btnApproveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnApproveActionPerformed
         // TODO add your handling code here:
+        if (selectedDeclaration != null && !txtReviewNotes.getText().trim().isEmpty()) {
+            selectedDeclaration.setStatus("Approved");
+            selectedDeclaration.setNotes(txtReviewNotes.getText().trim());
+            selectedDeclaration.setProcessingDate(new java.util.Date());
+            JOptionPane.showMessageDialog(this, 
+                    "Declaration approved successfully",
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
+            populateTable();
+            clearFields();
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                    "Please add review notes before approving",
+                    "Warning",
+                    JOptionPane.WARNING_MESSAGE);
+        }
     }//GEN-LAST:event_btnApproveActionPerformed
 
     private void btnRejectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRejectActionPerformed
         // TODO add your handling code here:
+        if (selectedDeclaration != null && !txtReviewNotes.getText().trim().isEmpty()) {
+            selectedDeclaration.setStatus("Rejected");
+            selectedDeclaration.setNotes(txtReviewNotes.getText().trim());
+            selectedDeclaration.setProcessingDate(new java.util.Date());
+            JOptionPane.showMessageDialog(this, 
+                    "Declaration rejected successfully",
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
+            populateTable();
+            clearFields();
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                    "Please add review notes before rejecting",
+                    "Warning",
+                    JOptionPane.WARNING_MESSAGE);
+        }
     }//GEN-LAST:event_btnRejectActionPerformed
 
     private void txtDocIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDocIDActionPerformed
@@ -412,10 +578,26 @@ public class DocumentReview extends javax.swing.JPanel {
 
     private void comBoFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comBoFilterActionPerformed
         // TODO add your handling code here:
+        populateTable();
     }//GEN-LAST:event_comBoFilterActionPerformed
 
     private void btnRequestInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRequestInfoActionPerformed
         // TODO add your handling code here:
+        if (selectedDeclaration != null && !txtReviewNotes.getText().trim().isEmpty()) {
+            selectedDeclaration.setStatus("Information Requested");
+            selectedDeclaration.setNotes(txtReviewNotes.getText().trim());
+            JOptionPane.showMessageDialog(this, 
+                    "Information request sent successfully",
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
+            populateTable();
+            clearFields();
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                    "Please specify what additional information is needed",
+                    "Warning",
+                    JOptionPane.WARNING_MESSAGE);
+        }
     }//GEN-LAST:event_btnRequestInfoActionPerformed
 
     private void txtSubmissionDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSubmissionDateActionPerformed

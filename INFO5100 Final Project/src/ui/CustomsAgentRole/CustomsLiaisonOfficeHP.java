@@ -4,19 +4,138 @@
  */
 package ui.CustomsAgentRole;
 
+import Business.Enterprise.Enterprise;
+import Business.Logistics.CustomsDeclaration;
+import Business.Organization.CustomsLiaisonOrganization;
+import Business.Organization.Organization;
+import Business.UserAccount.UserAccount;
+import java.awt.CardLayout;
+import java.util.ArrayList;
+import java.util.Date;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author zhuchenyan
  */
-public class CustomsLiaisionOfficeHP extends javax.swing.JPanel {
+public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
 
+    private JPanel userProcessContainer;
+    private UserAccount userAccount;
+    private Enterprise enterprise;
+    private CustomsLiaisonOrganization organization;
+    
     /**
      * Creates new form CustomsLiaisionOfficeHP
      */
-    public CustomsLiaisionOfficeHP() {
+    public CustomsLiaisonOfficeHP(JPanel userProcessContainer, UserAccount account, 
+                                Enterprise enterprise, CustomsLiaisonOrganization organization) {
+        
         initComponents();
+        
+        this.userProcessContainer = userProcessContainer;
+        this.userAccount = account;
+        this.enterprise = enterprise;
+        this.organization = organization;
+        
+        // Set up the dashboard
+        populateDashboard();
+    }
+    
+    private void populateDashboard() {
+        // Update statistics panels
+        updateStatisticsPanels();
+        
+        // Update pending documents table
+        populatePendingDocsTable();
+        
+        // Update recent activities table
+        populateRecentActivitiesTable();
+        
+        // Update alerts
+        updateAlerts();
+    }
+    
+    private void updateStatisticsPanels() {
+        // Get counts from the organization's customs declaration directory
+        int pendingCount = organization.getCustomsDeclarationDirectory().getDeclarationCountByStatus("Pending");
+        int approvedCount = organization.getCustomsDeclarationDirectory().getDeclarationCountByStatus("Approved");
+        int rejectedCount = organization.getCustomsDeclarationDirectory().getDeclarationCountByStatus("Rejected");
+        
+        // Update the labels with counts
+        lblPendingReviews.setText("Pending Reviews: " + pendingCount);
+        lblApprovedDocs.setText("Approved Documents: " + approvedCount);
+        lblRejectedDocs.setText("Rejected Documents: " + rejectedCount);
+        
+        // Count declarations requiring tax returns
+        List<CustomsDeclaration> taxReturnDeclarations = organization.getCustomsDeclarationDirectory().getTaxReturnDeclarations();
+        lblTaxReturns.setText("Tax Returns: " + taxReturnDeclarations.size());
+    }
+    
+    private void populatePendingDocsTable() {
+        DefaultTableModel model = (DefaultTableModel) tblPendingDocs.getModel();
+        model.setRowCount(0); // Clear existing rows
+        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        
+        List<CustomsDeclaration> pendingDeclarations = organization.getCustomsDeclarationDirectory().getPendingDeclarations();
+        
+        for (CustomsDeclaration declaration : pendingDeclarations) {
+            Object[] row = {
+                declaration.getDeclarationId(),
+                "Customs Declaration",
+                dateFormat.format(declaration.getSubmissionDate()),
+                declaration.getStatus(),
+                "Review"
+            };
+            model.addRow(row);
+        }
+    }
+    
+    private void populateRecentActivitiesTable() {
+        DefaultTableModel model = (DefaultTableModel) tblRecentActivities.getModel();
+        model.setRowCount(0); // Clear existing rows
+        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        
+        List<CustomsDeclaration> recentDeclarations = organization.getCustomsDeclarationDirectory().getRecentDeclarations();
+        
+        for (CustomsDeclaration declaration : recentDeclarations) {
+            Object[] row = {
+                "Declaration Processing",
+                declaration.getDeclarationId(),
+                dateFormat.format(declaration.getDeclarationDate()),
+                userAccount.getUsername(),
+                declaration.getStatus(),
+                "View"
+            };
+            model.addRow(row);
+        }
+    }
+    
+    private void updateAlerts() {
+        // Get overdue declarations
+        List<CustomsDeclaration> overdueDeclarations = organization.getCustomsDeclarationDirectory().getOverdueDeclarations();
+        
+        if (!overdueDeclarations.isEmpty()) {
+            StringBuilder alertText = new StringBuilder("<html>Alerts:<br/>");
+            for (CustomsDeclaration declaration : overdueDeclarations) {
+                alertText.append("- Declaration ").append(declaration.getDeclarationId())
+                        .append(" is pending for over 48 hours<br/>");
+            }
+            alertText.append("</html>");
+            lblAlerts.setText(alertText.toString());
+        } else {
+            lblAlerts.setText("No urgent notifications");
+        }
     }
 
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -58,8 +177,18 @@ public class CustomsLiaisionOfficeHP extends javax.swing.JPanel {
         setMinimumSize(new java.awt.Dimension(1450, 800));
 
         btnDashBoard.setText("DashBoard");
+        btnDashBoard.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDashBoardActionPerformed(evt);
+            }
+        });
 
         btnDocReview.setText("Document Review");
+        btnDocReview.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDocReviewActionPerformed(evt);
+            }
+        });
 
         btnSubmitDocs.setText("Submit Documents");
         btnSubmitDocs.addActionListener(new java.awt.event.ActionListener() {
@@ -69,10 +198,25 @@ public class CustomsLiaisionOfficeHP extends javax.swing.JPanel {
         });
 
         btnReturnTax.setText("Return Tax");
+        btnReturnTax.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReturnTaxActionPerformed(evt);
+            }
+        });
 
         btnProfile.setText("My Profile");
+        btnProfile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnProfileActionPerformed(evt);
+            }
+        });
 
         btnLogout.setText("Logout");
+        btnLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLogoutActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout cusHPControlJPanelLayout = new javax.swing.GroupLayout(cusHPControlJPanel);
         cusHPControlJPanel.setLayout(cusHPControlJPanelLayout);
@@ -361,7 +505,54 @@ public class CustomsLiaisionOfficeHP extends javax.swing.JPanel {
 
     private void btnSubmitDocsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitDocsActionPerformed
         // TODO add your handling code here:
+        // Create and display submit documents panel
+        SubmitDoc submitPanel = new SubmitDoc(userProcessContainer, userAccount, organization);
+        userProcessContainer.add("SubmitDocuments", submitPanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "SubmitDocuments");
     }//GEN-LAST:event_btnSubmitDocsActionPerformed
+
+    private void btnDashBoardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDashBoardActionPerformed
+        // TODO add your handling code here:
+        populateDashboard();
+    }//GEN-LAST:event_btnDashBoardActionPerformed
+
+    private void btnDocReviewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDocReviewActionPerformed
+        // TODO add your handling code here:
+         // Create and display document review panel
+        DocumentReview reviewPanel = new DocumentReview(userProcessContainer, userAccount, organization);
+        userProcessContainer.add("DocumentReview", reviewPanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "DocumentReview");
+    }//GEN-LAST:event_btnDocReviewActionPerformed
+
+    private void btnReturnTaxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReturnTaxActionPerformed
+        // TODO add your handling code here:
+        // Create and display tax return panel
+        ReturnTax taxPanel = new ReturnTax(userProcessContainer, userAccount, organization);
+        userProcessContainer.add("ReturnTax", taxPanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "ReturnTax");
+    }//GEN-LAST:event_btnReturnTaxActionPerformed
+
+    private void btnProfileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfileActionPerformed
+        // TODO add your handling code here:
+        // Create and display profile panel
+        ManageOwnProfile profilePanel = new ManageOwnProfile(userProcessContainer, userAccount);
+        userProcessContainer.add("Profile", profilePanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "Profile");
+    }//GEN-LAST:event_btnProfileActionPerformed
+
+    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        // TODO add your handling code here:
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
+        
+        JOptionPane.showMessageDialog(null, "Logged out successfully");
+    
+    }//GEN-LAST:event_btnLogoutActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
