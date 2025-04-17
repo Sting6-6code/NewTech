@@ -27,10 +27,15 @@ public class LogisticsCoordinatorRole extends Role {
     public LogisticsCoordinatorRole() {
     }
     
+//    @Override
+//    public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
+//        ui.LogisticsRole.LogisticsCoordinatorHP logisticsHP = new ui.LogisticsRole.LogisticsCoordinatorHP();
+//        return logisticsHP;
+//    }
+    
     @Override
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-        LogisticsCoordinatorHP logisticsHP = new LogisticsCoordinatorHP(userProcessContainer, account, enterprise, (LogisticsOrganization)organization);
-        return logisticsHP;
+        return new LogisticsCoordinatorHP(userProcessContainer, account, enterprise, (LogisticsOrganization)organization);
     }
     
     /**

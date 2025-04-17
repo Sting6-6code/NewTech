@@ -23,10 +23,18 @@ public class CustomsAgentRole extends Role {
     
     @Override
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-        CustomsLiaisonOfficeHP customsHP = new CustomsLiaisonOfficeHP(userProcessContainer, account, enterprise, (CustomsLiaisonOrganization)organization);
+        ui.CustomsAgentRole.CustomsLiaisonOfficeHP customsHP = new ui.CustomsAgentRole.CustomsLiaisonOfficeHP();
         return customsHP;
     }
     
+//    @Override
+//    public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
+//    if (organization == null || !(organization instanceof CustomsLiaisonOrganization)) {
+//        return new ui.CustomsAgentRole.CustomsLiaisonOfficeHP();
+//    } else {
+//        return new ui.CustomsAgentRole.CustomsLiaisonOfficeHP(userProcessContainer, account, enterprise, (CustomsLiaisonOrganization) organization);
+//    }
+//    }
     
     @Override
     public String toString() { 
