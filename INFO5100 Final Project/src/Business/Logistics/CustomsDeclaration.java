@@ -142,6 +142,19 @@ public class CustomsDeclaration {
     public Date getSubmissionDate() {
         return submissionDate;
     }
+
+    public void setSubmissionDate(Date submissionDate) {
+        this.submissionDate = submissionDate;
+    }
+
+    public void setDeclarationNumber(String declarationNumber) {
+        this.declarationNumber = declarationNumber;
+    }
+
+    public void setItems(ArrayList<CustomsLineItem> items) {
+        this.items = items;
+    }
+    
     
     public String getDeclarationNumber() {
         return declarationNumber;

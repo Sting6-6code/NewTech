@@ -5,6 +5,8 @@
 package ui.CustomsAgentRole;
 
 import Business.Enterprise.Enterprise;
+import Business.Logistics.CustomsDeclaration;
+import Business.Organization.CustomsLiaisonOrganization;
 import Business.Organization.Organization;
 import Business.UserAccount.UserAccount;
 import java.awt.CardLayout;
@@ -13,23 +15,25 @@ import java.util.Date;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import java.text.SimpleDateFormat;
+import java.util.List;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author zhuchenyan
  */
-public class CustomsLiaisionOfficeHP extends javax.swing.JPanel {
+public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
 
     private JPanel userProcessContainer;
     private UserAccount userAccount;
     private Enterprise enterprise;
-    private Organization organization;
+    private CustomsLiaisonOrganization organization;
     
     /**
      * Creates new form CustomsLiaisionOfficeHP
      */
-    public CustomsLiaisionOfficeHP(JPanel userProcessContainer, UserAccount account, 
-                                Enterprise enterprise, Organization organization) {
+    public CustomsLiaisonOfficeHP(JPanel userProcessContainer, UserAccount account, 
+                                Enterprise enterprise, CustomsLiaisonOrganization organization) {
         
         initComponents();
         
@@ -43,153 +47,94 @@ public class CustomsLiaisionOfficeHP extends javax.swing.JPanel {
     }
     
     private void populateDashboard() {
-        // Update statistics
-        updateStatistics();
+        // Update statistics panels
+        updateStatisticsPanels();
         
-        // Populate tables
-        populatePendingDeclarationsTable();
-        populateInspectionsTable();
+        // Update pending documents table
+        populatePendingDocsTable();
+        
+        // Update recent activities table
+        populateRecentActivitiesTable();
         
         // Update alerts
-        updateAlertsPanel();
+        updateAlerts();
+    }
+    
+    private void updateStatisticsPanels() {
+        // Get counts from the organization's customs declaration directory
+        int pendingCount = organization.getCustomsDeclarationDirectory().getDeclarationCountByStatus("Pending");
+        int approvedCount = organization.getCustomsDeclarationDirectory().getDeclarationCountByStatus("Approved");
+        int rejectedCount = organization.getCustomsDeclarationDirectory().getDeclarationCountByStatus("Rejected");
+        
+        // Update the labels with counts
+        lblPendingReviews.setText("Pending Reviews: " + pendingCount);
+        lblApprovedDocs.setText("Approved Documents: " + approvedCount);
+        lblRejectedDocs.setText("Rejected Documents: " + rejectedCount);
+        
+        // Count declarations requiring tax returns
+        List<CustomsDeclaration> taxReturnDeclarations = organization.getCustomsDeclarationDirectory().getTaxReturnDeclarations();
+        lblTaxReturns.setText("Tax Returns: " + taxReturnDeclarations.size());
+    }
+    
+    private void populatePendingDocsTable() {
+        DefaultTableModel model = (DefaultTableModel) tblPendingDocs.getModel();
+        model.setRowCount(0); // Clear existing rows
+        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        
+        List<CustomsDeclaration> pendingDeclarations = organization.getCustomsDeclarationDirectory().getPendingDeclarations();
+        
+        for (CustomsDeclaration declaration : pendingDeclarations) {
+            Object[] row = {
+                declaration.getDeclarationId(),
+                "Customs Declaration",
+                dateFormat.format(declaration.getSubmissionDate()),
+                declaration.getStatus(),
+                "Review"
+            };
+            model.addRow(row);
+        }
+    }
+    
+    private void populateRecentActivitiesTable() {
+        DefaultTableModel model = (DefaultTableModel) tblRecentActivities.getModel();
+        model.setRowCount(0); // Clear existing rows
+        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        
+        List<CustomsDeclaration> recentDeclarations = organization.getCustomsDeclarationDirectory().getRecentDeclarations();
+        
+        for (CustomsDeclaration declaration : recentDeclarations) {
+            Object[] row = {
+                "Declaration Processing",
+                declaration.getDeclarationId(),
+                dateFormat.format(declaration.getDeclarationDate()),
+                userAccount.getUsername(),
+                declaration.getStatus(),
+                "View"
+            };
+            model.addRow(row);
+        }
+    }
+    
+    private void updateAlerts() {
+        // Get overdue declarations
+        List<CustomsDeclaration> overdueDeclarations = organization.getCustomsDeclarationDirectory().getOverdueDeclarations();
+        
+        if (!overdueDeclarations.isEmpty()) {
+            StringBuilder alertText = new StringBuilder("<html>Alerts:<br/>");
+            for (CustomsDeclaration declaration : overdueDeclarations) {
+                alertText.append("- Declaration ").append(declaration.getDeclarationId())
+                        .append(" is pending for over 48 hours<br/>");
+            }
+            alertText.append("</html>");
+            lblAlerts.setText(alertText.toString());
+        } else {
+            lblAlerts.setText("No urgent notifications");
+        }
     }
 
-    private void updateStatistics() {
-        int pendingDeclarations = 0;
-        int pendingInspections = 0;
-        int completedToday = 0;
-        
-        Date today = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String todayStr = sdf.format(today);
-        
-        if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
-            // Count pending declarations
-            for (CustomsDeclaration declaration : organization.getCustomsDeclarationDirectory().getDeclarations()) {
-                if ("Pending".equals(declaration.getStatus())) {
-                    pendingDeclarations++;
-                }
-                
-                // Count completed today
-                if ("Approved".equals(declaration.getStatus()) || "Rejected".equals(declaration.getStatus())) {
-                    String declDateStr = sdf.format(declaration.getDeclarationDate());
-                    if (todayStr.equals(declDateStr)) {
-                        completedToday++;
-                    }
-                }
-            }
-            
-            // Count pending inspections
-            if (organization.getCustomsInspectionDirectory() != null) {
-                for (CustomsInspection inspection : organization.getCustomsInspectionDirectory().getInspections()) {
-                    if ("Scheduled".equals(inspection.getStatus())) {
-                        pendingInspections++;
-                    }
-                }
-            }
-        }
-        
-        // Update labels
-        lblPendingDeclarations.setText("Pending Declarations: " + pendingDeclarations);
-        lblPendingInspections.setText("Pending Inspections: " + pendingInspections);
-        lblCompletedToday.setText("Completed Today: " + completedToday);
-    }
     
-    private void populatePendingDeclarationsTable() {
-        DefaultTableModel model = (DefaultTableModel) tblPendingDeclarations.getModel();
-        model.setRowCount(0);
-        
-        if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-            
-            for (CustomsDeclaration declaration : 
-                    organization.getCustomsDeclarationDirectory().getPendingDeclarations()) {
-                Object[] row = new Object[6];
-                row[0] = declaration.getDeclarationId();
-                row[1] = declaration.getShipmentId();
-                row[2] = sdf.format(declaration.getDeclarationDate());
-                row[3] = declaration.getCountryOfOrigin();
-                row[4] = declaration.getDestinationCountry();
-                row[5] = declaration.getStatus();
-                model.addRow(row);
-            }
-        }
-    }
-    
-    private void populateInspectionsTable() {
-        DefaultTableModel model = (DefaultTableModel) tblInspections.getModel();
-        model.setRowCount(0);
-        
-        if (organization != null && organization.getCustomsInspectionDirectory() != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-            
-            for (CustomsInspection inspection : 
-                    organization.getCustomsInspectionDirectory().getPendingInspections()) {
-                Object[] row = new Object[5];
-                row[0] = inspection.getInspectionId();
-                row[1] = inspection.getDeclarationId();
-                row[2] = sdf.format(inspection.getInspectionDate());
-                row[3] = inspection.getInspectionType();
-                row[4] = inspection.getStatus();
-                model.addRow(row);
-            }
-        }
-    }
-    
-    private void updateAlertsPanel() {
-        StringBuilder alertsText = new StringBuilder("<html>");
-        boolean hasAlerts = false;
-        
-        if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
-            // Check for urgent declarations (more than 48 hours old)
-            int urgentDeclarations = 0;
-            Date currentDate = new Date();
-            long fortyEightHours = 48 * 60 * 60 * 1000;
-            
-            for (CustomsDeclaration declaration : 
-                    organization.getCustomsDeclarationDirectory().getPendingDeclarations()) {
-                if (currentDate.getTime() - declaration.getDeclarationDate().getTime() > fortyEightHours) {
-                    urgentDeclarations++;
-                }
-            }
-            
-            if (urgentDeclarations > 0) {
-                alertsText.append("<p style='color: red;'>⚠ ")
-                         .append(urgentDeclarations)
-                         .append(" declaration(s) pending for more than 48 hours</p>");
-                hasAlerts = true;
-            }
-            
-            // Check for today's inspections
-            if (organization.getCustomsInspectionDirectory() != null) {
-                int todayInspections = 0;
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                String todayStr = sdf.format(currentDate);
-                
-                for (CustomsInspection inspection : 
-                        organization.getCustomsInspectionDirectory().getInspections()) {
-                    if ("Scheduled".equals(inspection.getStatus()) && 
-                        todayStr.equals(sdf.format(inspection.getInspectionDate()))) {
-                        todayInspections++;
-                    }
-                }
-                
-                if (todayInspections > 0) {
-                    alertsText.append("<p style='color: blue;'>ℹ ")
-                             .append(todayInspections)
-                             .append(" inspection(s) scheduled for today</p>");
-                    hasAlerts = true;
-                }
-            }
-        }
-        
-        if (!hasAlerts) {
-            alertsText.append("<p style='color: green;'>✓ No urgent alerts at this time</p>");
-        }
-        
-        alertsText.append("</html>");
-        lblAlerts.setText(alertsText.toString());
-    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -232,8 +177,18 @@ public class CustomsLiaisionOfficeHP extends javax.swing.JPanel {
         setMinimumSize(new java.awt.Dimension(1450, 800));
 
         btnDashBoard.setText("DashBoard");
+        btnDashBoard.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDashBoardActionPerformed(evt);
+            }
+        });
 
         btnDocReview.setText("Document Review");
+        btnDocReview.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDocReviewActionPerformed(evt);
+            }
+        });
 
         btnSubmitDocs.setText("Submit Documents");
         btnSubmitDocs.addActionListener(new java.awt.event.ActionListener() {
@@ -243,10 +198,25 @@ public class CustomsLiaisionOfficeHP extends javax.swing.JPanel {
         });
 
         btnReturnTax.setText("Return Tax");
+        btnReturnTax.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReturnTaxActionPerformed(evt);
+            }
+        });
 
         btnProfile.setText("My Profile");
+        btnProfile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnProfileActionPerformed(evt);
+            }
+        });
 
         btnLogout.setText("Logout");
+        btnLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLogoutActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout cusHPControlJPanelLayout = new javax.swing.GroupLayout(cusHPControlJPanel);
         cusHPControlJPanel.setLayout(cusHPControlJPanelLayout);
@@ -535,7 +505,54 @@ public class CustomsLiaisionOfficeHP extends javax.swing.JPanel {
 
     private void btnSubmitDocsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitDocsActionPerformed
         // TODO add your handling code here:
+        // Create and display submit documents panel
+        SubmitDoc submitPanel = new SubmitDoc(userProcessContainer, userAccount, organization);
+        userProcessContainer.add("SubmitDocuments", submitPanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "SubmitDocuments");
     }//GEN-LAST:event_btnSubmitDocsActionPerformed
+
+    private void btnDashBoardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDashBoardActionPerformed
+        // TODO add your handling code here:
+        populateDashboard();
+    }//GEN-LAST:event_btnDashBoardActionPerformed
+
+    private void btnDocReviewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDocReviewActionPerformed
+        // TODO add your handling code here:
+         // Create and display document review panel
+        DocumentReview reviewPanel = new DocumentReview(userProcessContainer, userAccount, organization);
+        userProcessContainer.add("DocumentReview", reviewPanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "DocumentReview");
+    }//GEN-LAST:event_btnDocReviewActionPerformed
+
+    private void btnReturnTaxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReturnTaxActionPerformed
+        // TODO add your handling code here:
+        // Create and display tax return panel
+        ReturnTax taxPanel = new ReturnTax(userProcessContainer, userAccount, organization);
+        userProcessContainer.add("ReturnTax", taxPanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "ReturnTax");
+    }//GEN-LAST:event_btnReturnTaxActionPerformed
+
+    private void btnProfileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfileActionPerformed
+        // TODO add your handling code here:
+        // Create and display profile panel
+        ManageOwnProfile profilePanel = new ManageOwnProfile(userProcessContainer, userAccount);
+        userProcessContainer.add("Profile", profilePanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "Profile");
+    }//GEN-LAST:event_btnProfileActionPerformed
+
+    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        // TODO add your handling code here:
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
+        
+        JOptionPane.showMessageDialog(null, "Logged out successfully");
+    
+    }//GEN-LAST:event_btnLogoutActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

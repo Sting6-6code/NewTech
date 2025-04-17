@@ -4,17 +4,120 @@
  */
 package ui.CustomsAgentRole;
 
+import Business.Logistics.CustomsDeclaration;
+import Business.Customs.TaxReturn;
+import Business.Organization.CustomsLiaisonOrganization;
+import Business.UserAccount.UserAccount;
+import java.awt.CardLayout;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author zhuchenyan
  */
 public class ReturnTax extends javax.swing.JPanel {
-
+    
+    private JPanel userProcessContainer;
+    private UserAccount userAccount;
+    private CustomsLiaisonOrganization organization;
+    
     /**
      * Creates new form ReturnTax
      */
-    public ReturnTax() {
+    public ReturnTax(JPanel userProcessContainer, UserAccount account, CustomsLiaisonOrganization organization) {
+        
+        this.userProcessContainer = userProcessContainer;
+        this.userAccount = account;
+        this.organization = organization;
+        
+        // Initialize
+        setupTable();
+        populateTable();
+        
+        
         initComponents();
+    }
+    
+    private void setupTable() {
+        DefaultTableModel model = (DefaultTableModel) tblReturnApp.getModel();
+        model.setColumnIdentifiers(new Object[]{
+            "Application ID", "Related Decl.", "Amount", "Date", "Status"
+        });
+    }
+    
+    private void populateTable() {
+        DefaultTableModel model = (DefaultTableModel) tblReturnApp.getModel();
+        model.setRowCount(0);
+        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        
+        for (TaxReturn taxReturn : organization.getTaxReturnDirectory().getTaxReturnList()) {
+            Object[] row = {
+                taxReturn.getApplicationId(),
+                taxReturn.getDeclarationId(),
+                String.format("$%.2f", taxReturn.getReturnAmount()),
+                dateFormat.format(taxReturn.getSubmissionDate()),
+                taxReturn.getStatus()
+            };
+            model.addRow(row);
+        }
+    }
+    
+    private void clearFields() {
+        comBoAppType.setSelectedIndex(0);
+        txtRelatedDeclaration.setText("");
+        txtTaxID.setText("");
+        txtOriginalTaxAmount.setText("");
+        txtReturnAmount.setText("");
+        txtReturnReason.setText("");
+        txtBankInfo.setText("");
+        txtNotes.setText("");
+    }
+    
+    private boolean validateInputs() {
+        if (txtRelatedDeclaration.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter related declaration ID");
+            return false;
+        }
+        
+        if (txtTaxID.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter tax ID");
+            return false;
+        }
+        
+        try {
+            double originalAmount = Double.parseDouble(txtOriginalTaxAmount.getText().trim());
+            double returnAmount = Double.parseDouble(txtReturnAmount.getText().trim());
+            
+            if (originalAmount <= 0) {
+                JOptionPane.showMessageDialog(this, "Original tax amount must be greater than 0");
+                return false;
+            }
+            
+            if (returnAmount <= 0 || returnAmount > originalAmount) {
+                JOptionPane.showMessageDialog(this, "Return amount must be greater than 0 and less than original amount");
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Please enter valid amounts");
+            return false;
+        }
+        
+        if (txtReturnReason.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter return reason");
+            return false;
+        }
+        
+        if (txtBankInfo.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter bank information");
+            return false;
+        }
+        
+        return true;
     }
 
     /**
@@ -121,10 +224,20 @@ public class ReturnTax extends javax.swing.JPanel {
         });
 
         btnReset.setText("Reset");
+        btnReset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnResetActionPerformed(evt);
+            }
+        });
 
         btnSubmit.setBackground(new java.awt.Color(102, 204, 0));
         btnSubmit.setForeground(new java.awt.Color(255, 255, 255));
         btnSubmit.setText("Submit");
+        btnSubmit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSubmitActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout taxReturnAppJPanelLayout = new javax.swing.GroupLayout(taxReturnAppJPanel);
         taxReturnAppJPanel.setLayout(taxReturnAppJPanelLayout);
@@ -360,7 +473,9 @@ public class ReturnTax extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void txtReturnAmountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtReturnAmountActionPerformed
@@ -374,6 +489,57 @@ public class ReturnTax extends javax.swing.JPanel {
     private void txtBankInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBankInfoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtBankInfoActionPerformed
+
+    private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
+        // TODO add your handling code here:
+        clearFields();
+    }//GEN-LAST:event_btnResetActionPerformed
+
+    private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
+        // TODO add your handling code here:
+        if (!validateInputs()) {
+            return;
+        }
+        
+        // Verify declaration exists
+        String declarationId = txtRelatedDeclaration.getText().trim();
+        CustomsDeclaration declaration = organization.getCustomsDeclarationDirectory()
+                .findDeclarationById(declarationId);
+        
+        if (declaration == null) {
+            JOptionPane.showMessageDialog(this, 
+                    "Declaration not found: " + declarationId,
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Create new tax return application
+        TaxReturn taxReturn = new TaxReturn();
+        taxReturn.setApplicationId("TR" + System.currentTimeMillis());
+        taxReturn.setDeclarationId(declarationId);
+        taxReturn.setApplicationType(comBoAppType.getSelectedItem().toString());
+        taxReturn.setTaxId(txtTaxID.getText().trim());
+        taxReturn.setOriginalTaxAmount(Double.parseDouble(txtOriginalTaxAmount.getText().trim()));
+        taxReturn.setReturnAmount(Double.parseDouble(txtReturnAmount.getText().trim()));
+        taxReturn.setReturnReason(txtReturnReason.getText().trim());
+        taxReturn.setBankInfo(txtBankInfo.getText().trim());
+        taxReturn.setNotes(txtNotes.getText().trim());
+        taxReturn.setSubmissionDate(new Date());
+        taxReturn.setStatus("Pending");
+        
+        // Add to directory
+        organization.getTaxReturnDirectory().addTaxReturn(taxReturn);
+        
+        // Update UI
+        populateTable();
+        clearFields();
+        
+        JOptionPane.showMessageDialog(this, 
+                "Tax return application submitted successfully\nApplication ID: " + taxReturn.getApplicationId(),
+                "Success",
+                JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_btnSubmitActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
