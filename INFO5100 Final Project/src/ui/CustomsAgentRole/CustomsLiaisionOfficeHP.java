@@ -4,19 +4,193 @@
  */
 package ui.CustomsAgentRole;
 
+import Business.Enterprise.Enterprise;
+import Business.Organization.Organization;
+import Business.UserAccount.UserAccount;
+import java.awt.CardLayout;
+import java.util.ArrayList;
+import java.util.Date;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+import java.text.SimpleDateFormat;
+
 /**
  *
  * @author zhuchenyan
  */
 public class CustomsLiaisionOfficeHP extends javax.swing.JPanel {
 
+    private JPanel userProcessContainer;
+    private UserAccount userAccount;
+    private Enterprise enterprise;
+    private Organization organization;
+    
     /**
      * Creates new form CustomsLiaisionOfficeHP
      */
-    public CustomsLiaisionOfficeHP() {
+    public CustomsLiaisionOfficeHP(JPanel userProcessContainer, UserAccount account, 
+                                Enterprise enterprise, Organization organization) {
+        
         initComponents();
+        
+        this.userProcessContainer = userProcessContainer;
+        this.userAccount = account;
+        this.enterprise = enterprise;
+        this.organization = organization;
+        
+        // Set up the dashboard
+        populateDashboard();
+    }
+    
+    private void populateDashboard() {
+        // Update statistics
+        updateStatistics();
+        
+        // Populate tables
+        populatePendingDeclarationsTable();
+        populateInspectionsTable();
+        
+        // Update alerts
+        updateAlertsPanel();
     }
 
+    private void updateStatistics() {
+        int pendingDeclarations = 0;
+        int pendingInspections = 0;
+        int completedToday = 0;
+        
+        Date today = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String todayStr = sdf.format(today);
+        
+        if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
+            // Count pending declarations
+            for (CustomsDeclaration declaration : organization.getCustomsDeclarationDirectory().getDeclarations()) {
+                if ("Pending".equals(declaration.getStatus())) {
+                    pendingDeclarations++;
+                }
+                
+                // Count completed today
+                if ("Approved".equals(declaration.getStatus()) || "Rejected".equals(declaration.getStatus())) {
+                    String declDateStr = sdf.format(declaration.getDeclarationDate());
+                    if (todayStr.equals(declDateStr)) {
+                        completedToday++;
+                    }
+                }
+            }
+            
+            // Count pending inspections
+            if (organization.getCustomsInspectionDirectory() != null) {
+                for (CustomsInspection inspection : organization.getCustomsInspectionDirectory().getInspections()) {
+                    if ("Scheduled".equals(inspection.getStatus())) {
+                        pendingInspections++;
+                    }
+                }
+            }
+        }
+        
+        // Update labels
+        lblPendingDeclarations.setText("Pending Declarations: " + pendingDeclarations);
+        lblPendingInspections.setText("Pending Inspections: " + pendingInspections);
+        lblCompletedToday.setText("Completed Today: " + completedToday);
+    }
+    
+    private void populatePendingDeclarationsTable() {
+        DefaultTableModel model = (DefaultTableModel) tblPendingDeclarations.getModel();
+        model.setRowCount(0);
+        
+        if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+            
+            for (CustomsDeclaration declaration : 
+                    organization.getCustomsDeclarationDirectory().getPendingDeclarations()) {
+                Object[] row = new Object[6];
+                row[0] = declaration.getDeclarationId();
+                row[1] = declaration.getShipmentId();
+                row[2] = sdf.format(declaration.getDeclarationDate());
+                row[3] = declaration.getCountryOfOrigin();
+                row[4] = declaration.getDestinationCountry();
+                row[5] = declaration.getStatus();
+                model.addRow(row);
+            }
+        }
+    }
+    
+    private void populateInspectionsTable() {
+        DefaultTableModel model = (DefaultTableModel) tblInspections.getModel();
+        model.setRowCount(0);
+        
+        if (organization != null && organization.getCustomsInspectionDirectory() != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+            
+            for (CustomsInspection inspection : 
+                    organization.getCustomsInspectionDirectory().getPendingInspections()) {
+                Object[] row = new Object[5];
+                row[0] = inspection.getInspectionId();
+                row[1] = inspection.getDeclarationId();
+                row[2] = sdf.format(inspection.getInspectionDate());
+                row[3] = inspection.getInspectionType();
+                row[4] = inspection.getStatus();
+                model.addRow(row);
+            }
+        }
+    }
+    
+    private void updateAlertsPanel() {
+        StringBuilder alertsText = new StringBuilder("<html>");
+        boolean hasAlerts = false;
+        
+        if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
+            // Check for urgent declarations (more than 48 hours old)
+            int urgentDeclarations = 0;
+            Date currentDate = new Date();
+            long fortyEightHours = 48 * 60 * 60 * 1000;
+            
+            for (CustomsDeclaration declaration : 
+                    organization.getCustomsDeclarationDirectory().getPendingDeclarations()) {
+                if (currentDate.getTime() - declaration.getDeclarationDate().getTime() > fortyEightHours) {
+                    urgentDeclarations++;
+                }
+            }
+            
+            if (urgentDeclarations > 0) {
+                alertsText.append("<p style='color: red;'>⚠ ")
+                         .append(urgentDeclarations)
+                         .append(" declaration(s) pending for more than 48 hours</p>");
+                hasAlerts = true;
+            }
+            
+            // Check for today's inspections
+            if (organization.getCustomsInspectionDirectory() != null) {
+                int todayInspections = 0;
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                String todayStr = sdf.format(currentDate);
+                
+                for (CustomsInspection inspection : 
+                        organization.getCustomsInspectionDirectory().getInspections()) {
+                    if ("Scheduled".equals(inspection.getStatus()) && 
+                        todayStr.equals(sdf.format(inspection.getInspectionDate()))) {
+                        todayInspections++;
+                    }
+                }
+                
+                if (todayInspections > 0) {
+                    alertsText.append("<p style='color: blue;'>ℹ ")
+                             .append(todayInspections)
+                             .append(" inspection(s) scheduled for today</p>");
+                    hasAlerts = true;
+                }
+            }
+        }
+        
+        if (!hasAlerts) {
+            alertsText.append("<p style='color: green;'>✓ No urgent alerts at this time</p>");
+        }
+        
+        alertsText.append("</html>");
+        lblAlerts.setText(alertsText.toString());
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
