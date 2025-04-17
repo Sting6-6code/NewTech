@@ -178,8 +178,10 @@ public class MainJFrame extends javax.swing.JFrame {
             return;
         }
         else{
-            CardLayout layout=(CardLayout)container.getLayout();
-            container.add("workArea",userAccount.getRole().createWorkArea(container, userAccount, inOrganization, inEnterprise, system));
+            CardLayout layout=(CardLayout) container.getLayout();
+            container.add("workArea",userAccount.getRole().
+                    createWorkArea(container, userAccount, 
+                    inOrganization, inEnterprise, system));
             
             layout.next(container);
         }
@@ -188,6 +190,12 @@ public class MainJFrame extends javax.swing.JFrame {
         logoutJButton.setEnabled(true);
         userNameJTextField.setEnabled(false);
         passwordField.setEnabled(false);
+        
+        //
+//        System.out.println("userAccount: " + userAccount);
+//        System.out.println("role: " + userAccount.getRole());
+//        System.out.println("container: " + container);
+        //
     }//GEN-LAST:event_loginJButtonActionPerformed
 
     private void logoutJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutJButtonActionPerformed

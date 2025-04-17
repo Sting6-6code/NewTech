@@ -6,14 +6,14 @@ import Business.Role.CustomsAgentRole;
 import Business.Role.LogisticsCoordinatorRole;
 import Business.Role.MerchantRole;
 import Business.Role.ProcurementSpecialistRole;
-//import Business.Role.LabManagerRole;
-import Business.Role.SystemAdminRole;
+
 import Business.UserAccount.UserAccount;
 import Business.Supplier.Supplier;
 import Business.Product.Product;
 import Business.Network.Network;
 import Business.Enterprise.Enterprise;
 import Business.Organization.Organization;
+import Business.Role.AdminRole;
 
 /**
  *
@@ -39,7 +39,8 @@ public class ConfigureASystem {
         Employee employee5 = system.getEmployeeDirectory().createEmployee("customsagent");
         Employee employee6 = system.getEmployeeDirectory().createEmployee("logistics");
         
-        UserAccount ua = system.getUserAccountDirectory().createUserAccount("sysadmin", "sysadmin", employee1, new SystemAdminRole());
+
+        UserAccount ua = system.getUserAccountDirectory().createUserAccount("sysadmin", "sysadmin", employee1, new AdminRole());
         UserAccount customerservice = system.getUserAccountDirectory().createUserAccount("c","****",employee2, new CustomerServiceRepRole());
         UserAccount merchant = system.getUserAccountDirectory().createUserAccount("m","****",employee3, new MerchantRole());
         UserAccount procurement = system.getUserAccountDirectory().createUserAccount("p","****",employee4, new ProcurementSpecialistRole());
