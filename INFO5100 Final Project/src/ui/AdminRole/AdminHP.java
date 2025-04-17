@@ -74,6 +74,10 @@ public class AdminHP extends javax.swing.JPanel {
         lblMaintenance = new javax.swing.JLabel();
         actionCorner = new javax.swing.JPanel();
         lblAction = new javax.swing.JLabel();
+        viewSusScrollPane = new javax.swing.JScrollPane();
+        tblSus = new javax.swing.JTable();
+        btnAcc = new javax.swing.JButton();
+        btnDeny = new javax.swing.JButton();
 
         WelcomeMsg.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         WelcomeMsg.setText("Welcome Admin!");
@@ -141,6 +145,23 @@ public class AdminHP extends javax.swing.JPanel {
         lblAction.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         lblAction.setText("Suspend Suspicious Activities");
 
+        tblSus.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Payment ID", "Shipment Info", "Amount"
+            }
+        ));
+        viewSusScrollPane.setViewportView(tblSus);
+
+        btnAcc.setText("Accept");
+
+        btnDeny.setText("Deny");
+
         javax.swing.GroupLayout actionCornerLayout = new javax.swing.GroupLayout(actionCorner);
         actionCorner.setLayout(actionCornerLayout);
         actionCornerLayout.setHorizontalGroup(
@@ -149,13 +170,30 @@ public class AdminHP extends javax.swing.JPanel {
                 .addContainerGap(132, Short.MAX_VALUE)
                 .addComponent(lblAction)
                 .addGap(126, 126, 126))
+            .addGroup(actionCornerLayout.createSequentialGroup()
+                .addGroup(actionCornerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(actionCornerLayout.createSequentialGroup()
+                        .addGap(65, 65, 65)
+                        .addComponent(viewSusScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 318, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(actionCornerLayout.createSequentialGroup()
+                        .addGap(108, 108, 108)
+                        .addComponent(btnAcc)
+                        .addGap(60, 60, 60)
+                        .addComponent(btnDeny)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         actionCornerLayout.setVerticalGroup(
             actionCornerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(actionCornerLayout.createSequentialGroup()
                 .addGap(24, 24, 24)
                 .addComponent(lblAction)
-                .addContainerGap(282, Short.MAX_VALUE))
+                .addGap(39, 39, 39)
+                .addComponent(viewSusScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(35, 35, 35)
+                .addGroup(actionCornerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAcc)
+                    .addComponent(btnDeny))
+                .addContainerGap(45, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -182,44 +220,47 @@ public class AdminHP extends javax.swing.JPanel {
                 .addGap(79, 79, 79)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(maintenanceCorner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(32, 32, 32)
-                        .addComponent(actionCorner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(actionCorner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(50, 50, 50)
+                        .addComponent(maintenanceCorner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(viewUsersScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 790, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(WelcomeMsg)
                         .addGap(139, 139, 139)
                         .addComponent(btnMngOwnProfile)))
-                .addContainerGap(81, Short.MAX_VALUE))
+                .addContainerGap(407, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(32, 32, 32)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnMngOwnProfile)
-                    .addComponent(WelcomeMsg))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(maintenanceCorner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(32, 32, 32)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnSearch)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnMngOwnProfile)
+                            .addComponent(WelcomeMsg))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(32, 32, 32)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnSearch)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel1)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel1)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(viewUsersScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(33, 33, 33)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnAddUser)
-                    .addComponent(btnModify)
-                    .addComponent(btnDelete))
-                .addGap(39, 39, 39)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(maintenanceCorner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(actionCorner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(23, Short.MAX_VALUE))
+                        .addComponent(viewUsersScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(33, 33, 33)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnAddUser)
+                            .addComponent(btnModify)
+                            .addComponent(btnDelete))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
+                        .addComponent(actionCorner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(22, 22, 22))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -244,8 +285,10 @@ public class AdminHP extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel WelcomeMsg;
     private javax.swing.JPanel actionCorner;
+    private javax.swing.JButton btnAcc;
     private javax.swing.JButton btnAddUser;
     private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnDeny;
     private javax.swing.JButton btnMngOwnProfile;
     private javax.swing.JButton btnModify;
     private javax.swing.JButton btnSearch;
@@ -254,7 +297,9 @@ public class AdminHP extends javax.swing.JPanel {
     private javax.swing.JLabel lblAction;
     private javax.swing.JLabel lblMaintenance;
     private javax.swing.JPanel maintenanceCorner;
+    private javax.swing.JTable tblSus;
     private javax.swing.JTable tblUsers;
+    private javax.swing.JScrollPane viewSusScrollPane;
     private javax.swing.JScrollPane viewUsersScrollPane;
     // End of variables declaration//GEN-END:variables
     
