@@ -21,19 +21,27 @@ public class CustomsAgentRole extends Role {
     public CustomsAgentRole() {
     }
     
+//    @Override
+//    public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
+//        ui.CustomsAgentRole.CustomsLiaisonOfficeHP customsHP = new ui.CustomsAgentRole.CustomsLiaisonOfficeHP();
+//        return customsHP;
+//    }
+    
     @Override
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-        ui.CustomsAgentRole.CustomsLiaisonOfficeHP customsHP = new ui.CustomsAgentRole.CustomsLiaisonOfficeHP();
-        return customsHP;
+    if (organization == null || !(organization instanceof CustomsLiaisonOrganization)) {
+        return new ui.CustomsAgentRole.CustomsLiaisonOfficeHP();
+    } else {
+        return new ui.CustomsAgentRole.CustomsLiaisonOfficeHP(userProcessContainer, account, enterprise, (CustomsLiaisonOrganization) organization);
     }
+    } 
     
 //    @Override
 //    public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-//    if (organization == null || !(organization instanceof CustomsLiaisonOrganization)) {
-//        return new ui.CustomsAgentRole.CustomsLiaisonOfficeHP();
-//    } else {
-//        return new ui.CustomsAgentRole.CustomsLiaisonOfficeHP(userProcessContainer, account, enterprise, (CustomsLiaisonOrganization) organization);
-//    }
+//        if (organization instanceof CustomsLiaisonOrganization) {
+//            return new CustomsLiaisonOfficeHP(userProcessContainer, account, enterprise, (CustomsLiaisonOrganization) organization);
+//        }
+//        throw new IllegalArgumentException("Invalid organization type for Customs Agent Role");
 //    }
     
     @Override
