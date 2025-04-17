@@ -30,6 +30,8 @@ public class ReturnTax extends javax.swing.JPanel {
      */
     public ReturnTax(JPanel userProcessContainer, UserAccount account, CustomsLiaisonOrganization organization) {
         
+        initComponents();
+        
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.organization = organization;
@@ -39,7 +41,7 @@ public class ReturnTax extends javax.swing.JPanel {
         populateTable();
         
         
-        initComponents();
+        
     }
     
     private void setupTable() {

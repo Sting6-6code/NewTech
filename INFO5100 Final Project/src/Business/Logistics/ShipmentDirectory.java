@@ -49,4 +49,13 @@ public class ShipmentDirectory {
         }
         return null;
     }
+    
+    public Shipment findShipmentByOrderId(String orderId) {
+        for (Shipment shipment : shipments) {
+            if (shipment.getOrderId() != null && shipment.getOrderId().equals(orderId)) {
+                return shipment;
+            }
+        }
+        return null;
+    }
 }

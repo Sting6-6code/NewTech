@@ -33,10 +33,22 @@ public class LogisticsCoordinatorRole extends Role {
 //        return logisticsHP;
 //    }
     
+//    @Override
+//    public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
+//        return new LogisticsCoordinatorHP(userProcessContainer, account, enterprise, (LogisticsOrganization)organization);
+//    }
+//    
     @Override
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
+    if (organization == null || !(organization instanceof LogisticsOrganization)) {
+        // 如果 organization 为空或类型不匹配,创建一个新的 LogisticsOrganization
+        LogisticsOrganization logisticsOrg = new LogisticsOrganization();
+        return new LogisticsCoordinatorHP(userProcessContainer, account, enterprise, logisticsOrg);
+    } else {
+        // 如果 organization 存在且类型正确,直接使用
         return new LogisticsCoordinatorHP(userProcessContainer, account, enterprise, (LogisticsOrganization)organization);
     }
+}
     
     /**
      * 创建新的货件
@@ -57,7 +69,7 @@ public class LogisticsCoordinatorRole extends Role {
         shipment.setSender(sender);
         shipment.setReceiver(receiver);
         shipment.setWeight(weight);
-        shipment.setStatus("Pending");
+        shipment.setShipmentStatus("Pending");
         
         // 计算预计送达日期 (简单估计：海运30天，空运7天，其他15天)
         Date estimatedDate = new Date(shipDate.getTime());
@@ -89,7 +101,7 @@ public class LogisticsCoordinatorRole extends Role {
                                   String location, String description) {
         if (shipment != null) {
             // 更新货件状态
-            shipment.setStatus(newStatus);
+            shipment.setShipmentStatus(newStatus);
             
             // 添加新的跟踪记录
             TrackingInfo tracking = new TrackingInfo();
@@ -182,7 +194,7 @@ public class LogisticsCoordinatorRole extends Role {
         report.append("Method: ").append(shipment.getShippingMethod()).append("\n");
         report.append("Origin: ").append(shipment.getOrigin()).append("\n");
         report.append("Destination: ").append(shipment.getDestination()).append("\n");
-        report.append("Current Status: ").append(shipment.getStatus()).append("\n");
+        report.append("Current Status: ").append(shipment.getShipmentStatus()).append("\n");
         report.append("Estimated Delivery: ").append(shipment.getEstimatedDeliveryDate()).append("\n\n");
         
         report.append("Sender: ").append(shipment.getSender()).append("\n");
@@ -217,7 +229,7 @@ public class LogisticsCoordinatorRole extends Role {
     public int countPendingUrgentShipments(LogisticsOrganization organization) {
         int count = 0;
         for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-            if ("Urgent".equals(shipment.getStatus()) || "Priority".equals(shipment.getStatus())) {
+            if ("Urgent".equals(shipment.getShipmentStatus()) || "Priority".equals(shipment.getShipmentStatus())) {
                 count++;
             }
         }
