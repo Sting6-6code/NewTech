@@ -30,6 +30,8 @@ import java.util.Date;
  */
 public class ConfigureASystem {
     
+    private static LogisticsOrganization logisticsOrg;
+    
     public static EcoSystem configure(){
         
         EcoSystem system = EcoSystem.getInstance();
@@ -103,7 +105,19 @@ public class ConfigureASystem {
             Organization logisticsOrg = logisticsEnterprise.getOrganizationDirectory().createOrganization(Organization.Type.Logistics);
             if (logisticsOrg instanceof LogisticsOrganization) {
                 LogisticsOrganization logisticsOrganization = (LogisticsOrganization) logisticsOrg;
+                // Set the static reference
+                ConfigureASystem.logisticsOrg = logisticsOrganization;
+                
+                // Associate the logistics user account with this organization
+                logisticsOrganization.getUserAccountDirectory().getUserAccountList().add(logistics);
+                
+                // Create sample shipments
                 createSampleShipments(logisticsOrganization);
+                
+                // Debug print
+                System.out.println("Created LogisticsOrganization with " + 
+                                  logisticsOrganization.getShipmentDirectory().getShipments().size() + 
+                                  " shipments");
             }
             
             // Create customs organization
@@ -116,6 +130,11 @@ public class ConfigureASystem {
         
         
         return system;
+    }
+    
+    // Method to access the logistics organization from anywhere in the application
+    public static LogisticsOrganization getLogisticsOrganization() {
+        return logisticsOrg;
     }
     
     // Create demo complaints
@@ -165,14 +184,17 @@ public class ConfigureASystem {
         
         Shipment shipment3 = shipmentDir.createShipment("SHP003", "TRK003");
         setupNewlyShippedShipment(shipment3);
+        
+        // Debug print
+        System.out.println("Created " + shipmentDir.getShipments().size() + " sample shipments");
     }
     
     private static void setupDeliveredShipment(Shipment shipment) {
-        // 设置基本信息
+        // Set basic info
         shipment.setOrderId("ORD001");
         shipment.setProductName("iPhone 15");
         shipment.setQuantity(1);
-        shipment.setShipDate(new Date(System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000)); // 7天前
+        shipment.setShipDate(new Date(System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000)); // 7 days ago
         shipment.setShippingMethod("Express");
         shipment.setOrigin("Shanghai Warehouse");
         shipment.setDestination("Boston, MA");
@@ -181,7 +203,7 @@ public class ConfigureASystem {
         shipment.setReceiver("John Smith");
         shipment.setWeight(0.5);
         
-        // 添加跟踪记录
+        // Add tracking records
         addTrackingInfo(shipment, -7, "Shanghai Warehouse", 31.2304, 121.4737,
                 "Package received at warehouse", Shipment.STATUS_PENDING);
         
@@ -202,11 +224,11 @@ public class ConfigureASystem {
     }
     
     private static void setupInTransitShipment(Shipment shipment) {
-        // 设置基本信息
+        // Set basic info
         shipment.setOrderId("ORD002");
         shipment.setProductName("MacBook Pro");
         shipment.setQuantity(1);
-        shipment.setShipDate(new Date(System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000)); // 3天前
+        shipment.setShipDate(new Date(System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000)); // 3 days ago
         shipment.setShippingMethod("Express");
         shipment.setOrigin("Shanghai Warehouse");
         shipment.setDestination("New York, NY");
@@ -215,7 +237,7 @@ public class ConfigureASystem {
         shipment.setReceiver("Jane Doe");
         shipment.setWeight(2.5);
         
-        // 添加跟踪记录
+        // Add tracking records
         addTrackingInfo(shipment, -3, "Shanghai Warehouse", 31.2304, 121.4737,
                 "Package received at warehouse", Shipment.STATUS_PENDING);
         
@@ -227,11 +249,11 @@ public class ConfigureASystem {
     }
     
     private static void setupNewlyShippedShipment(Shipment shipment) {
-        // 设置基本信息
+        // Set basic info
         shipment.setOrderId("ORD003");
         shipment.setProductName("iPad Pro");
         shipment.setQuantity(1);
-        shipment.setShipDate(new Date()); // 今天
+        shipment.setShipDate(new Date()); // Today
         shipment.setShippingMethod("Standard");
         shipment.setOrigin("Shanghai Warehouse");
         shipment.setDestination("Chicago, IL");
@@ -240,7 +262,7 @@ public class ConfigureASystem {
         shipment.setReceiver("Bob Wilson");
         shipment.setWeight(1.0);
         
-        // 添加跟踪记录
+        // Add tracking records
         addTrackingInfo(shipment, 0, "Shanghai Warehouse", 31.2304, 121.4737,
                 "Package received and processed", Shipment.STATUS_PENDING);
         

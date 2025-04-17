@@ -2,6 +2,10 @@ package Business.DB4OUtil;
 
 import Business.ConfigureASystem;
 import Business.EcoSystem;
+import Business.Logistics.Shipment;
+import Business.Logistics.ShipmentDirectory;
+import Business.Logistics.TrackingInfo;
+import Business.Organization.LogisticsOrganization;
 import com.db4o.Db4oEmbedded;
 import com.db4o.ObjectContainer;
 import com.db4o.ObjectSet;
@@ -55,6 +59,10 @@ public class DB4OUtil {
 
             //Register your top most Class here
             config.common().objectClass(EcoSystem.class).cascadeOnUpdate(true); // Change to the object you want to save
+            config.common().objectClass(LogisticsOrganization.class).cascadeOnUpdate(true);
+            config.common().objectClass(ShipmentDirectory.class).cascadeOnUpdate(true);
+            config.common().objectClass(Shipment.class).cascadeOnUpdate(true);
+            config.common().objectClass(TrackingInfo.class).cascadeOnUpdate(true);
 
             ObjectContainer db = Db4oEmbedded.openFile(config, FILENAME);
             return db;
