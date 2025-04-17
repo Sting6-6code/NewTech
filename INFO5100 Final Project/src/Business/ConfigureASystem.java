@@ -6,14 +6,17 @@ import Business.Role.CustomsAgentRole;
 import Business.Role.LogisticsCoordinatorRole;
 import Business.Role.MerchantRole;
 import Business.Role.ProcurementSpecialistRole;
-//import Business.Role.LabManagerRole;
 import Business.Role.SystemAdminRole;
 import Business.UserAccount.UserAccount;
 import Business.Supplier.Supplier;
-import Business.Product.Product;
 import Business.Network.Network;
 import Business.Enterprise.Enterprise;
+import Business.Enterprise.RetailCorpEnterprise;
+import Business.Enterprise.LogisticsGroupEnterprise;
 import Business.Organization.Organization;
+import Business.Customer.ComplaintDirectory;
+import Business.Customer.CustomerComplaint;
+import Business.Organization.CustomerExperienceOrganization;
 
 /**
  *
@@ -39,6 +42,7 @@ public class ConfigureASystem {
         Employee employee5 = system.getEmployeeDirectory().createEmployee("customsagent");
         Employee employee6 = system.getEmployeeDirectory().createEmployee("logistics");
         
+        // Create user accounts
         UserAccount ua = system.getUserAccountDirectory().createUserAccount("sysadmin", "sysadmin", employee1, new SystemAdminRole());
         UserAccount customerservice = system.getUserAccountDirectory().createUserAccount("c","****",employee2, new CustomerServiceRepRole());
         UserAccount merchant = system.getUserAccountDirectory().createUserAccount("m","****",employee3, new MerchantRole());
@@ -46,56 +50,90 @@ public class ConfigureASystem {
         UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("a", "****", employee5, new CustomsAgentRole());
         UserAccount logistics = system.getUserAccountDirectory().createUserAccount("logistics", "****", employee6, new LogisticsCoordinatorRole());
         
-        
-        // 
+        // Create supplier
         Supplier techSupplier1 = new Supplier();
-        
         techSupplier1.setSupplyName("TechGadgets Inc.");
-        
-        
-        
-//        // 创建几个示例产品
-//        Product p1 = new Product("P001", "iPhone 14 Pro", 999.99, 50, 10);
-//        Product p2 = new Product("P002", "Samsung Galaxy S22", 899.99, 45, 8);
-//        Product p3 = new Product("P003", "MacBook Pro M2", 1999.99, 30, 5);
-//        Product p4 = new Product("P004", "Dell XPS 15", 1599.99, 25, 5);
-//        Product p5 = new Product("P005", "Sony WH-1000XM5", 349.99, 100, 20);
-//        
-//        
-//        
-//        //upshelf
-//        p1.upShelf();
-//        p2.upShelf();
-//        p3.upShelf();
-//        
-//
-//        
-//        // 将产品添加到供应商目录
-//        techSupplier1.addProduct(p1);
-//        techSupplier1.addProduct(p2);
-//        techSupplier1.addProduct(p3);
-//        techSupplier1.addProduct(p4);
-//        techSupplier1.addProduct(p5);
-
-        
-        
-
-
-        
-
-
-
-        // 将创建的示例供应商设置为MerchantRole的默认供应商
         MerchantRole.setDemoSupplier(techSupplier1);
-        System.out.println("Demo supplier created with 5 products: " + techSupplier1.getSupplyName());
-
         
+        // Create network
         Network network = system.createAndAddNetwork();
         network.setName("Main Network");
         
-       
+        // Create retail enterprise
+        Enterprise retailEnterprise = network.getEnterpriseDirectory().createAndAddEnterprise("RetailCorp", Enterprise.EnterpriseType.RetailCorpEnterprise);
+        if (retailEnterprise == null) {
+            retailEnterprise = new RetailCorpEnterprise("RetailCorp");
+            network.getEnterpriseDirectory().getEnterpriseList().add(retailEnterprise);
+        }
+        
+        // Create logistics enterprise
+        Enterprise logisticsEnterprise = network.getEnterpriseDirectory().createAndAddEnterprise("LogisticsGroup", Enterprise.EnterpriseType.LogisticsGroupEnterprise);
+        if (logisticsEnterprise == null) {
+            logisticsEnterprise = new LogisticsGroupEnterprise("LogisticsGroup");
+            network.getEnterpriseDirectory().getEnterpriseList().add(logisticsEnterprise);
+        }
+        
+        // Create customer experience organization
+        if (retailEnterprise != null && retailEnterprise.getOrganizationDirectory() != null) {
+            CustomerExperienceOrganization customerExpOrg = (CustomerExperienceOrganization) retailEnterprise.getOrganizationDirectory().createOrganization(Organization.Type.CustomerExperience);
+            
+            if (customerExpOrg != null) {
+                // Associate customer service account with the organization
+                customerExpOrg.getUserAccountDirectory().getUserAccountList().add(customerservice);
+                
+                // Create demo complaints
+                ComplaintDirectory complaintDirectory = customerExpOrg.getComplaintDirectory();
+                if (complaintDirectory != null) {
+                    createDemoComplaints(complaintDirectory);
+                }
+            }
+        }
+        
+        // Create logistics organizations
+        if (logisticsEnterprise != null && logisticsEnterprise.getOrganizationDirectory() != null) {
+            // Create logistics organization
+            Organization logisticsOrg = logisticsEnterprise.getOrganizationDirectory().createOrganization(Organization.Type.Logistics);
+            if (logisticsOrg != null) {
+                logisticsOrg.getUserAccountDirectory().getUserAccountList().add(logistics);
+            }
+            
+            // Create customs organization
+            Organization customsOrg = logisticsEnterprise.getOrganizationDirectory().createOrganization(Organization.Type.CustomsAgent);
+            if (customsOrg != null) {
+                customsOrg.getUserAccountDirectory().getUserAccountList().add(customsagent);
+            }
+        }
         
         return system;
     }
     
+    // Create demo complaints
+    private static void createDemoComplaints(ComplaintDirectory complaintDirectory) {
+        // Product issues
+        CustomerComplaint complaint1 = complaintDirectory.createComplaint("C001", "CUST001", "iPhone 14 Pro screen has scratches, requesting replacement");
+        CustomerComplaint complaint2 = complaintDirectory.createComplaint("C002", "CUST002", "Samsung Galaxy S22 battery life is shorter than advertised");
+        CustomerComplaint complaint3 = complaintDirectory.createComplaint("C003", "CUST001", "MacBook Pro overheating issues during normal use");
+        
+        // Logistics issues
+        CustomerComplaint complaint4 = complaintDirectory.createComplaint("C004", "CUST003", "Package delayed by 5 days, affecting usage plans");
+        CustomerComplaint complaint5 = complaintDirectory.createComplaint("C005", "CUST004", "Package damaged, requesting compensation");
+        CustomerComplaint complaint6 = complaintDirectory.createComplaint("C006", "CUST002", "Unable to track package, no status updates");
+        
+        // Refund issues
+        CustomerComplaint complaint7 = complaintDirectory.createComplaint("C007", "CUST005", "Refund not received after 10 days of request");
+        CustomerComplaint complaint8 = complaintDirectory.createComplaint("C008", "CUST001", "Partial refund received, missing coupon amount");
+        
+        // Customer service issues
+        CustomerComplaint complaint9 = complaintDirectory.createComplaint("C009", "CUST003", "Customer service rep was rude and refused to help");
+        CustomerComplaint complaint10 = complaintDirectory.createComplaint("C010", "CUST005", "Multiple attempts to contact support with no response");
+        
+        // Set different statuses
+        complaintDirectory.updateComplaintStatus("C001", "In Progress");
+        complaintDirectory.updateComplaintStatus("C002", "In Progress");
+        complaintDirectory.updateComplaintStatus("C003", "Resolved");
+        complaintDirectory.updateComplaintStatus("C005", "In Progress");
+        complaintDirectory.updateComplaintStatus("C006", "In Progress");
+        complaintDirectory.updateComplaintStatus("C007", "Resolved");
+        complaintDirectory.updateComplaintStatus("C009", "Resolved");
+    }
 }
