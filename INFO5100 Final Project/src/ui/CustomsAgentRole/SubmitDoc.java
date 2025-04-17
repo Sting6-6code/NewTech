@@ -23,13 +23,12 @@ import javax.swing.table.DefaultTableModel;
  * @author zhuchenyan
  */
 public class SubmitDoc extends javax.swing.JPanel {
-    
+
     private JPanel userProcessContainer;
     private UserAccount userAccount;
     private CustomsLiaisonOrganization organization;
     private DefaultTableModel model;
     private SimpleDateFormat dateFormat;
-
 
     /**
      * Creates new form SubmitDoc
@@ -37,27 +36,27 @@ public class SubmitDoc extends javax.swing.JPanel {
     public SubmitDoc() {
         initComponents();
     }
-    
+
     public SubmitDoc(JPanel userProcessContainer, UserAccount userAccount, CustomsLiaisonOrganization organization) {
         initComponents();
-        
+
         this.userProcessContainer = userProcessContainer;
         this.userAccount = userAccount;
         this.organization = organization;
-        
+
         // Initialize date format
         dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        
+
         // Set current date as default
         txtDocDate.setText(dateFormat.format(new Date()));
-        
+
         // Auto-generate document ID
         generateDocumentId();
-        
+
         // Populate recently submitted documents table
         populateRecentDocumentsTable();
     }
-    
+
     private void generateDocumentId() {
         String docType = comBoDocType.getSelectedItem().toString().substring(0, 3).toUpperCase();
         String uniqueId = organization.getCustomsDeclarationDirectory().generateNewDeclarationId();
@@ -67,10 +66,10 @@ public class SubmitDoc extends javax.swing.JPanel {
     private void populateRecentDocumentsTable() {
         model = (DefaultTableModel) tblRecSubDoc.getModel();
         model.setRowCount(0); // Clear existing rows
-        
+
         // Get recent declarations
         List<CustomsDeclaration> recentDeclarations = organization.getCustomsDeclarationDirectory().getRecentDeclarations();
-        
+
         // Populate the table
         for (CustomsDeclaration declaration : recentDeclarations) {
             Object[] row = {
@@ -82,7 +81,7 @@ public class SubmitDoc extends javax.swing.JPanel {
             model.addRow(row);
         }
     }
-    
+
     private String getDocumentTypeFromNotes(CustomsDeclaration declaration) {
         String notes = declaration.getNotes();
         if (notes != null && notes.startsWith("Document Type:")) {
@@ -96,8 +95,6 @@ public class SubmitDoc extends javax.swing.JPanel {
         return "Customs Declaration"; // Default
     }
 
-    
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -456,7 +453,7 @@ public class SubmitDoc extends javax.swing.JPanel {
         // Show file chooser dialog
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Select Document");
-        
+
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             txtUploadDoc.setText(selectedFile.getAbsolutePath());
@@ -491,32 +488,32 @@ public class SubmitDoc extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Document ID is required", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         if (txtDocDate.getText().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Document Date is required", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         if (txtRelatedShipment.getText().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Related Shipment is required", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         try {
             // Check if a declaration with this ID already exists
             if (organization.getCustomsDeclarationDirectory().findDeclarationById(txtDocID.getText()) != null) {
-                JOptionPane.showMessageDialog(this, "A document with this ID already exists", 
+                JOptionPane.showMessageDialog(this, "A document with this ID already exists",
                         "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            
+
             // Parse date fields
             Date docDate = dateFormat.parse(txtDocDate.getText());
             Date expiryDate = null;
             if (!txtExpiryDate.getText().isEmpty()) {
                 expiryDate = dateFormat.parse(txtExpiryDate.getText());
             }
-            
+
             // Create new document object
             CustomsDeclaration declaration = new CustomsDeclaration();
             declaration.setDeclarationId(txtDocID.getText());
@@ -524,42 +521,42 @@ public class SubmitDoc extends javax.swing.JPanel {
             declaration.setDeclarationDate(docDate);
             declaration.setSubmissionDate(new Date());
             declaration.setStatus("Pending");
-            
+
             // Store document type and other fields in notes
             StringBuilder notesBuilder = new StringBuilder();
             notesBuilder.append("Document Type: ").append(comBoDocType.getSelectedItem().toString()).append("\n");
             notesBuilder.append("Issuing Authority: ").append(txtIssuAuth.getText()).append("\n");
-            
+
             if (!txtNotes.getText().isEmpty()) {
                 notesBuilder.append("Additional Notes: ").append(txtNotes.getText()).append("\n");
             }
-            
+
             if (!txtUploadDoc.getText().isEmpty()) {
                 notesBuilder.append("Document Path: ").append(txtUploadDoc.getText());
             }
-            
+
             declaration.setNotes(notesBuilder.toString());
-            
+
             // Add document to the directory
             organization.getCustomsDeclarationDirectory().addCustomsDeclaration(declaration);
-            
+
             // Show success message
             JOptionPane.showMessageDialog(this, "Document submitted successfully");
-            
+
             // Reset form fields
             btnResetActionPerformed(evt);
-            
+
             // Refresh the recent documents table
             populateRecentDocumentsTable();
-            
+
         } catch (ParseException e) {
-            JOptionPane.showMessageDialog(this, "Invalid date format. Please use yyyy-MM-dd format.", 
+            JOptionPane.showMessageDialog(this, "Invalid date format. Please use yyyy-MM-dd format.",
                     "Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error submitting document: " + e.getMessage(), 
+            JOptionPane.showMessageDialog(this, "Error submitting document: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
-    
+
     }//GEN-LAST:event_btnSubmitActionPerformed
 
 

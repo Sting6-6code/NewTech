@@ -26,7 +26,7 @@ import javax.swing.table.DefaultTableModel;
  * @author zhuchenyan
  */
 public class DocumentationDetails extends javax.swing.JPanel {
-    
+
     private JPanel userProcessContainer;
     private UserAccount userAccount;
     private Enterprise enterprise;
@@ -38,20 +38,20 @@ public class DocumentationDetails extends javax.swing.JPanel {
     /**
      * Creates new form Documentation
      */
-    public DocumentationDetails(JPanel userProcessContainer, UserAccount account, 
-                          Enterprise enterprise, LogisticsOrganization organization) {
+    public DocumentationDetails(JPanel userProcessContainer, UserAccount account,
+            Enterprise enterprise, LogisticsOrganization organization) {
         initComponents();
-        
+
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.enterprise = enterprise;
         this.organization = organization;
         this.declarationDirectory = organization.getCustomsDeclarationDirectory();
-    
+
         // 初始化表格
         setupDeclarationListTable();
         setupGoodsInfoTable();
-    
+
         // 设置按钮初始状态
         btnSave.setEnabled(false);
         btnSubmit.setEnabled(false);
@@ -71,11 +71,10 @@ public class DocumentationDetails extends javax.swing.JPanel {
         };
         tblList.setModel(model);
         refreshDeclarationList();
-    
-    
-    tblList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-        public void valueChanged(ListSelectionEvent event) {
-            if (!event.getValueIsAdjusting()) {
+
+        tblList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent event) {
+                if (!event.getValueIsAdjusting()) {
                     int selectedRow = tblList.getSelectedRow();
                     if (selectedRow >= 0) {
                         String declarationId = tblList.getValueAt(selectedRow, 0).toString();
@@ -88,28 +87,28 @@ public class DocumentationDetails extends javax.swing.JPanel {
 
     // 初始化商品信息表格
     private void setupGoodsInfoTable() {
-        String[] columnNames = {"Description", "HS Code", "Quantity", "Unit", 
-                          "Unit Value", "Total Value", "Gross Weight"};
+        String[] columnNames = {"Description", "HS Code", "Quantity", "Unit",
+            "Unit Value", "Total Value", "Gross Weight"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         tblGoodsInfo.setModel(model);
     }
 
     // 刷新报关单列表
     private void refreshDeclarationList() {
-    DefaultTableModel model = (DefaultTableModel) tblList.getModel();
-    model.setRowCount(0);
-    
-    if (declarationDirectory != null) {
-        for (CustomsDeclaration declaration : declarationDirectory.getCustomsDeclarationList()) {
-            Object[] row = {
-                declaration.getDeclarationId(),
-                declaration.getStatus(),
-                new SimpleDateFormat("yyyy-MM-dd").format(declaration.getDeclarationDate())
-            };
-            model.addRow(row);
+        DefaultTableModel model = (DefaultTableModel) tblList.getModel();
+        model.setRowCount(0);
+
+        if (declarationDirectory != null) {
+            for (CustomsDeclaration declaration : declarationDirectory.getCustomsDeclarationList()) {
+                Object[] row = {
+                    declaration.getDeclarationId(),
+                    declaration.getStatus(),
+                    new SimpleDateFormat("yyyy-MM-dd").format(declaration.getDeclarationDate())
+                };
+                model.addRow(row);
+            }
         }
     }
-}
 
     // 显示报关单详情
     private void displayDeclarationDetails(String declarationId) {
@@ -124,7 +123,7 @@ public class DocumentationDetails extends javax.swing.JPanel {
             txtDestination.setText(currentDeclaration.getDestinationCountry());
             txtStatus.setText(currentDeclaration.getStatus());
             txtDeclarDate.setText(new SimpleDateFormat("yyyy-MM-dd").format(currentDeclaration.getDeclarationDate()));
-        
+
             // 填充处理信息
             txtCustomsOffice.setText(currentDeclaration.getCustomsOffice());
             if (currentDeclaration.getProcessingDate() != null) {
@@ -133,67 +132,68 @@ public class DocumentationDetails extends javax.swing.JPanel {
                 txtProcessingDate.setText("");
             }
             txtComments.setText(currentDeclaration.getNotes());
-        
+
             // 更新商品信息表格
             refreshGoodsInfoTable();
-        
+
             // 更新按钮状态
             updateButtonStates();
         }
     }
-    
+
     private void refreshGoodsInfoTable() {
         DefaultTableModel model = (DefaultTableModel) tblGoodsInfo.getModel();
         model.setRowCount(0);
-    
-    if (currentDeclaration != null && currentDeclaration.getItems() != null) {
-        for (CustomsDeclaration.CustomsLineItem item : currentDeclaration.getItems()) {
-            Object[] row = {
-                item.getDescription(),
-                item.getHsCode(),
-                item.getQuantity(),
-                item.getUnit(),
-                item.getUnitValue(),
-                item.getTotalValue(),
-                item.getGrossWeight()
-            };
-            model.addRow(row);
-        }
+
+        if (currentDeclaration != null && currentDeclaration.getItems() != null) {
+            for (CustomsDeclaration.CustomsLineItem item : currentDeclaration.getItems()) {
+                Object[] row = {
+                    item.getDescription(),
+                    item.getHsCode(),
+                    item.getQuantity(),
+                    item.getUnit(),
+                    item.getUnitValue(),
+                    item.getTotalValue(),
+                    item.getGrossWeight()
+                };
+                model.addRow(row);
+            }
         }
     }
-    
+
     // 更新当前报关单的商品信息
     private void updateGoodsInfo() {
         if (currentDeclaration != null) {
             DefaultTableModel model = (DefaultTableModel) tblGoodsInfo.getModel();
             ArrayList<CustomsDeclaration.CustomsLineItem> items = new ArrayList<>();
-        
-        for (int i = 0; i < model.getRowCount(); i++) {
-            CustomsDeclaration.CustomsLineItem item = new CustomsDeclaration.CustomsLineItem();
-            item.setDescription((String) model.getValueAt(i, 0));
-            item.setHsCode((String) model.getValueAt(i, 1));
-            item.setQuantity((Integer) model.getValueAt(i, 2));
-            item.setUnit((String) model.getValueAt(i, 3));
-            item.setUnitValue((Double) model.getValueAt(i, 4));
-            // Total value will be calculated automatically
-            item.setGrossWeight((Double) model.getValueAt(i, 6));
-            items.add(item);
+
+            for (int i = 0; i < model.getRowCount(); i++) {
+                CustomsDeclaration.CustomsLineItem item = new CustomsDeclaration.CustomsLineItem();
+                item.setDescription((String) model.getValueAt(i, 0));
+                item.setHsCode((String) model.getValueAt(i, 1));
+                item.setQuantity((Integer) model.getValueAt(i, 2));
+                item.setUnit((String) model.getValueAt(i, 3));
+                item.setUnitValue((Double) model.getValueAt(i, 4));
+                // Total value will be calculated automatically
+                item.setGrossWeight((Double) model.getValueAt(i, 6));
+                items.add(item);
+            }
+
+            currentDeclaration.setItems(items);
         }
-        
-        currentDeclaration.setItems(items);
     }
-}
 
 // 更新按钮状态
-private void updateButtonStates() {
-    boolean isDraft = currentDeclaration != null && 
-                     "Draft".equals(currentDeclaration.getStatus());
-    btnSave.setEnabled(isDraft);
-    btnSubmit.setEnabled(isDraft);
-    btnDelete.setEnabled(currentDeclaration != null);
-    btnPrint.setEnabled(currentDeclaration != null);
-    btnAddItem.setEnabled(isDraft);
-}
+    private void updateButtonStates() {
+        boolean isDraft = currentDeclaration != null
+                && "Draft".equals(currentDeclaration.getStatus());
+        btnSave.setEnabled(isDraft);
+        btnSubmit.setEnabled(isDraft);
+        btnDelete.setEnabled(currentDeclaration != null);
+        btnPrint.setEnabled(currentDeclaration != null);
+        btnAddItem.setEnabled(isDraft);
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -707,7 +707,7 @@ private void updateButtonStates() {
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-        
+
         String searchId = txtSearchBox.getText().trim();
         if (!searchId.isEmpty()) {
             CustomsDeclaration declaration = declarationDirectory.findDeclarationById(searchId);
@@ -722,8 +722,8 @@ private void updateButtonStates() {
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "No declaration found with ID: " + searchId,
-                "Search Result",
-                JOptionPane.INFORMATION_MESSAGE);
+                        "Search Result",
+                        JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }//GEN-LAST:event_btnSearchActionPerformed
@@ -731,169 +731,169 @@ private void updateButtonStates() {
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         // TODO add your handling code here:
         if (currentDeclaration != null) {
-        updateCurrentDeclaration();
-        if (declarationDirectory.findDeclarationById(currentDeclaration.getDeclarationId()) == null) {
-            declarationDirectory.addCustomsDeclaration(currentDeclaration);
+            updateCurrentDeclaration();
+            if (declarationDirectory.findDeclarationById(currentDeclaration.getDeclarationId()) == null) {
+                declarationDirectory.addCustomsDeclaration(currentDeclaration);
+            }
+            refreshDeclarationList();
+            JOptionPane.showMessageDialog(this, "Declaration saved successfully.");
         }
-        refreshDeclarationList();
-        JOptionPane.showMessageDialog(this, "Declaration saved successfully.");
-    }
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
         // TODO add your handling code here:
         if (currentDeclaration != null && validateDeclaration()) {
-        currentDeclaration.setStatus("Submitted");
-        currentDeclaration.setSubmissionDate(new Date());
-        updateCurrentDeclaration();
-        
-        if (declarationDirectory.findDeclarationById(currentDeclaration.getDeclarationId()) == null) {
-            declarationDirectory.addCustomsDeclaration(currentDeclaration);
+            currentDeclaration.setStatus("Submitted");
+            currentDeclaration.setSubmissionDate(new Date());
+            updateCurrentDeclaration();
+
+            if (declarationDirectory.findDeclarationById(currentDeclaration.getDeclarationId()) == null) {
+                declarationDirectory.addCustomsDeclaration(currentDeclaration);
+            }
+
+            refreshDeclarationList();
+            updateButtonStates();
+            JOptionPane.showMessageDialog(this, "Declaration submitted successfully.");
         }
-        
-        refreshDeclarationList();
-        updateButtonStates();
-        JOptionPane.showMessageDialog(this, "Declaration submitted successfully.");
-    }
     }//GEN-LAST:event_btnSubmitActionPerformed
 
     private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
         // TODO add your handling code here:
         if (currentDeclaration == null) {
-        JOptionPane.showMessageDialog(this, "Please select a declaration to print");
-        return;
-    }
-
-    // 创建要打印的文本内容
-    StringBuilder printContent = new StringBuilder();
-    printContent.append("CUSTOMS DECLARATION REPORT\n");
-    printContent.append("=========================\n\n");
-
-    // 基本信息
-    printContent.append("BASIC INFORMATION\n");
-    printContent.append("-----------------\n");
-    printContent.append("Declaration ID: ").append(currentDeclaration.getDeclarationId()).append("\n");
-    printContent.append("Shipment Number: ").append(currentDeclaration.getShipmentId()).append("\n");
-    printContent.append("Status: ").append(currentDeclaration.getStatus()).append("\n");
-    printContent.append("Declaration Date: ").append(dateFormat.format(currentDeclaration.getDeclarationDate())).append("\n\n");
-
-    // 当事人信息
-    printContent.append("PARTY INFORMATION\n");
-    printContent.append("-----------------\n");
-    printContent.append("Consignor: ").append(currentDeclaration.getConsignor()).append("\n");
-    printContent.append("Consignee: ").append(currentDeclaration.getConsignee()).append("\n");
-    printContent.append("Country of Origin: ").append(currentDeclaration.getCountryOfOrigin()).append("\n");
-    printContent.append("Destination Country: ").append(currentDeclaration.getDestinationCountry()).append("\n\n");
-
-    // 商品信息
-    printContent.append("GOODS INFORMATION\n");
-    printContent.append("-----------------\n");
-    if (currentDeclaration.getItems() != null) {
-        for (CustomsDeclaration.CustomsLineItem item : currentDeclaration.getItems()) {
-            printContent.append("\nDescription: ").append(item.getDescription());
-            printContent.append("\nHS Code: ").append(item.getHsCode());
-            printContent.append("\nQuantity: ").append(item.getQuantity()).append(" ").append(item.getUnit());
-            printContent.append("\nUnit Value: $").append(String.format("%.2f", item.getUnitValue()));
-            printContent.append("\nTotal Value: $").append(String.format("%.2f", item.getTotalValue()));
-            printContent.append("\nGross Weight: ").append(String.format("%.2f", item.getGrossWeight())).append(" kg");
-            printContent.append("\n");
+            JOptionPane.showMessageDialog(this, "Please select a declaration to print");
+            return;
         }
-    }
-    printContent.append("\n");
 
-    // 处理信息
-    printContent.append("PROCESSING INFORMATION\n");
-    printContent.append("---------------------\n");
-    printContent.append("Customs Office: ").append(currentDeclaration.getCustomsOffice()).append("\n");
-    if (currentDeclaration.getProcessingDate() != null) {
-        printContent.append("Processing Date: ").append(dateFormat.format(currentDeclaration.getProcessingDate())).append("\n");
-    }
-    printContent.append("Notes: ").append(currentDeclaration.getNotes()).append("\n");
+        // 创建要打印的文本内容
+        StringBuilder printContent = new StringBuilder();
+        printContent.append("CUSTOMS DECLARATION REPORT\n");
+        printContent.append("=========================\n\n");
 
-    // 创建一个临时的 JTextArea 来打印内容
-    JTextArea printArea = new JTextArea(printContent.toString());
-    printArea.setEditable(false);
-    
-    try {
-        boolean complete = printArea.print();
-        if (complete) {
-            JOptionPane.showMessageDialog(this, "Print completed successfully!");
-        } else {
-            JOptionPane.showMessageDialog(this, "Print was cancelled");
+        // 基本信息
+        printContent.append("BASIC INFORMATION\n");
+        printContent.append("-----------------\n");
+        printContent.append("Declaration ID: ").append(currentDeclaration.getDeclarationId()).append("\n");
+        printContent.append("Shipment Number: ").append(currentDeclaration.getShipmentId()).append("\n");
+        printContent.append("Status: ").append(currentDeclaration.getStatus()).append("\n");
+        printContent.append("Declaration Date: ").append(dateFormat.format(currentDeclaration.getDeclarationDate())).append("\n\n");
+
+        // 当事人信息
+        printContent.append("PARTY INFORMATION\n");
+        printContent.append("-----------------\n");
+        printContent.append("Consignor: ").append(currentDeclaration.getConsignor()).append("\n");
+        printContent.append("Consignee: ").append(currentDeclaration.getConsignee()).append("\n");
+        printContent.append("Country of Origin: ").append(currentDeclaration.getCountryOfOrigin()).append("\n");
+        printContent.append("Destination Country: ").append(currentDeclaration.getDestinationCountry()).append("\n\n");
+
+        // 商品信息
+        printContent.append("GOODS INFORMATION\n");
+        printContent.append("-----------------\n");
+        if (currentDeclaration.getItems() != null) {
+            for (CustomsDeclaration.CustomsLineItem item : currentDeclaration.getItems()) {
+                printContent.append("\nDescription: ").append(item.getDescription());
+                printContent.append("\nHS Code: ").append(item.getHsCode());
+                printContent.append("\nQuantity: ").append(item.getQuantity()).append(" ").append(item.getUnit());
+                printContent.append("\nUnit Value: $").append(String.format("%.2f", item.getUnitValue()));
+                printContent.append("\nTotal Value: $").append(String.format("%.2f", item.getTotalValue()));
+                printContent.append("\nGross Weight: ").append(String.format("%.2f", item.getGrossWeight())).append(" kg");
+                printContent.append("\n");
+            }
         }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error printing: " + e.getMessage());
-        e.printStackTrace();
-    }
+        printContent.append("\n");
+
+        // 处理信息
+        printContent.append("PROCESSING INFORMATION\n");
+        printContent.append("---------------------\n");
+        printContent.append("Customs Office: ").append(currentDeclaration.getCustomsOffice()).append("\n");
+        if (currentDeclaration.getProcessingDate() != null) {
+            printContent.append("Processing Date: ").append(dateFormat.format(currentDeclaration.getProcessingDate())).append("\n");
+        }
+        printContent.append("Notes: ").append(currentDeclaration.getNotes()).append("\n");
+
+        // 创建一个临时的 JTextArea 来打印内容
+        JTextArea printArea = new JTextArea(printContent.toString());
+        printArea.setEditable(false);
+
+        try {
+            boolean complete = printArea.print();
+            if (complete) {
+                JOptionPane.showMessageDialog(this, "Print completed successfully!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Print was cancelled");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error printing: " + e.getMessage());
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_btnPrintActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         // TODO add your handling code here:
         if (currentDeclaration == null) {
-        JOptionPane.showMessageDialog(this, 
-            "Please select a declaration to delete",
-            "No Selection",
-            JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    // 检查报关单状态，只有Draft状态的报关单可以删除
-    if (!"Draft".equals(currentDeclaration.getStatus())) {
-        JOptionPane.showMessageDialog(this,
-            "Only declarations in 'Draft' status can be deleted.\n" +
-            "Current status: " + currentDeclaration.getStatus(),
-            "Cannot Delete",
-            JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-
-    // 显示确认对话框
-    int response = JOptionPane.showConfirmDialog(this,
-        "Are you sure you want to delete this declaration?\n\n" +
-        "Declaration ID: " + currentDeclaration.getDeclarationId() + "\n" +
-        "Shipment Number: " + currentDeclaration.getShipmentId() + "\n" +
-        "Status: " + currentDeclaration.getStatus() + "\n\n" +
-        "This action cannot be undone.",
-        "Confirm Delete",
-        JOptionPane.YES_NO_OPTION,
-        JOptionPane.WARNING_MESSAGE);
-
-    if (response == JOptionPane.YES_OPTION) {
-        try {
-            // 从目录中删除报关单
-            declarationDirectory.removeCustomsDeclaration(currentDeclaration);
-            
-            // 刷新列表
-            refreshDeclarationList();
-            
-            // 清空表单
-            clearForm();
-            
-            // 禁用按钮
-            btnSave.setEnabled(false);
-            btnSubmit.setEnabled(false);
-            btnPrint.setEnabled(false);
-            btnDelete.setEnabled(false);
-            btnAddItem.setEnabled(false);
-            
-            // 清除当前选中的报关单
-            currentDeclaration = null;
-            
-            // 显示成功消息
             JOptionPane.showMessageDialog(this,
-                "Declaration deleted successfully",
-                "Success",
-                JOptionPane.INFORMATION_MESSAGE);
-            
-        } catch (Exception e) {
-            // 如果删除过程中发生错误
-            JOptionPane.showMessageDialog(this,
-                "Error deleting declaration: " + e.getMessage(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+                    "Please select a declaration to delete",
+                    "No Selection",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
         }
-    }
+
+        // 检查报关单状态，只有Draft状态的报关单可以删除
+        if (!"Draft".equals(currentDeclaration.getStatus())) {
+            JOptionPane.showMessageDialog(this,
+                    "Only declarations in 'Draft' status can be deleted.\n"
+                    + "Current status: " + currentDeclaration.getStatus(),
+                    "Cannot Delete",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 显示确认对话框
+        int response = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to delete this declaration?\n\n"
+                + "Declaration ID: " + currentDeclaration.getDeclarationId() + "\n"
+                + "Shipment Number: " + currentDeclaration.getShipmentId() + "\n"
+                + "Status: " + currentDeclaration.getStatus() + "\n\n"
+                + "This action cannot be undone.",
+                "Confirm Delete",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (response == JOptionPane.YES_OPTION) {
+            try {
+                // 从目录中删除报关单
+                declarationDirectory.removeCustomsDeclaration(currentDeclaration);
+
+                // 刷新列表
+                refreshDeclarationList();
+
+                // 清空表单
+                clearForm();
+
+                // 禁用按钮
+                btnSave.setEnabled(false);
+                btnSubmit.setEnabled(false);
+                btnPrint.setEnabled(false);
+                btnDelete.setEnabled(false);
+                btnAddItem.setEnabled(false);
+
+                // 清除当前选中的报关单
+                currentDeclaration = null;
+
+                // 显示成功消息
+                JOptionPane.showMessageDialog(this,
+                        "Declaration deleted successfully",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (Exception e) {
+                // 如果删除过程中发生错误
+                JOptionPane.showMessageDialog(this,
+                        "Error deleting declaration: " + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        }
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void txtDeclarIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDeclarIDActionPerformed
@@ -923,7 +923,7 @@ private void updateButtonStates() {
         currentDeclaration.setDeclarationId(generateNewDeclarationId());
         currentDeclaration.setStatus("Draft");
         currentDeclaration.setDeclarationDate(new Date());
-    
+
         displayDeclarationDetails(currentDeclaration.getDeclarationId());
         btnSave.setEnabled(true);
         btnSubmit.setEnabled(true);
@@ -933,9 +933,9 @@ private void updateButtonStates() {
     private void btnAddItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddItemActionPerformed
         // TODO add your handling code here:
         if (currentDeclaration != null) {
-        DefaultTableModel model = (DefaultTableModel) tblGoodsInfo.getModel();
-        model.addRow(new Object[]{"", "", 0, "", 0.0, 0.0, 0.0});
-    }
+            DefaultTableModel model = (DefaultTableModel) tblGoodsInfo.getModel();
+            model.addRow(new Object[]{"", "", 0, "", 0.0, 0.0, 0.0});
+        }
     }//GEN-LAST:event_btnAddItemActionPerformed
 
 
@@ -990,70 +990,70 @@ private void updateButtonStates() {
     // End of variables declaration//GEN-END:variables
 
     private void clearForm() {
-    txtDeclarID.setText("");
-    txtShipmentNumber.setText("");
-    txtConsignor.setText("");
-    txtConsignee.setText("");
-    txtOrigin.setText("");
-    txtDestination.setText("");
-    txtStatus.setText("");
-    txtDeclarDate.setText("");
-    txtCustomsOffice.setText("");
-    txtProcessingDate.setText("");
-    txtComments.setText("");
-    
-    DefaultTableModel model = (DefaultTableModel) tblGoodsInfo.getModel();
-    model.setRowCount(0);
-}
+        txtDeclarID.setText("");
+        txtShipmentNumber.setText("");
+        txtConsignor.setText("");
+        txtConsignee.setText("");
+        txtOrigin.setText("");
+        txtDestination.setText("");
+        txtStatus.setText("");
+        txtDeclarDate.setText("");
+        txtCustomsOffice.setText("");
+        txtProcessingDate.setText("");
+        txtComments.setText("");
 
-private void updateCurrentDeclaration() {
-    if (currentDeclaration != null) {
-        currentDeclaration.setShipmentId(txtShipmentNumber.getText().trim());
-        currentDeclaration.setConsignor(txtConsignor.getText().trim());
-        currentDeclaration.setConsignee(txtConsignee.getText().trim());
-        currentDeclaration.setCountryOfOrigin(txtOrigin.getText().trim());
-        currentDeclaration.setDestinationCountry(txtDestination.getText().trim());
-        currentDeclaration.setCustomsOffice(txtCustomsOffice.getText().trim());
-        currentDeclaration.setNotes(txtComments.getText().trim());
-        
-        try {
-            if (!txtProcessingDate.getText().trim().isEmpty()) {
-                currentDeclaration.setProcessingDate(new SimpleDateFormat("yyyy-MM-dd").parse(txtProcessingDate.getText().trim()));
+        DefaultTableModel model = (DefaultTableModel) tblGoodsInfo.getModel();
+        model.setRowCount(0);
+    }
+
+    private void updateCurrentDeclaration() {
+        if (currentDeclaration != null) {
+            currentDeclaration.setShipmentId(txtShipmentNumber.getText().trim());
+            currentDeclaration.setConsignor(txtConsignor.getText().trim());
+            currentDeclaration.setConsignee(txtConsignee.getText().trim());
+            currentDeclaration.setCountryOfOrigin(txtOrigin.getText().trim());
+            currentDeclaration.setDestinationCountry(txtDestination.getText().trim());
+            currentDeclaration.setCustomsOffice(txtCustomsOffice.getText().trim());
+            currentDeclaration.setNotes(txtComments.getText().trim());
+
+            try {
+                if (!txtProcessingDate.getText().trim().isEmpty()) {
+                    currentDeclaration.setProcessingDate(new SimpleDateFormat("yyyy-MM-dd").parse(txtProcessingDate.getText().trim()));
+                }
+            } catch (Exception e) {
+                System.err.println("Error parsing processing date: " + e.getMessage());
             }
-        } catch (Exception e) {
-            System.err.println("Error parsing processing date: " + e.getMessage());
+
+            // 更新商品信息
+            updateGoodsInfo();
         }
-        
-        // 更新商品信息
-        updateGoodsInfo();
     }
-}
 
-private String generateNewDeclarationId() {
-    String docType = "CD"; // Customs Declaration
-    String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
-    return String.format("%s%s%04d", docType, dateStr, 
-        declarationDirectory.getCustomsDeclarationList().size() + 1);
-}
+    private String generateNewDeclarationId() {
+        String docType = "CD"; // Customs Declaration
+        String dateStr = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        return String.format("%s%s%04d", docType, dateStr,
+                declarationDirectory.getCustomsDeclarationList().size() + 1);
+    }
 
-private boolean validateDeclaration() {
-    // 验证必填字段
-    if (txtShipmentNumber.getText().trim().isEmpty() ||
-        txtConsignor.getText().trim().isEmpty() ||
-        txtConsignee.getText().trim().isEmpty() ||
-        txtOrigin.getText().trim().isEmpty() ||
-        txtDestination.getText().trim().isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please fill in all required fields.");
-        return false;
+    private boolean validateDeclaration() {
+        // 验证必填字段
+        if (txtShipmentNumber.getText().trim().isEmpty()
+                || txtConsignor.getText().trim().isEmpty()
+                || txtConsignee.getText().trim().isEmpty()
+                || txtOrigin.getText().trim().isEmpty()
+                || txtDestination.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all required fields.");
+            return false;
+        }
+
+        // 验证商品信息
+        DefaultTableModel model = (DefaultTableModel) tblGoodsInfo.getModel();
+        if (model.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Please add at least one goods item.");
+            return false;
+        }
+
+        return true;
     }
-    
-    // 验证商品信息
-    DefaultTableModel model = (DefaultTableModel) tblGoodsInfo.getModel();
-    if (model.getRowCount() == 0) {
-        JOptionPane.showMessageDialog(this, "Please add at least one goods item.");
-        return false;
-    }
-    
-    return true;
-}     
 }
