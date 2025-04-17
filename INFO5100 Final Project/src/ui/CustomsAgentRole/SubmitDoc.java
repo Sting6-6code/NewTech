@@ -4,11 +4,32 @@
  */
 package ui.CustomsAgentRole;
 
+import Business.Logistics.CustomsDeclaration;
+import Business.Organization.CustomsLiaisonOrganization;
+import Business.UserAccount.UserAccount;
+import java.awt.CardLayout;
+import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author zhuchenyan
  */
 public class SubmitDoc extends javax.swing.JPanel {
+    
+    private JPanel userProcessContainer;
+    private UserAccount userAccount;
+    private CustomsLiaisonOrganization organization;
+    private DefaultTableModel model;
+    private SimpleDateFormat dateFormat;
+
 
     /**
      * Creates new form SubmitDoc
@@ -16,7 +37,67 @@ public class SubmitDoc extends javax.swing.JPanel {
     public SubmitDoc() {
         initComponents();
     }
+    
+    public SubmitDoc(JPanel userProcessContainer, UserAccount userAccount, CustomsLiaisonOrganization organization) {
+        initComponents();
+        
+        this.userProcessContainer = userProcessContainer;
+        this.userAccount = userAccount;
+        this.organization = organization;
+        
+        // Initialize date format
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        
+        // Set current date as default
+        txtDocDate.setText(dateFormat.format(new Date()));
+        
+        // Auto-generate document ID
+        generateDocumentId();
+        
+        // Populate recently submitted documents table
+        populateRecentDocumentsTable();
+    }
+    
+    private void generateDocumentId() {
+        String docType = comBoDocType.getSelectedItem().toString().substring(0, 3).toUpperCase();
+        String uniqueId = organization.getCustomsDeclarationDirectory().generateNewDeclarationId();
+        txtDocID.setText(docType + "-" + uniqueId);
+    }
 
+    private void populateRecentDocumentsTable() {
+        model = (DefaultTableModel) tblRecSubDoc.getModel();
+        model.setRowCount(0); // Clear existing rows
+        
+        // Get recent declarations
+        List<CustomsDeclaration> recentDeclarations = organization.getCustomsDeclarationDirectory().getRecentDeclarations();
+        
+        // Populate the table
+        for (CustomsDeclaration declaration : recentDeclarations) {
+            Object[] row = {
+                declaration.getDeclarationId(),
+                getDocumentTypeFromNotes(declaration),
+                dateFormat.format(declaration.getDeclarationDate()),
+                declaration.getStatus()
+            };
+            model.addRow(row);
+        }
+    }
+    
+    private String getDocumentTypeFromNotes(CustomsDeclaration declaration) {
+        String notes = declaration.getNotes();
+        if (notes != null && notes.startsWith("Document Type:")) {
+            int endIndex = notes.indexOf('\n');
+            if (endIndex > 0) {
+                return notes.substring("Document Type:".length(), endIndex).trim();
+            } else {
+                return notes.substring("Document Type:".length()).trim();
+            }
+        }
+        return "Customs Declaration"; // Default
+    }
+
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -105,10 +186,20 @@ public class SubmitDoc extends javax.swing.JPanel {
         });
 
         btnReset.setText("Reset");
+        btnReset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnResetActionPerformed(evt);
+            }
+        });
 
         btnSubmit.setBackground(new java.awt.Color(102, 204, 0));
         btnSubmit.setForeground(new java.awt.Color(255, 255, 255));
         btnSubmit.setText("Submit");
+        btnSubmit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSubmitActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout docSubFormJPanelLayout = new javax.swing.GroupLayout(docSubFormJPanel);
         docSubFormJPanel.setLayout(docSubFormJPanelLayout);
@@ -354,16 +445,122 @@ public class SubmitDoc extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-
+        // Return to the previous panel
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void txtUploadDocActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUploadDocActionPerformed
         // TODO add your handling code here:
+        // Show file chooser dialog
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Select Document");
+        
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            txtUploadDoc.setText(selectedFile.getAbsolutePath());
+        }
     }//GEN-LAST:event_txtUploadDocActionPerformed
 
     private void txtDocIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDocIDActionPerformed
         // TODO add your handling code here:
+        // Auto-generate document ID if empty
+        if (txtDocID.getText().isEmpty()) {
+            generateDocumentId();
+        }
     }//GEN-LAST:event_txtDocIDActionPerformed
+
+    private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
+        // TODO add your handling code here:
+        // Reset all form fields
+        comBoDocType.setSelectedIndex(0);
+        txtRelatedShipment.setText("");
+        txtDocDate.setText(dateFormat.format(new Date()));
+        txtExpiryDate.setText("");
+        generateDocumentId(); // Generate a new ID
+        txtIssuAuth.setText("");
+        txtNotes.setText("");
+        txtUploadDoc.setText("");
+    }//GEN-LAST:event_btnResetActionPerformed
+
+    private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
+        // TODO add your handling code here:
+        // Validate form inputs
+        if (txtDocID.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Document ID is required", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (txtDocDate.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Document Date is required", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (txtRelatedShipment.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Related Shipment is required", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        try {
+            // Check if a declaration with this ID already exists
+            if (organization.getCustomsDeclarationDirectory().findDeclarationById(txtDocID.getText()) != null) {
+                JOptionPane.showMessageDialog(this, "A document with this ID already exists", 
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Parse date fields
+            Date docDate = dateFormat.parse(txtDocDate.getText());
+            Date expiryDate = null;
+            if (!txtExpiryDate.getText().isEmpty()) {
+                expiryDate = dateFormat.parse(txtExpiryDate.getText());
+            }
+            
+            // Create new document object
+            CustomsDeclaration declaration = new CustomsDeclaration();
+            declaration.setDeclarationId(txtDocID.getText());
+            declaration.setShipmentId(txtRelatedShipment.getText());
+            declaration.setDeclarationDate(docDate);
+            declaration.setSubmissionDate(new Date());
+            declaration.setStatus("Pending");
+            
+            // Store document type and other fields in notes
+            StringBuilder notesBuilder = new StringBuilder();
+            notesBuilder.append("Document Type: ").append(comBoDocType.getSelectedItem().toString()).append("\n");
+            notesBuilder.append("Issuing Authority: ").append(txtIssuAuth.getText()).append("\n");
+            
+            if (!txtNotes.getText().isEmpty()) {
+                notesBuilder.append("Additional Notes: ").append(txtNotes.getText()).append("\n");
+            }
+            
+            if (!txtUploadDoc.getText().isEmpty()) {
+                notesBuilder.append("Document Path: ").append(txtUploadDoc.getText());
+            }
+            
+            declaration.setNotes(notesBuilder.toString());
+            
+            // Add document to the directory
+            organization.getCustomsDeclarationDirectory().addCustomsDeclaration(declaration);
+            
+            // Show success message
+            JOptionPane.showMessageDialog(this, "Document submitted successfully");
+            
+            // Reset form fields
+            btnResetActionPerformed(evt);
+            
+            // Refresh the recent documents table
+            populateRecentDocumentsTable();
+            
+        } catch (ParseException e) {
+            JOptionPane.showMessageDialog(this, "Invalid date format. Please use yyyy-MM-dd format.", 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error submitting document: " + e.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    
+    }//GEN-LAST:event_btnSubmitActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -403,4 +600,5 @@ public class SubmitDoc extends javax.swing.JPanel {
     private javax.swing.JTextField txtRelatedShipment;
     private javax.swing.JTextField txtUploadDoc;
     // End of variables declaration//GEN-END:variables
+
 }
