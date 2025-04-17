@@ -6,10 +6,12 @@ package Business.Role;
 
 import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
+import Business.Organization.AdminOrganization;
 import Business.Organization.Organization;
 import Business.UserAccount.UserAccount;
 
 import javax.swing.JPanel;
+import ui.AdminRole.AdminHP;
 
 /**
  *
@@ -22,9 +24,9 @@ public class AdminRole extends Role {
     
     @Override
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-        // 这里应该实例化并返回管理员的工作界面
-        // 暂时抛出异常
-        throw new UnsupportedOperationException("Not supported yet.");
+
+        AdminHP ahp = new ui.AdminRole.AdminHP(userProcessContainer, account, enterprise, (AdminOrganization) organization);
+        return ahp;
     }
 }
 
