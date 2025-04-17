@@ -4,10 +4,26 @@
  */
 package Business.Enterprise;
 
+import Business.Role.CustomsAgentRole;
+import Business.Role.LogisticsCoordinatorRole;
+import Business.Role.Role;
+import java.util.ArrayList;
+
 /**
  *
  * @author zhuchenyan
  */
-public class LogisticsGroupEnterprise{
+public class LogisticsGroupEnterprise extends Enterprise{
     
+    public LogisticsGroupEnterprise(String name){
+        super(name, EnterpriseType.LogisticsGroupEnterprise);
+    }
+    
+    @Override
+    public ArrayList<Role> getSupportedRole(){
+        ArrayList<Role> roles = new ArrayList<>();
+        roles.add(new LogisticsCoordinatorRole());
+        roles.add(new CustomsAgentRole());
+        return roles;
+    }
 }
