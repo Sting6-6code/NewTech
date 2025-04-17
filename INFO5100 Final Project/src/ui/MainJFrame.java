@@ -25,6 +25,7 @@ import java.awt.CardLayout;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import Business.ConfigureASystem;
 
 /**
  *
@@ -41,6 +42,15 @@ public class MainJFrame extends javax.swing.JFrame {
     public MainJFrame() {
         initComponents();
         system = dB4OUtil.retrieveSystem();
+        
+        // 检查系统是否正确加载，如果没有则重新配置
+        if (system == null || system.getNetworkList() == null || system.getNetworkList().isEmpty()) {
+            System.out.println("系统未初始化或网络列表为空，重新配置系统...");
+            system = ConfigureASystem.configure();
+            dB4OUtil.storeSystem(system);
+            System.out.println("系统重新配置完成，网络数量: " + system.getNetworkList().size());
+        }
+        
         this.setSize(1680, 1050);
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
