@@ -26,11 +26,12 @@ import Business.Organization.CustomerExperienceOrganization;
 import Business.Organization.LogisticsOrganization;
 import Business.Product.Product;
 import Business.Warehouse.Warehouse;
+import Business.Warehouse.Stock;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import jdk.tools.jlink.internal.TaskHelper.Option.Processing;
+import java.util.Map;
 
 /**
  *
@@ -69,10 +70,81 @@ public class ConfigureASystem {
         // 初始化仓库和商品
         initializeWarehouse();
 
-        // Create supplier
+        // Create supplier and assign to merchant role
         Supplier techSupplier1 = new Supplier();
         techSupplier1.setSupplyName("TechGadgets Inc.");
+        
+        // Set merchant's demo supplier
+        MerchantRole merchantRole = (MerchantRole)merchant.getRole();
+        merchantRole.setSupplier(techSupplier1);
+        
+        // Also set the static version for backward compatibility
         MerchantRole.setDemoSupplier(techSupplier1);
+        
+        // 确保仓库中的所有产品都设置为上架状态
+        Warehouse warehouse = Warehouse.getInstance();
+        
+        try {
+            System.out.println("正在为商家设置示例产品目录...");
+            
+            // 获取仓库中的所有产品
+            List<Product> allProducts = new ArrayList<>();
+            for (Stock stockItem : warehouse.getStock()) {
+                Product p = stockItem.getProduct();
+                p.upShelf(); // 确保产品上架
+                allProducts.add(p);
+            }
+            
+            System.out.println("仓库中共有 " + allProducts.size() + " 个产品");
+            
+            // 确保有足够的产品添加到商家目录
+            int productsToAdd = Math.min(10, allProducts.size());
+            System.out.println("将添加 " + productsToAdd + " 个产品到商家目录");
+            
+            // 向商家目录添加产品
+            for (int i = 0; i < productsToAdd; i++) {
+                Product warehouseProduct = allProducts.get(i);
+                
+                // 克隆产品到商家目录，避免影响仓库库存
+                Product merchantProduct = new Product(
+                    warehouseProduct.getProductId(),
+                    warehouseProduct.getProductName(),
+                    warehouseProduct.getPrice(),
+                    20, // 设置初始库存
+                    10  // 设置警告阈值
+                );
+                merchantProduct.upShelf(); // 确保产品上架
+                techSupplier1.addProduct(merchantProduct);
+                
+                System.out.println("已添加产品: " + merchantProduct.getProductName() + " 到商家目录");
+            }
+            
+            // 添加一些低库存产品作为示例
+            if (allProducts.size() > productsToAdd) {
+                for (int i = productsToAdd; i < Math.min(productsToAdd + 3, allProducts.size()); i++) {
+                    Product warehouseProduct = allProducts.get(i);
+                    
+                    Product lowStockProduct = new Product(
+                        warehouseProduct.getProductId(),
+                        warehouseProduct.getProductName(),
+                        warehouseProduct.getPrice(),
+                        5, // 低库存
+                        15  // 警告阈值大于库存量，触发低库存状态
+                    );
+                    lowStockProduct.upShelf();
+                    lowStockProduct.setStockStatus("Low"); // 明确设置为低库存状态
+                    techSupplier1.addProduct(lowStockProduct);
+                    
+                    System.out.println("已添加低库存产品: " + lowStockProduct.getProductName() + " 到商家目录");
+                }
+            }
+            
+            System.out.println("商家目录设置完成，共 " + techSupplier1.getProductCatalog().size() + " 个产品");
+            
+        } catch (Exception e) {
+            System.err.println("设置商家目录时出错: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         // Create network
         Network network = system.createAndAddNetwork();
@@ -234,25 +306,38 @@ public class ConfigureASystem {
         warehouse.addStock(p21, 75);
         warehouse.addStock(p22, 65);
 
-        // 创建一些低库存产品作为采购请求的演示
-        Product lowStock1 = new Product("SP-004", "Xiaomi Mi 12", 1099.99, 5, 25);
-        Product lowStock2 = new Product("LP-004", "ASUS ROG Zephyrus", 1899.99, 5, 20);
-        Product lowStock3 = new Product("HP-003", "Bose QuietComfort 45", 399.99, 8, 30);
-        Product lowStock4 = new Product("MN-003", "Samsung Odyssey G9", 599.99, 3, 15);
-        Product lowStock5 = new Product("TB-003", "Microsoft Surface Pro", 699.99, 2, 10);
-
-        // 添加低库存产品
-        warehouse.addStock(lowStock1, 5); // 库存低于警告阈值
-        warehouse.addStock(lowStock2, 5); // 库存低于警告阈值
-        warehouse.addStock(lowStock3, 8); // 库存低于警告阈值
-        warehouse.addStock(lowStock4, 3); // 非常低的库存
-        warehouse.addStock(lowStock5, 2); // 紧急低库存
-
+       
         // 立即执行一次库存检查，生成初始采购请求
         warehouse.checkAllInventoryLevels();
 
         // 开始定期库存检查（每120秒检查一次）
         warehouse.startPeriodicInventoryCheck(120);
+
+        // 确保所有产品设置为上架状态
+        p1.upShelf();
+        p2.upShelf();
+        p3.upShelf();
+        p4.upShelf();
+        p5.upShelf();
+        p6.upShelf();
+        p7.upShelf();
+        p8.upShelf();
+        p9.upShelf();
+        p10.upShelf();
+        p11.upShelf();
+        p12.upShelf();
+        p13.upShelf();
+        p14.upShelf();
+        p15.upShelf();
+        p16.upShelf();
+        p17.upShelf();
+        p18.upShelf();
+        p19.upShelf();
+        p20.upShelf();
+        p21.upShelf();
+        p22.upShelf();
+        
+       
 
         System.out.println("Warehouse initialized with " + warehouse.getStock().size() + " products");
         System.out.println("Generated " + warehouse.getProcurementRequests().size() + " procurement requests");

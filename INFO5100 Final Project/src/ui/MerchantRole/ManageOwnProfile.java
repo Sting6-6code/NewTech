@@ -5,6 +5,10 @@
 package ui.MerchantRole;
 
 import ui.LogisticsRole.*;
+import Business.UserAccount.UserAccount;
+import java.awt.CardLayout;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import ui.AdminRole.*;
 
 /**
@@ -13,11 +17,70 @@ import ui.AdminRole.*;
  */
 public class ManageOwnProfile extends javax.swing.JPanel {
 
+    private JPanel userProcessContainer;
+    private UserAccount userAccount;
+    private javax.swing.JLabel titleLabel;
+
     /**
      * Creates new form ManageOwnProfile
      */
     public ManageOwnProfile() {
         initComponents();
+    }
+
+    public ManageOwnProfile(JPanel userProcessContainer, UserAccount account) {
+        initComponents();
+        this.userProcessContainer = userProcessContainer;
+        this.userAccount = account;
+
+        // 修改布局
+        setLayout(null); // 使用绝对布局以便自定义控件位置
+
+        // 添加标题
+        titleLabel = new javax.swing.JLabel("User Profile Management");
+        titleLabel.setFont(new java.awt.Font("Tahoma", 1, 24)); // 加大字体
+        titleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        add(titleLabel);
+        titleLabel.setBounds(150, 20, 300, 30);
+
+        // 调整现有控件位置
+        btnBack.setBounds(20, 20, 100, 30);
+        
+        // 创建一个面板来包含个人信息
+        javax.swing.JPanel infoPanel = new javax.swing.JPanel();
+        infoPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Account Information"));
+        infoPanel.setLayout(null);
+        add(infoPanel);
+        infoPanel.setBounds(100, 70, 400, 220);
+        
+        // 将用户名和密码字段添加到信息面板中
+        lblUN.setBounds(30, 50, 100, 25);
+        txtUN.setBounds(140, 50, 220, 25);
+        lblPW.setBounds(30, 100, 100, 25);
+        txtPW.setBounds(140, 100, 220, 25);
+        infoPanel.add(lblUN);
+        infoPanel.add(txtUN);
+        infoPanel.add(lblPW);
+        infoPanel.add(txtPW);
+        
+        // 添加按钮面板
+        javax.swing.JPanel buttonPanel = new javax.swing.JPanel();
+        buttonPanel.setLayout(null);
+        add(buttonPanel);
+        buttonPanel.setBounds(100, 300, 400, 60);
+        
+        // 调整按钮位置
+        btnUpdate.setBounds(100, 15, 100, 30);
+        btnSave.setBounds(220, 15, 100, 30);
+        buttonPanel.add(btnUpdate);
+        buttonPanel.add(btnSave);
+        
+        // 设置初始字段值
+        populateUserInfo();
+
+        // 初始禁用字段
+        setFieldsEditable(false);
+        btnSave.setEnabled(false);
     }
 
     /**
@@ -38,14 +101,35 @@ public class ManageOwnProfile extends javax.swing.JPanel {
         btnSave = new javax.swing.JButton();
 
         btnBack.setText("<< Back");
+        btnBack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBackActionPerformed(evt);
+            }
+        });
 
         lblUN.setText("Username:");
 
         lblPW.setText("Password:");
 
+        txtUN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtUNActionPerformed(evt);
+            }
+        });
+
         btnUpdate.setText("Update");
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
 
         btnSave.setText("Save");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -97,6 +181,56 @@ public class ManageOwnProfile extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        // TODO add your handling code here:
+        // Return to previous panel
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
+    }//GEN-LAST:event_btnBackActionPerformed
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        // TODO add your handling code here:
+        // Enable fields for editing
+        setFieldsEditable(true);
+        btnUpdate.setEnabled(false);
+        btnSave.setEnabled(true);
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        // TODO add your handling code here:
+        String username = txtUN.getText().trim();
+        String password = txtPW.getText().trim();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter username and password",
+                    "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (password.length() < 4) {
+            JOptionPane.showMessageDialog(this, "Password must be at least 4 characters",
+                    "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Update user account
+        userAccount.setUsername(username);
+        userAccount.setPassword(password);
+
+        // Disable editing and update button states
+        setFieldsEditable(false);
+        btnUpdate.setEnabled(true);
+        btnSave.setEnabled(false);
+
+        JOptionPane.showMessageDialog(this, "Profile updated successfully",
+                "Success", JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void txtUNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUNActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtUNActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBack;
@@ -107,4 +241,30 @@ public class ManageOwnProfile extends javax.swing.JPanel {
     private javax.swing.JTextField txtPW;
     private javax.swing.JTextField txtUN;
     // End of variables declaration//GEN-END:variables
+
+    private void populateUserInfo() {
+        if (userAccount != null) {
+            try {
+                txtUN.setText(userAccount.getUsername());
+                txtPW.setText(userAccount.getPassword());
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, 
+                    "Error loading profile data: " + e.getMessage(), 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "User account information is not available", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void setFieldsEditable(boolean editable) {
+        txtUN.setEditable(editable);
+        txtPW.setEditable(editable);
+    }
+
 }
