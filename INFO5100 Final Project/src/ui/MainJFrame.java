@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import Business.ConfigureASystem;
+import Business.Organization.LogisticsOrganization;
 
 /**
  *
@@ -42,7 +43,7 @@ public class MainJFrame extends javax.swing.JFrame {
     public MainJFrame() {
         initComponents();
         system = dB4OUtil.retrieveSystem();
-        
+
         // 检查系统是否正确加载，如果没有则重新配置
         if (system == null || system.getNetworkList() == null || system.getNetworkList().isEmpty()) {
             System.out.println("系统未初始化或网络列表为空，重新配置系统...");
@@ -50,7 +51,25 @@ public class MainJFrame extends javax.swing.JFrame {
             dB4OUtil.storeSystem(system);
             System.out.println("系统重新配置完成，网络数量: " + system.getNetworkList().size());
         }
-        
+
+        if (system != null && system.getNetworkList() != null && !system.getNetworkList().isEmpty()) {
+            for (Network network : system.getNetworkList()) {
+                for (Enterprise enterprise : network.getEnterpriseDirectory().getEnterpriseList()) {
+                    if (enterprise instanceof LogisticsGroupEnterprise) {
+                        for (Organization org : enterprise.getOrganizationDirectory().getOrganizationList()) {
+                            if (org instanceof LogisticsOrganization) {
+                                LogisticsOrganization logisticsOrg = (LogisticsOrganization) org;
+                                if (logisticsOrg.getShipmentDirectory() != null) {
+                                    System.out.println("物流组织中的shipments数量: "
+                                            + logisticsOrg.getShipmentDirectory().getShipments().size());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         this.setSize(1680, 1050);
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -58,10 +77,10 @@ public class MainJFrame extends javax.swing.JFrame {
                 dB4OUtil.storeSystem(system);
             }
         });
-        for (UserAccount ua: system.getUserAccountDirectory().getUserAccountList()) {
+        for (UserAccount ua : system.getUserAccountDirectory().getUserAccountList()) {
             System.out.println(ua.getUsername() + ua.getPassword());
         }
-        
+
 //        demo();
     }
 
@@ -160,64 +179,61 @@ public class MainJFrame extends javax.swing.JFrame {
         // Get Password
         char[] passwordCharArray = passwordField.getPassword();
         String password = String.valueOf(passwordCharArray);
-        
+
         //Step1: Check in the system admin user account directory if you have the user
-        UserAccount userAccount=system.getUserAccountDirectory().authenticateUser(userName, password);
-        
-        
-        Enterprise inEnterprise=null;
-        Organization inOrganization=null;
-        
-        if(userAccount==null){
+        UserAccount userAccount = system.getUserAccountDirectory().authenticateUser(userName, password);
+
+        Enterprise inEnterprise = null;
+        Organization inOrganization = null;
+
+        if (userAccount == null) {
             //Step 2: Go inside each network and check each enterprise
-            for(Network network:system.getNetworkList()){
+            for (Network network : system.getNetworkList()) {
                 //Step 2.a: check against each enterprise
-                for(Enterprise enterprise:network.getEnterpriseDirectory().getEnterpriseList()){
-                    userAccount=enterprise.getUserAccountDirectory().authenticateUser(userName, password);
-                    if(userAccount==null){
-                       //Step 3:check against each organization for each enterprise
-                       for(Organization organization:enterprise.getOrganizationDirectory().getOrganizationList()){
-                           userAccount=organization.getUserAccountDirectory().authenticateUser(userName, password);
-                           if(userAccount!=null){
-                               inEnterprise=enterprise;
-                               inOrganization=organization;
-                               break;
-                           }
-                       }
-                        
-                    }
-                    else{
-                       inEnterprise=enterprise;
-                       break;
-                    }
-                    if(inOrganization!=null){
+                for (Enterprise enterprise : network.getEnterpriseDirectory().getEnterpriseList()) {
+                    userAccount = enterprise.getUserAccountDirectory().authenticateUser(userName, password);
+                    if (userAccount == null) {
+                        //Step 3:check against each organization for each enterprise
+                        for (Organization organization : enterprise.getOrganizationDirectory().getOrganizationList()) {
+                            userAccount = organization.getUserAccountDirectory().authenticateUser(userName, password);
+                            if (userAccount != null) {
+                                inEnterprise = enterprise;
+                                inOrganization = organization;
+                                break;
+                            }
+                        }
+
+                    } else {
+                        inEnterprise = enterprise;
                         break;
-                    }  
+                    }
+                    if (inOrganization != null) {
+                        break;
+                    }
                 }
-                if(inEnterprise!=null){
+                if (inEnterprise != null) {
                     break;
                 }
             }
         }
-        
-        if(userAccount==null){
+
+        if (userAccount == null) {
             JOptionPane.showMessageDialog(null, "Invalid credentials");
             return;
-        }
-        else{
-            CardLayout layout=(CardLayout) container.getLayout();
-            container.add("workArea",userAccount.getRole().
-                    createWorkArea(container, userAccount, 
-                    inOrganization, inEnterprise, system));
-            
+        } else {
+            CardLayout layout = (CardLayout) container.getLayout();
+            container.add("workArea", userAccount.getRole().
+                    createWorkArea(container, userAccount,
+                            inOrganization, inEnterprise, system));
+
             layout.next(container);
         }
-        
+
         loginJButton.setEnabled(false);
         logoutJButton.setEnabled(true);
         userNameJTextField.setEnabled(false);
         passwordField.setEnabled(false);
-        
+
         //
 //        System.out.println("userAccount: " + userAccount);
 //        System.out.println("role: " + userAccount.getRole());
@@ -240,7 +256,7 @@ public class MainJFrame extends javax.swing.JFrame {
         CardLayout crdLyt = (CardLayout) container.getLayout();
         crdLyt.next(container);
         dB4OUtil.storeSystem(system);
-        
+
     }//GEN-LAST:event_logoutJButtonActionPerformed
 
     /**
@@ -292,11 +308,11 @@ public class MainJFrame extends javax.swing.JFrame {
     private javax.swing.JPasswordField passwordField;
     private javax.swing.JTextField userNameJTextField;
     // End of variables declaration//GEN-END:variables
-    
+
     // operations
     private void demo() {
         system.setName("Newegg");
-        
+
         Employee employee1 = system.getEmployeeDirectory().createEmployee("sysadmin");
         Employee employee2 = system.getEmployeeDirectory().createEmployee("customerservice");
         Employee employee3 = system.getEmployeeDirectory().createEmployee("merchant");
@@ -304,13 +320,12 @@ public class MainJFrame extends javax.swing.JFrame {
         Employee employee5 = system.getEmployeeDirectory().createEmployee("customsagent");
         Employee employee6 = system.getEmployeeDirectory().createEmployee("logistics");
         UserAccount ua = system.getUserAccountDirectory().createUserAccount("sysadmin", "sysadmin", employee1, new AdminRole());
-        UserAccount customerservice = system.getUserAccountDirectory().createUserAccount("c","****",employee2, new CustomerServiceRepRole());
-        UserAccount merchant = system.getUserAccountDirectory().createUserAccount("m","****",employee3, new MerchantRole());
-        UserAccount procurement = system.getUserAccountDirectory().createUserAccount("p","****",employee4, new ProcurementSpecialistRole());
-        UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("l","****", employee5, new CustomsAgentRole());
-        UserAccount logistics = system.getUserAccountDirectory().createUserAccount("t","****", employee6, new LogisticsCoordinatorRole());
-        
-        
+        UserAccount customerservice = system.getUserAccountDirectory().createUserAccount("c", "****", employee2, new CustomerServiceRepRole());
+        UserAccount merchant = system.getUserAccountDirectory().createUserAccount("m", "****", employee3, new MerchantRole());
+        UserAccount procurement = system.getUserAccountDirectory().createUserAccount("p", "****", employee4, new ProcurementSpecialistRole());
+        UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("l", "****", employee5, new CustomsAgentRole());
+        UserAccount logistics = system.getUserAccountDirectory().createUserAccount("t", "****", employee6, new LogisticsCoordinatorRole());
+
     }
 
 }
