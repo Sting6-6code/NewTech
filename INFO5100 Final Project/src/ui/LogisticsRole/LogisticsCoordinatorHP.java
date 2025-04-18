@@ -68,18 +68,18 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.enterprise = enterprise;
-        
+
         this.organization = ConfigureASystem.logisticsOrg;
-        
+
         if (this.organization != null) {
-        this.declarationDirectory = this.organization.getCustomsDeclarationDirectory();
-        System.out.println("LogisticsCoordinatorHP using global LogisticsOrganization with " + 
-            (this.organization.getShipmentDirectory() != null ? 
-            this.organization.getShipmentDirectory().getShipments().size() : 0) + " shipments");
-    } else {
-        System.out.println("WARNING: Global LogisticsOrganization is null!");
-    }
-    
+            this.declarationDirectory = this.organization.getCustomsDeclarationDirectory();
+            System.out.println("LogisticsCoordinatorHP using global LogisticsOrganization with "
+                    + (this.organization.getShipmentDirectory() != null
+                    ? this.organization.getShipmentDirectory().getShipments().size() : 0) + " shipments");
+        } else {
+            System.out.println("WARNING: Global LogisticsOrganization is null!");
+        }
+
         this.declarationDirectory = organization.getCustomsDeclarationDirectory();
 
         // 设置所有统计卡片
@@ -99,14 +99,11 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         tblPendingTasks.setModel(pendingTasksModel);
         pendingTasksModel.setColumnIdentifiers(new String[]{"Task ID", "Type", "Priority", "Status", "Due Date"});
 
-        
-    
         // Populate tables
         populateDashboard();
         populateRecentShipmentsTable();
         populatePendingTasksTable();
 
-        
         // Debug output
         System.out.println("LogisticsCoordinatorHP initialized");
         System.out.println("Organization: " + (organization != null ? "exists" : "null"));
@@ -586,55 +583,52 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
      */
     private void populateDashboard() {
         try {
-        // Get actual data
-        int activeShipments = 0;
-        int pendingCustoms = 0;
-        int completedDeliveries = 0;
-        int customerComplaints = 0;
-        
-        if (organization != null && organization.getShipmentDirectory() != null) {
-            System.out.println("Found organization with " + 
-                organization.getShipmentDirectory().getShipments().size() + " shipments");
-            
-            for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-                String status = shipment.getShipmentStatus();
-                System.out.println("Processing shipment with status: " + status);
-                
-                // Consider any non-delivered, non-exception shipment as active
-                if (Shipment.STATUS_PENDING.equals(status) ||
-                    Shipment.STATUS_PROCESSING.equals(status) || 
-                    Shipment.STATUS_SHIPPED.equals(status) || 
-                    Shipment.STATUS_IN_TRANSIT.equals(status) ||
-                    Shipment.STATUS_DELIVERING.equals(status) ||
-                    "Active".equals(status)) {
-                    activeShipments++;
-                } 
-                // Count customs-related statuses
-                else if ("Pending Customs".equals(status) || 
-                         "Customs Clearance".equals(status)) {
-                    pendingCustoms++;
-                } 
-                // Count deliveries
-                else if (Shipment.STATUS_DELIVERED.equals(status) ||
-                         "Delivered".equals(status)) {
-                    completedDeliveries++;
+            // Get actual data
+            int activeShipments = 0;
+            int pendingCustoms = 0;
+            int completedDeliveries = 0;
+            int customerComplaints = 0;
+
+            if (organization != null && organization.getShipmentDirectory() != null) {
+                System.out.println("Found organization with "
+                        + organization.getShipmentDirectory().getShipments().size() + " shipments");
+
+                for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+                    String status = shipment.getShipmentStatus();
+                    System.out.println("Processing shipment with status: " + status);
+
+                    // Consider any non-delivered, non-exception shipment as active
+                    if (Shipment.STATUS_PENDING.equals(status)
+                            || Shipment.STATUS_PROCESSING.equals(status)
+                            || Shipment.STATUS_SHIPPED.equals(status)
+                            || Shipment.STATUS_IN_TRANSIT.equals(status)
+                            || Shipment.STATUS_DELIVERING.equals(status)
+                            || "Active".equals(status)) {
+                        activeShipments++;
+                    } // Count customs-related statuses
+                    else if ("Pending Customs".equals(status)
+                            || "Customs Clearance".equals(status)) {
+                        pendingCustoms++;
+                    } // Count deliveries
+                    else if (Shipment.STATUS_DELIVERED.equals(status)
+                            || "Delivered".equals(status)) {
+                        completedDeliveries++;
+                    }
                 }
+
+                System.out.println("Counted shipments - Active: " + activeShipments
+                        + ", Customs: " + pendingCustoms + ", Delivered: " + completedDeliveries);
+            } else {
+                System.out.println("Organization or ShipmentDirectory is null");
             }
-            
-            System.out.println("Counted shipments - Active: " + activeShipments + 
-                ", Customs: " + pendingCustoms + ", Delivered: " + completedDeliveries);
-        } else {
-            System.out.println("Organization or ShipmentDirectory is null");
-        }
-        
-        // If no real data found, use sample values
-        if (activeShipments == 0 && pendingCustoms == 0 && completedDeliveries == 0) {
-            System.out.println("No matching shipment data found, using sample values");
-            activeShipments = 24;
-            pendingCustoms = 18;
-            completedDeliveries = 156;
-        }
-        
+
+            // If no real data found, use sample values
+            if (activeShipments == 0 && pendingCustoms == 0 && completedDeliveries == 0) {
+                System.out.println("No matching shipment data found, using sample values");
+                activeShipments = 24;
+                pendingCustoms = 18;
+                completedDeliveries = 156;
+            }
 
             // 获取客户投诉数量
             if (enterprise != null) {
@@ -972,6 +966,32 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             System.out.println("Error in setupStatisticsPanel: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void refreshShipments() {
+        if (organization != null && organization.getShipmentDirectory() != null) {
+            // 更新活跃订单数量
+            int activeShipments = 0;
+            for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+                if (!Shipment.STATUS_DELIVERED.equals(shipment.getShipmentStatus())
+                        && !Shipment.STATUS_EXCEPTION.equals(shipment.getShipmentStatus())) {
+                    activeShipments++;
+                }
+            }
+
+            // 更新显示
+            populateRecentShipmentsTable();
+            updateStatistics(activeShipments);
+        }
+    }
+
+    private void updateStatistics(int activeShipments) {
+        // 更新统计面板显示
+        setupStatisticsPanel(actShipmentJPanel,
+                "Active Shipments",
+                String.valueOf(activeShipments),
+                "",
+                new Color(51, 51, 255));
     }
 
 }

@@ -4,6 +4,7 @@
  */
 package ui.LogisticsRole;
 
+import Business.ConfigureASystem;
 import Business.Enterprise.Enterprise;
 import Business.Logistics.CustomsDeclaration;
 import Business.Logistics.CustomsDeclarationDirectory;
@@ -45,8 +46,28 @@ public class DocumentationDetails extends javax.swing.JPanel {
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.enterprise = enterprise;
-        this.organization = organization;
+        this.organization = ConfigureASystem.logisticsOrg;
         this.declarationDirectory = organization.getCustomsDeclarationDirectory();
+
+        if (this.organization == null) {
+            this.organization = organization;
+            System.out.println("WARNING: Using passed organization instance because global instance is null");
+        }
+        System.out.println("DocumentationDetails initialized with organization: "
+                + (this.organization != null ? "Yes" : "No"));
+
+        if (this.organization != null) {
+            this.declarationDirectory = this.organization.getCustomsDeclarationDirectory();
+
+            if (this.declarationDirectory != null) {
+                System.out.println("CustomsDeclarationDirectory exists with "
+                        + this.declarationDirectory.getCustomsDeclarationList().size() + " declarations");
+            } else {
+                System.out.println("CustomsDeclarationDirectory is null");
+            }
+        } else {
+            System.out.println("ERROR: Organization is null");
+        }
 
         // 初始化表格
         setupDeclarationListTable();
