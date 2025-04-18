@@ -42,10 +42,10 @@ public class OrganizationDirectory {
         organization = new CustomsLiaisonOrganization();
         organizationList.add(organization);
     }
-//    else if (type.getValue().equals(Type.Warehouse.getValue())){
-//        organization = new WarehouseOrganization();
-//        organizationList.add(organization);
-//    }
+    else if (type.getValue().equals(Type.Warehouse.getValue())){
+        organization = new WarehouseOrganization();
+        organizationList.add(organization);
+    }
     return organization;
     }
 }

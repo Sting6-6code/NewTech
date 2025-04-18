@@ -4,6 +4,10 @@
  */
 package ui.WarehouseManager;
 
+import Business.ConfigureASystem;
+import Business.Logistics.Shipment;
+import Business.Logistics.TrackingInfo;
+import Business.Organization.LogisticsOrganization;
 import Business.Product.Product;
 import Business.Warehouse.Stock;
 import Business.Warehouse.Warehouse;
@@ -13,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import java.lang.Integer;
+import java.util.Date;
 
 /**
  *
@@ -22,13 +27,39 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
 
     JPanel workArea;
     Warehouse wh;
-    
-    
+
     /**
      * Creates new form WarehouseManagerHomePage
      */
     public WarehouseManagerHomePage() {
         initComponents();
+    }
+
+    public WarehouseManagerHomePage(JPanel userProcessContainer, Warehouse warehouse) {
+        initComponents();
+        this.workArea = userProcessContainer;
+        this.wh = warehouse;
+
+        // Initialize the table
+        populateTable();
+    }
+
+    private void populateTable() {
+        DefaultTableModel model = (DefaultTableModel) tblProductCatalog.getModel();
+        model.setRowCount(0);
+
+        if (wh != null) {
+            for (Stock stock : wh.getStock()) {
+                Object[] row = new Object[6];
+                row[0] = stock.getProduct().getProductName();
+                row[1] = stock.getProduct().getProductId();
+                row[2] = stock.getProduct().getPrice();
+                row[3] = stock.getAmount();
+                row[4] = stock.getAmount() > 0 ? "In Stock" : "Out of Stock";
+                row[5] = stock.getLastUpdated();
+                model.addRow(row);
+            }
+        }
     }
 
     /**
@@ -45,7 +76,7 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
         btnView = new javax.swing.JButton();
         btnCreate = new javax.swing.JButton();
         btnBack = new javax.swing.JButton();
-        btnDelete = new javax.swing.JButton();
+        btnShip = new javax.swing.JButton();
         btnRefresh = new javax.swing.JButton();
         lblProductId1 = new javax.swing.JLabel();
         txtSearchProductID = new javax.swing.JTextField();
@@ -112,10 +143,10 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
             }
         });
 
-        btnDelete.setText("ItemDownshelf");
-        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+        btnShip.setText("Ship");
+        btnShip.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDeleteActionPerformed(evt);
+                btnShipActionPerformed(evt);
             }
         });
 
@@ -390,7 +421,7 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
                         .addGap(46, 46, 46)
                         .addComponent(btnView, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(43, 43, 43)
-                        .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(btnShip, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 131, Short.MAX_VALUE)
                 .addComponent(ViewProductDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 564, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(200, 200, 200))
@@ -423,7 +454,7 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnCreate)
                     .addComponent(btnView)
-                    .addComponent(btnDelete))
+                    .addComponent(btnShip))
                 .addGap(39, 39, 39)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(ViewProductDetails, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -478,20 +509,41 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
         layout.previous(workArea);
     }//GEN-LAST:event_btnBackActionPerformed
 
-    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-//        int selectedRowIndex = tblProductCatalog.getSelectedRow();
-//
-//        if (selectedRowIndex < 0) {
-//            JOptionPane.showMessageDialog(null, "Please select a row from the table first", "Warning", JOptionPane.WARNING_MESSAGE);
-//            return;
-//        }
-//
-//        // 获取选中的产品并下架
-//        Product p = supplier.getProductCatalog().get(selectedRowIndex);
-//        p.downShelf();
-//        JOptionPane.showMessageDialog(null, "Product has been removed from shelf", "Success", JOptionPane.INFORMATION_MESSAGE);
-//        refreshTable();
-    }//GEN-LAST:event_btnDeleteActionPerformed
+    private void btnShipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipActionPerformed
+
+        int selectedRow = tblProductCatalog.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a product first");
+            return;
+        }
+
+        // 获取选中的产品信息
+        String productId = tblProductCatalog.getValueAt(selectedRow, 1).toString();
+        Product product = Warehouse.getInstance().findProductById(productId);
+
+        // 弹出发货对话框
+        String quantityStr = JOptionPane.showInputDialog(this,
+                "Enter shipping quantity for " + product.getProductName());
+        if (quantityStr == null || quantityStr.trim().isEmpty()) {
+            return;
+        }
+
+        String destination = JOptionPane.showInputDialog(this,
+                "Enter destination address");
+        if (destination == null || destination.trim().isEmpty()) {
+            return;
+        }
+
+        try {
+            int quantity = Integer.parseInt(quantityStr);
+            initiateShipment(product, quantity, destination);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Invalid quantity format",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnShipActionPerformed
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
         refreshTable();
@@ -626,11 +678,11 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
     private javax.swing.JButton btnAdd2;
     private javax.swing.JButton btnBack;
     private javax.swing.JButton btnCreate;
-    private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnRefresh;
     private javax.swing.JButton btnSave2;
     private javax.swing.JButton btnSave3;
     private javax.swing.JButton btnSearch1;
+    private javax.swing.JButton btnShip;
     private javax.swing.JButton btnUpdate2;
     private javax.swing.JButton btnUpdate3;
     private javax.swing.JButton btnView;
@@ -681,8 +733,71 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
             row[3] = s.getAmount();
             row[4] = s.getStockStatus();
             row[5] = s.getProduct().getLastUpdated();
-            
+
         }
     }
 
+    //发货功能
+    public void initiateShipment(Product product, int quantity, String destination) {
+        // 1. 检查库存
+        Warehouse warehouse = Warehouse.getInstance();
+        if (warehouse.getProductAmount(product.getProductId()) < quantity) {
+            JOptionPane.showMessageDialog(this,
+                    "Insufficient stock for product: " + product.getProductName(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 2. 生成订单ID
+        String orderId = "ORD" + System.currentTimeMillis();
+
+        // 3. 获取物流组织实例
+        LogisticsOrganization logisticsOrg = ConfigureASystem.getLogisticsOrganization();
+        if (logisticsOrg == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Cannot connect to logistics system",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            // 4. 创建物流订单
+            Shipment shipment = logisticsOrg.getShipmentDirectory()
+                    .createShipmentFromWarehouse(orderId, product, quantity);
+
+            // 5. 设置发货信息
+            shipment.setDestination(destination);
+            shipment.setShipDate(new Date());
+            shipment.setOrigin("Warehouse");
+            shipment.setShipmentStatus(Shipment.STATUS_PROCESSING);
+
+            // 6. 减少库存
+            warehouse.decreaseStock(product.getProductId(), quantity);
+
+            // 7. 添加跟踪记录
+            TrackingInfo tracking = new TrackingInfo();
+            tracking.setShipmentId(shipment.getShipmentId());
+            tracking.setTimestamp(new Date());
+            tracking.setLocation("Warehouse");
+            tracking.setDescription("Order processed and inventory deducted");
+            tracking.setStatus("Completed");
+            shipment.addTrackingInfo(tracking);
+
+            JOptionPane.showMessageDialog(this,
+                    "Shipment created successfully\nTracking Number: " + shipment.getTrackingNumber(),
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            // 8. 刷新库存显示
+            refreshTable();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error creating shipment: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }
