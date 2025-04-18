@@ -9,6 +9,9 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.CardLayout;
 import Business.Order.Order;
 import Business.Order.OrderDirectory;
+import Business.Warehouse.Warehouse;
+import Business.WorkQueue.ProcurementWorkRequest;
+import java.util.List;
 
 /**
  *
@@ -19,6 +22,7 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
     private OrderDirectory orderDirectory;
     private DefaultTableModel cartTableModel;
     private JPanel userProcessContainer;
+    private Warehouse warehouse;
 
     /**
      * Creates new form WarehouseRequestsJPanel
@@ -27,13 +31,64 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
         initComponents();
         this.userProcessContainer = userProcessContainer;
         orderDirectory = new OrderDirectory();
+        warehouse = Warehouse.getInstance();
         setupCartTable();
+        
+        // 加载所有仓库采购请求
+        loadWarehouseRequests();
     }
 
     private void setupCartTable() {
         String[] columnNames = {"Product Name", "Purchase Cost", "Quantity", "Total Amount"};
         cartTableModel = (DefaultTableModel) tblCart.getModel();
         cartTableModel.setColumnIdentifiers(columnNames);
+    }
+    
+    private void loadWarehouseRequests() {
+        // 清空表格
+        DefaultTableModel model = (DefaultTableModel) RequestTable1.getModel();
+        model.setRowCount(0);
+        
+        // 获取所有采购请求
+        List<ProcurementWorkRequest> requests = warehouse.getProcurementRequests();
+        
+        if (requests.isEmpty()) {
+            System.out.println("No procurement requests found!");
+            return;
+        }
+        
+        System.out.println("Found " + requests.size() + " procurement requests");
+        
+        // 过滤请求（根据下拉框状态）
+        String selectedStatus = StatusjComboBox.getSelectedItem().toString();
+        String searchId = txtSearchRequestID.getText().trim();
+        
+        for (ProcurementWorkRequest request : requests) {
+            // 根据状态筛选
+            if ("All".equals(selectedStatus) || request.getStatus().equals(selectedStatus)) {
+                // 根据ID筛选
+                if (searchId.isEmpty() || request.getMessage().contains(searchId)) {
+                    // 创建表格行
+                    Object[] row = new Object[5];
+                    // 表格列: Request ID, Product Name, Quantity, Update Date, Status
+                    row[0] = "REQ-" + request.getProductId(); // 请求ID
+                    row[1] = request.getProductName();        // 产品名称
+                    row[2] = request.getRequestedAmount();    // 请求数量
+                    row[3] = request.getRequestDate();        // 更新日期
+                    row[4] = request.getStatus();             // 状态
+                    
+                    model.addRow(row);
+                    
+                    System.out.println("Added request to table: " + request.getProductName() + 
+                                     ", Status: " + request.getStatus() +
+                                     ", Requested: " + request.getRequestedAmount());
+                }
+            }
+        }
+    }
+    
+    private void refreshRequestTable() {
+        loadWarehouseRequests();
     }
 
     /**
@@ -73,7 +128,12 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
 
         jLabel1.setText("Status：");
 
-        StatusjComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "Pending", "Finished", "Processing", "Rejected", " ", " " }));
+        StatusjComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "Pending", "Processing", "Completed", "Rejected" }));
+        StatusjComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                StatusjComboBoxActionPerformed(evt);
+            }
+        });
 
         txtSearchRequestID.setText("Saerch Request ID...");
         txtSearchRequestID.addActionListener(new java.awt.event.ActionListener() {
@@ -277,15 +337,15 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-        refreshRequestTable();
+        loadWarehouseRequests();
     }//GEN-LAST:event_btnSearchActionPerformed
 
     private void txtSearchRequestIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchRequestIDActionPerformed
-        refreshRequestTable();
+        loadWarehouseRequests();
     }//GEN-LAST:event_txtSearchRequestIDActionPerformed
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
-        refreshRequestTable();
+        loadWarehouseRequests();
     }//GEN-LAST:event_btnRefreshActionPerformed
 
     private void btnrejectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnrejectActionPerformed
@@ -299,16 +359,24 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
         }
         
         String requestId = RequestTable1.getValueAt(selectedRow, 0).toString();
-        Order order = orderDirectory.findOrderByRequestId(requestId);
         
-        if (order != null) {
-            order.setStatus("Rejected");
-            refreshRequestTable();
+        // 检查请求状态
+        String status = RequestTable1.getValueAt(selectedRow, 4).toString();
+        if ("Completed".equals(status) || "Rejected".equals(status)) {
             JOptionPane.showMessageDialog(this, 
-                "Request has been rejected", 
-                "Success", 
+                "This request has already been " + status.toLowerCase(), 
+                "Info", 
                 JOptionPane.INFORMATION_MESSAGE);
+            return;
         }
+        
+        // 更新请求状态为已拒绝
+        updateRequestStatus(requestId, "Rejected");
+        
+        JOptionPane.showMessageDialog(this, 
+            "Request has been rejected", 
+            "Success", 
+            JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnrejectActionPerformed
 
     private void btnRemoveOrderItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveOrderItemActionPerformed
@@ -353,25 +421,24 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
 
         // 处理结账逻辑
         for (Order order : orderDirectory.getOrderList()) {
-            order.setStatus("Processing");
+            order.setStatus("Completed");
             // 添加订单处理时间
             order.setProcessDate(new java.util.Date());
             // 通知仓库
             notifyWarehouse(order);
-            
-           //notifypayment
-           
-           
         }
 
         // 清空购物车
         orderDirectory = new OrderDirectory();
         updateCartTable();
+        
+        // 刷新请求列表
+        loadWarehouseRequests();
+        
         JOptionPane.showMessageDialog(this, "Orders have been processed successfully!");
     }//GEN-LAST:event_btnCheckOutActionPerformed
 
     private void btnProcessOrderActionPerformed(java.awt.event.ActionEvent evt) {                                                
-        // TODO add your handling code here:
         // 获取选中的行
         int selectedRow = RequestTable1.getSelectedRow();
         if (selectedRow < 0) {
@@ -386,16 +453,39 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
         String productName = RequestTable1.getValueAt(selectedRow, 1).toString();
         int quantity = Integer.parseInt(RequestTable1.getValueAt(selectedRow, 2).toString());
         
-        CreateOrderDialog dialog = new CreateOrderDialog(null, true);
-        // 预填充数据
-        dialog.setRequestData(requestId, productName, quantity);
-        dialog.setVisible(true);
-        
-        if (dialog.isAddedToCart()) {
-            Order order = dialog.getOrderItem();
-            orderDirectory.addOrder(order);
-            updateCartTable();
+        // 检查请求状态
+        String status = RequestTable1.getValueAt(selectedRow, 4).toString();
+        if ("Completed".equals(status) || "Rejected".equals(status)) {
+            JOptionPane.showMessageDialog(this, 
+                "This request has already been " + status.toLowerCase(), 
+                "Info", 
+                JOptionPane.INFORMATION_MESSAGE);
+            return;
         }
+        
+        // 创建订单项
+        Order order = new Order();
+        order.setRequestId(requestId);
+        order.setProductName(productName);
+        order.setQuantity(quantity);
+        order.setStatus("Processing");
+        
+        // 设置价格（假设一个估计价格）
+        double estimatedPrice = 100.0; // 示例价格
+        order.setPurchaseCost(estimatedPrice);
+        order.setTotalAmount(estimatedPrice * quantity);
+        
+        // 添加到购物车
+        orderDirectory.addOrder(order);
+        updateCartTable();
+        
+        // 将请求状态更新为处理中
+        updateRequestStatus(requestId, "Processing");
+        
+        JOptionPane.showMessageDialog(this, 
+            "Request added to processing cart", 
+            "Success", 
+            JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void updateCartTable() {
@@ -411,32 +501,32 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
         }
     }
 
-    private void refreshRequestTable() {
-        DefaultTableModel model = (DefaultTableModel) RequestTable1.getModel();
-        model.setRowCount(0);
-        
-        String selectedStatus = StatusjComboBox.getSelectedItem().toString();
-        String searchId = txtSearchRequestID.getText().trim();
-        
-        for (Order order : orderDirectory.getOrderList()) {
-            if (selectedStatus.equals("All") || order.getStatus().equals(selectedStatus)) {
-                if (searchId.isEmpty() || order.getRequestId().contains(searchId)) {
-                    Object[] row = {
-                        order.getRequestId(),
-                        order.getProductName(),
-                        order.getQuantity(),
-                        new java.util.Date(),
-                        order.getStatus()
-                    };
-                    model.addRow(row);
-                }
+    private void updateRequestStatus(String requestId, String newStatus) {
+        List<ProcurementWorkRequest> requests = warehouse.getProcurementRequests();
+        for (ProcurementWorkRequest request : requests) {
+            if (request.getMessage().contains(requestId)) {
+                request.setStatus(newStatus);
+                break;
             }
         }
+        loadWarehouseRequests(); // 刷新表格
     }
 
-    private void StatusjComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StatusjComboBoxActionPerformed
-        refreshRequestTable();
-    }//GEN-LAST:event_StatusjComboBoxActionPerformed
+    private void notifyWarehouse(Order order) {
+        // 处理订单并更新库存
+        String requestId = order.getRequestId();
+        int actualAmount = order.getQuantity();
+        
+        // 调用仓库处理请求的方法
+        warehouse.processProcurementRequest(requestId, actualAmount);
+        
+        System.out.println("Processed procurement request: " + requestId + 
+                           " with actual amount: " + actualAmount);
+    }
+
+    private void StatusjComboBoxActionPerformed(java.awt.event.ActionEvent evt) {
+        loadWarehouseRequests();
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable RequestTable1;
@@ -459,8 +549,4 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
     private javax.swing.JTextField txtNewQuantity;
     private javax.swing.JTextField txtSearchRequestID;
     // End of variables declaration//GEN-END:variables
-
-    private void notifyWarehouse(Order order) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 }
