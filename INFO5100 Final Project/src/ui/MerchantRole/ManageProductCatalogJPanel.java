@@ -2,6 +2,7 @@ package ui.MerchantRole;
 
 import Business.Product.Product;
 import Business.Supplier.Supplier;
+import Business.Warehouse.Warehouse;
 import org.netbeans.lib.awtextra.AbsoluteLayout;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
 import java.awt.CardLayout;
@@ -10,6 +11,8 @@ import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import java.util.Date;
 import java.util.UUID;
+import java.util.List;
+import java.util.ArrayList;
 
 
 /**
@@ -23,17 +26,16 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
      */
     private JPanel userProcessContainer;
     private Supplier supplier;
+    private Warehouse warehouse;
 
     public ManageProductCatalogJPanel(JPanel upc, Supplier s) {
         initComponents();
         userProcessContainer = upc;
         supplier = s;
-        
+        warehouse = Warehouse.getInstance();
+
         // 初始化商品下拉框
-        ComboBoxProduct2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { 
-            "Smartphone", "Laptop", "Headphones", "Smartwatch", "Tablet", 
-            "Camera", "Speaker", "Power Bank", "Monitor", "Keyboard" 
-        }));
+        initializeProductDropdown();
         
         // 设置标题
         lblTitle1.setText("Product Management System for " + s.getSupplyName());
@@ -543,6 +545,21 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
 
     private void ComboBoxProduct2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ComboBoxProduct2ActionPerformed
         // TODO add your handling code here:
+        String selectedProductType = ComboBoxProduct2.getSelectedItem().toString();
+        
+        // Find product in warehouse
+        List<Product> availableProducts = warehouse.getAvailableProductsByType(selectedProductType);
+        
+        if (availableProducts != null && !availableProducts.isEmpty()) {
+            // Display the warehouse price in the price field
+            Product warehouseProduct = availableProducts.get(0);
+            txtProductPrice2.setText(String.valueOf(warehouseProduct.getPrice()));
+            txtProductPrice2.setEditable(false); // Make it read-only
+        } else {
+            // Clear the price field if no warehouse product is found
+            txtProductPrice2.setText("");
+            txtProductPrice2.setEditable(true); // Allow user to enter price
+        }
     }//GEN-LAST:event_ComboBoxProduct2ActionPerformed
 
     private void txtProductPrice2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtProductPrice2ActionPerformed
@@ -552,32 +569,131 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
     private void btnAdd2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd2ActionPerformed
         // 添加新产品
         try {
-            String productName = ComboBoxProduct2.getSelectedItem().toString();
-            double price = Double.parseDouble(txtProductPrice2.getText());
-            int threshold = Integer.parseInt(txtThresholdStock.getText());
+            String productType = ComboBoxProduct2.getSelectedItem().toString();
             
-            // 生成随机ID
-            String productId = "P" + UUID.randomUUID().toString().substring(0, 8);
+            // 阈值字段是必需的
+            int threshold = 0;
+            if (!txtThresholdStock.getText().trim().isEmpty()) {
+                threshold = Integer.parseInt(txtThresholdStock.getText().trim());
+            } else {
+                // 设置默认阈值
+                threshold = 20;
+            }
             
-            // 创建新产品 (设初始库存为20)
-            Product product = new Product(productId, productName, price, 20, threshold);
-            product.upShelf(); // 标记为上架
+            // 生成结构化ID，基于产品类型和序列号
+            String categoryCode = getCategoryCode(productType);
+            String productId = generateStructuredProductId(categoryCode);
             
-            // 添加到供应商目录
-            supplier.addProduct(product);
+            // 从仓库中查找该类型的可用产品
+            List<Product> availableProducts = warehouse.getAvailableProductsByType(productType);
             
-            JOptionPane.showMessageDialog(null, "Product added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            if (availableProducts != null && !availableProducts.isEmpty()) {
+                // 从仓库中获取第一个匹配的产品
+                Product warehouseProduct = availableProducts.get(0);
+                
+                // 直接使用仓库产品的价格
+                double price = warehouseProduct.getPrice();
+                
+                // 使用仓库产品的信息，但应用商家设置的阈值
+                Product product = new Product(
+                    productId,
+                    warehouseProduct.getProductName(),
+                    price, // 使用仓库价格
+                    warehouseProduct.getQuantity(), // 使用仓库的库存量
+                    threshold // 使用商家设置的阈值
+                );
+                
+                product.upShelf(); // 标记为上架
+                
+                // 添加到供应商目录
+                supplier.addProduct(product);
+                
+                // 从仓库中减少库存
+                warehouse.decreaseStock(warehouseProduct.getProductId(), 1);
+                
+                JOptionPane.showMessageDialog(null, "Product added successfully! Using warehouse price: $" + price, "Success", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                // 仓库中没有找到该类型的产品，创建新产品
+                // 使用默认价格
+                double defaultPrice = 999.99; // 默认价格
+                
+                Product product = new Product(productId, productType, defaultPrice, 20, threshold);
+                product.upShelf(); // 标记为上架
+                
+                // 添加到供应商目录
+                supplier.addProduct(product);
+                
+                JOptionPane.showMessageDialog(null, "Product added successfully! Using default price: $" + defaultPrice + "\nYou can update the price later.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            }
+            
             refreshTable();
             
             // 清空字段
             txtProductPrice2.setText("");
             txtThresholdStock.setText("");
         } catch (NumberFormatException e) {
+            // 如果用户输入了无效的数字格式
             JOptionPane.showMessageDialog(null, "Please enter valid numeric values", "Input Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnAdd2ActionPerformed
+    
+    // 根据产品类型获取类别代码
+    private String getCategoryCode(String productType) {
+        if (productType.contains("iPhone") || productType.contains("Samsung") || 
+            productType.contains("Google") || productType.contains("Xiaomi") || 
+            productType.contains("OPPO")) {
+            return "SP"; // Smartphone
+        } else if (productType.contains("MacBook") || productType.contains("Dell") || 
+                   productType.contains("Lenovo") || productType.contains("ASUS") || 
+                   productType.contains("HP")) {
+            return "LP"; // Laptop
+        } else if (productType.contains("AirPods") || productType.contains("Sony") || 
+                   productType.contains("Bose") || productType.contains("Beats")) {
+            return "HP"; // Headphones
+        } else if (productType.contains("Watch") || productType.contains("Fitbit")) {
+            return "SW"; // Smartwatch
+        } else if (productType.contains("iPad") || productType.contains("Galaxy Tab") || 
+                   productType.contains("Surface")) {
+            return "TB"; // Tablet
+        } else if (productType.contains("Canon") || productType.contains("Nikon") || 
+                   productType.contains("Sony Alpha")) {
+            return "CM"; // Camera
+        } else if (productType.contains("Sonos") || productType.contains("Bose") || 
+                   productType.contains("JBL")) {
+            return "SK"; // Speaker
+        } else if (productType.contains("Anker") || productType.contains("RAVPower") || 
+                   productType.contains("mAh")) {
+            return "PB"; // Power Bank
+        } else if (productType.contains("LG") || productType.contains("Dell") || 
+                   productType.contains("Samsung") || productType.contains("Alienware") || 
+                   productType.contains("Odyssey")) {
+            return "MN"; // Monitor
+        } else if (productType.contains("Logitech") || productType.contains("Corsair") || 
+                   productType.contains("Razer")) {
+            return "KB"; // Keyboard
+        } else {
+            return "OT"; // Other
+        }
+    }
+    
+    // 生成结构化产品ID，格式：类别代码-序列号（3位数）
+    private String generateStructuredProductId(String categoryCode) {
+        // 获取该类别现有产品数量作为序列号基础
+        int categoryCount = 0;
+        for (Product p : supplier.getProductCatalog()) {
+            if (p.getProductId().startsWith(categoryCode)) {
+                categoryCount++;
+            }
+        }
+        
+        // 序列号从1开始，补零至3位
+        int sequenceNumber = categoryCount + 1;
+        String sequenceStr = String.format("%03d", sequenceNumber);
+        
+        return categoryCode + "-" + sequenceStr;
+    }
 
     private void txtProductNameView3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtProductNameView3ActionPerformed
         // TODO add your handling code here:
@@ -669,4 +785,33 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
     private javax.swing.JTextField txtProductPrice2;
     private javax.swing.JTextField txtThresholdStock;
     // End of variables declaration//GEN-END:variables
+
+    private void initializeProductDropdown() {
+        // 获取仓库中所有有库存的产品类型
+        List<String> productTypes = new ArrayList<>();
+        List<Product> availableProducts = warehouse.getAvailableProducts();
+        
+        // 收集所有有库存的产品类型（不重复）
+        for (Product product : availableProducts) {
+            String type = product.getProductName();
+            if (!productTypes.contains(type)) {
+                productTypes.add(type);
+            }
+        }
+        
+        if (productTypes != null && !productTypes.isEmpty()) {
+            // 从仓库获取所有可用产品类型并填充下拉框
+            ComboBoxProduct2.setModel(new javax.swing.DefaultComboBoxModel<>(
+                productTypes.toArray(new String[0])
+            ));
+            System.out.println("Loaded " + productTypes.size() + " product types for dropdown");
+        } else {
+            // 仓库中没有可用产品，使用默认值
+            System.out.println("No available products found in warehouse, using default values");
+            ComboBoxProduct2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { 
+                "Smartphone", "Laptop", "Headphones", "Smartwatch", "Tablet", 
+                "Camera", "Speaker", "Power Bank", "Monitor", "Keyboard" 
+            }));
+        }
+    }
 }
