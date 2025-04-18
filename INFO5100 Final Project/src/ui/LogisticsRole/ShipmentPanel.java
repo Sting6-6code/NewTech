@@ -51,7 +51,6 @@ public class ShipmentPanel extends javax.swing.JPanel {
     private JPanel detailsCardsPanel;
     private CardLayout detailsCardLayout;
 
-
     /**
      * Creates new form Shipment
      */
@@ -60,32 +59,15 @@ public class ShipmentPanel extends javax.swing.JPanel {
 
         initComponents();
         initializeMapComponents();
+        setupDetailsCards();
 
         this.organization = ConfigureASystem.logisticsOrg;
-    
-    this.userProcessContainer = userProcessContainer;
-    this.userAccount = account;
-    this.enterprise = enterprise;
-
-    // Debug logging
-    System.out.println("ShipmentPanel using global LogisticsOrganization with " + 
-        (this.organization != null && this.organization.getShipmentDirectory() != null ? 
-        this.organization.getShipmentDirectory().getShipments().size() : 0) + " shipments");
-    
-
-        // Use the passed organization if it's valid, otherwise get the global one
-//        if (organization != null && organization.getShipmentDirectory() != null) {
-//            this.organization = organization;
-//        } else {
-//            // Fallback to the global instance if the passed one is invalid
-//            this.organization = ConfigureASystem.getLogisticsOrganization();
-//            System.out.println("WARNING: Using global LogisticsOrganization instance because the passed instance was invalid");
-//        }
-
+        this.userProcessContainer = userProcessContainer;
+        this.userAccount = account;
+        this.enterprise = enterprise;
 
         populateTable();
 
-        
     }
 
     private void initializeMapComponents() {
@@ -114,42 +96,70 @@ public class ShipmentPanel extends javax.swing.JPanel {
     }
 
     private void setupDetailsCards() {
-    // Create the CardLayout container
+        // 创建主要的详情容器面板
+    JPanel shipmentDetailsContainer = new JPanel(new BorderLayout());
+    
+    // 创建导航按钮面板
+    JPanel detailsNavigationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    detailsNavigationPanel.add(btnBasicInfo);
+    detailsNavigationPanel.add(btnCustomsInfo);
+    detailsNavigationPanel.add(btnPackageInfo);
+    detailsNavigationPanel.add(btnFinancialInfo);
+    
+    // 创建详情内容的卡片布局面板
     detailsCardsPanel = new JPanel();
     detailsCardLayout = new CardLayout();
     detailsCardsPanel.setLayout(detailsCardLayout);
     
-    // Create the four information panels
-    JPanel basicInfoPanel = createBasicInfoPanel();
-    JPanel customsInfoPanel = createCustomsInfoPanel();
-    JPanel packageInfoPanel = createPackageInfoPanel();
-    JPanel financialInfoPanel = createFinancialInfoPanel();
+    // 创建基本信息内容面板
+    JPanel shipmentBasicInfoContent = new JPanel(new GridLayout(0, 2, 10, 10));
+    shipmentBasicInfoContent.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     
-    // Add panels to the CardLayout
-    detailsCardsPanel.add(basicInfoPanel, "BasicInfo");
-    detailsCardsPanel.add(customsInfoPanel, "CustomsInfo");
-    detailsCardsPanel.add(packageInfoPanel, "PackageInfo");
-    detailsCardsPanel.add(financialInfoPanel, "FinancialInfo");
+    // 添加基本信息字段到内容面板
+    shipmentBasicInfoContent.add(lblTraNo);
+    shipmentBasicInfoContent.add(txtTrcNo);
+    shipmentBasicInfoContent.add(lblShippingDate);
+    shipmentBasicInfoContent.add(txtShippingDate);
+    shipmentBasicInfoContent.add(lblShippingMethod);
+    shipmentBasicInfoContent.add(txtShippingMethod);
+    shipmentBasicInfoContent.add(lblDestination);
+    shipmentBasicInfoContent.add(txtDestination);
+    shipmentBasicInfoContent.add(lblStatus);
+    shipmentBasicInfoContent.add(txtStatus);
     
-    // Add the CardLayout panel to your main panel (probably jPanel1)
-    // First clear existing components that show details
+    // 创建其他详情面板
+    JPanel shipmentCustomsContent = createCustomsInfoPanel();
+    JPanel shipmentPackageContent = createPackageInfoPanel();
+    JPanel shipmentFinancialContent = createFinancialInfoPanel();
+    
+    // 将所有内容面板添加到卡片布局
+    detailsCardsPanel.add(shipmentBasicInfoContent, "BasicInfo");
+    detailsCardsPanel.add(shipmentCustomsContent, "CustomsInfo");
+    detailsCardsPanel.add(shipmentPackageContent, "PackageInfo");
+    detailsCardsPanel.add(shipmentFinancialContent, "FinancialInfo");
+    
+    // 组装主容器面板
+    shipmentDetailsContainer.add(detailsNavigationPanel, BorderLayout.NORTH);
+    shipmentDetailsContainer.add(detailsCardsPanel, BorderLayout.CENTER);
+    
+    // 创建并添加更新按钮面板
+    JPanel actionButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    actionButtonPanel.add(btnUpdate);
+    shipmentDetailsContainer.add(actionButtonPanel, BorderLayout.SOUTH);
+    
+    // 清除并更新basicInfoJPanel
     basicInfoJPanel.removeAll();
     basicInfoJPanel.setLayout(new BorderLayout());
+    basicInfoJPanel.add(shipmentDetailsContainer);
     
-    // Add the buttons at the top
-    JPanel buttonsPanel = new JPanel();
-    buttonsPanel.add(btnBasicInfo);
-    buttonsPanel.add(btnCustomsInfo);
-    buttonsPanel.add(btnPackageInfo);
-    buttonsPanel.add(btnFinancialInfo);
-    
-    // Add button panel and card panel to jPanel1
-    basicInfoJPanel.add(buttonsPanel, BorderLayout.NORTH);
-    basicInfoJPanel.add(detailsCardsPanel, BorderLayout.CENTER);
-    
-    // Show the basic info panel by default
+    // 显示基本信息面板
     detailsCardLayout.show(detailsCardsPanel, "BasicInfo");
-}
+    
+    // 刷新面板
+    basicInfoJPanel.revalidate();
+    basicInfoJPanel.repaint();
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -663,32 +673,32 @@ public class ShipmentPanel extends javax.swing.JPanel {
         System.out.println("Starting populateTable...");
         System.out.println("Organization: " + (organization != null ? "exists" : "null"));
         System.out.println("ShipmentDirectory: " + (organization != null && organization.getShipmentDirectory() != null ? "exists" : "null"));
-    
+
         DefaultTableModel model = (DefaultTableModel) tblShipment.getModel();
         model.setRowCount(0);
 
         // 从logistics org获取货件列表
         if (organization != null && organization.getShipmentDirectory() != null) {
-        System.out.println("Populating table with shipments...");
-        
-        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-            Object[] row = new Object[6];
-            row[0] = shipment.getTrackingNumber();
-            row[1] = shipment.getShipDate() != null ? 
-                    new SimpleDateFormat("yyyy-MM-dd").format(shipment.getShipDate()) : "";
-            row[2] = shipment.getShippingMethod();
-            row[3] = shipment.getDestination();
-            row[4] = shipment.getShipmentStatus();
-            row[5] = shipment.getEstimatedDeliveryDate() != null ? 
-                    new SimpleDateFormat("yyyy-MM-dd").format(shipment.getEstimatedDeliveryDate()) : "";
-            
-            model.addRow(row);
-            System.out.println("Added shipment: " + shipment.getTrackingNumber());
-        }
-        
-        System.out.println("Added " + model.getRowCount() + " shipments to table");
-    } else {
-        System.out.println("Error: Organization or ShipmentDirectory is null");
+            System.out.println("Populating table with shipments...");
+
+            for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+                Object[] row = new Object[6];
+                row[0] = shipment.getTrackingNumber();
+                row[1] = shipment.getShipDate() != null
+                        ? new SimpleDateFormat("yyyy-MM-dd").format(shipment.getShipDate()) : "";
+                row[2] = shipment.getShippingMethod();
+                row[3] = shipment.getDestination();
+                row[4] = shipment.getShipmentStatus();
+                row[5] = shipment.getEstimatedDeliveryDate() != null
+                        ? new SimpleDateFormat("yyyy-MM-dd").format(shipment.getEstimatedDeliveryDate()) : "";
+
+                model.addRow(row);
+                System.out.println("Added shipment: " + shipment.getTrackingNumber());
+            }
+
+            System.out.println("Added " + model.getRowCount() + " shipments to table");
+        } else {
+            System.out.println("Error: Organization or ShipmentDirectory is null");
         }
     }
 
@@ -1009,89 +1019,89 @@ public class ShipmentPanel extends javax.swing.JPanel {
     }
 
     private JPanel createCustomsInfoPanel() {
-    JPanel panel = new JPanel();
-    panel.setLayout(new GridLayout(4, 2, 10, 10));
-    
-    // Add customs information fields
-    JLabel lblDeclarationNo = new JLabel("Declaration No:");
-    JTextField txtDeclarationNo = new JTextField();
-    
-    JLabel lblDeclarationStatus = new JLabel("Declaration Status:");
-    JTextField txtDeclarationStatus = new JTextField();
-    
-    JLabel lblImportDuty = new JLabel("Import Duty:");
-    JTextField txtImportDuty = new JTextField();
-    
-    JLabel lblInspectionRequired = new JLabel("Inspection Required:");
-    JTextField txtInspectionRequired = new JTextField();
-    
-    panel.add(lblDeclarationNo);
-    panel.add(txtDeclarationNo);
-    panel.add(lblDeclarationStatus);
-    panel.add(txtDeclarationStatus);
-    panel.add(lblImportDuty);
-    panel.add(txtImportDuty);
-    panel.add(lblInspectionRequired);
-    panel.add(txtInspectionRequired);
-    
-    return panel;
-}
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(4, 2, 10, 10));
 
-private JPanel createPackageInfoPanel() {
-    JPanel panel = new JPanel();
-    panel.setLayout(new GridLayout(4, 2, 10, 10));
-    
-    // Add package information fields
-    JLabel lblWeight = new JLabel("Weight (kg):");
-    JTextField txtWeight = new JTextField();
-    
-    JLabel lblDimensions = new JLabel("Dimensions (cm):");
-    JTextField txtDimensions = new JTextField();
-    
-    JLabel lblPackageType = new JLabel("Package Type:");
-    JTextField txtPackageType = new JTextField();
-    
-    JLabel lblSpecialHandling = new JLabel("Special Handling:");
-    JTextField txtSpecialHandling = new JTextField();
-    
-    panel.add(lblWeight);
-    panel.add(txtWeight);
-    panel.add(lblDimensions);
-    panel.add(txtDimensions);
-    panel.add(lblPackageType);
-    panel.add(txtPackageType);
-    panel.add(lblSpecialHandling);
-    panel.add(txtSpecialHandling);
-    
-    return panel;
-}
+        // Add customs information fields
+        JLabel lblDeclarationNo = new JLabel("Declaration No:");
+        JTextField txtDeclarationNo = new JTextField();
 
-private JPanel createFinancialInfoPanel() {
-    JPanel panel = new JPanel();
-    panel.setLayout(new GridLayout(4, 2, 10, 10));
-    
-    // Add financial information fields
-    JLabel lblShippingCost = new JLabel("Shipping Cost:");
-    JTextField txtShippingCost = new JTextField();
-    
-    JLabel lblInsuranceCost = new JLabel("Insurance Cost:");
-    JTextField txtInsuranceCost = new JTextField();
-    
-    JLabel lblTaxes = new JLabel("Taxes:");
-    JTextField txtTaxes = new JTextField();
-    
-    JLabel lblTotalCost = new JLabel("Total Cost:");
-    JTextField txtTotalCost = new JTextField();
-    
-    panel.add(lblShippingCost);
-    panel.add(txtShippingCost);
-    panel.add(lblInsuranceCost);
-    panel.add(txtInsuranceCost);
-    panel.add(lblTaxes);
-    panel.add(txtTaxes);
-    panel.add(lblTotalCost);
-    panel.add(txtTotalCost);
-    
-    return panel;
-}
+        JLabel lblDeclarationStatus = new JLabel("Declaration Status:");
+        JTextField txtDeclarationStatus = new JTextField();
+
+        JLabel lblImportDuty = new JLabel("Import Duty:");
+        JTextField txtImportDuty = new JTextField();
+
+        JLabel lblInspectionRequired = new JLabel("Inspection Required:");
+        JTextField txtInspectionRequired = new JTextField();
+
+        panel.add(lblDeclarationNo);
+        panel.add(txtDeclarationNo);
+        panel.add(lblDeclarationStatus);
+        panel.add(txtDeclarationStatus);
+        panel.add(lblImportDuty);
+        panel.add(txtImportDuty);
+        panel.add(lblInspectionRequired);
+        panel.add(txtInspectionRequired);
+
+        return panel;
+    }
+
+    private JPanel createPackageInfoPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(4, 2, 10, 10));
+
+        // Add package information fields
+        JLabel lblWeight = new JLabel("Weight (kg):");
+        JTextField txtWeight = new JTextField();
+
+        JLabel lblDimensions = new JLabel("Dimensions (cm):");
+        JTextField txtDimensions = new JTextField();
+
+        JLabel lblPackageType = new JLabel("Package Type:");
+        JTextField txtPackageType = new JTextField();
+
+        JLabel lblSpecialHandling = new JLabel("Special Handling:");
+        JTextField txtSpecialHandling = new JTextField();
+
+        panel.add(lblWeight);
+        panel.add(txtWeight);
+        panel.add(lblDimensions);
+        panel.add(txtDimensions);
+        panel.add(lblPackageType);
+        panel.add(txtPackageType);
+        panel.add(lblSpecialHandling);
+        panel.add(txtSpecialHandling);
+
+        return panel;
+    }
+
+    private JPanel createFinancialInfoPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(4, 2, 10, 10));
+
+        // Add financial information fields
+        JLabel lblShippingCost = new JLabel("Shipping Cost:");
+        JTextField txtShippingCost = new JTextField();
+
+        JLabel lblInsuranceCost = new JLabel("Insurance Cost:");
+        JTextField txtInsuranceCost = new JTextField();
+
+        JLabel lblTaxes = new JLabel("Taxes:");
+        JTextField txtTaxes = new JTextField();
+
+        JLabel lblTotalCost = new JLabel("Total Cost:");
+        JTextField txtTotalCost = new JTextField();
+
+        panel.add(lblShippingCost);
+        panel.add(txtShippingCost);
+        panel.add(lblInsuranceCost);
+        panel.add(txtInsuranceCost);
+        panel.add(lblTaxes);
+        panel.add(txtTaxes);
+        panel.add(lblTotalCost);
+        panel.add(txtTotalCost);
+
+        return panel;
+    }
 }
