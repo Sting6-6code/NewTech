@@ -21,11 +21,6 @@ public class CustomsAgentRole extends Role {
     public CustomsAgentRole() {
     }
     
-//    @Override
-//    public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-//        ui.CustomsAgentRole.CustomsLiaisonOfficeHP customsHP = new ui.CustomsAgentRole.CustomsLiaisonOfficeHP();
-//        return customsHP;
-//    }
     
     @Override
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
@@ -36,13 +31,6 @@ public class CustomsAgentRole extends Role {
     }
     } 
     
-//    @Override
-//    public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-//        if (organization instanceof CustomsLiaisonOrganization) {
-//            return new CustomsLiaisonOfficeHP(userProcessContainer, account, enterprise, (CustomsLiaisonOrganization) organization);
-//        }
-//        throw new IllegalArgumentException("Invalid organization type for Customs Agent Role");
-//    }
     
     @Override
     public String toString() { 
