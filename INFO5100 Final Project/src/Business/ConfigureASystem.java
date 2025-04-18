@@ -145,6 +145,10 @@ public class ConfigureASystem {
         
         return system;
     }
+    // Method to access the logistics organization from anywhere in the application
+    public static LogisticsOrganization getLogisticsOrganization() {
+        return logisticsOrg;
+    }
 
 
 
@@ -243,9 +247,6 @@ public class ConfigureASystem {
         System.out.println("Generated " + warehouse.getProcurementRequests().size() + " procurement requests");
    
     
-    // Method to access the logistics organization from anywhere in the application
-    public static LogisticsOrganization getLogisticsOrganization() {
-        return logisticsOrg;
     }
     
     // Create demo complaints
