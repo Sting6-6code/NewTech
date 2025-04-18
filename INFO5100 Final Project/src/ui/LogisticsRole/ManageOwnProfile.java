@@ -67,6 +67,12 @@ public class ManageOwnProfile extends javax.swing.JPanel {
 
         lblPW.setText("Password:");
 
+        txtUN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtUNActionPerformed(evt);
+            }
+        });
+
         btnUpdate.setText("Update");
         btnUpdate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -176,6 +182,10 @@ public class ManageOwnProfile extends javax.swing.JPanel {
         JOptionPane.showMessageDialog(this, "Profile updated successfully",
                 "Success", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void txtUNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUNActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtUNActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

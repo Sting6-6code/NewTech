@@ -19,11 +19,16 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
      * Creates new form LogisticsCoordinatorHP
      */
     private Supplier supplier;
+    private String username;
     
-    public ProcurementSpecialistHP() {
+    public ProcurementSpecialistHP(String username) {
         initComponents();
-        // Set CardLayout for ProcurementSpecialistWorkAreajPanel
+        this.username = username;
+        
+        // 初始化面板布局
         ProcurementSpecialistWorkAreajPanel.setLayout(new CardLayout());
+        jSplitPane2.setLeftComponent(ProcurementSpecialistPanel);
+        jSplitPane2.setRightComponent(ProcurementSpecialistWorkAreajPanel);
     }
     
     public void setSupplier(Supplier supplier) {
@@ -119,7 +124,7 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
 
     private void btnWarehouseRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnWarehouseRequestActionPerformed
         // TODO add your handling code here:
-        WarehouseRequestsJPanel warehouseRequestsJPanel = new WarehouseRequestsJPanel(ProcurementSpecialistWorkAreajPanel);
+        MerchantRequestsJPanel warehouseRequestsJPanel = new MerchantRequestsJPanel(ProcurementSpecialistWorkAreajPanel);
         ProcurementSpecialistWorkAreajPanel.add("WarehouseRequestsJPanel", warehouseRequestsJPanel);
         CardLayout layout = (CardLayout) ProcurementSpecialistWorkAreajPanel.getLayout();
         layout.next(ProcurementSpecialistWorkAreajPanel);    
@@ -127,9 +132,28 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
     }//GEN-LAST:event_btnWarehouseRequestActionPerformed
 
     private void btnProfile1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfile1ActionPerformed
-        // TODO add your handling code here:
-        ManageOwnProfile manageOwnProfile = new ManageOwnProfile();
+        // 从EcoSystem获取当前用户账户
+        Business.UserAccount.UserAccount account = null;
+        for (Business.UserAccount.UserAccount ua : Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList()) {
+            if (ua.getUsername().equals(this.username)) {
+                account = ua;
+                break;
+            }
+        }
+        
+        if (account == null) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                    "无法获取用户信息，请重新登录", 
+                    "错误", 
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // 创建ManageOwnProfile面板，传递工作区面板和用户账户
+        ManageOwnProfile manageOwnProfile = new ManageOwnProfile(ProcurementSpecialistWorkAreajPanel, account);
         ProcurementSpecialistWorkAreajPanel.add("ManageOwnProfile", manageOwnProfile);
+        
+        // 使用CardLayout显示该面板
         CardLayout layout = (CardLayout) ProcurementSpecialistWorkAreajPanel.getLayout();
         layout.next(ProcurementSpecialistWorkAreajPanel);
     }//GEN-LAST:event_btnProfile1ActionPerformed

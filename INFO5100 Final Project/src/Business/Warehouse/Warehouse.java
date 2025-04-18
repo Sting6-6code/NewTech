@@ -196,6 +196,11 @@ public class Warehouse {
         return workQueue;
     }
     
+    // 设置工作队列
+    public void setWorkQueue(WorkQueue workQueue) {
+        this.workQueue = workQueue;
+    }
+    
     // 检查所有库存并创建采购请求
     public void checkAllInventoryLevels() {
         for (Stock s : stock) {

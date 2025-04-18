@@ -529,7 +529,74 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
         loadMerchantRequests(); // 刷新表格
     }
 
-   
+    private void notifyWarehouse(Order order) {
+        // 处理订单并更新库存
+        String requestId = order.getRequestId();
+        String productName = order.getProductName();
+        int actualAmount = order.getQuantity();
+        
+        // 更新请求状态为已完成
+        updateRequestStatus(requestId, "Completed");
+        
+        // 检查仓库中是否有对应产品
+        boolean found = false;
+        for (Product product : warehouse.getAvailableProducts()) {
+            if (product.getProductName().equals(productName)) {
+                found = true;
+                // 如果仓库有足够库存，直接从仓库获取
+                if (warehouse.getProductAmount(product.getProductId()) >= actualAmount) {
+                    warehouse.decreaseStock(product.getProductId(), actualAmount);
+                    System.out.println("Fulfilled merchant request: " + requestId + 
+                                   " for " + productName + " with " + actualAmount + " units from warehouse");
+                } else {
+                    // 如果库存不足，创建采购请求
+                    System.out.println("Insufficient stock for merchant request: " + requestId + 
+                                   ". Creating procurement request for " + productName);
+                    // 增加一个新的采购请求
+                    Business.WorkQueue.ProcurementWorkRequest procRequest = new Business.WorkQueue.ProcurementWorkRequest();
+                    procRequest.setProductId(product.getProductId());
+                    procRequest.setProductName(productName);
+                    procRequest.setRequestedAmount(actualAmount);
+                    procRequest.setCurrentAmount(warehouse.getProductAmount(product.getProductId()));
+                    procRequest.setMessage("PROC-" + requestId + ": Procurement needed for merchant request");
+                    procRequest.setStatus("Pending");
+                    
+                    // 添加采购请求到仓库的工作队列
+                    warehouse.getWorkQueue().getWorkRequestList().add(procRequest);
+                }
+                break;
+            }
+        }
+        
+        if (!found) {
+            System.out.println("Product not found in warehouse: " + productName + ". Need to order from supplier.");
+            JOptionPane.showMessageDialog(this, 
+                "Product " + productName + " not found in warehouse inventory. A procurement order will be created.", 
+                "Product Not Found", 
+                JOptionPane.WARNING_MESSAGE);
+            
+            // 创建一个新的产品并添加采购请求
+            Product newProduct = new Product(
+                "NEW-" + System.currentTimeMillis(),  // 临时ID
+                productName,
+                order.getPurchaseCost(),
+                0,  // 当前数量为0
+                actualAmount / 2  // 设置一个合理的警告阈值
+            );
+            
+            // 添加采购请求
+            Business.WorkQueue.ProcurementWorkRequest procRequest = new Business.WorkQueue.ProcurementWorkRequest();
+            procRequest.setProductId(newProduct.getProductId());
+            procRequest.setProductName(productName);
+            procRequest.setRequestedAmount(actualAmount);
+            procRequest.setCurrentAmount(0);
+            procRequest.setMessage("PROC-NEW-" + requestId + ": New product procurement needed for merchant request");
+            procRequest.setStatus("Pending");
+            
+            // 添加采购请求到仓库的工作队列
+            warehouse.getWorkQueue().getWorkRequestList().add(procRequest);
+        }
+    }
 
     private void StatusjComboBoxActionPerformed(java.awt.event.ActionEvent evt) {
         loadMerchantRequests();
