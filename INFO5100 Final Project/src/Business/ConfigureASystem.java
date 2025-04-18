@@ -30,7 +30,7 @@ import java.util.Date;
  */
 public class ConfigureASystem {
     
-    private static LogisticsOrganization logisticsOrg;
+    public static LogisticsOrganization logisticsOrg;
     
     public static EcoSystem configure(){
         
@@ -101,33 +101,42 @@ public class ConfigureASystem {
         
         // Create logistics organizations
         if (logisticsEnterprise != null) {
+        try {
             // Create logistics organization
-            Organization logisticsOrg = logisticsEnterprise.getOrganizationDirectory().createOrganization(Organization.Type.Logistics);
-            if (logisticsOrg instanceof LogisticsOrganization) {
-                LogisticsOrganization logisticsOrganization = (LogisticsOrganization) logisticsOrg;
-                // Set the static reference
-                ConfigureASystem.logisticsOrg = logisticsOrganization;
+            Organization logOrg = logisticsEnterprise.getOrganizationDirectory().createOrganization(Organization.Type.Logistics);
+            if (logOrg instanceof LogisticsOrganization) {
+                logisticsOrg = (LogisticsOrganization) logOrg;
                 
-                // Associate the logistics user account with this organization
-                logisticsOrganization.getUserAccountDirectory().getUserAccountList().add(logistics);
+                // Debug info
+                System.out.println("Successfully created LogisticsOrganization");
                 
-                // Create sample shipments
-                createSampleShipments(logisticsOrganization);
+                // Associate user account
+                logisticsOrg.getUserAccountDirectory().getUserAccountList().add(logistics);
                 
-                // Debug print
-                System.out.println("Created LogisticsOrganization with " + 
-                                  logisticsOrganization.getShipmentDirectory().getShipments().size() + 
-                                  " shipments");
+                // Create sample shipments with extra validation
+                if (logisticsOrg.getShipmentDirectory() != null) {
+                    System.out.println("ShipmentDirectory exists, creating sample shipments");
+                    createSampleShipments(logisticsOrg);
+                    System.out.println("Created " + logisticsOrg.getShipmentDirectory().getShipments().size() + " sample shipments");
+                } else {
+                    System.out.println("ERROR: ShipmentDirectory is null");
+                }
+            } else {
+                System.out.println("ERROR: Created organization is not LogisticsOrganization");
             }
-            
-            // Create customs organization
-            Organization customsOrg = logisticsEnterprise.getOrganizationDirectory().createOrganization(Organization.Type.CustomsAgent);
-            if (customsOrg != null) {
-                customsOrg.getUserAccountDirectory().getUserAccountList().add(customsagent);
-            }
+        } catch (Exception e) {
+            System.out.println("Error creating LogisticsOrganization: " + e.getMessage());
+            e.printStackTrace();
+        }
+    
         }
         
-        
+        //debug
+        // 在返回之前验证数据
+        if (logisticsOrg != null && logisticsOrg.getShipmentDirectory() != null) {
+            System.out.println("配置完成后的shipments数量: " + 
+                logisticsOrg.getShipmentDirectory().getShipments().size());
+        }
         
         return system;
     }
@@ -167,29 +176,113 @@ public class ConfigureASystem {
         complaintDirectory.updateComplaintStatus("C009", "Resolved");
     }
     
-    private static void createSampleShipments(LogisticsOrganization logistics) {
-        if (logistics == null || logistics.getShipmentDirectory() == null) {
-            System.out.println("Error: Cannot create sample shipments - invalid organization");
-            return;
-        }
-        
-        ShipmentDirectory shipmentDir = logistics.getShipmentDirectory();
-        
-        // Create sample shipments
-        Shipment shipment1 = shipmentDir.createShipment("SHP001", "TRK001");
-        setupDeliveredShipment(shipment1);
-        
-        Shipment shipment2 = shipmentDir.createShipment("SHP002", "TRK002");
-        setupInTransitShipment(shipment2);
-        
-        Shipment shipment3 = shipmentDir.createShipment("SHP003", "TRK003");
-        setupNewlyShippedShipment(shipment3);
-        
-        // Debug print
-        System.out.println("Created " + shipmentDir.getShipments().size() + " sample shipments");
+//    private static void createSampleShipments(LogisticsOrganization logistics) {
+//        // debug
+//        System.out.println("\n=== Starting to create sample shipments ===");
+//    System.out.println("LogisticsOrganization: " + (logistics != null ? "exists" : "null"));
+//    if (logistics != null) {
+//        System.out.println("ShipmentDirectory: " + (logistics.getShipmentDirectory() != null ? "exists" : "null"));
+//    }
+//    
+//    if (logistics == null || logistics.getShipmentDirectory() == null) {
+//        System.out.println("Error: Cannot create sample shipments - invalid organization");
+//        return;
+//    }
+//    
+//    ShipmentDirectory shipmentDir = logistics.getShipmentDirectory();
+//    System.out.println("Initial number of shipments: " + shipmentDir.getShipments().size());
+//    
+//    try {
+//        // Create sample shipments
+//        System.out.println("\nCreating first shipment...");
+//        Shipment shipment1 = new Shipment("SHP001", "TRK001");
+//        setupDeliveredShipment(shipment1);
+//        shipmentDir.getShipments().add(shipment1);
+//        System.out.println("Shipment 1 created successfully:");
+//        System.out.println("- ID: " + shipment1.getShipmentId());
+//        System.out.println("- Status: " + shipment1.getShipmentStatus());
+//        System.out.println("- Number of tracking records: " + shipment1.getTrackingHistory().size());
+//        
+//        System.out.println("\nCreating second shipment...");
+//        Shipment shipment2 = new Shipment("SHP002", "TRK002");
+//        setupInTransitShipment(shipment2);
+//        shipmentDir.getShipments().add(shipment2);
+//        System.out.println("Shipment 2 created successfully:");
+//        System.out.println("- ID: " + shipment2.getShipmentId());
+//        System.out.println("- Status: " + shipment2.getShipmentStatus());
+//        System.out.println("- Number of tracking records: " + shipment2.getTrackingHistory().size());
+//        
+//        System.out.println("\nCreating third shipment...");
+//        Shipment shipment3 = new Shipment("SHP003", "TRK003");
+//        setupNewlyShippedShipment(shipment3);
+//        shipmentDir.getShipments().add(shipment3);
+//        System.out.println("Shipment 3 created successfully:");
+//        System.out.println("- ID: " + shipment3.getShipmentId());
+//        System.out.println("- Status: " + shipment3.getShipmentStatus());
+//        System.out.println("- Number of tracking records: " + shipment3.getTrackingHistory().size());
+//        
+//        System.out.println("\n=== Sample shipments creation completed ===");
+//        System.out.println("Final number of shipments: " + shipmentDir.getShipments().size());
+//        
+//    } catch (Exception e) {
+//        System.out.println("Error occurred while creating sample shipments: " + e.getMessage());
+//        e.printStackTrace();
+//    }
+//    }
+    
+    public static void createSampleShipments(LogisticsOrganization logistics) {
+    if (logistics == null || logistics.getShipmentDirectory() == null) {
+        System.out.println("Error: Cannot create sample shipments - invalid organization");
+        return;
     }
     
-    private static void setupDeliveredShipment(Shipment shipment) {
+    ShipmentDirectory shipmentDir = logistics.getShipmentDirectory();
+    
+    // 创建示例货件
+    String[] destinations = {"New York", "Los Angeles", "Chicago", "Houston", "Phoenix"};
+    String[] methods = {"Air Freight", "Sea Freight", "Ground"};
+    String[] statuses = {
+        Shipment.STATUS_PENDING,
+        Shipment.STATUS_PROCESSING,
+        Shipment.STATUS_SHIPPED,
+        Shipment.STATUS_IN_TRANSIT,
+        Shipment.STATUS_DELIVERING
+    };
+    
+    for (int i = 1; i <= 10; i++) {
+        String shipmentId = "SHP" + String.format("%03d", i);
+        String trackingNumber = "TRK" + String.format("%03d", i);
+        
+        Shipment shipment = shipmentDir.createShipment(shipmentId, trackingNumber);
+        
+        // 设置基本信息
+        shipment.setShipDate(new Date());
+        shipment.setShippingMethod(methods[i % methods.length]);
+        shipment.setOrigin("Shanghai Warehouse");
+        shipment.setDestination(destinations[i % destinations.length]);
+        shipment.setShipmentStatus(statuses[i % statuses.length]);
+        shipment.setCurrentLocation("Shanghai Warehouse");
+        
+        // 设置订单相关信息
+        shipment.setOrderId("ORD" + String.format("%03d", i));
+        shipment.setProductName("Product " + i);
+        shipment.setQuantity(i * 10);
+        
+        // 添加跟踪记录
+        TrackingInfo trackInfo = new TrackingInfo();
+        trackInfo.setShipmentId(shipmentId);
+        trackInfo.setTimestamp(new Date());
+        trackInfo.setLocation("Shanghai Warehouse");
+        trackInfo.setDescription("Shipment created");
+        trackInfo.setStatus("Completed");
+        shipment.addTrackingInfo(trackInfo);
+        
+        System.out.println("Created sample shipment: " + shipmentId);
+    }
+}
+    
+    public static void setupDeliveredShipment(Shipment shipment) {
+        try {
         // Set basic info
         shipment.setOrderId("ORD001");
         shipment.setProductName("iPhone 15");
@@ -221,9 +314,19 @@ public class ConfigureASystem {
         
         addTrackingInfo(shipment, 0, "Boston, MA", 42.3601, -71.0589,
                 "Package delivered", Shipment.STATUS_DELIVERED);
+                
+        System.out.println("Successfully set up delivered shipment with all information");
+    } catch (Exception e) {
+        System.out.println("Error occurred while setting up delivered shipment: " + e.getMessage());
+        e.printStackTrace();
+    }
     }
     
-    private static void setupInTransitShipment(Shipment shipment) {
+    public static void setLogisticsOrganization(LogisticsOrganization org) {
+    logisticsOrg = org;
+}
+    
+    public static void setupInTransitShipment(Shipment shipment) {
         // Set basic info
         shipment.setOrderId("ORD002");
         shipment.setProductName("MacBook Pro");
@@ -248,7 +351,7 @@ public class ConfigureASystem {
                 "Package in transit", Shipment.STATUS_IN_TRANSIT);
     }
     
-    private static void setupNewlyShippedShipment(Shipment shipment) {
+    public static void setupNewlyShippedShipment(Shipment shipment) {
         // Set basic info
         shipment.setOrderId("ORD003");
         shipment.setProductName("iPad Pro");
@@ -270,7 +373,7 @@ public class ConfigureASystem {
                 "Package ready for departure", Shipment.STATUS_SHIPPED);
     }
     
-    private static void addTrackingInfo(Shipment shipment, int daysOffset, 
+    public static void addTrackingInfo(Shipment shipment, int daysOffset, 
             String location, double latitude, double longitude, 
             String description, String status) {
         

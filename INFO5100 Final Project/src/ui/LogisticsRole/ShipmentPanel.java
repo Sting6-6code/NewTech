@@ -54,31 +54,33 @@ public class ShipmentPanel extends javax.swing.JPanel {
             Enterprise enterprise, LogisticsOrganization organization) {
 
         initComponents();
+        initializeMapComponents();
 
-//        this.organization = organization;
+        this.organization = ConfigureASystem.logisticsOrg;
+    
+    this.userProcessContainer = userProcessContainer;
+    this.userAccount = account;
+    this.enterprise = enterprise;
+
+    // Debug logging
+    System.out.println("ShipmentPanel using global LogisticsOrganization with " + 
+        (this.organization != null && this.organization.getShipmentDirectory() != null ? 
+        this.organization.getShipmentDirectory().getShipments().size() : 0) + " shipments");
+    
 
         // Use the passed organization if it's valid, otherwise get the global one
-        if (organization != null && organization.getShipmentDirectory() != null) {
-            this.organization = organization;
-        } else {
-            // Fallback to the global instance if the passed one is invalid
-            this.organization = ConfigureASystem.getLogisticsOrganization();
-            System.out.println("WARNING: Using global LogisticsOrganization instance because the passed instance was invalid");
-        }
-        
-        this.userProcessContainer = userProcessContainer;
-        this.userAccount = account;
-        this.enterprise = enterprise;
+//        if (organization != null && organization.getShipmentDirectory() != null) {
+//            this.organization = organization;
+//        } else {
+//            // Fallback to the global instance if the passed one is invalid
+//            this.organization = ConfigureASystem.getLogisticsOrganization();
+//            System.out.println("WARNING: Using global LogisticsOrganization instance because the passed instance was invalid");
+//        }
+
 
         populateTable();
 
-        // debug
-        System.out.println("ShipmentPanel initialized with organization: "
-                + (this.organization != null ? "Yes" : "No"));
-        if (this.organization != null && this.organization.getShipmentDirectory() != null) {
-            System.out.println("Number of shipments: "
-                    + this.organization.getShipmentDirectory().getShipments().size());
-        }
+        
     }
 
     private void initializeMapComponents() {
@@ -359,21 +361,10 @@ public class ShipmentPanel extends javax.swing.JPanel {
         lblTrackPath.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblTrackPath.setText("Track Path（Google Map API）");
 
-        btnSave.setText("Save");
-        btnSave.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSaveActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout trackPathJPanelLayout = new javax.swing.GroupLayout(trackPathJPanel);
         trackPathJPanel.setLayout(trackPathJPanelLayout);
         trackPathJPanelLayout.setHorizontalGroup(
             trackPathJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, trackPathJPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnSave)
-                .addGap(110, 110, 110))
             .addGroup(trackPathJPanelLayout.createSequentialGroup()
                 .addGap(149, 149, 149)
                 .addComponent(lblTrackPath, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -384,10 +375,15 @@ public class ShipmentPanel extends javax.swing.JPanel {
             .addGroup(trackPathJPanelLayout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addComponent(lblTrackPath, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 268, Short.MAX_VALUE)
-                .addComponent(btnSave)
-                .addGap(26, 26, 26))
+                .addContainerGap(317, Short.MAX_VALUE))
         );
+
+        btnSave.setText("Save");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -411,7 +407,9 @@ public class ShipmentPanel extends javax.swing.JPanel {
                         .addGap(12, 12, 12)
                         .addComponent(btnTrackPath, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(btnUpdateStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(btnUpdateStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnSave))
                     .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
@@ -447,7 +445,9 @@ public class ShipmentPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnViewDetails)
                     .addComponent(btnTrackPath)
-                    .addComponent(btnUpdateStatus))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnUpdateStatus)
+                        .addComponent(btnSave)))
                 .addGap(56, 56, 56)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)

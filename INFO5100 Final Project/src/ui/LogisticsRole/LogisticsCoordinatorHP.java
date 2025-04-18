@@ -68,7 +68,18 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.enterprise = enterprise;
-        this.organization = organization;
+        
+        this.organization = ConfigureASystem.logisticsOrg;
+        
+        if (this.organization != null) {
+        this.declarationDirectory = this.organization.getCustomsDeclarationDirectory();
+        System.out.println("LogisticsCoordinatorHP using global LogisticsOrganization with " + 
+            (this.organization.getShipmentDirectory() != null ? 
+            this.organization.getShipmentDirectory().getShipments().size() : 0) + " shipments");
+    } else {
+        System.out.println("WARNING: Global LogisticsOrganization is null!");
+    }
+    
         this.declarationDirectory = organization.getCustomsDeclarationDirectory();
 
         // 设置所有统计卡片
@@ -78,7 +89,31 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         setupStatisticsPanel(CustomerCompJPanel, "Customer Complaints", "3", "-25% from last week", new Color(231, 76, 60));
 
         this.setPreferredSize(new java.awt.Dimension(1450, 800));
+
+        // Initialize table models
+        DefaultTableModel recentShipmentModel = new DefaultTableModel();
+        tblRecentShipment.setModel(recentShipmentModel);
+        recentShipmentModel.setColumnIdentifiers(new String[]{"Tracking Number", "Ship Date", "Method", "Destination", "Status", "Est. Delivery"});
+
+        DefaultTableModel pendingTasksModel = new DefaultTableModel();
+        tblPendingTasks.setModel(pendingTasksModel);
+        pendingTasksModel.setColumnIdentifiers(new String[]{"Task ID", "Type", "Priority", "Status", "Due Date"});
+
+        
+    
+        // Populate tables
         populateDashboard();
+        populateRecentShipmentsTable();
+        populatePendingTasksTable();
+
+        
+        // Debug output
+        System.out.println("LogisticsCoordinatorHP initialized");
+        System.out.println("Organization: " + (organization != null ? "exists" : "null"));
+        if (organization != null && organization.getShipmentDirectory() != null) {
+            System.out.println("Number of shipments: " + organization.getShipmentDirectory().getShipments().size());
+        }
+        System.out.println("Recent shipments table rows: " + tblRecentShipment.getRowCount());
     }
 
     /**
@@ -551,23 +586,55 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
      */
     private void populateDashboard() {
         try {
-            // 获取实际数据
-            int activeShipments = 0;
-            int pendingCustoms = 0;
-            int completedDeliveries = 0;
-            int customerComplaints = 0;
-
-            if (organization != null && organization.getShipmentDirectory() != null) {
-                for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-                    if ("Active".equals(shipment.getShipmentStatus())) {
-                        activeShipments++;
-                    } else if ("Pending Customs".equals(shipment.getShipmentStatus())) {
-                        pendingCustoms++;
-                    } else if ("Delivered".equals(shipment.getShipmentStatus())) {
-                        completedDeliveries++;
-                    }
+        // Get actual data
+        int activeShipments = 0;
+        int pendingCustoms = 0;
+        int completedDeliveries = 0;
+        int customerComplaints = 0;
+        
+        if (organization != null && organization.getShipmentDirectory() != null) {
+            System.out.println("Found organization with " + 
+                organization.getShipmentDirectory().getShipments().size() + " shipments");
+            
+            for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+                String status = shipment.getShipmentStatus();
+                System.out.println("Processing shipment with status: " + status);
+                
+                // Consider any non-delivered, non-exception shipment as active
+                if (Shipment.STATUS_PENDING.equals(status) ||
+                    Shipment.STATUS_PROCESSING.equals(status) || 
+                    Shipment.STATUS_SHIPPED.equals(status) || 
+                    Shipment.STATUS_IN_TRANSIT.equals(status) ||
+                    Shipment.STATUS_DELIVERING.equals(status) ||
+                    "Active".equals(status)) {
+                    activeShipments++;
+                } 
+                // Count customs-related statuses
+                else if ("Pending Customs".equals(status) || 
+                         "Customs Clearance".equals(status)) {
+                    pendingCustoms++;
+                } 
+                // Count deliveries
+                else if (Shipment.STATUS_DELIVERED.equals(status) ||
+                         "Delivered".equals(status)) {
+                    completedDeliveries++;
                 }
             }
+            
+            System.out.println("Counted shipments - Active: " + activeShipments + 
+                ", Customs: " + pendingCustoms + ", Delivered: " + completedDeliveries);
+        } else {
+            System.out.println("Organization or ShipmentDirectory is null");
+        }
+        
+        // If no real data found, use sample values
+        if (activeShipments == 0 && pendingCustoms == 0 && completedDeliveries == 0) {
+            System.out.println("No matching shipment data found, using sample values");
+            activeShipments = 24;
+            pendingCustoms = 18;
+            completedDeliveries = 156;
+        }
+        
 
             // 获取客户投诉数量
             if (enterprise != null) {
@@ -646,29 +713,34 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
 
     private void populateRecentShipmentsTable() {
         // Create a table model
-        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblRecentShipment.getModel();
-        model.setRowCount(0); // Clear existing data
+        DefaultTableModel model = (DefaultTableModel) tblRecentShipment.getModel();
+        model.setRowCount(0);
 
-        // Get recent shipments from the organization
-        if (organization != null && organization.getShipmentDirectory() != null) {
-            System.out.println("Found ShipmentDirectory with "
-                    + organization.getShipmentDirectory().getShipments().size() + " shipments");
+        // 设置列名
+        String[] columnNames = {"Tracking Number", "Ship Date", "Method", "Destination", "Status", "Est. Delivery"};
+        model.setColumnIdentifiers(columnNames);
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        // 首先尝试从组织获取实际的shipments
+        if (organization != null && organization.getShipmentDirectory() != null
+                && !organization.getShipmentDirectory().getShipments().isEmpty()) {
 
             for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
                 Object[] row = new Object[6];
-                row[0] = shipment.getOrderId();
-                row[1] = shipment.getShipDate() != null ? dateFormat.format(shipment.getShipDate()) : "";
+                row[0] = shipment.getTrackingNumber();
+                row[1] = shipment.getShipDate() != null
+                        ? new SimpleDateFormat("MM/dd/yyyy").format(shipment.getShipDate()) : "";
                 row[2] = shipment.getShippingMethod();
                 row[3] = shipment.getDestination();
                 row[4] = shipment.getShipmentStatus();
                 row[5] = shipment.getEstimatedDeliveryDate() != null
-                        ? dateFormat.format(shipment.getEstimatedDeliveryDate()) : "";
+                        ? new SimpleDateFormat("MM/dd/yyyy").format(shipment.getEstimatedDeliveryDate()) : "";
                 model.addRow(row);
             }
+
         } else {
-            System.out.println("Organization or ShipmentDirectory is null");
+            // 如果没有实际的shipments，添加示例数据
+            System.out.println("No actual shipments found, adding sample data...");
+            addSampleShipmentData(model);
         }
     }
 

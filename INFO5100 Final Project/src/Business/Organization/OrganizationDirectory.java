@@ -25,14 +25,27 @@ public class OrganizationDirectory {
     
     public Organization createOrganization(Type type){
         Organization organization = null;
-        if (type.getValue().equals(Type.CustomerExperience.getValue())){
-            organization = new CustomerExperienceOrganization();
-            organizationList.add(organization);
-        }
-        else if (type.getValue().equals(Type.Ecommerce.getValue())){
-            organization = new ECommercePlatformOrganization();
-            organizationList.add(organization);
-        }
-        return organization;
+    if (type.getValue().equals(Type.CustomerExperience.getValue())){
+        organization = new CustomerExperienceOrganization();
+        organizationList.add(organization);
+    }
+    else if (type.getValue().equals(Type.Ecommerce.getValue())){
+        organization = new ECommercePlatformOrganization();
+        organizationList.add(organization);
+    }
+    else if (type.getValue().equals(Type.Logistics.getValue())){
+        organization = new LogisticsOrganization();
+        organizationList.add(organization);
+        System.out.println("Created LogisticsOrganization from factory method");
+    }
+    else if (type.getValue().equals(Type.CustomsAgent.getValue())){
+        organization = new CustomsLiaisonOrganization();
+        organizationList.add(organization);
+    }
+//    else if (type.getValue().equals(Type.Warehouse.getValue())){
+//        organization = new WarehouseOrganization();
+//        organizationList.add(organization);
+//    }
+    return organization;
     }
 }
