@@ -4,7 +4,12 @@
  */
 package ui.CustomerServiceRole;
 
+import ui.MerchantRole.*;
 import ui.LogisticsRole.*;
+import Business.UserAccount.UserAccount;
+import java.awt.CardLayout;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import ui.AdminRole.*;
 
 /**
@@ -13,11 +18,27 @@ import ui.AdminRole.*;
  */
 public class ManageOwnProfile extends javax.swing.JPanel {
 
+    private JPanel userProcessContainer;
+    private UserAccount userAccount;
+
     /**
      * Creates new form ManageOwnProfile
      */
     public ManageOwnProfile() {
         initComponents();
+    }
+
+    public ManageOwnProfile(JPanel userProcessContainer, UserAccount account) {
+        initComponents();
+        this.userProcessContainer = userProcessContainer;
+        this.userAccount = account;
+
+        // Set initial field values
+        populateUserInfo();
+
+        // Disable fields initially
+        setFieldsEditable(false);
+        btnSave.setEnabled(false);
     }
 
     /**
@@ -38,14 +59,29 @@ public class ManageOwnProfile extends javax.swing.JPanel {
         btnSave = new javax.swing.JButton();
 
         btnBack.setText("<< Back");
+        btnBack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBackActionPerformed(evt);
+            }
+        });
 
         lblUN.setText("Username:");
 
         lblPW.setText("Password:");
 
         btnUpdate.setText("Update");
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
 
         btnSave.setText("Save");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -71,7 +107,7 @@ public class ManageOwnProfile extends javax.swing.JPanel {
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(txtPW, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(txtUN, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(1084, Short.MAX_VALUE))
+                .addContainerGap(140, Short.MAX_VALUE))
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {txtPW, txtUN});
@@ -93,9 +129,55 @@ public class ManageOwnProfile extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnUpdate)
                     .addComponent(btnSave))
-                .addContainerGap(447, Short.MAX_VALUE))
+                .addContainerGap(87, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        // TODO add your handling code here:
+        // Return to previous panel
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
+    }//GEN-LAST:event_btnBackActionPerformed
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        // TODO add your handling code here:
+        // Enable fields for editing
+        setFieldsEditable(true);
+        btnUpdate.setEnabled(false);
+        btnSave.setEnabled(true);
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        // TODO add your handling code here:
+        String username = txtUN.getText().trim();
+        String password = txtPW.getText().trim();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter username and password",
+                    "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (password.length() < 4) {
+            JOptionPane.showMessageDialog(this, "Password must be at least 4 characters",
+                    "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Update user account
+        userAccount.setUsername(username);
+        userAccount.setPassword(password);
+
+        // Disable editing and update button states
+        setFieldsEditable(false);
+        btnUpdate.setEnabled(true);
+        btnSave.setEnabled(false);
+
+        JOptionPane.showMessageDialog(this, "Profile updated successfully",
+                "Success", JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_btnSaveActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -107,4 +189,17 @@ public class ManageOwnProfile extends javax.swing.JPanel {
     private javax.swing.JTextField txtPW;
     private javax.swing.JTextField txtUN;
     // End of variables declaration//GEN-END:variables
+
+    private void populateUserInfo() {
+        if (userAccount != null) {
+            txtUN.setText(userAccount.getUsername());
+            txtPW.setText(userAccount.getPassword());
+        }
+    }
+
+    private void setFieldsEditable(boolean editable) {
+        txtUN.setEditable(editable);
+        txtPW.setEditable(editable);
+    }
+
 }

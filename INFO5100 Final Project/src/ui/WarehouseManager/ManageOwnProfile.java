@@ -2,8 +2,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
-package ui.CustomsAgentRole;
+package ui.WarehouseManager;
 
+import ui.MerchantRole.*;
+import ui.LogisticsRole.*;
 import Business.UserAccount.UserAccount;
 import java.awt.CardLayout;
 import javax.swing.JOptionPane;
@@ -66,12 +68,6 @@ public class ManageOwnProfile extends javax.swing.JPanel {
         lblUN.setText("Username:");
 
         lblPW.setText("Password:");
-
-        txtUN.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtUNActionPerformed(evt);
-            }
-        });
 
         btnUpdate.setText("Update");
         btnUpdate.addActionListener(new java.awt.event.ActionListener() {
@@ -183,10 +179,6 @@ public class ManageOwnProfile extends javax.swing.JPanel {
                 "Success", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnSaveActionPerformed
 
-    private void txtUNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUNActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtUNActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBack;
@@ -209,4 +201,5 @@ public class ManageOwnProfile extends javax.swing.JPanel {
         txtUN.setEditable(editable);
         txtPW.setEditable(editable);
     }
+
 }

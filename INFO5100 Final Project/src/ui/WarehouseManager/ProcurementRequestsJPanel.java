@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
-package ui.ProcurementSpecialistRole;
+package ui.WarehouseManager;
 
+import ui.ProcurementSpecialistRole.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.CardLayout;
@@ -17,7 +18,7 @@ import java.util.List;
  *
  * @author wangsiting
  */
-public class WarehouseRequestsJPanel extends javax.swing.JPanel {
+public class ProcurementRequestsJPanel extends javax.swing.JPanel {
 
     private OrderDirectory orderDirectory;
     private DefaultTableModel cartTableModel;
@@ -27,7 +28,7 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
     /**
      * Creates new form WarehouseRequestsJPanel
      */
-    public WarehouseRequestsJPanel(JPanel userProcessContainer) {
+    public ProcurementRequestsJPanel(JPanel userProcessContainer) {
         initComponents();
         this.userProcessContainer = userProcessContainer;
         orderDirectory = new OrderDirectory();
@@ -40,7 +41,7 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
 
     private void setupCartTable() {
         String[] columnNames = {"Product Name", "Purchase Cost", "Quantity", "Total Amount"};
-        cartTableModel = (DefaultTableModel) tblCart.getModel();
+        cartTableModel = (DefaultTableModel) RequestTable1.getModel();
         cartTableModel.setColumnIdentifiers(columnNames);
     }
     
@@ -112,28 +113,16 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
         RequestTable1 = new javax.swing.JTable();
         btnProcessOrder = new javax.swing.JButton();
         btnreject = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        tblCart = new javax.swing.JTable();
-        lblTitle1 = new javax.swing.JLabel();
-        btnRemoveOrderItem = new javax.swing.JButton();
-        btnModifyQuantity = new javax.swing.JButton();
-        txtNewQuantity = new javax.swing.JTextField();
-        btnCheckOut = new javax.swing.JButton();
 
         lblTitle.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblTitle.setText("Warehouse Requests Management");
+        lblTitle.setText("Procurement Specialist Requests Management");
 
         jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 
         jLabel1.setText("Status：");
 
-        StatusjComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "Pending", "Processing", "Completed", "Rejected" }));
-        StatusjComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                StatusjComboBoxActionPerformed(evt);
-            }
-        });
+        StatusjComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "Pending", "Finished", "Processing", "Rejected", " ", " " }));
 
         txtSearchRequestID.setText("Saerch Request ID...");
         txtSearchRequestID.addActionListener(new java.awt.event.ActionListener() {
@@ -201,7 +190,7 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
                 {null, null, null, null, null}
             },
             new String [] {
-                "Request ID", "Product Name", "Quantity", "Update Date", "Status"
+                "Procurement Request ID", "Product Name", "Quantity", "Update Date", "Status"
             }
         ));
         jScrollPane1.setViewportView(RequestTable1);
@@ -220,53 +209,6 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
             }
         });
 
-        tblCart.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Product Name", "Purchase Cost", "Quantity", "Total Amount"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jScrollPane2.setViewportView(tblCart);
-
-        lblTitle1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        lblTitle1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblTitle1.setText("Items In Cart");
-
-        btnRemoveOrderItem.setText("Remove");
-        btnRemoveOrderItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRemoveOrderItemActionPerformed(evt);
-            }
-        });
-
-        btnModifyQuantity.setText("Modify Quantity");
-        btnModifyQuantity.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnModifyQuantityActionPerformed(evt);
-            }
-        });
-
-        btnCheckOut.setFont(new java.awt.Font("Lucida Grande", 1, 18)); // NOI18N
-        btnCheckOut.setText("Check out");
-        btnCheckOut.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCheckOutActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -277,8 +219,6 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane1)
-                    .addComponent(jScrollPane2)
-                    .addComponent(lblTitle1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1464, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -286,25 +226,15 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
                                 .addComponent(btnProcessOrder, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(52, 52, 52)
                                 .addComponent(btnreject, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnModifyQuantity)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtNewQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnRemoveOrderItem, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnCheckOut, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(136, 136, 136))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addComponent(lblTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(21, 21, 21)
+                .addContainerGap()
+                .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE)
                 .addComponent(btnBack)
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -314,17 +244,6 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnProcessOrder)
                     .addComponent(btnreject))
-                .addGap(18, 18, 18)
-                .addComponent(lblTitle1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnModifyQuantity)
-                    .addComponent(txtNewQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnRemoveOrderItem))
-                .addGap(34, 34, 34)
-                .addComponent(btnCheckOut, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(20, 20, 20))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -378,65 +297,6 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
             "Success", 
             JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnrejectActionPerformed
-
-    private void btnRemoveOrderItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveOrderItemActionPerformed
-        int selectedRow = tblCart.getSelectedRow();
-        if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Please select an item to remove");
-            return;
-        }
-
-        orderDirectory.getOrderList().remove(selectedRow);
-        updateCartTable();
-    }//GEN-LAST:event_btnRemoveOrderItemActionPerformed
-
-    private void btnModifyQuantityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModifyQuantityActionPerformed
-        int selectedRow = tblCart.getSelectedRow();
-        if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Please select an item to modify");
-            return;
-        }
-
-        try {
-            int newQuantity = Integer.parseInt(txtNewQuantity.getText());
-            if (newQuantity <= 0) {
-                JOptionPane.showMessageDialog(this, "Quantity must be greater than 0");
-                return;
-            }
-
-            Order order = orderDirectory.getOrderList().get(selectedRow);
-            order.setQuantity(newQuantity);
-            order.setTotalAmount(order.getPurchaseCost() * newQuantity);
-            updateCartTable();
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Please enter a valid quantity");
-        }
-    }//GEN-LAST:event_btnModifyQuantityActionPerformed
-
-    private void btnCheckOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckOutActionPerformed
-        if (orderDirectory.getOrderList().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Cart is empty!");
-            return;
-        }
-
-        // 处理结账逻辑
-        for (Order order : orderDirectory.getOrderList()) {
-            order.setStatus("Completed");
-            // 添加订单处理时间
-            order.setProcessDate(new java.util.Date());
-            // 通知仓库
-            notifyWarehouse(order);
-        }
-
-        // 清空购物车
-        orderDirectory = new OrderDirectory();
-        updateCartTable();
-        
-        // 刷新请求列表
-        loadWarehouseRequests();
-        
-        JOptionPane.showMessageDialog(this, "Orders have been processed successfully!");
-    }//GEN-LAST:event_btnCheckOutActionPerformed
 
     private void btnProcessOrderActionPerformed(java.awt.event.ActionEvent evt) {                                                
         // 获取选中的行
@@ -532,21 +392,14 @@ public class WarehouseRequestsJPanel extends javax.swing.JPanel {
     private javax.swing.JTable RequestTable1;
     private javax.swing.JComboBox<String> StatusjComboBox;
     private javax.swing.JButton btnBack;
-    private javax.swing.JButton btnCheckOut;
-    private javax.swing.JButton btnModifyQuantity;
     private javax.swing.JButton btnProcessOrder;
     private javax.swing.JButton btnRefresh;
-    private javax.swing.JButton btnRemoveOrderItem;
     private javax.swing.JButton btnSearch;
     private javax.swing.JButton btnreject;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblTitle;
-    private javax.swing.JLabel lblTitle1;
-    private javax.swing.JTable tblCart;
-    private javax.swing.JTextField txtNewQuantity;
     private javax.swing.JTextField txtSearchRequestID;
     // End of variables declaration//GEN-END:variables
 }

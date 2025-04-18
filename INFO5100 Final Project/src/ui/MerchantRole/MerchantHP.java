@@ -47,6 +47,7 @@ public class MerchantHP extends javax.swing.JPanel {
         btnProductCatalog = new javax.swing.JButton();
         btnReports = new javax.swing.JButton();
         btnProfile = new javax.swing.JButton();
+        btnViewMerchantRequest = new javax.swing.JButton();
         MerchantWorkAreajPanel = new javax.swing.JPanel();
 
         btnProductCatalog.setText("Manage Product Catalog");
@@ -70,17 +71,28 @@ public class MerchantHP extends javax.swing.JPanel {
             }
         });
 
+        btnViewMerchantRequest.setText("View Merchant Request");
+        btnViewMerchantRequest.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnViewMerchantRequestActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout MerchantjPanelLayout = new javax.swing.GroupLayout(MerchantjPanel);
         MerchantjPanel.setLayout(MerchantjPanelLayout);
         MerchantjPanelLayout.setHorizontalGroup(
             MerchantjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(MerchantjPanelLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, MerchantjPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(MerchantjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(btnProfile, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnProductCatalog, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnReports, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(MerchantjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, MerchantjPanelLayout.createSequentialGroup()
+                        .addGroup(MerchantjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(btnProfile, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnProductCatalog, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnReports, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(btnViewMerchantRequest, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         MerchantjPanelLayout.setVerticalGroup(
             MerchantjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -91,7 +103,9 @@ public class MerchantHP extends javax.swing.JPanel {
                 .addComponent(btnReports)
                 .addGap(39, 39, 39)
                 .addComponent(btnProfile)
-                .addContainerGap(2441, Short.MAX_VALUE))
+                .addGap(36, 36, 36)
+                .addComponent(btnViewMerchantRequest)
+                .addContainerGap(2382, Short.MAX_VALUE))
         );
 
         MerchantjPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnProductCatalog, btnProfile, btnReports});
@@ -155,6 +169,14 @@ public class MerchantHP extends javax.swing.JPanel {
         
     }//GEN-LAST:event_btnProfileActionPerformed
 
+    private void btnViewMerchantRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewMerchantRequestActionPerformed
+        // 创建ViewMerchantRequestsJPanel面板
+        ViewMerchantRequestsJPanel viewMerchantRequestsJPanel = new ViewMerchantRequestsJPanel(MerchantWorkAreajPanel);
+        MerchantWorkAreajPanel.add("ViewMerchantRequestsJPanel", viewMerchantRequestsJPanel);
+        CardLayout layout = (CardLayout) MerchantWorkAreajPanel.getLayout();
+        layout.next(MerchantWorkAreajPanel);
+    }//GEN-LAST:event_btnViewMerchantRequestActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel MerchantWorkAreajPanel;
@@ -162,6 +184,7 @@ public class MerchantHP extends javax.swing.JPanel {
     private javax.swing.JButton btnProductCatalog;
     private javax.swing.JButton btnProfile;
     private javax.swing.JButton btnReports;
+    private javax.swing.JButton btnViewMerchantRequest;
     private javax.swing.JSplitPane jSplitPane1;
     // End of variables declaration//GEN-END:variables
 }
