@@ -16,6 +16,7 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import jdk.tools.jlink.internal.Platform;
 
@@ -46,6 +48,9 @@ public class ShipmentPanel extends javax.swing.JPanel {
     private JPanel mapPanel;
     private JEditorPane mapView;
     private static final String GOOGLE_MAPS_API_KEY = "AIzaSyCsxjLs6wmSHnIQDKTxAtynpNfMAecSWqY";
+    private JPanel detailsCardsPanel;
+    private CardLayout detailsCardLayout;
+
 
     /**
      * Creates new form Shipment
@@ -108,6 +113,43 @@ public class ShipmentPanel extends javax.swing.JPanel {
         trackPathJPanel.add(infoPanel, BorderLayout.EAST);
     }
 
+    private void setupDetailsCards() {
+    // Create the CardLayout container
+    detailsCardsPanel = new JPanel();
+    detailsCardLayout = new CardLayout();
+    detailsCardsPanel.setLayout(detailsCardLayout);
+    
+    // Create the four information panels
+    JPanel basicInfoPanel = createBasicInfoPanel();
+    JPanel customsInfoPanel = createCustomsInfoPanel();
+    JPanel packageInfoPanel = createPackageInfoPanel();
+    JPanel financialInfoPanel = createFinancialInfoPanel();
+    
+    // Add panels to the CardLayout
+    detailsCardsPanel.add(basicInfoPanel, "BasicInfo");
+    detailsCardsPanel.add(customsInfoPanel, "CustomsInfo");
+    detailsCardsPanel.add(packageInfoPanel, "PackageInfo");
+    detailsCardsPanel.add(financialInfoPanel, "FinancialInfo");
+    
+    // Add the CardLayout panel to your main panel (probably jPanel1)
+    // First clear existing components that show details
+    basicInfoJPanel.removeAll();
+    basicInfoJPanel.setLayout(new BorderLayout());
+    
+    // Add the buttons at the top
+    JPanel buttonsPanel = new JPanel();
+    buttonsPanel.add(btnBasicInfo);
+    buttonsPanel.add(btnCustomsInfo);
+    buttonsPanel.add(btnPackageInfo);
+    buttonsPanel.add(btnFinancialInfo);
+    
+    // Add button panel and card panel to jPanel1
+    basicInfoJPanel.add(buttonsPanel, BorderLayout.NORTH);
+    basicInfoJPanel.add(detailsCardsPanel, BorderLayout.CENTER);
+    
+    // Show the basic info panel by default
+    detailsCardLayout.show(detailsCardsPanel, "BasicInfo");
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -128,7 +170,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
         btnViewDetails = new javax.swing.JButton();
         btnTrackPath = new javax.swing.JButton();
         btnUpdateStatus = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
+        basicInfoJPanel = new javax.swing.JPanel();
         lblTraNo = new javax.swing.JLabel();
         txtTrcNo = new javax.swing.JTextField();
         lblShippingDate = new javax.swing.JLabel();
@@ -214,7 +256,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
             }
         });
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        basicInfoJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         lblTraNo.setText("Tracking No:");
 
@@ -267,88 +309,108 @@ public class ShipmentPanel extends javax.swing.JPanel {
         lblTrackDetails.setText("Tracking Details");
 
         btnBasicInfo.setText("Basic Info");
+        btnBasicInfo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBasicInfoActionPerformed(evt);
+            }
+        });
 
         btnCustomsInfo.setText("Customs Info");
+        btnCustomsInfo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCustomsInfoActionPerformed(evt);
+            }
+        });
 
         btnPackageInfo.setText("Package Info");
+        btnPackageInfo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPackageInfoActionPerformed(evt);
+            }
+        });
 
         btnFinancialInfo.setText("Financial Info");
+        btnFinancialInfo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFinancialInfoActionPerformed(evt);
+            }
+        });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout basicInfoJPanelLayout = new javax.swing.GroupLayout(basicInfoJPanel);
+        basicInfoJPanel.setLayout(basicInfoJPanelLayout);
+        basicInfoJPanelLayout.setHorizontalGroup(
+            basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, basicInfoJPanelLayout.createSequentialGroup()
+                .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(basicInfoJPanelLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(basicInfoJPanelLayout.createSequentialGroup()
+                                .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(lblTraNo)
                                     .addComponent(lblShippingDate)
                                     .addComponent(lblShippingMethod))
                                 .addGap(37, 37, 37)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(txtShippingDate, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(txtTrcNo, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(txtShippingMethod, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(basicInfoJPanelLayout.createSequentialGroup()
                                     .addGap(34, 34, 34)
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addGroup(basicInfoJPanelLayout.createSequentialGroup()
                                             .addComponent(lblDestination)
                                             .addGap(37, 37, 37)
                                             .addComponent(txtDestination, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGroup(basicInfoJPanelLayout.createSequentialGroup()
                                             .addComponent(lblStatus)
                                             .addGap(37, 37, 37)
                                             .addComponent(txtStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(basicInfoJPanelLayout.createSequentialGroup()
                                     .addComponent(btnBasicInfo)
                                     .addGap(32, 32, 32)
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(lblTrackDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGroup(basicInfoJPanelLayout.createSequentialGroup()
                                             .addComponent(btnCustomsInfo)
                                             .addGap(43, 43, 43)
                                             .addComponent(btnPackageInfo)
                                             .addGap(45, 45, 45)
                                             .addComponent(btnFinancialInfo)))))))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(basicInfoJPanelLayout.createSequentialGroup()
                         .addGap(0, 464, Short.MAX_VALUE)
                         .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(93, 93, 93))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        basicInfoJPanelLayout.setVerticalGroup(
+            basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(basicInfoJPanelLayout.createSequentialGroup()
                 .addGap(22, 22, 22)
                 .addComponent(lblTrackDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(26, 26, 26)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnBasicInfo)
                     .addComponent(btnCustomsInfo)
                     .addComponent(btnPackageInfo)
                     .addComponent(btnFinancialInfo))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtTrcNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblTraNo, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtShippingDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblShippingDate, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtShippingMethod, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblShippingMethod, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtDestination, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblDestination, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
@@ -414,7 +476,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                             .addGap(6, 6, 6)
-                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(basicInfoJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(trackPathJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 1403, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -450,7 +512,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
                         .addComponent(btnSave)))
                 .addGap(56, 56, 56)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(basicInfoJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(trackPathJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 36, Short.MAX_VALUE))
         );
@@ -542,8 +604,29 @@ public class ShipmentPanel extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnSaveActionPerformed
 
+    private void btnCustomsInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCustomsInfoActionPerformed
+        // TODO add your handling code here:
+        detailsCardLayout.show(detailsCardsPanel, "CustomsInfo");
+    }//GEN-LAST:event_btnCustomsInfoActionPerformed
+
+    private void btnPackageInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPackageInfoActionPerformed
+        // TODO add your handling code here:
+        detailsCardLayout.show(detailsCardsPanel, "PackageInfo");
+    }//GEN-LAST:event_btnPackageInfoActionPerformed
+
+    private void btnFinancialInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinancialInfoActionPerformed
+        // TODO add your handling code here:
+        detailsCardLayout.show(detailsCardsPanel, "FinancialInfo");
+    }//GEN-LAST:event_btnFinancialInfoActionPerformed
+
+    private void btnBasicInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBasicInfoActionPerformed
+        // TODO add your handling code here:
+        detailsCardLayout.show(detailsCardsPanel, "BasicInfo");
+    }//GEN-LAST:event_btnBasicInfoActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel basicInfoJPanel;
     private javax.swing.JButton btnBack;
     private javax.swing.JButton btnBasicInfo;
     private javax.swing.JButton btnCustomsInfo;
@@ -556,7 +639,6 @@ public class ShipmentPanel extends javax.swing.JPanel {
     private javax.swing.JButton btnUpdate;
     private javax.swing.JButton btnUpdateStatus;
     private javax.swing.JButton btnViewDetails;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblDestination;
     private javax.swing.JLabel lblLogisticsTracking;
@@ -926,4 +1008,90 @@ public class ShipmentPanel extends javax.swing.JPanel {
                 .replace("\n", "\\n");
     }
 
+    private JPanel createCustomsInfoPanel() {
+    JPanel panel = new JPanel();
+    panel.setLayout(new GridLayout(4, 2, 10, 10));
+    
+    // Add customs information fields
+    JLabel lblDeclarationNo = new JLabel("Declaration No:");
+    JTextField txtDeclarationNo = new JTextField();
+    
+    JLabel lblDeclarationStatus = new JLabel("Declaration Status:");
+    JTextField txtDeclarationStatus = new JTextField();
+    
+    JLabel lblImportDuty = new JLabel("Import Duty:");
+    JTextField txtImportDuty = new JTextField();
+    
+    JLabel lblInspectionRequired = new JLabel("Inspection Required:");
+    JTextField txtInspectionRequired = new JTextField();
+    
+    panel.add(lblDeclarationNo);
+    panel.add(txtDeclarationNo);
+    panel.add(lblDeclarationStatus);
+    panel.add(txtDeclarationStatus);
+    panel.add(lblImportDuty);
+    panel.add(txtImportDuty);
+    panel.add(lblInspectionRequired);
+    panel.add(txtInspectionRequired);
+    
+    return panel;
+}
+
+private JPanel createPackageInfoPanel() {
+    JPanel panel = new JPanel();
+    panel.setLayout(new GridLayout(4, 2, 10, 10));
+    
+    // Add package information fields
+    JLabel lblWeight = new JLabel("Weight (kg):");
+    JTextField txtWeight = new JTextField();
+    
+    JLabel lblDimensions = new JLabel("Dimensions (cm):");
+    JTextField txtDimensions = new JTextField();
+    
+    JLabel lblPackageType = new JLabel("Package Type:");
+    JTextField txtPackageType = new JTextField();
+    
+    JLabel lblSpecialHandling = new JLabel("Special Handling:");
+    JTextField txtSpecialHandling = new JTextField();
+    
+    panel.add(lblWeight);
+    panel.add(txtWeight);
+    panel.add(lblDimensions);
+    panel.add(txtDimensions);
+    panel.add(lblPackageType);
+    panel.add(txtPackageType);
+    panel.add(lblSpecialHandling);
+    panel.add(txtSpecialHandling);
+    
+    return panel;
+}
+
+private JPanel createFinancialInfoPanel() {
+    JPanel panel = new JPanel();
+    panel.setLayout(new GridLayout(4, 2, 10, 10));
+    
+    // Add financial information fields
+    JLabel lblShippingCost = new JLabel("Shipping Cost:");
+    JTextField txtShippingCost = new JTextField();
+    
+    JLabel lblInsuranceCost = new JLabel("Insurance Cost:");
+    JTextField txtInsuranceCost = new JTextField();
+    
+    JLabel lblTaxes = new JLabel("Taxes:");
+    JTextField txtTaxes = new JTextField();
+    
+    JLabel lblTotalCost = new JLabel("Total Cost:");
+    JTextField txtTotalCost = new JTextField();
+    
+    panel.add(lblShippingCost);
+    panel.add(txtShippingCost);
+    panel.add(lblInsuranceCost);
+    panel.add(txtInsuranceCost);
+    panel.add(lblTaxes);
+    panel.add(txtTaxes);
+    panel.add(lblTotalCost);
+    panel.add(txtTotalCost);
+    
+    return panel;
+}
 }
