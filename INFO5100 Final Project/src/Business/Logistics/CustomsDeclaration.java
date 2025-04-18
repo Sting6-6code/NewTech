@@ -4,6 +4,7 @@
  */
 package Business.Logistics;
 
+import Business.Product.Product;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -12,7 +13,7 @@ import java.util.Date;
  * @author zhuchenyan
  */
 public class CustomsDeclaration {
-    
+
     private String declarationId;
     private String shipmentId;
     private Date declarationDate;
@@ -27,19 +28,39 @@ public class CustomsDeclaration {
     private String customsOffice;
     private Date processingDate;
     private String notes;
-    
-    
+
     public CustomsDeclaration() {
         this.declarationDate = new Date();
         this.status = "Pending";
+        this.items = new ArrayList<>();
     }
-    
+
     public CustomsDeclaration(String declarationNumber) {
         this.declarationNumber = declarationNumber;
         this.status = "Pending";
         this.submissionDate = new Date();
+        this.items = new ArrayList<>();
     }
-    
+
+    // 从仓库产品创建报关单项目的方法
+    public void addItemFromWarehouseProduct(Product product, int quantity) {
+        if (product == null) {
+            return;
+        }
+
+        CustomsLineItem item = new CustomsLineItem();
+        item.setDescription(product.getProductName());
+        item.setQuantity(quantity);
+        item.setUnit("PCS"); // 或根据产品类型设置不同单位
+        item.setUnitValue(product.getPrice());
+        item.setTotalValue(product.getPrice() * quantity);
+        // 假设产品重量为0.5kg,可以根据实际情况修改
+        item.setGrossWeight(0.5 * quantity);
+
+        // 添加到报关单
+        this.addItem(item);
+    }
+
     // Getters and Setters
     public String getDeclarationId() {
         return declarationId;
@@ -108,7 +129,7 @@ public class CustomsDeclaration {
     public ArrayList<CustomsLineItem> getItems() {
         return items;
     }
-    
+
     public void addItem(CustomsLineItem item) {
         if (item != null) {
             this.items.add(item);
@@ -138,7 +159,7 @@ public class CustomsDeclaration {
     public void setNotes(String notes) {
         this.notes = notes;
     }
-    
+
     public Date getSubmissionDate() {
         return submissionDate;
     }
@@ -154,19 +175,19 @@ public class CustomsDeclaration {
     public void setItems(ArrayList<CustomsLineItem> items) {
         this.items = items;
     }
-    
-    
+
     public String getDeclarationNumber() {
         return declarationNumber;
     }
-    
+
     @Override
     public String toString() {
         return declarationId;
     }
-    
+
     // Inner class for customs line items
     public static class CustomsLineItem {
+
         private String description;
         private String hsCode;
         private int quantity;
@@ -174,62 +195,61 @@ public class CustomsDeclaration {
         private double unitValue;
         private double totalValue;
         private double grossWeight;
-        
+
         // Getters and Setters
         public String getDescription() {
             return description;
         }
-        
+
         public void setDescription(String description) {
             this.description = description;
         }
-        
+
         public String getHsCode() {
             return hsCode;
         }
-        
+
         public void setHsCode(String hsCode) {
             this.hsCode = hsCode;
         }
-        
+
         public int getQuantity() {
             return quantity;
         }
-        
+
         public void setQuantity(int quantity) {
             this.quantity = quantity;
         }
-        
+
         public String getUnit() {
             return unit;
         }
-        
+
         public void setUnit(String unit) {
             this.unit = unit;
         }
-        
+
         public double getUnitValue() {
             return unitValue;
         }
-        
+
         public void setUnitValue(double unitValue) {
             this.unitValue = unitValue;
             this.totalValue = this.quantity * unitValue;
         }
-        
+
         public double getTotalValue() {
             return totalValue;
         }
-        
+
         public void setTotalValue(double totalValue) {
             this.totalValue = totalValue;
         }
-        
-        
+
         public double getGrossWeight() {
             return grossWeight;
         }
-        
+
         public void setGrossWeight(double grossWeight) {
             this.grossWeight = grossWeight;
         }
