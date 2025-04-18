@@ -18,22 +18,22 @@ public class ManageOwnProfile extends javax.swing.JPanel {
 
     private JPanel userProcessContainer;
     private UserAccount userAccount;
-    
+
     /**
      * Creates new form ManageOwnProfile
      */
     public ManageOwnProfile() {
         initComponents();
     }
-    
+
     public ManageOwnProfile(JPanel userProcessContainer, UserAccount account) {
         initComponents();
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
-        
+
         // Set initial field values
         populateUserInfo();
-        
+
         // Disable fields initially
         setFieldsEditable(false);
         btnSave.setEnabled(false);
@@ -66,6 +66,12 @@ public class ManageOwnProfile extends javax.swing.JPanel {
         lblUN.setText("Username:");
 
         lblPW.setText("Password:");
+
+        txtUN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtUNActionPerformed(evt);
+            }
+        });
 
         btnUpdate.setText("Update");
         btnUpdate.addActionListener(new java.awt.event.ActionListener() {
@@ -151,31 +157,35 @@ public class ManageOwnProfile extends javax.swing.JPanel {
         // TODO add your handling code here:
         String username = txtUN.getText().trim();
         String password = txtPW.getText().trim();
-        
+
         if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter username and password", 
+            JOptionPane.showMessageDialog(this, "Please enter username and password",
                     "Input Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         if (password.length() < 4) {
-            JOptionPane.showMessageDialog(this, "Password must be at least 4 characters", 
+            JOptionPane.showMessageDialog(this, "Password must be at least 4 characters",
                     "Input Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         // Update user account
         userAccount.setUsername(username);
         userAccount.setPassword(password);
-        
+
         // Disable editing and update button states
         setFieldsEditable(false);
         btnUpdate.setEnabled(true);
         btnSave.setEnabled(false);
-        
-        JOptionPane.showMessageDialog(this, "Profile updated successfully", 
+
+        JOptionPane.showMessageDialog(this, "Profile updated successfully",
                 "Success", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void txtUNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUNActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtUNActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -194,10 +204,10 @@ public class ManageOwnProfile extends javax.swing.JPanel {
             txtPW.setText(userAccount.getPassword());
         }
     }
-    
+
     private void setFieldsEditable(boolean editable) {
         txtUN.setEditable(editable);
         txtPW.setEditable(editable);
     }
-    
+
 }

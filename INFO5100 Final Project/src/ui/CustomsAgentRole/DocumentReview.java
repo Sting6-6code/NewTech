@@ -19,7 +19,7 @@ import javax.swing.table.DefaultTableModel;
  * @author zhuchenyan
  */
 public class DocumentReview extends javax.swing.JPanel {
-    
+
     private JPanel userProcessContainer;
     private UserAccount userAccount;
     private CustomsLiaisonOrganization organization;
@@ -28,24 +28,24 @@ public class DocumentReview extends javax.swing.JPanel {
     /**
      * Creates new form DocumentReview
      */
-    public DocumentReview(JPanel userProcessContainer, UserAccount account, 
-                         CustomsLiaisonOrganization organization) {
+    public DocumentReview(JPanel userProcessContainer, UserAccount account,
+            CustomsLiaisonOrganization organization) {
         initComponents();
-        
+
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.organization = organization;
-        
+
         // Initialize the UI
         setupTable();
         populateTable();
         clearFields();
     }
-    
+
     private void setupTable() {
         DefaultTableModel model = (DefaultTableModel) tblList.getModel();
         model.setColumnIdentifiers(new Object[]{"Document ID", "Type", "Submission Date", "Status"});
-        
+
         // Set up table selection listener
         tblList.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -57,21 +57,21 @@ public class DocumentReview extends javax.swing.JPanel {
             }
         });
     }
-    
+
     private void populateTable() {
         DefaultTableModel model = (DefaultTableModel) tblList.getModel();
         model.setRowCount(0);
-        
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         String filterStatus = comBoFilter.getSelectedItem().toString();
-        
+
         List<CustomsDeclaration> declarations;
         if (filterStatus.equals("All")) {
             declarations = organization.getCustomsDeclarationDirectory().getCustomsDeclarationList();
         } else {
             declarations = organization.getCustomsDeclarationDirectory().getDeclarationsByStatus(filterStatus);
         }
-        
+
         for (CustomsDeclaration declaration : declarations) {
             Object[] row = {
                 declaration.getDeclarationId(),
@@ -82,19 +82,19 @@ public class DocumentReview extends javax.swing.JPanel {
             model.addRow(row);
         }
     }
-    
+
     private void displayDeclarationDetails(String declarationId) {
         selectedDeclaration = organization.getCustomsDeclarationDirectory().findDeclarationById(declarationId);
-        
+
         if (selectedDeclaration != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-            
+
             txtDocID.setText(selectedDeclaration.getDeclarationId());
             txtDocName.setText("Customs Declaration - " + selectedDeclaration.getDeclarationId());
             txtDocType.setText("Customs Declaration");
             txtSubmissionDate.setText(dateFormat.format(selectedDeclaration.getSubmissionDate()));
             txtSubBy.setText(selectedDeclaration.getConsignor());
-            
+
             // Populate document preview
             StringBuilder preview = new StringBuilder();
             preview.append("Declaration Details:\n\n");
@@ -103,18 +103,18 @@ public class DocumentReview extends javax.swing.JPanel {
             preview.append("Origin Country: ").append(selectedDeclaration.getCountryOfOrigin()).append("\n");
             preview.append("Destination Country: ").append(selectedDeclaration.getDestinationCountry()).append("\n");
             preview.append("\nDeclared Items:\n");
-            
+
             if (selectedDeclaration.getItems() != null) {
                 for (CustomsDeclaration.CustomsLineItem item : selectedDeclaration.getItems()) {
                     preview.append("\n- ").append(item.getDescription())
-                           .append("\n  HS Code: ").append(item.getHsCode())
-                           .append("\n  Quantity: ").append(item.getQuantity()).append(" ").append(item.getUnit())
-                           .append("\n  Value: $").append(String.format("%.2f", item.getTotalValue()));
+                            .append("\n  HS Code: ").append(item.getHsCode())
+                            .append("\n  Quantity: ").append(item.getQuantity()).append(" ").append(item.getUnit())
+                            .append("\n  Value: $").append(String.format("%.2f", item.getTotalValue()));
                 }
             }
-            
+
             txtDocPreview.setText(preview.toString());
-            
+
             // Enable/disable buttons based on status
             boolean isPending = "Pending".equals(selectedDeclaration.getStatus());
             btnApprove.setEnabled(isPending);
@@ -122,7 +122,7 @@ public class DocumentReview extends javax.swing.JPanel {
             btnRequestInfo.setEnabled(isPending);
         }
     }
-    
+
     private void clearFields() {
         txtDocID.setText("");
         txtDocName.setText("");
@@ -131,7 +131,7 @@ public class DocumentReview extends javax.swing.JPanel {
         txtSubBy.setText("");
         txtDocPreview.setText("");
         txtReviewNotes.setText("");
-        
+
         btnApprove.setEnabled(false);
         btnReject.setEnabled(false);
         btnRequestInfo.setEnabled(false);
@@ -524,7 +524,7 @@ public class DocumentReview extends javax.swing.JPanel {
             if (declaration != null) {
                 displayDeclarationDetails(searchId);
             } else {
-                JOptionPane.showMessageDialog(this, 
+                JOptionPane.showMessageDialog(this,
                         "No declaration found with ID: " + searchId,
                         "Search Result",
                         JOptionPane.INFORMATION_MESSAGE);
@@ -538,14 +538,14 @@ public class DocumentReview extends javax.swing.JPanel {
             selectedDeclaration.setStatus("Approved");
             selectedDeclaration.setNotes(txtReviewNotes.getText().trim());
             selectedDeclaration.setProcessingDate(new java.util.Date());
-            JOptionPane.showMessageDialog(this, 
+            JOptionPane.showMessageDialog(this,
                     "Declaration approved successfully",
                     "Success",
                     JOptionPane.INFORMATION_MESSAGE);
             populateTable();
             clearFields();
         } else {
-            JOptionPane.showMessageDialog(this, 
+            JOptionPane.showMessageDialog(this,
                     "Please add review notes before approving",
                     "Warning",
                     JOptionPane.WARNING_MESSAGE);
@@ -558,14 +558,14 @@ public class DocumentReview extends javax.swing.JPanel {
             selectedDeclaration.setStatus("Rejected");
             selectedDeclaration.setNotes(txtReviewNotes.getText().trim());
             selectedDeclaration.setProcessingDate(new java.util.Date());
-            JOptionPane.showMessageDialog(this, 
+            JOptionPane.showMessageDialog(this,
                     "Declaration rejected successfully",
                     "Success",
                     JOptionPane.INFORMATION_MESSAGE);
             populateTable();
             clearFields();
         } else {
-            JOptionPane.showMessageDialog(this, 
+            JOptionPane.showMessageDialog(this,
                     "Please add review notes before rejecting",
                     "Warning",
                     JOptionPane.WARNING_MESSAGE);
@@ -586,14 +586,14 @@ public class DocumentReview extends javax.swing.JPanel {
         if (selectedDeclaration != null && !txtReviewNotes.getText().trim().isEmpty()) {
             selectedDeclaration.setStatus("Information Requested");
             selectedDeclaration.setNotes(txtReviewNotes.getText().trim());
-            JOptionPane.showMessageDialog(this, 
+            JOptionPane.showMessageDialog(this,
                     "Information request sent successfully",
                     "Success",
                     JOptionPane.INFORMATION_MESSAGE);
             populateTable();
             clearFields();
         } else {
-            JOptionPane.showMessageDialog(this, 
+            JOptionPane.showMessageDialog(this,
                     "Please specify what additional information is needed",
                     "Warning",
                     JOptionPane.WARNING_MESSAGE);

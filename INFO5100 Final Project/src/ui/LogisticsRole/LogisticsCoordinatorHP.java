@@ -4,6 +4,7 @@
  */
 package ui.LogisticsRole;
 
+import Business.ConfigureASystem;
 import Business.Enterprise.Enterprise;
 import Business.Logistics.Shipment;
 import Business.Organization.LogisticsOrganization;
@@ -22,17 +23,33 @@ import Business.Organization.CustomerExperienceOrganization;
 import Business.Organization.Organization;
 import java.util.Date;
 import ui.MainJFrame;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.LayoutManager;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.Box;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import java.text.SimpleDateFormat;
+import Business.Logistics.CustomsDeclaration;
+import Business.Logistics.CustomsDeclarationDirectory;
 
 /**
  *
  * @author zhuchenyan
  */
 public class LogisticsCoordinatorHP extends javax.swing.JPanel {
-    
+
     private JPanel userProcessContainer;
     private UserAccount userAccount;
     private Enterprise enterprise;
     private LogisticsOrganization organization;
+    private JLabel deltaLabel;
+    private CustomsDeclarationDirectory declarationDirectory;
+    private CustomsDeclaration currentDeclaration;
 
     /**
      * Creates new form LogisticsCoordinatorHP
@@ -42,24 +59,58 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         this.setPreferredSize(new java.awt.Dimension(1450, 800));
         logisticsWorkAreajPanel.setLayout(new CardLayout());
     }
-    
-    public LogisticsCoordinatorHP(JPanel userProcessContainer, UserAccount account, 
-                                Enterprise enterprise, LogisticsOrganization organization) {
+
+    public LogisticsCoordinatorHP(JPanel userProcessContainer, UserAccount account,
+            Enterprise enterprise, LogisticsOrganization organization) {
+
+        initComponents();
+
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.enterprise = enterprise;
-        this.organization = organization;
-        
-        initComponents();
+
+        this.organization = ConfigureASystem.logisticsOrg;
+
+        if (this.organization != null) {
+            this.declarationDirectory = this.organization.getCustomsDeclarationDirectory();
+            System.out.println("LogisticsCoordinatorHP using global LogisticsOrganization with "
+                    + (this.organization.getShipmentDirectory() != null
+                    ? this.organization.getShipmentDirectory().getShipments().size() : 0) + " shipments");
+        } else {
+            System.out.println("WARNING: Global LogisticsOrganization is null!");
+        }
+
+        this.declarationDirectory = organization.getCustomsDeclarationDirectory();
+
+        // 设置所有统计卡片
+        setupStatisticsPanel(actShipmentJPanel, "Active Shipments", "24", "+12% from last week", new Color(51, 51, 255));
+        setupStatisticsPanel(CompletedDeliveriesJPanel, "Pending Customs", "18", "+5% from last week", new Color(255, 165, 0));
+        setupStatisticsPanel(pendingCustomsJPanel, "Completed Deliveries", "156", "+8% from last month", new Color(46, 204, 113));
+        setupStatisticsPanel(CustomerCompJPanel, "Customer Complaints", "3", "-25% from last week", new Color(231, 76, 60));
+
         this.setPreferredSize(new java.awt.Dimension(1450, 800));
-        
-        // 初始化欢迎信息
-        // 可以添加一个标签显示欢迎信息 
-        // lblWelcome.setText("Welcome, " + userAccount.getUsername());
-        
-        // 加载初始数据
+
+        // Initialize table models
+        DefaultTableModel recentShipmentModel = new DefaultTableModel();
+        tblRecentShipment.setModel(recentShipmentModel);
+        recentShipmentModel.setColumnIdentifiers(new String[]{"Tracking Number", "Ship Date", "Method", "Destination", "Status", "Est. Delivery"});
+
+        DefaultTableModel pendingTasksModel = new DefaultTableModel();
+        tblPendingTasks.setModel(pendingTasksModel);
+        pendingTasksModel.setColumnIdentifiers(new String[]{"Task ID", "Type", "Priority", "Status", "Due Date"});
+
+        // Populate tables
         populateDashboard();
-        
+        populateRecentShipmentsTable();
+        populatePendingTasksTable();
+
+        // Debug output
+        System.out.println("LogisticsCoordinatorHP initialized");
+        System.out.println("Organization: " + (organization != null ? "exists" : "null"));
+        if (organization != null && organization.getShipmentDirectory() != null) {
+            System.out.println("Number of shipments: " + organization.getShipmentDirectory().getShipments().size());
+        }
+        System.out.println("Recent shipments table rows: " + tblRecentShipment.getRowCount());
     }
 
     /**
@@ -74,11 +125,11 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         jSplitPane = new javax.swing.JSplitPane();
         logisticsControljPanel = new javax.swing.JPanel();
         btnDashBoard = new javax.swing.JButton();
-        btnShipmentTra = new javax.swing.JButton();
         btnCustomsDeclar = new javax.swing.JButton();
-        btnReports = new javax.swing.JButton();
+        btnCusComplaint = new javax.swing.JButton();
         btnProfile = new javax.swing.JButton();
         btnLogout = new javax.swing.JButton();
+        btnShipmentTra = new javax.swing.JButton();
         logisticsWorkAreajPanel = new javax.swing.JPanel();
         CustomerCompJPanel = new javax.swing.JPanel();
         lblCustomerComplaint = new javax.swing.JLabel();
@@ -109,13 +160,6 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             }
         });
 
-        btnShipmentTra.setText("Shipment Tracking");
-        btnShipmentTra.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnShipmentTraActionPerformed(evt);
-            }
-        });
-
         btnCustomsDeclar.setText("Customs Declaration");
         btnCustomsDeclar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -123,10 +167,10 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             }
         });
 
-        btnReports.setText("Reports");
-        btnReports.addActionListener(new java.awt.event.ActionListener() {
+        btnCusComplaint.setText("Customer Complaint");
+        btnCusComplaint.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnReportsActionPerformed(evt);
+                btnCusComplaintActionPerformed(evt);
             }
         });
 
@@ -144,6 +188,13 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             }
         });
 
+        btnShipmentTra.setText("Shipment Tracking");
+        btnShipmentTra.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnShipmentTraActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout logisticsControljPanelLayout = new javax.swing.GroupLayout(logisticsControljPanel);
         logisticsControljPanel.setLayout(logisticsControljPanelLayout);
         logisticsControljPanelLayout.setHorizontalGroup(
@@ -151,15 +202,15 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             .addGroup(logisticsControljPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnLogout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(logisticsControljPanelLayout.createSequentialGroup()
                         .addGroup(logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(btnProfile, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnCustomsDeclar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnShipmentTra, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnDashBoard, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnReports, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(btnLogout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(btnCusComplaint, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnShipmentTra, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         logisticsControljPanelLayout.setVerticalGroup(
@@ -167,20 +218,20 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             .addGroup(logisticsControljPanelLayout.createSequentialGroup()
                 .addGap(161, 161, 161)
                 .addComponent(btnDashBoard, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(35, 35, 35)
-                .addComponent(btnShipmentTra)
+                .addGap(40, 40, 40)
+                .addComponent(btnShipmentTra, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(33, 33, 33)
                 .addComponent(btnCustomsDeclar)
                 .addGap(36, 36, 36)
-                .addComponent(btnReports)
+                .addComponent(btnCusComplaint)
                 .addGap(39, 39, 39)
                 .addComponent(btnProfile)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 241, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 236, Short.MAX_VALUE)
                 .addComponent(btnLogout)
                 .addGap(47, 47, 47))
         );
 
-        logisticsControljPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnCustomsDeclar, btnDashBoard, btnProfile, btnReports, btnShipmentTra});
+        logisticsControljPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnCusComplaint, btnCustomsDeclar, btnDashBoard, btnProfile, btnShipmentTra});
 
         jSplitPane.setLeftComponent(logisticsControljPanel);
 
@@ -417,7 +468,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     private void btnCustomsDeclarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCustomsDeclarActionPerformed
         // TODO add your handling code here:
         // Create and display customs declaration panel
-        DocumentationDetails documentPanel = new DocumentationDetails();
+        DocumentationDetails documentPanel = new DocumentationDetails(userProcessContainer, userAccount, enterprise, organization);
         documentPanel.setSize(1450, 800);
         userProcessContainer.add("CustomsDeclaration", documentPanel);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
@@ -428,26 +479,23 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         // TODO add your handling code here:
         // Refresh dashboard data
         populateDashboard();
-    
+
         // Display the dashboard panel (which is this panel)
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.show(userProcessContainer, "LogisticsCoordinator");
     }//GEN-LAST:event_btnDashBoardActionPerformed
 
-    private void btnShipmentTraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipmentTraActionPerformed
-        // TODO add your handling code here:
-        // Create and display Shipment panel
-        ShipmentPanel shipmentPanel = new ShipmentPanel(userProcessContainer, userAccount, enterprise, organization);
-        shipmentPanel.setSize(1450, 800);
-        userProcessContainer.add("Shipment", shipmentPanel);
-        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
-        layout.show(userProcessContainer, "Shipment");
-    }//GEN-LAST:event_btnShipmentTraActionPerformed
 
-    private void btnReportsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReportsActionPerformed
+    private void btnCusComplaintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCusComplaintActionPerformed
         // TODO add your handling code here:
-        // 需要考虑
-    }//GEN-LAST:event_btnReportsActionPerformed
+        // Create and display customer complaint panel
+        CustomerComplaintLogistics complaintPanel = new CustomerComplaintLogistics(userProcessContainer);
+        complaintPanel.setSize(1450, 800);
+        userProcessContainer.add("CustomerComplaint", complaintPanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "CustomerComplaint");
+
+    }//GEN-LAST:event_btnCusComplaintActionPerformed
 
     private void btnProfileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfileActionPerformed
         // TODO add your handling code here:
@@ -463,15 +511,41 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         // TODO add your handling code here:
         // Logout operation
         userProcessContainer.removeAll();
-    
+
         // Create a blank panel to return to login screen
         JPanel blankJP = new JPanel();
         userProcessContainer.add("blank", blankJP);
-    
+
         // Return to the first card (login screen)
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.first(userProcessContainer);
     }//GEN-LAST:event_btnLogoutActionPerformed
+
+    private void btnShipmentTraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipmentTraActionPerformed
+        // TODO add your handling code here:
+        // First check if the organization reference is valid
+        LogisticsOrganization logisticsOrg = this.organization;
+        if (logisticsOrg == null || logisticsOrg.getShipmentDirectory() == null) {
+            // If invalid, get the global one
+            logisticsOrg = ConfigureASystem.getLogisticsOrganization();
+            System.out.println("Using global LogisticsOrganization");
+        }
+
+        // Debug print
+        System.out.println("Creating ShipmentPanel with organization: "
+                + (logisticsOrg != null ? "Yes" : "No"));
+        if (logisticsOrg != null && logisticsOrg.getShipmentDirectory() != null) {
+            System.out.println("Number of shipments before creating ShipmentPanel: "
+                    + logisticsOrg.getShipmentDirectory().getShipments().size());
+        }
+
+        ShipmentPanel shipmentPanel = new ShipmentPanel(userProcessContainer, userAccount, enterprise, logisticsOrg);
+        shipmentPanel.setSize(1450, 800);
+        userProcessContainer.add("Shipment", shipmentPanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "Shipment");
+
+    }//GEN-LAST:event_btnShipmentTraActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -479,11 +553,11 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     private javax.swing.JPanel CompletedDeliveriesJPanel;
     private javax.swing.JPanel CustomerCompJPanel;
     private javax.swing.JPanel actShipmentJPanel;
+    private javax.swing.JButton btnCusComplaint;
     private javax.swing.JButton btnCustomsDeclar;
     private javax.swing.JButton btnDashBoard;
     private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnProfile;
-    private javax.swing.JButton btnReports;
     private javax.swing.JButton btnShipmentTra;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -504,296 +578,420 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     private javax.swing.JTable tblRecentShipment;
     // End of variables declaration//GEN-END:variables
 
+    /**
+     * Populate dashboard with relevant data from the organization
+     */
+    private void populateDashboard() {
+        try {
+            // Get actual data
+            int activeShipments = 0;
+            int pendingCustoms = 0;
+            int completedDeliveries = 0;
+            int customerComplaints = 0;
 
+            if (organization != null && organization.getShipmentDirectory() != null) {
+                System.out.println("Found organization with "
+                        + organization.getShipmentDirectory().getShipments().size() + " shipments");
 
-/**
- * Populate dashboard with relevant data from the organization
- */
-private void populateDashboard() {
-    // Populate Active Shipments panel with count
-    int activeShipments = 0;
-    if (organization != null && organization.getShipmentDirectory() != null) {
-        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-            if (!"Delivered".equals(shipment.getStatus()) && !"Cancelled".equals(shipment.getStatus())) {
-                activeShipments++;
-            }
-        }
-    }
-    lblActiveShipments.setText("Active Shipments: " + activeShipments);
-    
-    // Populate Pending Customs panel with count
-    int pendingCustoms = 0;
-    if (organization != null && organization.getShipmentDirectory() != null) {
-        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-            if ("Customs Processing".equals(shipment.getStatus())) {
-                pendingCustoms++;
-            }
-        }
-    }
-    lblPendingCustoms.setText("Pending Customs: " + pendingCustoms);
-    
-    // Populate Completed Deliveries panel with count
-    int completedDeliveries = 0;
-    if (organization != null && organization.getShipmentDirectory() != null) {
-        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-            if ("Delivered".equals(shipment.getStatus())) {
-                completedDeliveries++;
-            }
-        }
-    }
-    lblCompletedDeliveries.setText("Completed Deliveries: " + completedDeliveries);
-    
-    // Populate Customer Complaints panel with count
-    int customerComplaints = 0;
-    if (enterprise != null) {
-        // Search for Customer Experience Organization in the enterprise
-        for (Organization org : enterprise.getOrganizationDirectory().getOrganizationList()) {
-            if (org instanceof CustomerExperienceOrganization) {
-                // Get complaint directory from the Customer Experience Organization
-                ComplaintDirectory complaintDirectory = ((CustomerExperienceOrganization) org).getComplaintDirectory();
-                if (complaintDirectory != null) {
-                    customerComplaints = complaintDirectory.getComplaintCount();
+                for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+                    String status = shipment.getShipmentStatus();
+                    System.out.println("Processing shipment with status: " + status);
+
+                    // Consider any non-delivered, non-exception shipment as active
+                    if (Shipment.STATUS_PENDING.equals(status)
+                            || Shipment.STATUS_PROCESSING.equals(status)
+                            || Shipment.STATUS_SHIPPED.equals(status)
+                            || Shipment.STATUS_IN_TRANSIT.equals(status)
+                            || Shipment.STATUS_DELIVERING.equals(status)
+                            || "Active".equals(status)) {
+                        activeShipments++;
+                    } // Count customs-related statuses
+                    else if ("Pending Customs".equals(status)
+                            || "Customs Clearance".equals(status)) {
+                        pendingCustoms++;
+                    } // Count deliveries
+                    else if (Shipment.STATUS_DELIVERED.equals(status)
+                            || "Delivered".equals(status)) {
+                        completedDeliveries++;
+                    }
                 }
-                break;
+
+                System.out.println("Counted shipments - Active: " + activeShipments
+                        + ", Customs: " + pendingCustoms + ", Delivered: " + completedDeliveries);
+            } else {
+                System.out.println("Organization or ShipmentDirectory is null");
+            }
+
+            // If no real data found, use sample values
+            if (activeShipments == 0 && pendingCustoms == 0 && completedDeliveries == 0) {
+                System.out.println("No matching shipment data found, using sample values");
+                activeShipments = 24;
+                pendingCustoms = 18;
+                completedDeliveries = 156;
+            }
+
+            // 获取客户投诉数量
+            if (enterprise != null) {
+                for (Organization org : enterprise.getOrganizationDirectory().getOrganizationList()) {
+                    if (org instanceof CustomerExperienceOrganization) {
+                        CustomerExperienceOrganization ceo = (CustomerExperienceOrganization) org;
+                        customerComplaints = ceo.getComplaintDirectory().getComplaints().size();
+                        break;
+                    }
+                }
+            }
+
+            // 更新统计卡片
+            setupStatisticsPanel(actShipmentJPanel, "Active Shipments",
+                    String.valueOf(activeShipments), "+12% from last week", new Color(51, 51, 255));
+
+            setupStatisticsPanel(CompletedDeliveriesJPanel, "Pending Customs",
+                    String.valueOf(pendingCustoms), "+5% from last week", new Color(255, 165, 0));
+
+            setupStatisticsPanel(pendingCustomsJPanel, "Completed Deliveries",
+                    String.valueOf(completedDeliveries), "+8% from last month", new Color(46, 204, 113));
+
+            setupStatisticsPanel(CustomerCompJPanel, "Customer Complaints",
+                    String.valueOf(customerComplaints), "-25% from last week", new Color(231, 76, 60));
+
+            // ... 其他现有的仪表板更新代码 ...
+        } catch (Exception e) {
+            System.out.println("Error in populateDashboard: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void populatePendingTasksTable() {
+        // Create a table model
+        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblPendingTasks.getModel();
+        model.setRowCount(0); // Clear existing data
+
+        // Get pending tasks from the organization
+        ArrayList<Task> pendingTasks = new ArrayList<>();
+        if (organization != null && organization.getTaskDirectory() != null) {
+            pendingTasks = organization.getTaskDirectory().getPendingTasks();
+        }
+
+        // Add rows to the table model
+        if (pendingTasks != null && !pendingTasks.isEmpty()) {
+            for (Task task : pendingTasks) {
+                Object[] row = new Object[4];
+                row[0] = task.getDescription();
+                row[1] = task.getPriority();
+                row[2] = new java.text.SimpleDateFormat("MM/dd/yyyy").format(task.getDueDate());
+                row[3] = task.getStatus();
+                model.addRow(row);
+            }
+        } else {
+            // Add sample data if no tasks are available
+            java.util.Date today = new java.util.Date();
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.setTime(today);
+
+            // Tomorrow
+            cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
+            java.util.Date tomorrow = cal.getTime();
+
+            // Day after tomorrow 
+            cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
+            java.util.Date dayAfter = cal.getTime();
+
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM/dd/yyyy");
+
+            model.addRow(new Object[]{"Review pending shipment documentation", "High", sdf.format(tomorrow), "Pending"});
+            model.addRow(new Object[]{"Update customer on delivery delay", "Medium", sdf.format(today), "In Progress"});
+            model.addRow(new Object[]{"Process customs declaration for shipment #TRK123456", "High", sdf.format(today), "Pending"});
+            model.addRow(new Object[]{"Contact carrier about damaged package", "Medium", sdf.format(dayAfter), "Not Started"});
+        }
+    }
+
+    private void populateRecentShipmentsTable() {
+        // Create a table model
+        DefaultTableModel model = (DefaultTableModel) tblRecentShipment.getModel();
+        model.setRowCount(0);
+
+        // 设置列名
+        String[] columnNames = {"Tracking Number", "Ship Date", "Method", "Destination", "Status", "Est. Delivery"};
+        model.setColumnIdentifiers(columnNames);
+
+        // 首先尝试从组织获取实际的shipments
+        if (organization != null && organization.getShipmentDirectory() != null
+                && !organization.getShipmentDirectory().getShipments().isEmpty()) {
+
+            for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+                Object[] row = new Object[6];
+                row[0] = shipment.getTrackingNumber();
+                row[1] = shipment.getShipDate() != null
+                        ? new SimpleDateFormat("MM/dd/yyyy").format(shipment.getShipDate()) : "";
+                row[2] = shipment.getShippingMethod();
+                row[3] = shipment.getDestination();
+                row[4] = shipment.getShipmentStatus();
+                row[5] = shipment.getEstimatedDeliveryDate() != null
+                        ? new SimpleDateFormat("MM/dd/yyyy").format(shipment.getEstimatedDeliveryDate()) : "";
+                model.addRow(row);
+            }
+
+        } else {
+            // 如果没有实际的shipments，添加示例数据
+            System.out.println("No actual shipments found, adding sample data...");
+            addSampleShipmentData(model);
+        }
+    }
+
+    private void updateAlertsPanel() {
+        // Create a StringBuilder to build the alerts text
+        StringBuilder alertsText = new StringBuilder("<html>");
+        boolean hasAlerts = false;
+
+        // Check for urgent shipments
+        if (organization != null && organization.getShipmentDirectory() != null) {
+            int urgentShipments = 0;
+            int delayedShipments = 0;
+            Date currentDate = new Date();
+
+            for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+                // Count urgent shipments
+                if ("Urgent".equals(shipment.getShipmentStatus())) {
+                    urgentShipments++;
+                }
+
+                // Check for delayed shipments
+                if (shipment.getEstimatedDeliveryDate() != null
+                        && currentDate.after(shipment.getEstimatedDeliveryDate())
+                        && !"Delivered".equals(shipment.getShipmentStatus())) {
+                    delayedShipments++;
+                }
+            }
+
+            // Add urgent shipments alert
+            if (urgentShipments > 0) {
+                alertsText.append("<p style='color: red;'>⚠ ")
+                        .append(urgentShipments)
+                        .append(" urgent shipment(s) requiring immediate attention</p>");
+                hasAlerts = true;
+            }
+
+            // Add delayed shipments alert
+            if (delayedShipments > 0) {
+                alertsText.append("<p style='color: orange;'>⚠ ")
+                        .append(delayedShipments)
+                        .append(" shipment(s) are delayed</p>");
+                hasAlerts = true;
             }
         }
-    }
-    lblCustomerComplaint.setText("Customer Complaints: " + customerComplaints);
-    
-    // Populate Alerts panel with recent notifications
-    updateAlertsPanel();
-    
-    // Populate Pending Tasks table
-    populatePendingTasksTable();
-    
-    // Populate Recent Shipments table
-    populateRecentShipmentsTable();
-}
 
+        // Check for pending customs declarations
+        if (organization != null && organization.getShipmentDirectory() != null) {
+            int pendingCustoms = 0;
+            for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+                if (shipment.getCustomsDeclaration() != null
+                        && "Pending".equals(shipment.getCustomsDeclaration().getStatus())) {
+                    pendingCustoms++;
+                }
+            }
 
-private void populatePendingTasksTable() {
-    // Create a table model
-    javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblPendingTasks.getModel();
-    model.setRowCount(0); // Clear existing data
-    
-    // Get pending tasks from the organization
-    ArrayList<Task> pendingTasks = new ArrayList<>();
-    if (organization != null && organization.getTaskDirectory() != null) {
-        pendingTasks = organization.getTaskDirectory().getPendingTasks();
-    }
-    
-    // Add rows to the table model
-    if (pendingTasks != null && !pendingTasks.isEmpty()) {
-        for (Task task : pendingTasks) {
-            Object[] row = new Object[4];
-            row[0] = task.getDescription();
-            row[1] = task.getPriority();
-            row[2] = new java.text.SimpleDateFormat("MM/dd/yyyy").format(task.getDueDate());
-            row[3] = task.getStatus();
-            model.addRow(row);
+            if (pendingCustoms > 0) {
+                alertsText.append("<p style='color: blue;'>ℹ ")
+                        .append(pendingCustoms)
+                        .append(" customs declaration(s) pending review</p>");
+                hasAlerts = true;
+            }
         }
-    } else {
-        // Add sample data if no tasks are available
+
+        // Check for high-priority tasks
+        if (organization != null && organization.getTaskDirectory() != null) {
+            int urgentTasks = 0;
+            Date currentDate = new Date();
+
+            for (Task task : organization.getTaskDirectory().getTasks()) {
+                if ("High".equals(task.getPriority())
+                        && !task.getStatus().equals("Completed")
+                        && task.getDueDate() != null
+                        && currentDate.after(task.getDueDate())) {
+                    urgentTasks++;
+                }
+            }
+
+            if (urgentTasks > 0) {
+                alertsText.append("<p style='color: red;'>⚠ ")
+                        .append(urgentTasks)
+                        .append(" overdue high-priority task(s)</p>");
+                hasAlerts = true;
+            }
+        }
+
+        // If no alerts, show a message
+        if (!hasAlerts) {
+            alertsText.append("<p style='color: green;'>✓ No urgent alerts at this time</p>");
+        }
+
+        alertsText.append("</html>");
+
+        // Update the alerts label
+        lblAlerts.setText(alertsText.toString());
+    }
+
+    private void addSampleShipmentData(javax.swing.table.DefaultTableModel model) {
         java.util.Date today = new java.util.Date();
         java.util.Calendar cal = java.util.Calendar.getInstance();
         cal.setTime(today);
-        
+
+        // Yesterday
+        cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
+        java.util.Date yesterday = cal.getTime();
+
+        // Two days ago
+        cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
+        java.util.Date twoDaysAgo = cal.getTime();
+
+        // Three days ago
+        cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
+        java.util.Date threeDaysAgo = cal.getTime();
+
+        // Future date (estimated delivery)
+        cal.setTime(today);
+        cal.add(java.util.Calendar.DAY_OF_MONTH, 5);
+        java.util.Date futureDate = cal.getTime();
+
         // Tomorrow
+        cal.setTime(today);
         cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
         java.util.Date tomorrow = cal.getTime();
-        
-        // Day after tomorrow 
-        cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
-        java.util.Date dayAfter = cal.getTime();
-        
+
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM/dd/yyyy");
-        
-        model.addRow(new Object[]{"Review pending shipment documentation", "High", sdf.format(tomorrow), "Pending"});
-        model.addRow(new Object[]{"Update customer on delivery delay", "Medium", sdf.format(today), "In Progress"});
-        model.addRow(new Object[]{"Process customs declaration for shipment #TRK123456", "High", sdf.format(today), "Pending"});
-        model.addRow(new Object[]{"Contact carrier about damaged package", "Medium", sdf.format(dayAfter), "Not Started"});
-    }
-}
 
-private void populateRecentShipmentsTable() {
-    // Create a table model
-    javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblRecentShipment.getModel();
-    model.setRowCount(0); // Clear existing data
-    
-    // Get recent shipments from the organization
-    if (organization != null && organization.getShipmentDirectory() != null) {
-        ArrayList<Shipment> shipments = organization.getShipmentDirectory().getShipments();
-        
-        // Sort shipments by date (most recent first)
-        Collections.sort(shipments, new Comparator<Shipment>() {
-            @Override
-            public int compare(Shipment s1, Shipment s2) {
-                if (s1.getShipDate() == null && s2.getShipDate() == null) {
-                    return 0;
-                }
-                if (s1.getShipDate() == null) {
-                    return 1;
-                }
-                if (s2.getShipDate() == null) {
-                    return -1;
-                }
-                return s2.getShipDate().compareTo(s1.getShipDate());
-            }
-        });
-        
-        // Take the most recent 10 shipments
-        int count = 0;
-        for (Shipment shipment : shipments) {
-            if (count >= 10) {
-                break;
-            }
-            
-            Object[] row = new Object[6];
-            row[0] = shipment.getTrackingNumber();
-            row[1] = shipment.getShipDate();
-            row[2] = shipment.getShippingMethod();
-            row[3] = shipment.getDestination();
-            row[4] = shipment.getStatus();
-            row[5] = shipment.getEstimatedDeliveryDate();
-            model.addRow(row);
-            count++;
-        }
-        
-        // If no shipments found, add sample data
-        if (count == 0) {
-            addSampleShipmentData(model);
-        }
-    } else {
-        // Add sample data if shipment directory is null
-        addSampleShipmentData(model);
+        model.addRow(new Object[]{"TRK123456", sdf.format(yesterday), "Air Freight", "Shanghai, China", "In Transit", sdf.format(futureDate)});
+        model.addRow(new Object[]{"TRK789012", sdf.format(twoDaysAgo), "Sea Freight", "Rotterdam, Netherlands", "Customs Clearance", sdf.format(futureDate)});
+        model.addRow(new Object[]{"TRK345678", sdf.format(threeDaysAgo), "Ground", "New York, USA", "Delivered", sdf.format(yesterday)});
+        model.addRow(new Object[]{"TRK901234", sdf.format(threeDaysAgo), "Express Air", "Tokyo, Japan", "In Transit", sdf.format(tomorrow)});
     }
-}
 
-private void updateAlertsPanel() {
-    // Create a StringBuilder to build the alerts text
-    StringBuilder alertsText = new StringBuilder("<html>");
-    boolean hasAlerts = false;
-    
-    // Check for urgent shipments
-    if (organization != null && organization.getShipmentDirectory() != null) {
-        int urgentShipments = 0;
-        int delayedShipments = 0;
-        Date currentDate = new Date();
-        
-        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-            // Count urgent shipments
-            if ("Urgent".equals(shipment.getStatus())) {
-                urgentShipments++;
-            }
-            
-            // Check for delayed shipments
-            if (shipment.getEstimatedDeliveryDate() != null && 
-                currentDate.after(shipment.getEstimatedDeliveryDate()) && 
-                !"Delivered".equals(shipment.getStatus())) {
-                delayedShipments++;
-            }
-        }
-        
-        // Add urgent shipments alert
-        if (urgentShipments > 0) {
-            alertsText.append("<p style='color: red;'>⚠ ")
-                     .append(urgentShipments)
-                     .append(" urgent shipment(s) requiring immediate attention</p>");
-            hasAlerts = true;
-        }
-        
-        // Add delayed shipments alert
-        if (delayedShipments > 0) {
-            alertsText.append("<p style='color: orange;'>⚠ ")
-                     .append(delayedShipments)
-                     .append(" shipment(s) are delayed</p>");
-            hasAlerts = true;
-        }
-    }
-    
-    // Check for pending customs declarations
-    if (organization != null && organization.getShipmentDirectory() != null) {
-        int pendingCustoms = 0;
-        for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-            if (shipment.getCustomsDeclaration() != null && 
-                "Pending".equals(shipment.getCustomsDeclaration().getStatus())) {
-                pendingCustoms++;
-            }
-        }
-        
-        if (pendingCustoms > 0) {
-            alertsText.append("<p style='color: blue;'>ℹ ")
-                     .append(pendingCustoms)
-                     .append(" customs declaration(s) pending review</p>");
-            hasAlerts = true;
-        }
-    }
-    
-    // Check for high-priority tasks
-    if (organization != null && organization.getTaskDirectory() != null) {
-        int urgentTasks = 0;
-        Date currentDate = new Date();
-        
-        for (Task task : organization.getTaskDirectory().getTasks()) {
-            if ("High".equals(task.getPriority()) && 
-                !task.getStatus().equals("Completed") &&
-                task.getDueDate() != null && 
-                currentDate.after(task.getDueDate())) {
-                urgentTasks++;
-            }
-        }
-        
-        if (urgentTasks > 0) {
-            alertsText.append("<p style='color: red;'>⚠ ")
-                     .append(urgentTasks)
-                     .append(" overdue high-priority task(s)</p>");
-            hasAlerts = true;
-        }
-    }
-    
-    // If no alerts, show a message
-    if (!hasAlerts) {
-        alertsText.append("<p style='color: green;'>✓ No urgent alerts at this time</p>");
-    }
-    
-    alertsText.append("</html>");
-    
-    // Update the alerts label
-    lblAlerts.setText(alertsText.toString());
-}
+    private void setupActiveShipmentsPanel() {
+        try {
+            // 设置面板样式
+            actShipmentJPanel.setBackground(Color.WHITE);
+            actShipmentJPanel.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230), 1, true));
+            actShipmentJPanel.setLayout(new BoxLayout(actShipmentJPanel, BoxLayout.Y_AXIS));
 
-private void addSampleShipmentData(javax.swing.table.DefaultTableModel model) {
-    java.util.Date today = new java.util.Date();
-    java.util.Calendar cal = java.util.Calendar.getInstance();
-    cal.setTime(today);
-    
-    // Yesterday
-    cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
-    java.util.Date yesterday = cal.getTime();
-    
-    // Two days ago
-    cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
-    java.util.Date twoDaysAgo = cal.getTime();
-    
-    // Three days ago
-    cal.add(java.util.Calendar.DAY_OF_MONTH, -1);
-    java.util.Date threeDaysAgo = cal.getTime();
-    
-    // Future date (estimated delivery)
-    cal.setTime(today);
-    cal.add(java.util.Calendar.DAY_OF_MONTH, 5);
-    java.util.Date futureDate = cal.getTime();
-    
-    // Tomorrow
-    cal.setTime(today);
-    cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
-    java.util.Date tomorrow = cal.getTime();
-    
-    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM/dd/yyyy");
-    
-    model.addRow(new Object[]{"TRK123456", sdf.format(yesterday), "Air Freight", "Shanghai, China", "In Transit", sdf.format(futureDate)});
-    model.addRow(new Object[]{"TRK789012", sdf.format(twoDaysAgo), "Sea Freight", "Rotterdam, Netherlands", "Customs Clearance", sdf.format(futureDate)});
-    model.addRow(new Object[]{"TRK345678", sdf.format(threeDaysAgo), "Ground", "New York, USA", "Delivered", sdf.format(yesterday)});
-    model.addRow(new Object[]{"TRK901234", sdf.format(threeDaysAgo), "Express Air", "Tokyo, Japan", "In Transit", sdf.format(tomorrow)});
-}
+            // 清除现有组件
+            actShipmentJPanel.removeAll();
+
+            // 创建面板来包含所有组件
+            javax.swing.JPanel contentPanel = new javax.swing.JPanel();
+            contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+            contentPanel.setBackground(Color.WHITE);
+            contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+            // 添加标题
+            JLabel titleLabel = new JLabel("Active Shipments");
+            titleLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+            titleLabel.setForeground(new Color(128, 128, 128));
+            titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            contentPanel.add(titleLabel);
+            contentPanel.add(Box.createVerticalStrut(10));
+
+            // 设置数字标签
+            lblActiveShipments.setFont(new Font("Tahoma", Font.BOLD, 36));
+            lblActiveShipments.setForeground(new Color(51, 51, 255));
+            lblActiveShipments.setAlignmentX(Component.LEFT_ALIGNMENT);
+            contentPanel.add(lblActiveShipments);
+            contentPanel.add(Box.createVerticalStrut(5));
+
+            // 添加增长率标签
+            deltaLabel = new JLabel("+12% from last week");
+            deltaLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
+            deltaLabel.setForeground(new Color(128, 128, 128));
+            deltaLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            contentPanel.add(deltaLabel);
+
+            // 将内容面板添加到主面板
+            actShipmentJPanel.add(contentPanel);
+
+            // 刷新面板
+            actShipmentJPanel.revalidate();
+            actShipmentJPanel.repaint();
+
+        } catch (Exception e) {
+            System.out.println("Error in setupActiveShipmentsPanel: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void setupStatisticsPanel(JPanel panel, String title, String value, String deltaText, Color valueColor) {
+        try {
+            // 保持原有的边框样式
+            panel.setBorder(BorderFactory.createEtchedBorder());
+            panel.setBackground(Color.WHITE);
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+            // 清除现有组件
+            panel.removeAll();
+
+            // 创建内容面板
+            JPanel contentPanel = new JPanel();
+            contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+            contentPanel.setBackground(Color.WHITE);
+            contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+            // 添加标题
+            JLabel titleLabel = new JLabel(title);
+            titleLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+            titleLabel.setForeground(new Color(128, 128, 128));
+            titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            contentPanel.add(titleLabel);
+            contentPanel.add(Box.createVerticalStrut(10));
+
+            // 添加数值
+            JLabel valueLabel = new JLabel(value);
+            valueLabel.setFont(new Font("Tahoma", Font.BOLD, 36));
+            valueLabel.setForeground(valueColor);
+            valueLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            contentPanel.add(valueLabel);
+            contentPanel.add(Box.createVerticalStrut(5));
+
+            // 添加增长率文本
+            JLabel deltaLabel = new JLabel(deltaText);
+            deltaLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
+            deltaLabel.setForeground(new Color(128, 128, 128));
+            deltaLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            contentPanel.add(deltaLabel);
+
+            // 将内容面板添加到主面板
+            panel.add(contentPanel);
+
+            // 刷新面板
+            panel.revalidate();
+            panel.repaint();
+        } catch (Exception e) {
+            System.out.println("Error in setupStatisticsPanel: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void refreshShipments() {
+        if (organization != null && organization.getShipmentDirectory() != null) {
+            // 更新活跃订单数量
+            int activeShipments = 0;
+            for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+                if (!Shipment.STATUS_DELIVERED.equals(shipment.getShipmentStatus())
+                        && !Shipment.STATUS_EXCEPTION.equals(shipment.getShipmentStatus())) {
+                    activeShipments++;
+                }
+            }
+
+            // 更新显示
+            populateRecentShipmentsTable();
+            updateStatistics(activeShipments);
+        }
+    }
+
+    private void updateStatistics(int activeShipments) {
+        // 更新统计面板显示
+        setupStatisticsPanel(actShipmentJPanel,
+                "Active Shipments",
+                String.valueOf(activeShipments),
+                "",
+                new Color(51, 51, 255));
+    }
+
 }

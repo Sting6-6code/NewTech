@@ -25,7 +25,7 @@ public abstract class Organization {
     
     public enum Type{
         Admin("Admin Organization"), Ecommerce("ECommercePlatform Organization"), CustomerExperience("Customer Experience Organization"), Logistics("Logistics Organization"),
-    CustomsAgent("Customs Agent Organization");
+    CustomsAgent("Customs Agent Organization"), Warehouse("Warehouse Organization");
         
         private String value;
         private Type(String value) {

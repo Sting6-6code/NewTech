@@ -4,6 +4,7 @@
  */
 package Business.Organization;
 
+import Business.Logistics.CustomsDeclarationDirectory;
 import Business.Logistics.ShipmentDirectory;
 import Business.Logistics.TaskDirectory;
 import Business.Role.LogisticsCoordinatorRole;
@@ -18,11 +19,13 @@ public class LogisticsOrganization extends Organization {
     
     private ShipmentDirectory shipmentDirectory;
     private TaskDirectory taskDirectory;
+    private CustomsDeclarationDirectory customsDeclarationDirectory;
     
     public LogisticsOrganization() {
         super(Organization.Type.Logistics.getValue());
         shipmentDirectory = new ShipmentDirectory();
         taskDirectory = new TaskDirectory();
+        customsDeclarationDirectory = new CustomsDeclarationDirectory(); 
     }
     
     public ShipmentDirectory getShipmentDirectory() {
@@ -39,6 +42,14 @@ public class LogisticsOrganization extends Organization {
     
     public void setTaskDirectory(TaskDirectory taskDirectory) {
         this.taskDirectory = taskDirectory;
+    }
+    
+    public CustomsDeclarationDirectory getCustomsDeclarationDirectory() {
+        return customsDeclarationDirectory;
+    }
+
+    public void setCustomsDeclarationDirectory(CustomsDeclarationDirectory customsDeclarationDirectory) {
+        this.customsDeclarationDirectory = customsDeclarationDirectory;
     }
     
     @Override

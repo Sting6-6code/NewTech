@@ -28,17 +28,15 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
     private UserAccount userAccount;
     private Enterprise enterprise;
     private CustomsLiaisonOrganization organization;
-    
+
     /**
      * Creates new form CustomsLiaisionOfficeHP
      */
-    
     public CustomsLiaisonOfficeHP() {
-        
-        
+
         initComponents();
         this.setPreferredSize(new java.awt.Dimension(1450, 800));
-        
+
         // 设置默认值或展示静态内容，不依赖于 organization 或 userAccount
         lblPendingReviews.setText("Pending Reviews: 0");
         lblApprovedDocs.setText("Approved Documents: 0");
@@ -46,59 +44,59 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         lblTaxReturns.setText("Tax Returns: 0");
         lblAlerts.setText("No urgent notifications");
     }
-    
-    public CustomsLiaisonOfficeHP(JPanel userProcessContainer, UserAccount account, 
-                                Enterprise enterprise, CustomsLiaisonOrganization organization) {
-        
+
+    public CustomsLiaisonOfficeHP(JPanel userProcessContainer, UserAccount account,
+            Enterprise enterprise, CustomsLiaisonOrganization organization) {
+
         initComponents();
-        
+
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.enterprise = enterprise;
         this.organization = organization;
-        
+
         // Set up the dashboard
         populateDashboard();
     }
-    
+
     private void populateDashboard() {
         // Update statistics panels
         updateStatisticsPanels();
-        
+
         // Update pending documents table
         populatePendingDocsTable();
-        
+
         // Update recent activities table
         populateRecentActivitiesTable();
-        
+
         // Update alerts
         updateAlerts();
     }
-    
+
     private void updateStatisticsPanels() {
         // Get counts from the organization's customs declaration directory
         int pendingCount = organization.getCustomsDeclarationDirectory().getDeclarationCountByStatus("Pending");
         int approvedCount = organization.getCustomsDeclarationDirectory().getDeclarationCountByStatus("Approved");
         int rejectedCount = organization.getCustomsDeclarationDirectory().getDeclarationCountByStatus("Rejected");
-        
+
         // Update the labels with counts
         lblPendingReviews.setText("Pending Reviews: " + pendingCount);
         lblApprovedDocs.setText("Approved Documents: " + approvedCount);
         lblRejectedDocs.setText("Rejected Documents: " + rejectedCount);
-        
+
         // Count declarations requiring tax returns
         List<CustomsDeclaration> taxReturnDeclarations = organization.getCustomsDeclarationDirectory().getTaxReturnDeclarations();
         lblTaxReturns.setText("Tax Returns: " + taxReturnDeclarations.size());
     }
-    
+
     private void populatePendingDocsTable() {
         DefaultTableModel model = (DefaultTableModel) tblPendingDocs.getModel();
         model.setRowCount(0); // Clear existing rows
-        
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        
+
         List<CustomsDeclaration> pendingDeclarations = organization.getCustomsDeclarationDirectory().getPendingDeclarations();
-        
+
         for (CustomsDeclaration declaration : pendingDeclarations) {
             Object[] row = {
                 declaration.getDeclarationId(),
@@ -110,15 +108,15 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
             model.addRow(row);
         }
     }
-    
+
     private void populateRecentActivitiesTable() {
         DefaultTableModel model = (DefaultTableModel) tblRecentActivities.getModel();
         model.setRowCount(0); // Clear existing rows
-        
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        
+
         List<CustomsDeclaration> recentDeclarations = organization.getCustomsDeclarationDirectory().getRecentDeclarations();
-        
+
         for (CustomsDeclaration declaration : recentDeclarations) {
             Object[] row = {
                 "Declaration Processing",
@@ -131,11 +129,11 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
             model.addRow(row);
         }
     }
-    
+
     private void updateAlerts() {
         // Get overdue declarations
         List<CustomsDeclaration> overdueDeclarations = organization.getCustomsDeclarationDirectory().getOverdueDeclarations();
-        
+
         if (!overdueDeclarations.isEmpty()) {
             StringBuilder alertText = new StringBuilder("<html>Alerts:<br/>");
             for (CustomsDeclaration declaration : overdueDeclarations) {
@@ -149,8 +147,6 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         }
     }
 
-    
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -534,7 +530,7 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
 
     private void btnDocReviewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDocReviewActionPerformed
         // TODO add your handling code here:
-         // Create and display document review panel
+        // Create and display document review panel
         DocumentReview reviewPanel = new DocumentReview(userProcessContainer, userAccount, organization);
         userProcessContainer.add("DocumentReview", reviewPanel);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
@@ -564,9 +560,9 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         userProcessContainer.remove(this);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.previous(userProcessContainer);
-        
+
         JOptionPane.showMessageDialog(null, "Logged out successfully");
-    
+
     }//GEN-LAST:event_btnLogoutActionPerformed
 
 
