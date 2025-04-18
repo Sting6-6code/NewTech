@@ -3,25 +3,17 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-<<<<<<< Updated upstream
-            <file>file:/Users/zhuchenyan/Documents/INFO5100/INFO5100%20Final%20Project/INFO5100%20Final%20Project/src/ui/LogisticsRole/LogisticsCoordinatorHP.java</file>
-            <file>file:/Users/zhuchenyan/Documents/INFO5100/INFO5100%20Final%20Project/INFO5100%20Final%20Project/src/Business/Product/SalesRecord.java</file>
-            <file>file:/Users/zhuchenyan/Documents/INFO5100/INFO5100%20Final%20Project/INFO5100%20Final%20Project/src/ui/LogisticsRole/DocumentationDetails.java</file>
-            <file>file:/Users/zhuchenyan/Documents/INFO5100/INFO5100%20Final%20Project/INFO5100%20Final%20Project/src/Business/Organization/LogisticsOrganization.java</file>
-            <file>file:/Users/zhuchenyan/Documents/INFO5100/INFO5100%20Final%20Project/INFO5100%20Final%20Project/src/ui/MerchantRole/SalesReport.java</file>
-=======
             <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/ui/MerchantRole/MerchantHP.java</file>
             <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/ui/CustomerServiceRole/ManageOwnProfile.java</file>
-            <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/Business/EcoSystem.java</file>
+            <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/ui/ProcurementSpecialistRole/WarehouseRequestsJPanel.java</file>
             <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/Business/Product/SalesReportModel.java</file>
             <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/ui/MerchantRole/ManageProductCatalogJPanel.java</file>
             <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/ui/CustomerServiceRole/ComplaintManagementJpanel.java</file>
-            <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/Business/ConfigureASystem.java</file>
             <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/ui/ProcurementSpecialistRole/ProcurementSpecialistHP.java</file>
             <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/ui/MainJFrame.java</file>
+            <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/Business/Warehouse/Stock.java</file>
             <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/ui/CustomerServiceRole/CustomerComplaintContent.java</file>
             <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/ui/LogisticsRole/LogisticsCoordinatorHP.java</file>
->>>>>>> Stashed changes
         </group>
     </open-files>
 </project-private>
