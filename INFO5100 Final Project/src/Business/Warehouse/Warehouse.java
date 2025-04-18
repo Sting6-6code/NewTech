@@ -27,12 +27,14 @@ public class Warehouse {
     private Warehouse() {
         stock = new ArrayList<>();
         workQueue = new WorkQueue();
+        System.out.println("New Warehouse instance created");
     }
     
     // 单例模式获取实例
     public static Warehouse getInstance() {
         if (warehouse == null) {
             warehouse = new Warehouse();
+            System.out.println("Created new Warehouse instance");
         }
         return warehouse;
     }
@@ -65,6 +67,14 @@ public class Warehouse {
     
     // 添加商品库存
     public void addStock(Product product, int amount) {
+        if (product == null) {
+            System.out.println("Error: Cannot add null product to stock");
+            return;
+        }
+        
+        System.out.println("Adding stock - Product: " + product.getProductName() + 
+                          " (ID: " + product.getProductId() + "), Amount: " + amount);
+        
         // 检查是否已存在该产品
         for (Stock s : stock) {
             if (s.getProduct().getProductId().equals(product.getProductId())) {
@@ -78,15 +88,24 @@ public class Warehouse {
         
         // 不存在，添加新产品
         stock.add(new Stock(product, amount));
+        System.out.println("Added new product to stock");
     }
     
     // 获取指定产品库存数量
     public int getProductAmount(String productId) {
+        if (productId == null || productId.trim().isEmpty()) {
+            System.out.println("Error: Invalid product ID");
+            return 0;
+        }
+        
         for (Stock s : stock) {
             if (s.getProduct().getProductId().equals(productId)) {
                 return s.getAmount();
             }
         }
+        
+        System.out.println("Product not found: " + productId);
+        
         return 0;
     }
     
@@ -136,6 +155,14 @@ public class Warehouse {
     
     // 减少库存
     public boolean decreaseStock(String productId, int amount) {
+        if (productId == null || productId.trim().isEmpty()) {
+            System.out.println("Error: Invalid product ID");
+            return false;
+        }
+        
+        System.out.println("Attempting to decrease stock - Product ID: " + productId + 
+                          ", Amount: " + amount);
+        
         for (Stock s : stock) {
             if (s.getProduct().getProductId().equals(productId)) {
                 if (s.getAmount() >= amount) {
@@ -146,16 +173,21 @@ public class Warehouse {
                     Stock newStock = new Stock(product, newAmount);
                     stock.add(newStock);
                     
+                    System.out.println("Stock decreased successfully - New amount: " + newAmount);
+                    
                     // 检查是否需要补货并创建采购请求
                     checkAndCreateProcurementRequest(newStock);
                     
                     return true;
                 } else {
+                    System.out.println("Insufficient stock - Required: " + amount + 
+                                     ", Available: " + s.getAmount());
                     // 库存不足
                     return false;
                 }
             }
         }
+        System.out.println("Product not found: " + productId);
         return false;
     }
     
@@ -303,4 +335,56 @@ public class Warehouse {
         
         System.out.println("Started periodic inventory check (every " + intervalSeconds + " seconds)");
     }
+    
+    // 打印库存状态
+    public void printInventoryStatus() {
+        System.out.println("\n=== Warehouse Inventory Status ===");
+        System.out.println("Total products in stock: " + stock.size());
+        for (Stock s : stock) {
+            System.out.println(String.format("- %s (ID: %s): %d units [%s]",
+                s.getProduct().getProductName(),
+                s.getProduct().getProductId(),
+                s.getAmount(),
+                s.getStockStatus()));
+        }
+        System.out.println("===============================\n");
+    }
+    
+    // 检查产品是否存在
+    public boolean productExists(String productId) {
+        return findProductById(productId) != null;
+    }
+
+    // 获取库存总数
+    public int getTotalInventoryCount() {
+        int total = 0;
+        for (Stock s : stock) {
+            total += s.getAmount();
+        }
+        return total;
+    }
+
+    // 获取低库存产品列表
+    public List<Product> getLowStockProducts() {
+        List<Product> lowStockProducts = new ArrayList<>();
+        for (Stock s : stock) {
+            if (s.needsRestock()) {
+                lowStockProducts.add(s.getProduct());
+            }
+        }
+        return lowStockProducts;
+    }
+
+    // 批量添加库存
+    public void addBulkStock(List<Product> products, List<Integer> amounts) {
+        if (products.size() != amounts.size()) {
+            System.out.println("Error: Products and amounts lists must be the same size");
+            return;
+        }
+        
+        for (int i = 0; i < products.size(); i++) {
+            addStock(products.get(i), amounts.get(i));
+        }
+    }
+    
 }

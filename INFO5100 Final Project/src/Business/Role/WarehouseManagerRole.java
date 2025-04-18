@@ -7,20 +7,23 @@ package Business.Role;
 import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
 import Business.Organization.Organization;
+import Business.Organization.WarehouseOrganization;
 import Business.UserAccount.UserAccount;
 import javax.swing.JPanel;
+import ui.WarehouseManager.WarehouseManagerHomePage;
 
 /**
  *
  * @author yushe
  */
 public class WarehouseManagerRole extends Role {
-    public WarehouseManagerRole() {}
+
+    public WarehouseManagerRole() {
+    }
 
     @Override
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-        return null;
+        return new WarehouseManagerHomePage(userProcessContainer, ((WarehouseOrganization) organization).getWarehouse());
     }
-    
-    
+
 }

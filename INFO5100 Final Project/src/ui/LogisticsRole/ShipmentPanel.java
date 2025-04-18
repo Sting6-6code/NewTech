@@ -19,6 +19,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -97,67 +98,67 @@ public class ShipmentPanel extends javax.swing.JPanel {
 
     private void setupDetailsCards() {
         // 创建主要的详情容器面板
-    JPanel shipmentDetailsContainer = new JPanel(new BorderLayout());
-    
-    // 创建导航按钮面板
-    JPanel detailsNavigationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-    detailsNavigationPanel.add(btnBasicInfo);
-    detailsNavigationPanel.add(btnCustomsInfo);
-    detailsNavigationPanel.add(btnPackageInfo);
-    detailsNavigationPanel.add(btnFinancialInfo);
-    
-    // 创建详情内容的卡片布局面板
-    detailsCardsPanel = new JPanel();
-    detailsCardLayout = new CardLayout();
-    detailsCardsPanel.setLayout(detailsCardLayout);
-    
-    // 创建基本信息内容面板
-    JPanel shipmentBasicInfoContent = new JPanel(new GridLayout(0, 2, 10, 10));
-    shipmentBasicInfoContent.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-    
-    // 添加基本信息字段到内容面板
-    shipmentBasicInfoContent.add(lblTraNo);
-    shipmentBasicInfoContent.add(txtTrcNo);
-    shipmentBasicInfoContent.add(lblShippingDate);
-    shipmentBasicInfoContent.add(txtShippingDate);
-    shipmentBasicInfoContent.add(lblShippingMethod);
-    shipmentBasicInfoContent.add(txtShippingMethod);
-    shipmentBasicInfoContent.add(lblDestination);
-    shipmentBasicInfoContent.add(txtDestination);
-    shipmentBasicInfoContent.add(lblStatus);
-    shipmentBasicInfoContent.add(txtStatus);
-    
-    // 创建其他详情面板
-    JPanel shipmentCustomsContent = createCustomsInfoPanel();
-    JPanel shipmentPackageContent = createPackageInfoPanel();
-    JPanel shipmentFinancialContent = createFinancialInfoPanel();
-    
-    // 将所有内容面板添加到卡片布局
-    detailsCardsPanel.add(shipmentBasicInfoContent, "BasicInfo");
-    detailsCardsPanel.add(shipmentCustomsContent, "CustomsInfo");
-    detailsCardsPanel.add(shipmentPackageContent, "PackageInfo");
-    detailsCardsPanel.add(shipmentFinancialContent, "FinancialInfo");
-    
-    // 组装主容器面板
-    shipmentDetailsContainer.add(detailsNavigationPanel, BorderLayout.NORTH);
-    shipmentDetailsContainer.add(detailsCardsPanel, BorderLayout.CENTER);
-    
-    // 创建并添加更新按钮面板
-    JPanel actionButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-    actionButtonPanel.add(btnUpdate);
-    shipmentDetailsContainer.add(actionButtonPanel, BorderLayout.SOUTH);
-    
-    // 清除并更新basicInfoJPanel
-    basicInfoJPanel.removeAll();
-    basicInfoJPanel.setLayout(new BorderLayout());
-    basicInfoJPanel.add(shipmentDetailsContainer);
-    
-    // 显示基本信息面板
-    detailsCardLayout.show(detailsCardsPanel, "BasicInfo");
-    
-    // 刷新面板
-    basicInfoJPanel.revalidate();
-    basicInfoJPanel.repaint();
+        JPanel shipmentDetailsContainer = new JPanel(new BorderLayout());
+
+        // 创建导航按钮面板
+        JPanel detailsNavigationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        detailsNavigationPanel.add(btnBasicInfo);
+        detailsNavigationPanel.add(btnCustomsInfo);
+        detailsNavigationPanel.add(btnPackageInfo);
+        detailsNavigationPanel.add(btnFinancialInfo);
+
+        // 创建详情内容的卡片布局面板
+        detailsCardsPanel = new JPanel();
+        detailsCardLayout = new CardLayout();
+        detailsCardsPanel.setLayout(detailsCardLayout);
+
+        // 创建基本信息内容面板
+        JPanel shipmentBasicInfoContent = new JPanel(new GridLayout(0, 2, 10, 10));
+        shipmentBasicInfoContent.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // 添加基本信息字段到内容面板
+        shipmentBasicInfoContent.add(lblTraNo);
+        shipmentBasicInfoContent.add(txtTrcNo);
+        shipmentBasicInfoContent.add(lblShippingDate);
+        shipmentBasicInfoContent.add(txtShippingDate);
+        shipmentBasicInfoContent.add(lblShippingMethod);
+        shipmentBasicInfoContent.add(txtShippingMethod);
+        shipmentBasicInfoContent.add(lblDestination);
+        shipmentBasicInfoContent.add(txtDestination);
+        shipmentBasicInfoContent.add(lblStatus);
+        shipmentBasicInfoContent.add(txtStatus);
+
+        // 创建其他详情面板
+        JPanel shipmentCustomsContent = createCustomsInfoPanel();
+        JPanel shipmentPackageContent = createPackageInfoPanel();
+        JPanel shipmentFinancialContent = createFinancialInfoPanel();
+
+        // 将所有内容面板添加到卡片布局
+        detailsCardsPanel.add(shipmentBasicInfoContent, "BasicInfo");
+        detailsCardsPanel.add(shipmentCustomsContent, "CustomsInfo");
+        detailsCardsPanel.add(shipmentPackageContent, "PackageInfo");
+        detailsCardsPanel.add(shipmentFinancialContent, "FinancialInfo");
+
+        // 组装主容器面板
+        shipmentDetailsContainer.add(detailsNavigationPanel, BorderLayout.NORTH);
+        shipmentDetailsContainer.add(detailsCardsPanel, BorderLayout.CENTER);
+
+        // 创建并添加更新按钮面板
+        JPanel actionButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        actionButtonPanel.add(btnUpdate);
+        shipmentDetailsContainer.add(actionButtonPanel, BorderLayout.SOUTH);
+
+        // 清除并更新basicInfoJPanel
+        basicInfoJPanel.removeAll();
+        basicInfoJPanel.setLayout(new BorderLayout());
+        basicInfoJPanel.add(shipmentDetailsContainer);
+
+        // 显示基本信息面板
+        detailsCardLayout.show(detailsCardsPanel, "BasicInfo");
+
+        // 刷新面板
+        basicInfoJPanel.revalidate();
+        basicInfoJPanel.repaint();
     }
 
     /**
@@ -1103,5 +1104,49 @@ public class ShipmentPanel extends javax.swing.JPanel {
         panel.add(txtTotalCost);
 
         return panel;
+    }
+
+    private void processNewShipment(Shipment shipment) {
+        // 1. 验证订单信息
+        if (shipment == null || shipment.getOrderId() == null) {
+            return;
+        }
+
+        // 2. 分配运输方式
+        String[] methods = {"Air Freight", "Sea Freight", "Ground"};
+        String method = (String) JOptionPane.showInputDialog(
+                this,
+                "Select shipping method:",
+                "Process New Shipment",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                methods,
+                "Ground");
+
+        if (method != null) {
+            // 3. 更新运输信息
+            shipment.setShippingMethod(method);
+
+            // 4. 计算预计送达时间
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(new Date());
+            switch (method) {
+                case "Air Freight":
+                    cal.add(Calendar.DAY_OF_MONTH, 7);
+                    break;
+                case "Sea Freight":
+                    cal.add(Calendar.DAY_OF_MONTH, 30);
+                    break;
+                default:
+                    cal.add(Calendar.DAY_OF_MONTH, 15);
+            }
+            shipment.setEstimatedDeliveryDate(cal.getTime());
+
+            // 5. 更新状态
+            shipment.setShipmentStatus(Shipment.STATUS_PROCESSING);
+
+            // 6. 刷新显示
+            populateTable();
+        }
     }
 }
