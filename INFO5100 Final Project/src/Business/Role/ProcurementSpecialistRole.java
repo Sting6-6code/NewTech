@@ -21,7 +21,10 @@ public class ProcurementSpecialistRole extends Role {
     }
 
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-        ui.ProcurementSpecialistRole.ProcurementSpecialistHP procurementSpecialistHP = new ui.ProcurementSpecialistRole.ProcurementSpecialistHP(account.getUsername());
+        ui.ProcurementSpecialistRole.ProcurementSpecialistHP procurementSpecialistHP = new ui.ProcurementSpecialistRole.ProcurementSpecialistHP(userProcessContainer, account.getUsername());
+        // Set enterprise and account for procurement specialist
+        procurementSpecialistHP.setEnterprise(enterprise);
+        procurementSpecialistHP.setAccount(account);
         return procurementSpecialistHP;
     }
     
