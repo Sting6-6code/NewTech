@@ -24,7 +24,10 @@ public class AdminRole extends Role {
     
     @Override
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-
+        if (organization == null || !(organization instanceof AdminOrganization)) {
+            AdminOrganization ao = new AdminOrganization();
+            return new ui.AdminRole.AdminHP(userProcessContainer, account, enterprise, ao, business);
+        }
         AdminHP ahp = new ui.AdminRole.AdminHP(userProcessContainer, account, enterprise, organization, business);
         return ahp;
     }

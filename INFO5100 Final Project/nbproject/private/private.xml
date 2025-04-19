@@ -3,6 +3,24 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+<<<<<<< HEAD
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/ChartPanelBean.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/WarehouseManagerRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/MainJFrame.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Organization/LogisticsOrganization.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/AdminRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/CustomerServiceRole/CustomerServiceHP.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/ConfigureASystem.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Warehouse/Warehouse.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/CustomerServiceRepRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Warehouse/Stock.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/AdminHP.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/LogisticsCoordinatorRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Organization/AdminOrganization.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/SystemAdminRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/AddNewUser.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/CustomsAgentRole.java</file>
+=======
             <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/ui/MerchantRole/MerchantHP.java</file>
             <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/ui/CustomerServiceRole/ManageOwnProfile.java</file>
             <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/ui/ProcurementSpecialistRole/WarehouseRequestsJPanel.java</file>
@@ -16,6 +34,7 @@
             <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/ui/fintech/FintechHomepage.java</file>
             <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/ui/CustomerServiceRole/CustomerComplaintContent.java</file>
             <file>file:/Users/wangsiting/NetBeansProjects/INFO5100-Final-Project/INFO5100%20Final%20Project/src/ui/LogisticsRole/LogisticsCoordinatorHP.java</file>
+>>>>>>> main
         </group>
     </open-files>
 </project-private>
