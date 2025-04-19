@@ -1,35 +1,37 @@
 package Business;
 
-import Business.Customer.ComplaintDirectory;
-import Business.Customer.CustomerComplaint;
 import Business.Employee.Employee;
-import Business.Enterprise.Enterprise;
-import Business.Enterprise.LogisticsGroupEnterprise;
-import Business.Enterprise.RetailCorpEnterprise;
-import Business.Logistics.CustomsDeclaration;
-import Business.Logistics.CustomsDeclarationDirectory;
-import Business.Logistics.Shipment;
-import Business.Logistics.ShipmentDirectory;
-import Business.Logistics.TrackingInfo;
-import Business.Network.Network;
-import Business.Organization.CustomerExperienceOrganization;
-import Business.Organization.LogisticsOrganization;
-import Business.Organization.Organization;
-import Business.Product.Product;
-import Business.Role.AdminRole;
 import Business.Role.CustomerServiceRepRole;
 import Business.Role.CustomsAgentRole;
 import Business.Role.LogisticsCoordinatorRole;
 import Business.Role.MerchantRole;
 import Business.Role.ProcurementSpecialistRole;
-import Business.Supplier.Supplier;
+import Business.Role.SystemAdminRole;
 import Business.UserAccount.UserAccount;
-import Business.Warehouse.Stock;
+import Business.Supplier.Supplier;
+import Business.Network.Network;
+import Business.Enterprise.Enterprise;
+import Business.Enterprise.RetailCorpEnterprise;
+import Business.Enterprise.LogisticsGroupEnterprise;
+import Business.Organization.Organization;
+import Business.Role.AdminRole;
+import Business.Customer.ComplaintDirectory;
+import Business.Customer.CustomerComplaint;
+import Business.Logistics.CustomsDeclaration;
+import Business.Logistics.CustomsDeclarationDirectory;
+import Business.Logistics.Shipment;
+import Business.Logistics.ShipmentDirectory;
+import Business.Logistics.TrackingInfo;
+import Business.Organization.CustomerExperienceOrganization;
+import Business.Organization.LogisticsOrganization;
+import Business.Product.Product;
 import Business.Warehouse.Warehouse;
+import Business.Warehouse.Stock;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -58,7 +60,7 @@ public class ConfigureASystem {
         Employee employee8 = system.getEmployeeDirectory().createEmployee("fintech");
 
         // Create user accounts
-        UserAccount ua = system.getUserAccountDirectory().createUserAccount("sysadmin", "sysadmin", employee1, new AdminRole());
+        UserAccount ua = system.getUserAccountDirectory().createUserAccount("sysadmin", "sysadmin", employee1, new SystemAdminRole());
         UserAccount customerservice = system.getUserAccountDirectory().createUserAccount("c", "****", employee2, new CustomerServiceRepRole());
         UserAccount merchant = system.getUserAccountDirectory().createUserAccount("m", "****", employee3, new MerchantRole());
         UserAccount procurement = system.getUserAccountDirectory().createUserAccount("p", "****", employee4, new ProcurementSpecialistRole());

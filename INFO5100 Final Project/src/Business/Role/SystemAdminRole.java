@@ -6,9 +6,9 @@ package Business.Role;
 
 import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
-import Business.Organization.AdminOrganization;
 import Business.Organization.Organization;
 import Business.UserAccount.UserAccount;
+//import ui.SystemAdminWorkArea.SystemAdminWorkAreaJPanel;
 import javax.swing.JPanel;
 import ui.AdminRole.AdminHP;
 
@@ -24,12 +24,8 @@ public class SystemAdminRole extends Role{
 
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
         if (organization == null) {
-            System.out.println("❌ SystemAdminRole received null Organization!");
-            throw new IllegalArgumentException("SystemAdminRole requires a non-null Organization");
-        }
-        if (!(organization instanceof AdminOrganization)) {
-            System.out.println("❌ SystemAdminRole received wrong Organization type: " + organization.getClass().getSimpleName());
-            throw new IllegalArgumentException("SystemAdminRole requires an AdminOrganization");
+            System.out.println("❌ AdminRole received null Organization!");
+            throw new IllegalArgumentException("AdminRole requires a non-null AdminOrganization");
         }
         AdminHP ahp = new ui.AdminRole.AdminHP(userProcessContainer, account, enterprise, organization, business);
         return ahp;

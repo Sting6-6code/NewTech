@@ -28,25 +28,27 @@ public class AdminHP extends javax.swing.JPanel {
     
   
     public AdminHP() {
-        initComponents();  // This is required by Swing
-        this.setPreferredSize(new java.awt.Dimension(1450, 800));
-        // Don't call populateTable() here since we don't have the required data
+//        System.out.println("⚠️ Warning: Default constructor used — make sure this is intentional!");
+//        initComponents();
+//        this.setPreferredSize(new java.awt.Dimension(1450, 800));
+//        populateTable();
+        
+         throw new RuntimeException("🚨 Default constructor of AdminHP used! Stack trace below:");
     }
     
     public AdminHP(JPanel jp, UserAccount ua, Enterprise e, Organization o, EcoSystem b) {
-        this(); // Call default constructor to handle basic initialization
+        System.out.println("⚠️ Warning: Default constructor used — make sure this is intentional!");
+        this.setPreferredSize(new java.awt.Dimension(1450, 800));
         this.workArea = jp;
         this.userAccount = ua;
         this.enterprise = e;
-        this.adminOrg = o;
-        this.business = b;
-        
-        // Now that we have the data, we can populate the table
-        populateTable();
-        
-        // Debug logging if needed
+        adminOrg = o;
+        business = b;
         System.out.println("Received JPanel: " + (jp != null ? "Not null ✅" : "NULL ❌"));
         System.out.println("JPanel class: " + (jp != null ? jp.getClass().getName() : "null"));
+        initComponents();
+        populateTable();
+//        System.out.println(workArea.getName());
     }
 
     /**
