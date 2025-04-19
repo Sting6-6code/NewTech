@@ -4,6 +4,7 @@
  */
 package ui.CustomsAgentRole;
 
+import Business.ConfigureASystem;
 import Business.Logistics.CustomsDeclaration;
 import Business.Organization.CustomsLiaisonOrganization;
 import Business.UserAccount.UserAccount;
@@ -34,12 +35,44 @@ public class DocumentReview extends javax.swing.JPanel {
 
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
-        this.organization = organization;
+        // 如果传入的组织为空，尝试使用物流组织的数据
+        if (organization == null) {
+            System.out.println("Warning: Null organization passed to DocumentReview");
+
+            if (ConfigureASystem.logisticsOrg != null
+                    && ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
+
+                // 创建新的海关组织实例
+                this.organization = new CustomsLiaisonOrganization();
+                // 使用物流组织的报关数据
+                this.organization.setCustomsDeclarationDirectory(
+                        ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory());
+
+                System.out.println("Using customs declarations from logistics organization");
+            } else {
+                System.out.println("Warning: No logistics organization data available");
+                JOptionPane.showMessageDialog(this,
+                        "Error: Could not load customs organization data.",
+                        "Organization Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } else {
+            this.organization = organization;
+        }
+
+        // 添加调试信息
+        System.out.println("DocumentReview initialized with organization: " + this.organization);
+        if (this.organization != null && this.organization.getCustomsDeclarationDirectory() != null) {
+            System.out.println("Number of declarations: "
+                    + this.organization.getCustomsDeclarationDirectory().getCustomsDeclarationList().size());
+        }
 
         // Initialize the UI
         setupTable();
         populateTable();
         clearFields();
+
     }
 
     private void setupTable() {
@@ -59,6 +92,13 @@ public class DocumentReview extends javax.swing.JPanel {
     }
 
     private void populateTable() {
+        // 添加空值检查
+        if (organization == null || organization.getCustomsDeclarationDirectory() == null) {
+            System.out.println("Warning: Organization or customs declaration directory is null in DocumentReview");
+
+            return;
+        }
+
         DefaultTableModel model = (DefaultTableModel) tblList.getModel();
         model.setRowCount(0);
 
@@ -640,4 +680,10 @@ public class DocumentReview extends javax.swing.JPanel {
     private javax.swing.JTextField txtSubBy;
     private javax.swing.JTextField txtSubmissionDate;
     // End of variables declaration//GEN-END:variables
+
+    public void refreshData() {
+        System.out.println("Refreshing document review data");
+        populateTable();
+        clearFields();
+    }
 }
