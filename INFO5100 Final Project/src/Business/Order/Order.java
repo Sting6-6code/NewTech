@@ -12,6 +12,7 @@ import java.util.Date;
  */
 public class Order {
     private String requestId;
+    private String productId; 
     private String productName;
     private double purchaseCost;
     private int quantity;
@@ -24,6 +25,7 @@ public class Order {
 
     public Order() {
         this.status = "Pending";
+        this.createDate = new Date();
     }
 
     // Getters and Setters
@@ -33,6 +35,14 @@ public class Order {
 
     public void setRequestId(String requestId) {
         this.requestId = requestId;
+    }
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
     }
 
     public String getProductName() {
