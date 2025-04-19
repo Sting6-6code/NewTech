@@ -1,12 +1,13 @@
 package Business.Enterprise;
 
+import Business.Organization.Organization;
 import java.util.ArrayList;
 
 import Business.Role.Role;
 import Business.Role.WarehouseManagerRole;
 
-public class WarehouseSuplierEnterprise extends Enterprise {
-    public WarehouseSuplierEnterprise(String name) {
+public class WarehouseSupplierEnterprise extends Enterprise {
+    public WarehouseSupplierEnterprise(String name) {
         super(name, EnterpriseType.WarehouseSupplier);
     }
 

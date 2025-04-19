@@ -18,6 +18,7 @@ import Business.Organization.Organization;
 import Business.Role.AdminRole;
 import Business.Customer.ComplaintDirectory;
 import Business.Customer.CustomerComplaint;
+import Business.Enterprise.WarehouseSupplierEnterprise;
 import Business.Logistics.CustomsDeclaration;
 import Business.Logistics.CustomsDeclarationDirectory;
 import Business.Logistics.Shipment;
@@ -168,6 +169,20 @@ public class ConfigureASystem {
             network.getEnterpriseDirectory().getEnterpriseList().add(logisticsEnterprise);
         }
 
+         // 创建仓库企业
+        WarehouseSupplierEnterprise warehouseEnterprise = (WarehouseSupplierEnterprise) network.getEnterpriseDirectory()
+            .createAndAddEnterprise("Warehouse Enterprise", Enterprise.EnterpriseType.WarehouseSupplier);
+    
+        // 创建仓库组织
+        Organization warehouseOrg = warehouseEnterprise.getOrganizationDirectory()
+            .createOrganization(Organization.Type.WarehouseSupplier);
+    
+        // 将仓库用户账户添加到仓库组织
+        warehouseOrg.getUserAccountDirectory().getUserAccountList().add(warehouse);
+    
+        // 初始化仓库和商品
+        initializeWarehouse();
+    
         // Create customer experience organization
         if (retailEnterprise != null && retailEnterprise.getOrganizationDirectory() != null) {
             CustomerExperienceOrganization customerExpOrg = (CustomerExperienceOrganization) retailEnterprise.getOrganizationDirectory().createOrganization(Organization.Type.CustomerExperience);
