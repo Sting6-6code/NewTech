@@ -35,12 +35,11 @@ public class ViewMerchantRequestsJPanel extends javax.swing.JPanel {
         initComponents();
         this.userProcessContainer = userProcessContainer;
         orderDirectory = new OrderDirectory();
-        warehouse = Warehouse.getInstance();
-        setupUI();
+        //warehouse = Warehouse.getInstance();
         setupListeners();
         
-        // 加载所有仓库采购请求
-        loadWarehouseRequests();
+        // 加载所有merchant采购请求
+        loadMerchantRequests();
     }
 
     private void setupCartTable() {
@@ -55,7 +54,7 @@ public class ViewMerchantRequestsJPanel extends javax.swing.JPanel {
         }
     }
     
-    private void loadWarehouseRequests() {
+    private void loadMerchantRequests() {
         // 清空表格
         DefaultTableModel model = (DefaultTableModel) RequestTable1.getModel();
         model.setRowCount(0);
@@ -152,7 +151,7 @@ public class ViewMerchantRequestsJPanel extends javax.swing.JPanel {
     }
     
     private void refreshRequestTable() {
-        loadWarehouseRequests();
+        loadMerchantRequests();
     }
 
     /**
@@ -294,73 +293,20 @@ public class ViewMerchantRequestsJPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-        loadWarehouseRequests();
+        loadMerchantRequests();
     }//GEN-LAST:event_btnSearchActionPerformed
 
     private void txtSearchRequestIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchRequestIDActionPerformed
-        loadWarehouseRequests();
+        loadMerchantRequests();
     }//GEN-LAST:event_txtSearchRequestIDActionPerformed
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
-        loadWarehouseRequests();
+        loadMerchantRequests();
     }//GEN-LAST:event_btnRefreshActionPerformed
 
-    private void btnProcessOrderActionPerformed(java.awt.event.ActionEvent evt) {                                                
-        int selectedRow = RequestTable1.getSelectedRow();
-        if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, 
-                "Please select a request", 
-                "Warning", 
-                JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        
-        String requestId = RequestTable1.getValueAt(selectedRow, 0).toString();
-        String productName = RequestTable1.getValueAt(selectedRow, 1).toString();
-        int quantity = Integer.parseInt(RequestTable1.getValueAt(selectedRow, 2).toString());
-        
-        String status = RequestTable1.getValueAt(selectedRow, 4).toString();
-        if ("Completed".equals(status) || "Rejected".equals(status)) {
-            JOptionPane.showMessageDialog(this, 
-                "This request has already been " + status.toLowerCase(), 
-                "Info", 
-                JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        
-        Order order = new Order();
-        order.setRequestId(requestId);
-        order.setProductName(productName);
-        order.setQuantity(quantity);
-        order.setStatus("Processing");
-        
-        double estimatedPrice = 100.0;
-        order.setPurchaseCost(estimatedPrice);
-        order.setTotalAmount(estimatedPrice * quantity);
-        
-        orderDirectory.addOrder(order);
-        updateCartTable();
-        
-        updateRequestStatus(requestId, "Processing");
-        
-        JOptionPane.showMessageDialog(this, 
-            "Request added to processing cart", 
-            "Success", 
-            JOptionPane.INFORMATION_MESSAGE);
-    }
+    
 
-    private void updateCartTable() {
-        cartTableModel.setRowCount(0);
-        for (Order order : orderDirectory.getOrderList()) {
-            Object[] row = {
-                order.getProductName(),
-                order.getPurchaseCost(),
-                order.getQuantity(),
-                order.getTotalAmount()
-            };
-            cartTableModel.addRow(row);
-        }
-    }
+    
 
     private void updateRequestStatus(String requestId, String newStatus) {
         // 从EcoSystem获取工作队列
@@ -382,7 +328,7 @@ public class ViewMerchantRequestsJPanel extends javax.swing.JPanel {
             }
         }
         
-        loadWarehouseRequests(); // 刷新表格
+        loadMerchantRequests(); // 刷新表格
     }
 
     private void notifyWarehouse(Order order) {
@@ -397,7 +343,7 @@ public class ViewMerchantRequestsJPanel extends javax.swing.JPanel {
 
     private void StatusjComboBoxActionPerformed(java.awt.event.ActionEvent evt) {
         System.out.println("状态过滤变更为: " + StatusjComboBox.getSelectedItem().toString());
-        loadWarehouseRequests();
+        loadMerchantRequests();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -413,47 +359,7 @@ public class ViewMerchantRequestsJPanel extends javax.swing.JPanel {
     private javax.swing.JTextField txtSearchRequestID;
     // End of variables declaration//GEN-END:variables
 
-    public void setupUI() {
-        // Create cart panel if it doesn't exist
-        if (tblCart == null) {
-            tblCart = new javax.swing.JTable();
-            tblCart.setModel(new DefaultTableModel(
-                new Object [][] {
-                    {null, null, null, null},
-                    {null, null, null, null},
-                    {null, null, null, null},
-                    {null, null, null, null}
-                },
-                new String [] {
-                    "Product Name", "Purchase Cost", "Quantity", "Total Amount"
-                }
-            ));
-            
-            // Add table to a scroll pane
-            javax.swing.JScrollPane cartScrollPane = new javax.swing.JScrollPane();
-            cartScrollPane.setViewportView(tblCart);
-            
-            // Create a panel for the cart
-            javax.swing.JPanel cartPanel = new javax.swing.JPanel();
-            cartPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Processing Cart"));
-            cartPanel.setLayout(new java.awt.BorderLayout());
-            cartPanel.add(cartScrollPane, java.awt.BorderLayout.CENTER);
-            
-            // Add the cart panel to the main panel
-            java.awt.GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints();
-            gridBagConstraints.gridx = 0;
-            gridBagConstraints.gridy = 3;
-            gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-            gridBagConstraints.weightx = 1.0;
-            gridBagConstraints.weighty = 0.3;
-            gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-            this.add(cartPanel, gridBagConstraints);
-        }
-        
-        // Setup cart table model
-        setupCartTable();
-    }
-
+    
     // 添加构造函数后的初始化代码，确保组件监听器正确注册
     private void setupListeners() {
         System.out.println("设置监听器...");
@@ -492,7 +398,7 @@ public class ViewMerchantRequestsJPanel extends javax.swing.JPanel {
         btnSearch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 System.out.println("搜索按钮点击, 搜索内容: " + txtSearchRequestID.getText());
-                loadWarehouseRequests();
+                loadMerchantRequests();
             }
         });
         
@@ -500,7 +406,7 @@ public class ViewMerchantRequestsJPanel extends javax.swing.JPanel {
         btnRefresh.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 System.out.println("刷新按钮点击");
-                loadWarehouseRequests();
+                loadMerchantRequests();
             }
         });
     }

@@ -50,14 +50,14 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
 
         jSplitPane2 = new javax.swing.JSplitPane();
         ProcurementSpecialistPanel = new javax.swing.JPanel();
-        btnWarehouseRequest = new javax.swing.JButton();
+        btnMerchantRequest = new javax.swing.JButton();
         btnProfile1 = new javax.swing.JButton();
         ProcurementSpecialistWorkAreajPanel = new javax.swing.JPanel();
 
-        btnWarehouseRequest.setText("Warehouse Request");
-        btnWarehouseRequest.addActionListener(new java.awt.event.ActionListener() {
+        btnMerchantRequest.setText("Merchant Request");
+        btnMerchantRequest.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnWarehouseRequestActionPerformed(evt);
+                btnMerchantRequestActionPerformed(evt);
             }
         });
 
@@ -76,14 +76,14 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(ProcurementSpecialistPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(btnProfile1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnWarehouseRequest, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnMerchantRequest, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         ProcurementSpecialistPanelLayout.setVerticalGroup(
             ProcurementSpecialistPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ProcurementSpecialistPanelLayout.createSequentialGroup()
                 .addGap(303, 303, 303)
-                .addComponent(btnWarehouseRequest)
+                .addComponent(btnMerchantRequest)
                 .addGap(98, 98, 98)
                 .addComponent(btnProfile1)
                 .addContainerGap(2429, Short.MAX_VALUE))
@@ -122,14 +122,14 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnWarehouseRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnWarehouseRequestActionPerformed
+    private void btnMerchantRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMerchantRequestActionPerformed
         // TODO add your handling code here:
         MerchantRequestsJPanel warehouseRequestsJPanel = new MerchantRequestsJPanel(ProcurementSpecialistWorkAreajPanel);
         ProcurementSpecialistWorkAreajPanel.add("WarehouseRequestsJPanel", warehouseRequestsJPanel);
         CardLayout layout = (CardLayout) ProcurementSpecialistWorkAreajPanel.getLayout();
         layout.next(ProcurementSpecialistWorkAreajPanel);    
         
-    }//GEN-LAST:event_btnWarehouseRequestActionPerformed
+    }//GEN-LAST:event_btnMerchantRequestActionPerformed
 
     private void btnProfile1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfile1ActionPerformed
         // 从EcoSystem获取当前用户账户
@@ -162,8 +162,8 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel ProcurementSpecialistPanel;
     private javax.swing.JPanel ProcurementSpecialistWorkAreajPanel;
+    private javax.swing.JButton btnMerchantRequest;
     private javax.swing.JButton btnProfile1;
-    private javax.swing.JButton btnWarehouseRequest;
     private javax.swing.JSplitPane jSplitPane2;
     // End of variables declaration//GEN-END:variables
 }
