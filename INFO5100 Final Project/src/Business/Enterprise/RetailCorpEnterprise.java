@@ -6,7 +6,10 @@
 package Business.Enterprise;
 
 import Business.Role.Role;
+import Business.Role.MerchantRole;
 import java.util.ArrayList;
+import Business.Organization.ECommercePlatformOrganization;
+
 
 /**
  *
@@ -16,10 +19,14 @@ public class RetailCorpEnterprise extends Enterprise {
     
     public RetailCorpEnterprise(String name){
         super(name,EnterpriseType.RetailCorpEnterprise);
+        
     }
     @Override
     public ArrayList<Role> getSupportedRole() {
-        return null;
+        ArrayList<Role> roles = new ArrayList<>();
+        roles.add(new MerchantRole());
+
+        return roles;
     }
     
 }

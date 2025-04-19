@@ -642,31 +642,72 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
 
         // 检查仓库中是否有对应产品
         boolean found = false;
-        for (Product product : warehouse.getAvailableProducts()) {
-            if (product.getProductName().equals(productName)) {
-                found = true;
+        
+        System.out.println("正在处理订单: " + requestId + ", 产品: " + productName + ", 数量: " + actualAmount);
+        System.out.println("仓库可用产品数量: " + warehouse.getAvailableProducts().size());
+        
+        // 首先尝试按产品ID查找（从requestId中提取）
+        String productId = null;
+        if (requestId.startsWith("REQ-")) {
+            productId = requestId.substring(4); // 去掉"REQ-"前缀
+            System.out.println("从请求ID提取产品ID: " + productId);
+        }
+        
+        // 首先按ID查找产品
+        if (productId != null && !productId.isEmpty()) {
+            Product productById = warehouse.findProductById(productId);
+            if (productById != null) {
+                System.out.println("在仓库中找到产品 (通过ID): " + productById.getProductName() + 
+                               ", 当前库存: " + warehouse.getProductAmount(productId));
+                
                 // 如果仓库有足够库存，直接从仓库获取
-                if (warehouse.getProductAmount(product.getProductId()) >= actualAmount) {
-                    warehouse.decreaseStock(product.getProductId(), actualAmount);
-                    System.out.println("Fulfilled merchant request: " + requestId
-                            + " for " + productName + " with " + actualAmount + " units from warehouse");
+                if (warehouse.getProductAmount(productId) >= actualAmount) {
+                    boolean updated = warehouse.decreaseStock(productId, actualAmount);
+                    if (updated) {
+                        System.out.println("成功从仓库减少库存，剩余: " + warehouse.getProductAmount(productId));
+                        found = true;
+                    } else {
+                        System.out.println("减少库存失败，可能库存不足");
+                    }
                 } else {
-                    // 如果库存不足，创建采购请求
-                    System.out.println("Insufficient stock for merchant request: " + requestId
-                            + ". Creating procurement request for " + productName);
-                    // 增加一个新的采购请求
-                    Business.WorkQueue.ProcurementWorkRequest procRequest = new Business.WorkQueue.ProcurementWorkRequest();
-                    procRequest.setProductId(product.getProductId());
-                    procRequest.setProductName(productName);
-                    procRequest.setRequestedAmount(actualAmount);
-                    procRequest.setCurrentAmount(warehouse.getProductAmount(product.getProductId()));
-                    procRequest.setMessage("PROC-" + requestId + ": Procurement needed for merchant request");
-                    procRequest.setStatus("Pending");
-
-                    // 添加采购请求到仓库的工作队列
-                    warehouse.getWorkQueue().getWorkRequestList().add(procRequest);
+                    System.out.println("库存不足，无法满足请求。当前库存: " + warehouse.getProductAmount(productId) + 
+                                   ", 请求数量: " + actualAmount);
                 }
-                break;
+            } else {
+                System.out.println("通过ID " + productId + " 未找到产品");
+            }
+        }
+        
+        // 如果按ID未找到，则尝试按名称查找
+        if (!found) {
+            System.out.println("尝试按名称查找产品: " + productName);
+            for (Product product : warehouse.getAvailableProducts()) {
+                System.out.println("检查仓库产品: " + product.getProductName() + " (ID: " + product.getProductId() + ")");
+                
+                if (product.getProductName().equals(productName)) {
+                    found = true;
+                    String pid = product.getProductId();
+                    System.out.println("按名称找到产品: " + productName + ", ID: " + pid + 
+                                   ", 当前库存: " + warehouse.getProductAmount(pid));
+                    
+                    // 如果仓库有足够库存，直接从仓库获取
+                    if (warehouse.getProductAmount(pid) >= actualAmount) {
+                        boolean updated = warehouse.decreaseStock(pid, actualAmount);
+                        if (updated) {
+                            System.out.println("成功从仓库减少库存，剩余: " + warehouse.getProductAmount(pid));
+                        } else {
+                            System.out.println("减少库存失败，可能库存不足");
+                            // 创建采购请求
+                            createProcurementRequest(pid, productName, actualAmount, warehouse.getProductAmount(pid), requestId);
+                        }
+                    } else {
+                        // 如果库存不足，创建采购请求
+                        System.out.println("库存不足，无法满足请求。当前库存: " + warehouse.getProductAmount(pid) + 
+                                       ", 请求数量: " + actualAmount);
+                        createProcurementRequest(pid, productName, actualAmount, warehouse.getProductAmount(pid), requestId);
+                    }
+                    break;
+                }
             }
         }
 
@@ -685,19 +726,28 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
                     0, // 当前数量为0
                     actualAmount / 2 // 设置一个合理的警告阈值
             );
-
-            // 添加采购请求
-            Business.WorkQueue.ProcurementWorkRequest procRequest = new Business.WorkQueue.ProcurementWorkRequest();
-            procRequest.setProductId(newProduct.getProductId());
-            procRequest.setProductName(productName);
-            procRequest.setRequestedAmount(actualAmount);
-            procRequest.setCurrentAmount(0);
-            procRequest.setMessage("PROC-NEW-" + requestId + ": New product procurement needed for merchant request");
-            procRequest.setStatus("Pending");
-
-            // 添加采购请求到仓库的工作队列
-            warehouse.getWorkQueue().getWorkRequestList().add(procRequest);
+            
+            createProcurementRequest(newProduct.getProductId(), productName, actualAmount, 0, requestId);
         }
+    }
+    
+    // 添加一个辅助方法来创建采购请求
+    private void createProcurementRequest(String productId, String productName, int requestedAmount, int currentAmount, String originalRequestId) {
+        // 添加采购请求
+        Business.WorkQueue.ProcurementWorkRequest procRequest = new Business.WorkQueue.ProcurementWorkRequest();
+        procRequest.setProductId(productId);
+        procRequest.setProductName(productName);
+        procRequest.setRequestedAmount(requestedAmount);
+        procRequest.setCurrentAmount(currentAmount);
+        procRequest.setMessage("PROC-" + originalRequestId + ": Procurement needed for merchant request");
+        procRequest.setStatus("Pending");
+        
+        // 添加采购请求到仓库的工作队列
+        warehouse.getWorkQueue().getWorkRequestList().add(procRequest);
+        
+        System.out.println("已创建采购请求: " + procRequest.getMessage() + 
+                       ", 请求数量: " + requestedAmount + 
+                       ", 当前库存: " + currentAmount);
     }
 
     private void StatusjComboBoxActionPerformed(java.awt.event.ActionEvent evt) {

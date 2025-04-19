@@ -6,6 +6,7 @@ package Business.Organization;
 
 import Business.Organization.Organization.Type;
 import java.util.ArrayList;
+import Business.Organization.WarehouseSupplierOrganization;
 
 /**
  *
@@ -42,8 +43,8 @@ public class OrganizationDirectory {
         organization = new CustomsLiaisonOrganization();
         organizationList.add(organization);
     }
-    else if (type.getValue().equals(Type.Warehouse.getValue())){
-        organization = new WarehouseOrganization();
+    else if (type.getValue().equals(Type.WarehouseSupplier.getValue())){
+        organization = new WarehouseSupplierOrganization();
         organizationList.add(organization);
     }
     return organization;
