@@ -129,18 +129,16 @@ public class MerchantHP extends javax.swing.JPanel {
         MerchantjPanelLayout.setVerticalGroup(
             MerchantjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(MerchantjPanelLayout.createSequentialGroup()
-                .addGap(303, 303, 303)
-                .addComponent(btnProductCatalog)
+                .addGap(271, 271, 271)
+                .addComponent(btnProductCatalog, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(36, 36, 36)
-                .addComponent(btnReports)
-                .addGap(39, 39, 39)
-                .addComponent(btnProfile)
-                .addGap(36, 36, 36)
-                .addComponent(btnViewMerchantRequest)
-                .addContainerGap(2382, Short.MAX_VALUE))
+                .addComponent(btnReports, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
+                .addComponent(btnProfile, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(33, 33, 33)
+                .addComponent(btnViewMerchantRequest, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(2307, Short.MAX_VALUE))
         );
-
-        MerchantjPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnProductCatalog, btnProfile, btnReports});
 
         jSplitPane1.setLeftComponent(MerchantjPanel);
 

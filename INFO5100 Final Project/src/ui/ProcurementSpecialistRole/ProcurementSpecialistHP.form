@@ -50,9 +50,9 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="btnProfile1" alignment="0" max="32767" attributes="0"/>
-                          <Component id="btnMerchantRequest" alignment="0" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="btnMerchantRequest" max="32767" attributes="0"/>
+                          <Component id="btnProfile1" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
@@ -62,10 +62,10 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="303" max="-2" attributes="0"/>
-                      <Component id="btnMerchantRequest" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="98" max="-2" attributes="0"/>
-                      <Component id="btnProfile1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="2429" max="32767" attributes="0"/>
+                      <Component id="btnMerchantRequest" min="-2" pref="43" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="78" max="-2" attributes="0"/>
+                      <Component id="btnProfile1" min="-2" pref="41" max="-2" attributes="0"/>
+                      <EmptySpace pref="2411" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
