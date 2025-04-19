@@ -531,11 +531,11 @@ public class ShipmentPanel extends javax.swing.JPanel {
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(btnUpdateStatus)
                         .addComponent(btnShip)))
-                .addGap(73, 73, 73)
+                .addGap(61, 61, 61)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(basicInfoJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(trackPathJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 19, Short.MAX_VALUE))
+                .addGap(0, 31, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -699,6 +699,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
         } else {
             System.out.println("Error: Organization or ShipmentDirectory is null");
         }
+        
     }
 
     private void searchShipment(String query) {
@@ -1187,7 +1188,6 @@ public class ShipmentPanel extends javax.swing.JPanel {
         }
     }
 
-    
     /**
      * 根据行号显示货运详情
      *
@@ -1198,7 +1198,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
             displayShipmentDetails(rowIndex);
         }
     }
-    
+
     public JTable getTblShipment() {
         return tblShipment;
     }

@@ -174,14 +174,14 @@ public class WarehouseHP extends javax.swing.JPanel {
 
         if (account == null) {
             javax.swing.JOptionPane.showMessageDialog(this,
-                    "无法获取用户信息，请重新登录",
-                    "错误",
+                    "Unable to obtain user information, please log in again.",
+                    "Error",
                     javax.swing.JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         // 创建ManageOwnProfile面板，传递工作区面板和用户账户
-        System.out.println("WarehouseHP: 使用账户创建ManageOwnProfile: " + account.getUsername());
+        System.out.println("WarehouseHP: Create a ManageOwnProfile using an account: " + account.getUsername());
         ManageOwnProfile manageOwnProfile = new ManageOwnProfile(WarehouseWorkAreajPanel, account);
         WarehouseWorkAreajPanel.add("ManageOwnProfile", manageOwnProfile);
 
@@ -203,8 +203,8 @@ public class WarehouseHP extends javax.swing.JPanel {
 
         if (account == null) {
             javax.swing.JOptionPane.showMessageDialog(this,
-                    "无法获取用户信息，请重新登录",
-                    "错误",
+                    "Unable to obtain user information, please log in again.",
+                    "Error",
                     javax.swing.JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -228,8 +228,8 @@ public class WarehouseHP extends javax.swing.JPanel {
 
         if (enterprise == null) {
             javax.swing.JOptionPane.showMessageDialog(this,
-                    "无法获取仓库企业信息",
-                    "错误",
+                    "Unable to obtain warehouse enterprise information.",
+                    "Error",
                     javax.swing.JOptionPane.ERROR_MESSAGE);
             return;
         }

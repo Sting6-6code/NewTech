@@ -544,7 +544,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         // TODO add your handling code here:
         int selectedRow = tblPendingTasks.getSelectedRow();
         if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "请先选择一个任务");
+            JOptionPane.showMessageDialog(this, "Please select a task first");
             return;
         }
 
@@ -574,7 +574,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             // 选中对应的运输单
             selectShipmentInPanel(shipmentPanel, trackingNumber);
         } else {
-            JOptionPane.showMessageDialog(this, "找不到对应的运输请求");
+            JOptionPane.showMessageDialog(this, "No corresponding transport request found");
         }
     }//GEN-LAST:event_btnViewDetailsActionPerformed
 
@@ -706,7 +706,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
                     // 创建表格行
                     Object[] row = new Object[5];
                     row[0] = warehouseRequest.getTrackingNumber(); // 任务ID使用运单号
-                    row[1] = "物流运输请求"; // 任务类型
+                    row[1] = "Logistics transport request"; // 任务类型
                     row[2] = "Normal"; // 优先级，可根据实际需求从request中获取
 
                     // 设置到期日期（目前使用预计送达日期）
