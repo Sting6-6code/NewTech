@@ -58,12 +58,30 @@ public class SubmitDoc extends javax.swing.JPanel {
     }
 
     private void generateDocumentId() {
+        // 添加空值检查
+        if (organization == null || organization.getCustomsDeclarationDirectory() == null) {
+            // 生成一个临时ID
+            String docType = comBoDocType.getSelectedItem().toString().substring(0, 3).toUpperCase();
+            String uniqueId = String.format("%06d", new java.util.Random().nextInt(999999));
+            txtDocID.setText(docType + "-" + uniqueId);
+            return;
+        }
+
         String docType = comBoDocType.getSelectedItem().toString().substring(0, 3).toUpperCase();
         String uniqueId = organization.getCustomsDeclarationDirectory().generateNewDeclarationId();
         txtDocID.setText(docType + "-" + uniqueId);
     }
 
     private void populateRecentDocumentsTable() {
+        // 添加空值检查
+        if (organization == null || organization.getCustomsDeclarationDirectory() == null) {
+            // 清空表格或显示默认内容
+            model = (DefaultTableModel) tblRecSubDoc.getModel();
+            model.setRowCount(0);
+            System.out.println("Warning: Organization or customs declaration directory is null in SubmitDoc");
+            return;
+        }
+
         model = (DefaultTableModel) tblRecSubDoc.getModel();
         model.setRowCount(0); // Clear existing rows
 

@@ -4,6 +4,7 @@
  */
 package ui.CustomsAgentRole;
 
+import Business.ConfigureASystem;
 import Business.Enterprise.Enterprise;
 import Business.Logistics.CustomsDeclaration;
 import Business.Organization.CustomsLiaisonOrganization;
@@ -55,8 +56,30 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         this.enterprise = enterprise;
         this.organization = organization;
 
-        // Set up the dashboard
+        // 如果传入的组织为空，尝试使用物流组织的数据
+        if (organization == null) {
+            System.out.println("Warning: Null organization passed to CustomsLiaisonOfficeHP");
+
+            if (ConfigureASystem.logisticsOrg != null
+                    && ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
+
+                // 创建新的海关组织实例
+                this.organization = new CustomsLiaisonOrganization();
+                // 使用物流组织的报关数据
+                this.organization.setCustomsDeclarationDirectory(
+                        ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory());
+
+                System.out.println("Using customs declarations from logistics organization");
+            } else {
+                System.out.println("Warning: No logistics organization data available");
+                lblAlerts.setText("Error: Customs organization data not available");
+                return;
+            }
+        } else {
+            this.organization = organization;
+        }
         populateDashboard();
+
     }
 
     private void populateDashboard() {
@@ -74,6 +97,17 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
     }
 
     private void updateStatisticsPanels() {
+        // Check if organization is null
+        if (organization == null || organization.getCustomsDeclarationDirectory() == null) {
+            System.out.println("Warning: Organization or customs declaration directory is null");
+            // Set default values
+            lblPendingReviews.setText("Pending Reviews: 0");
+            lblApprovedDocs.setText("Approved Documents: 0");
+            lblRejectedDocs.setText("Rejected Documents: 0");
+            lblTaxReturns.setText("Tax Returns: 0");
+            return;
+        }
+
         // Get counts from the organization's customs declaration directory
         int pendingCount = organization.getCustomsDeclarationDirectory().getDeclarationCountByStatus("Pending");
         int approvedCount = organization.getCustomsDeclarationDirectory().getDeclarationCountByStatus("Approved");
@@ -90,6 +124,17 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
     }
 
     private void populatePendingDocsTable() {
+        // Check if organization is null
+        if (organization == null || organization.getCustomsDeclarationDirectory() == null) {
+            System.out.println("Warning: Organization or customs declaration directory is null");
+            // Set default values
+            lblPendingReviews.setText("Pending Reviews: 0");
+            lblApprovedDocs.setText("Approved Documents: 0");
+            lblRejectedDocs.setText("Rejected Documents: 0");
+            lblTaxReturns.setText("Tax Returns: 0");
+            return;
+        }
+
         DefaultTableModel model = (DefaultTableModel) tblPendingDocs.getModel();
         model.setRowCount(0); // Clear existing rows
 
@@ -110,6 +155,17 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
     }
 
     private void populateRecentActivitiesTable() {
+        // Check if organization is null
+        if (organization == null || organization.getCustomsDeclarationDirectory() == null) {
+            System.out.println("Warning: Organization or customs declaration directory is null");
+            // Set default values
+            lblPendingReviews.setText("Pending Reviews: 0");
+            lblApprovedDocs.setText("Approved Documents: 0");
+            lblRejectedDocs.setText("Rejected Documents: 0");
+            lblTaxReturns.setText("Tax Returns: 0");
+            return;
+        }
+
         DefaultTableModel model = (DefaultTableModel) tblRecentActivities.getModel();
         model.setRowCount(0); // Clear existing rows
 
@@ -131,6 +187,17 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
     }
 
     private void updateAlerts() {
+        // Check if organization is null
+        if (organization == null || organization.getCustomsDeclarationDirectory() == null) {
+            System.out.println("Warning: Organization or customs declaration directory is null");
+            // Set default values
+            lblPendingReviews.setText("Pending Reviews: 0");
+            lblApprovedDocs.setText("Approved Documents: 0");
+            lblRejectedDocs.setText("Rejected Documents: 0");
+            lblTaxReturns.setText("Tax Returns: 0");
+            return;
+        }
+
         // Get overdue declarations
         List<CustomsDeclaration> overdueDeclarations = organization.getCustomsDeclarationDirectory().getOverdueDeclarations();
 
@@ -516,7 +583,17 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
 
     private void btnSubmitDocsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitDocsActionPerformed
         // TODO add your handling code here:
-        // Create and display submit documents panel
+        // 检查 userProcessContainer 和 organization 是否为 null
+        if (userProcessContainer == null) {
+            System.out.println("Warning: userProcessContainer is null");
+            JOptionPane.showMessageDialog(this,
+                    "Error: Cannot navigate to Submit Documents. Application not properly initialized.",
+                    "Navigation Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 创建并显示提交文档面板
         SubmitDoc submitPanel = new SubmitDoc(userProcessContainer, userAccount, organization);
         userProcessContainer.add("SubmitDocuments", submitPanel);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
@@ -531,6 +608,25 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
     private void btnDocReviewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDocReviewActionPerformed
         // TODO add your handling code here:
         // Create and display document review panel
+        // 检查 userProcessContainer 和 organization 是否为 null
+        if (userProcessContainer == null) {
+            System.out.println("Warning: userProcessContainer is null");
+            JOptionPane.showMessageDialog(this,
+                    "Error: Cannot navigate to Document Review. Application not properly initialized.",
+                    "Navigation Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (organization == null) {
+            System.out.println("Warning: organization is null");
+            JOptionPane.showMessageDialog(this,
+                    "Error: Cannot access document review. Customs data not available.",
+                    "Organization Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         DocumentReview reviewPanel = new DocumentReview(userProcessContainer, userAccount, organization);
         userProcessContainer.add("DocumentReview", reviewPanel);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
@@ -539,7 +635,17 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
 
     private void btnReturnTaxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReturnTaxActionPerformed
         // TODO add your handling code here:
-        // Create and display tax return panel
+        // 检查 userProcessContainer 和 organization 是否为 null
+        if (userProcessContainer == null) {
+            System.out.println("Warning: userProcessContainer is null");
+            JOptionPane.showMessageDialog(this,
+                    "Error: Cannot navigate to Return Tax. Application not properly initialized.",
+                    "Navigation Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 创建并显示退税面板
         ReturnTax taxPanel = new ReturnTax(userProcessContainer, userAccount, organization);
         userProcessContainer.add("ReturnTax", taxPanel);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
