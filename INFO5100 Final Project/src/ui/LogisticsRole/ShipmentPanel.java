@@ -13,18 +13,23 @@ import Business.Logistics.TrackingInfo;
 import Business.Organization.Organization;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.image.BufferedImage;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
@@ -32,6 +37,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import jdk.tools.jlink.internal.Platform;
@@ -840,87 +846,44 @@ public class ShipmentPanel extends javax.swing.JPanel {
     }
 
     private void showTrackingMap(Shipment shipment) {
-        if (shipment == null) {
-            return;
-        }
-
-        List<TrackingInfo> trackingHistory = shipment.getTrackingHistory();
-        if (trackingHistory.isEmpty()) {
-            return;
-        }
-
-        StringBuilder mapHtml = new StringBuilder();
-        mapHtml.append("<!DOCTYPE html>")
-                .append("<html>")
-                .append("<head>")
-                .append("<style>")
-                .append("body { margin: 0; padding: 0; }")
-                .append("#map { height: 100vh; width: 100%; }")
-                .append("</style>")
-                .append("<script src=\"https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY\"></script>")
-                .append("<script>")
-                .append("function initMap() {")
-                .append("  const map = new google.maps.Map(document.getElementById('map'), {")
-                .append("    zoom: 4,")
-                .append("    center: { lat: 31.2304, lng: 121.4737 }") // Default center (Shanghai)
-                .append("  });")
-                .append("  const locations = [");
-
-        // Add all tracking points
-        for (TrackingInfo info : trackingHistory) {
-            mapHtml.append("{")
-                    .append("position: { lat: ").append(info.getLatitude())
-                    .append(", lng: ").append(info.getLongitude()).append(" },")
-                    .append("title: '").append(escapeJavaScript(info.getLocation())).append("',")
-                    .append("info: '").append(escapeJavaScript(info.getDescription())).append("',")
-                    .append("time: '").append(escapeJavaScript(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(info.getTimestamp()))).append("'")
-                    .append("},");
-        }
-
-        mapHtml.append("];")
-                // Add path line
-                .append("const path = new google.maps.Polyline({")
-                .append("  path: locations.map(loc => loc.position),")
-                .append("  geodesic: true,")
-                .append("  strokeColor: '#FF0000',")
-                .append("  strokeOpacity: 1.0,")
-                .append("  strokeWeight: 2")
-                .append("});")
-                .append("path.setMap(map);")
-                // Add markers and info windows
-                .append("const infoWindow = new google.maps.InfoWindow();")
-                .append("locations.forEach((location, i) => {")
-                .append("  const marker = new google.maps.Marker({")
-                .append("    position: location.position,")
-                .append("    map: map,")
-                .append("    title: location.title,")
-                .append("    label: (i + 1).toString()")
-                .append("  });")
-                .append("  marker.addListener('click', () => {")
-                .append("    infoWindow.setContent(")
-                .append("      '<div style=\"padding: 10px;\">' +")
-                .append("      '<h3>' + location.title + '</h3>' +")
-                .append("      '<p><strong>Time: </strong>' + location.time + '</p>' +")
-                .append("      '<p><strong>Description: </strong>' + location.info + '</p>' +")
-                .append("      '</div>'")
-                .append("    );")
-                .append("    infoWindow.open(map, marker);")
-                .append("  });")
-                .append("});")
-                // Auto-adjust map viewport to show all markers
-                .append("const bounds = new google.maps.LatLngBounds();")
-                .append("locations.forEach(location => bounds.extend(location.position));")
-                .append("map.fitBounds(bounds);")
-                .append("}")
-                .append("</script>")
-                .append("</head>")
-                .append("<body onload=\"initMap()\">")
-                .append("<div id=\"map\"></div>")
-                .append("</body></html>");
-
         try {
-            mapView.setText(mapHtml.toString());
-            updateTrackingInfo(shipment, trackingHistory);
+            // 清除现有内容
+            trackPathJPanel.removeAll();
+            trackPathJPanel.setLayout(new BorderLayout());
+
+            // 创建标题
+            JLabel titleLabel = new JLabel("Shipment Tracking Map", JLabel.CENTER);
+            titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+            trackPathJPanel.add(titleLabel, BorderLayout.NORTH);
+
+            // 测试一个最简单的静态地图URL
+            String apiKey = "AIzaSyCsxjLs6wmSHnIQDKTxAtynpNfMAecSWqY";
+            String staticMapUrl = "https://maps.googleapis.com/maps/api/staticmap?center=31.2304,121.4737&zoom=10&size=600x400&key=" + apiKey;
+
+            System.out.println("Testing simple static map URL: " + staticMapUrl);
+
+            // 请求并显示地图图像
+            URL url = new URL(staticMapUrl);
+            BufferedImage image = ImageIO.read(url);
+
+            if (image != null) {
+                JLabel mapLabel = new JLabel(new ImageIcon(image));
+                trackPathJPanel.add(new JScrollPane(mapLabel), BorderLayout.CENTER);
+
+                // 添加信息面板（如果shipment不为空）
+                if (shipment != null && shipment.getTrackingHistory() != null && !shipment.getTrackingHistory().isEmpty()) {
+                    JPanel infoPanel = createSimpleTrackingInfoPanel(shipment);
+                    trackPathJPanel.add(infoPanel, BorderLayout.EAST);
+                }
+            } else {
+                JLabel errorLabel = new JLabel("Unable to load map image.", JLabel.CENTER);
+                trackPathJPanel.add(errorLabel, BorderLayout.CENTER);
+            }
+
+            // 刷新面板
+            trackPathJPanel.revalidate();
+            trackPathJPanel.repaint();
+
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this,
@@ -928,6 +891,88 @@ public class ShipmentPanel extends javax.swing.JPanel {
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    // 简化版的跟踪信息面板
+    private JPanel createSimpleTrackingInfoPanel(Shipment shipment) {
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        infoPanel.setPreferredSize(new Dimension(250, 400));
+
+        JLabel titleLabel = new JLabel("Shipment Information");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        infoPanel.add(titleLabel);
+        infoPanel.add(Box.createVerticalStrut(10));
+
+        infoPanel.add(new JLabel("Tracking #: " + shipment.getTrackingNumber()));
+        infoPanel.add(new JLabel("Status: " + shipment.getShipmentStatus()));
+        infoPanel.add(new JLabel("Origin: " + shipment.getOrigin()));
+        infoPanel.add(new JLabel("Destination: " + shipment.getDestination()));
+
+        return infoPanel;
+    }
+
+    // 创建跟踪信息面板
+    private JPanel createTrackingInfoPanel(Shipment shipment, List<TrackingInfo> trackingHistory) {
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // 添加基本运输信息
+        JLabel titleLabel = new JLabel("Shipment Information");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        infoPanel.add(titleLabel);
+
+        JPanel basicInfoPanel = new JPanel();
+        basicInfoPanel.setLayout(new GridLayout(0, 1));
+        basicInfoPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        basicInfoPanel.setBorder(BorderFactory.createEtchedBorder());
+
+        basicInfoPanel.add(new JLabel("Tracking Number: " + shipment.getTrackingNumber()));
+        basicInfoPanel.add(new JLabel("Order ID: " + shipment.getOrderId()));
+        basicInfoPanel.add(new JLabel("Status: " + shipment.getShipmentStatus()));
+        basicInfoPanel.add(new JLabel("Origin: " + shipment.getOrigin()));
+        basicInfoPanel.add(new JLabel("Destination: " + shipment.getDestination()));
+        basicInfoPanel.add(new JLabel("Current Location: " + shipment.getCurrentLocation()));
+
+        infoPanel.add(basicInfoPanel);
+        infoPanel.add(Box.createVerticalStrut(20));
+
+        // 添加跟踪历史标题
+        JLabel historyLabel = new JLabel("Tracking History");
+        historyLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        historyLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        infoPanel.add(historyLabel);
+
+        // 创建一个带滚动条的跟踪历史面板
+        JPanel historyListPanel = new JPanel();
+        historyListPanel.setLayout(new BoxLayout(historyListPanel, BoxLayout.Y_AXIS));
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        for (int i = 0; i < trackingHistory.size(); i++) {
+            TrackingInfo info = trackingHistory.get(i);
+
+            JPanel trackPointPanel = new JPanel();
+            trackPointPanel.setLayout(new GridLayout(0, 1));
+            trackPointPanel.setBorder(BorderFactory.createTitledBorder((i + 1) + ". " + info.getLocation()));
+            trackPointPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            trackPointPanel.add(new JLabel("Time: " + dateFormat.format(info.getTimestamp())));
+            trackPointPanel.add(new JLabel("Status: " + info.getStatus()));
+            trackPointPanel.add(new JLabel("Description: " + info.getDescription()));
+
+            historyListPanel.add(trackPointPanel);
+            historyListPanel.add(Box.createVerticalStrut(10));
+        }
+
+        JScrollPane historyScrollPane = new JScrollPane(historyListPanel);
+        historyScrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+        infoPanel.add(historyScrollPane);
+
+        return infoPanel;
     }
 
     private JPanel createControlPanel() {

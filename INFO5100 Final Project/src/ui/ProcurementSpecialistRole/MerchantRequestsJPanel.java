@@ -4,6 +4,7 @@
  */
 package ui.ProcurementSpecialistRole;
 
+import Business.Enterprise.Enterprise;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.CardLayout;
@@ -15,6 +16,9 @@ import Business.WorkQueue.WorkRequest;
 import java.util.List;
 import java.util.ArrayList;
 import Business.Product.Product;
+import Business.UserAccount.UserAccount;
+import Business.WorkQueue.ProcurementWorkRequest;
+import java.util.Date;
 
 /**
  *
@@ -26,17 +30,21 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
     private DefaultTableModel cartTableModel;
     private JPanel userProcessContainer;
     private Warehouse warehouse;
+    private Enterprise enterprise;          // 添加
+    private UserAccount userAccount;        // 添加
 
     /**
      * Creates new form WarehouseRequestsJPanel
      */
-    public MerchantRequestsJPanel(JPanel userProcessContainer) {
+    public MerchantRequestsJPanel(JPanel userProcessContainer, Enterprise enterprise, UserAccount account) {
         initComponents();
         this.userProcessContainer = userProcessContainer;
+        this.enterprise = enterprise;
+        this.userAccount = account;
         orderDirectory = new OrderDirectory();
         warehouse = Warehouse.getInstance();
         setupCartTable();
-        
+
         // 加载所有商家请求
         loadMerchantRequests();
     }
@@ -46,15 +54,15 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
         cartTableModel = (DefaultTableModel) tblCart.getModel();
         cartTableModel.setColumnIdentifiers(columnNames);
     }
-    
+
     private void loadMerchantRequests() {
         // 清空表格
         DefaultTableModel model = (DefaultTableModel) RequestTable1.getModel();
         model.setRowCount(0);
-        
+
         // 打印调试信息
         System.out.println("开始加载商家请求表格...");
-        
+
         // 从EcoSystem获取商家请求
         List<WorkRequest> requests = new ArrayList<>();
         Business.EcoSystem system = Business.EcoSystem.getInstance();
@@ -66,9 +74,9 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
                     // 确保至少有产品ID才添加请求
                     if (merchantReq.getProductId() != null && !merchantReq.getProductId().trim().isEmpty()) {
                         requests.add(req);
-                        System.out.println("找到有效商家请求: 产品=" + merchantReq.getProductName() + 
-                                         ", ID=" + merchantReq.getProductId() + 
-                                         ", 状态=" + merchantReq.getStatus());
+                        System.out.println("找到有效商家请求: 产品=" + merchantReq.getProductName()
+                                + ", ID=" + merchantReq.getProductId()
+                                + ", 状态=" + merchantReq.getStatus());
                     } else {
                         System.out.println("跳过无效请求: 产品ID为空");
                     }
@@ -77,51 +85,51 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
         } else {
             System.err.println("错误: 系统工作队列为空");
         }
-        
+
         if (requests.isEmpty()) {
             System.out.println("未找到有效商家请求，显示表格为空!");
             return;
         }
-        
+
         System.out.println("共找到 " + requests.size() + " 个有效商家请求");
-        
+
         // 过滤请求（根据下拉框状态）
         String selectedStatus = StatusjComboBox.getSelectedItem().toString();
         String searchId = txtSearchRequestID.getText().trim();
-        
+
         System.out.println("筛选条件 - 状态: " + selectedStatus + ", 搜索文本: " + searchId);
-        
+
         // 如果搜索框包含默认提示文本，则视为空搜索
         if ("Saerch Request ID...".equals(searchId)) {
             searchId = "";
         }
-        
+
         int addedRows = 0;
         for (WorkRequest request : requests) {
             MerchantWorkRequest merchantRequest = (MerchantWorkRequest) request;
-            
+
             // 创建请求ID：REQ-产品ID
             String requestId = "REQ-" + merchantRequest.getProductId();
-            
+
             // 根据状态筛选
-            boolean statusMatch = "All".equals(selectedStatus) || selectedStatus.isEmpty() || 
-                           merchantRequest.getStatus() == null || merchantRequest.getStatus().equals(selectedStatus);
-            
+            boolean statusMatch = "All".equals(selectedStatus) || selectedStatus.isEmpty()
+                    || merchantRequest.getStatus() == null || merchantRequest.getStatus().equals(selectedStatus);
+
             // 根据ID或产品名称筛选
-            boolean searchMatch = searchId.isEmpty() || 
-                           requestId.toLowerCase().contains(searchId.toLowerCase()) || 
-                           (merchantRequest.getProductName() != null && 
-                            merchantRequest.getProductName().toLowerCase().contains(searchId.toLowerCase()));
-            
+            boolean searchMatch = searchId.isEmpty()
+                    || requestId.toLowerCase().contains(searchId.toLowerCase())
+                    || (merchantRequest.getProductName() != null
+                    && merchantRequest.getProductName().toLowerCase().contains(searchId.toLowerCase()));
+
             System.out.println("检查请求 " + requestId + " - 状态匹配: " + statusMatch + ", 搜索匹配: " + searchMatch);
-            
+
             if (statusMatch && searchMatch) {
                 // 防止空值引起的错误
-                String displayProductName = merchantRequest.getProductName() != null ? 
-                                          merchantRequest.getProductName() : "未命名产品";
-                String displayStatus = merchantRequest.getStatus() != null ? 
-                                     merchantRequest.getStatus() : "Pending";
-                
+                String displayProductName = merchantRequest.getProductName() != null
+                        ? merchantRequest.getProductName() : "未命名产品";
+                String displayStatus = merchantRequest.getStatus() != null
+                        ? merchantRequest.getStatus() : "Pending";
+
                 // 创建表格行
                 Object[] row = new Object[5];
                 // 表格列: Request ID, Product Name, Quantity, Update Date, Status
@@ -130,30 +138,23 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
                 row[2] = merchantRequest.getRequestedAmount(); // 请求数量
                 row[3] = merchantRequest.getRequestDate(); // 更新日期
                 row[4] = displayStatus;                    // 状态
-                
+
                 model.addRow(row);
                 addedRows++;
-                
-                System.out.println("添加到表格: " + displayProductName + 
-                                 ", 状态: " + displayStatus +
-                                 ", 请求数量: " + merchantRequest.getRequestedAmount());
+
+                System.out.println("添加到表格: " + displayProductName
+                        + ", 状态: " + displayStatus
+                        + ", 请求数量: " + merchantRequest.getRequestedAmount());
             }
         }
-        
+
         System.out.println("表格加载完成，共添加了 " + addedRows + " 行数据");
     }
-    
-    
-    
+
     private void refreshRequestTable() {
         loadMerchantRequests();
     }
 
-    
-    
-    
-    
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -406,32 +407,32 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
     private void btnrejectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnrejectActionPerformed
         int selectedRow = RequestTable1.getSelectedRow();
         if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, 
-                "Please select a request to reject", 
-                "Warning", 
-                JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Please select a request to reject",
+                    "Warning",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
+
         String requestId = RequestTable1.getValueAt(selectedRow, 0).toString();
-        
+
         // 检查请求状态
         String status = RequestTable1.getValueAt(selectedRow, 4).toString();
         if ("Completed".equals(status) || "Rejected".equals(status)) {
-            JOptionPane.showMessageDialog(this, 
-                "This request has already been " + status.toLowerCase(), 
-                "Info", 
-                JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "This request has already been " + status.toLowerCase(),
+                    "Info",
+                    JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        
+
         // 更新请求状态为已拒绝
         updateRequestStatus(requestId, "Rejected");
-        
-        JOptionPane.showMessageDialog(this, 
-            "Request has been rejected", 
-            "Success", 
-            JOptionPane.INFORMATION_MESSAGE);
+
+        JOptionPane.showMessageDialog(this,
+                "Request has been rejected",
+                "Success",
+                JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnrejectActionPerformed
 
     private void btnRemoveOrderItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveOrderItemActionPerformed
@@ -474,73 +475,124 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
             return;
         }
 
-        // 处理结账逻辑
-        for (Order order : orderDirectory.getOrderList()) {
-            order.setStatus("Completed");
-            // 添加订单处理时间
-            order.setProcessDate(new java.util.Date());
-            // 通知仓库
-            notifyWarehouse(order);
-        }
+        try {
+            // 处理结账逻辑
+            for (Order order : orderDirectory.getOrderList()) {
+                // 基本订单处理
+                order.setStatus("Completed");
+                order.setProcessDate(new java.util.Date());
 
-        // 清空购物车
-        orderDirectory = new OrderDirectory();
-        updateCartTable();
-        
-        // 刷新请求列表
-        loadMerchantRequests();
-        
-        JOptionPane.showMessageDialog(this, "Orders have been processed successfully!");
+                // 从请求ID中提取产品ID
+                String requestId = order.getRequestId();
+                String productId = "";
+                if (requestId.startsWith("REQ-")) {
+                    productId = requestId.substring(4); // 移除"REQ-"前缀
+                } else {
+                    productId = "PROD-" + System.currentTimeMillis(); // 创建一个临时ID
+                }
+
+                // 创建仓库采购工作请求
+                ProcurementWorkRequest procRequest = new ProcurementWorkRequest();
+                procRequest.setProductId(productId);
+                procRequest.setProductName(order.getProductName());
+                procRequest.setRequestedAmount(order.getQuantity());
+                procRequest.setCurrentAmount(0); // 初始数量为0
+                procRequest.setStatus("Pending");
+                procRequest.setMessage("PROC-" + requestId + ": Merchant order procurement");
+
+                // 设置发送者
+                if (userAccount != null) {
+                    procRequest.setSender(userAccount);
+                    System.out.println("Set sender for procurement request: " + userAccount.getUsername());
+                } else {
+                    System.out.println("Warning: userAccount is null, sender not set for procurement request");
+                }
+
+                // 设置请求日期
+                procRequest.setRequestDate(new Date());
+
+                // 添加到仓库的工作队列
+                // 注意：这里有两种可能的方式添加请求
+                // 方式1：直接添加到仓库实例的工作队列
+                Warehouse.getInstance().getWorkQueue().getWorkRequestList().add(procRequest);
+
+                // 方式2：添加到系统全局工作队列
+                Business.EcoSystem system = Business.EcoSystem.getInstance();
+                if (system.getWorkQueue() != null) {
+                    system.getWorkQueue().getWorkRequestList().add(procRequest);
+                }
+
+                System.out.println("Created procurement request: " + procRequest.getMessage());
+
+                // 通知仓库（如果需要额外处理）
+                notifyWarehouse(order);
+            }
+
+            // 清空购物车
+            orderDirectory = new OrderDirectory();
+            updateCartTable();
+
+            // 刷新请求列表
+            loadMerchantRequests();
+
+            JOptionPane.showMessageDialog(this, "Orders have been processed successfully!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error processing orders: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnCheckOutActionPerformed
 
     private void btnProcessOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProcessOrderActionPerformed
         // 获取选中的行
         int selectedRow = RequestTable1.getSelectedRow();
         if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, 
-                "Please select a request", 
-                "Warning", 
-                JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Please select a request",
+                    "Warning",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
+
         String requestId = RequestTable1.getValueAt(selectedRow, 0).toString();
         String productName = RequestTable1.getValueAt(selectedRow, 1).toString();
         int quantity = Integer.parseInt(RequestTable1.getValueAt(selectedRow, 2).toString());
-        
+
         // 检查请求状态
         String status = RequestTable1.getValueAt(selectedRow, 4).toString();
         if ("Completed".equals(status) || "Rejected".equals(status)) {
-            JOptionPane.showMessageDialog(this, 
-                "This request has already been " + status.toLowerCase(), 
-                "Info", 
-                JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "This request has already been " + status.toLowerCase(),
+                    "Info",
+                    JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        
+
         // 创建订单项
         Order order = new Order();
         order.setRequestId(requestId);
         order.setProductName(productName);
         order.setQuantity(quantity);
         order.setStatus("Processing");
-        
+
         // 获取产品实际价格，而不是使用固定价格
         double actualPrice = getPriceForProduct(productName);
         order.setPurchaseCost(actualPrice);
         order.setTotalAmount(actualPrice * quantity);
-        
+
         // 添加到购物车
         orderDirectory.addOrder(order);
         updateCartTable();
-        
+
         // 将请求状态更新为处理中
         updateRequestStatus(requestId, "Processing");
-        
-        JOptionPane.showMessageDialog(this, 
-            "Request added to processing cart", 
-            "Success", 
-            JOptionPane.INFORMATION_MESSAGE);
+
+        JOptionPane.showMessageDialog(this,
+                "Request added to processing cart",
+                "Success",
+                JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnProcessOrderActionPerformed
 
     private void updateCartTable() {
@@ -567,7 +619,7 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
                 }
             }
         }
-        
+
         for (WorkRequest request : requests) {
             MerchantWorkRequest merchantRequest = (MerchantWorkRequest) request;
             if (merchantRequest.getMessage().contains(requestId)) {
@@ -575,7 +627,7 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
                 break;
             }
         }
-        
+
         loadMerchantRequests(); // 刷新表格
     }
 
@@ -584,10 +636,10 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
         String requestId = order.getRequestId();
         String productName = order.getProductName();
         int actualAmount = order.getQuantity();
-        
+
         // 更新请求状态为已完成
         updateRequestStatus(requestId, "Completed");
-        
+
         // 检查仓库中是否有对应产品
         boolean found = false;
         for (Product product : warehouse.getAvailableProducts()) {
@@ -596,12 +648,12 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
                 // 如果仓库有足够库存，直接从仓库获取
                 if (warehouse.getProductAmount(product.getProductId()) >= actualAmount) {
                     warehouse.decreaseStock(product.getProductId(), actualAmount);
-                    System.out.println("Fulfilled merchant request: " + requestId + 
-                                   " for " + productName + " with " + actualAmount + " units from warehouse");
+                    System.out.println("Fulfilled merchant request: " + requestId
+                            + " for " + productName + " with " + actualAmount + " units from warehouse");
                 } else {
                     // 如果库存不足，创建采购请求
-                    System.out.println("Insufficient stock for merchant request: " + requestId + 
-                                   ". Creating procurement request for " + productName);
+                    System.out.println("Insufficient stock for merchant request: " + requestId
+                            + ". Creating procurement request for " + productName);
                     // 增加一个新的采购请求
                     Business.WorkQueue.ProcurementWorkRequest procRequest = new Business.WorkQueue.ProcurementWorkRequest();
                     procRequest.setProductId(product.getProductId());
@@ -610,30 +662,30 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
                     procRequest.setCurrentAmount(warehouse.getProductAmount(product.getProductId()));
                     procRequest.setMessage("PROC-" + requestId + ": Procurement needed for merchant request");
                     procRequest.setStatus("Pending");
-                    
+
                     // 添加采购请求到仓库的工作队列
                     warehouse.getWorkQueue().getWorkRequestList().add(procRequest);
                 }
                 break;
             }
         }
-        
+
         if (!found) {
             System.out.println("Product not found in warehouse: " + productName + ". Need to order from supplier.");
-            JOptionPane.showMessageDialog(this, 
-                "Product " + productName + " not found in warehouse inventory. A procurement order will be created.", 
-                "Product Not Found", 
-                JOptionPane.WARNING_MESSAGE);
-            
+            JOptionPane.showMessageDialog(this,
+                    "Product " + productName + " not found in warehouse inventory. A procurement order will be created.",
+                    "Product Not Found",
+                    JOptionPane.WARNING_MESSAGE);
+
             // 创建一个新的产品并添加采购请求
             Product newProduct = new Product(
-                "NEW-" + System.currentTimeMillis(),  // 临时ID
-                productName,
-                order.getPurchaseCost(),
-                0,  // 当前数量为0
-                actualAmount / 2  // 设置一个合理的警告阈值
+                    "NEW-" + System.currentTimeMillis(), // 临时ID
+                    productName,
+                    order.getPurchaseCost(),
+                    0, // 当前数量为0
+                    actualAmount / 2 // 设置一个合理的警告阈值
             );
-            
+
             // 添加采购请求
             Business.WorkQueue.ProcurementWorkRequest procRequest = new Business.WorkQueue.ProcurementWorkRequest();
             procRequest.setProductId(newProduct.getProductId());
@@ -642,7 +694,7 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
             procRequest.setCurrentAmount(0);
             procRequest.setMessage("PROC-NEW-" + requestId + ": New product procurement needed for merchant request");
             procRequest.setStatus("Pending");
-            
+
             // 添加采购请求到仓库的工作队列
             warehouse.getWorkQueue().getWorkRequestList().add(procRequest);
         }
@@ -682,7 +734,7 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
                 return product.getPrice(); // 使用正确的getPrice()方法
             }
         }
-        
+
         // 如果在仓库中找不到产品，尝试从商家工作请求中获取价格
         Business.EcoSystem system = Business.EcoSystem.getInstance();
         if (system.getWorkQueue() != null) {
@@ -697,7 +749,7 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
                 }
             }
         }
-        
+
         // 如果无法获取实际价格，记录警告并返回默认价格
         System.out.println("警告: 无法获取产品 '" + productName + "' 的价格，使用默认价格100.0");
         return 100.0; // 默认价格，仅作为备选

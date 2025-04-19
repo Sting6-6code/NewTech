@@ -6,8 +6,11 @@ package ui.ProcurementSpecialistRole;
 
 
 
+import Business.Enterprise.Enterprise;
 import Business.Supplier.Supplier;
+import Business.UserAccount.UserAccount;
 import java.awt.CardLayout;
+import javax.swing.JPanel;
 
 /**
  *
@@ -20,9 +23,16 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
      */
     private Supplier supplier;
     private String username;
+    private Enterprise enterprise;
+    private UserAccount account;
+    private JPanel userProcessContainer;
     
     public ProcurementSpecialistHP(String username) {
         initComponents();
+        this.userProcessContainer = userProcessContainer;
+        this.enterprise = enterprise;
+        this.account = account;
+        
         this.username = username;
         
         // 初始化面板布局
@@ -124,7 +134,7 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
 
     private void btnMerchantRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMerchantRequestActionPerformed
         // TODO add your handling code here:
-        MerchantRequestsJPanel warehouseRequestsJPanel = new MerchantRequestsJPanel(ProcurementSpecialistWorkAreajPanel);
+        MerchantRequestsJPanel warehouseRequestsJPanel = new MerchantRequestsJPanel(ProcurementSpecialistWorkAreajPanel, enterprise, account);
         ProcurementSpecialistWorkAreajPanel.add("WarehouseRequestsJPanel", warehouseRequestsJPanel);
         CardLayout layout = (CardLayout) ProcurementSpecialistWorkAreajPanel.getLayout();
         layout.next(ProcurementSpecialistWorkAreajPanel);    
