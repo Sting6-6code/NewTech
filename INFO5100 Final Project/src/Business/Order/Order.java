@@ -22,6 +22,7 @@ public class Order {
     private Date processDate;
     private Date createDate;
     private String supplierInfo;
+    private String orderId;
 
     public Order() {
         this.status = "Pending";
@@ -116,4 +117,13 @@ public class Order {
     public String getSupplierInfo() {
         return supplierInfo;
     }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+    
 }

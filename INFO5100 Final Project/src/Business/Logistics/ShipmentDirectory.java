@@ -23,6 +23,12 @@ public class ShipmentDirectory {
         return shipments;
     }
 
+    public void addShipment(Shipment shipment) {
+        if (shipment != null && !shipments.contains(shipment)) {
+            shipments.add(shipment);
+        }
+    }
+
     public Shipment createShipment(String shipmentId, String trackingNumber) {
         Shipment shipment = new Shipment(shipmentId, trackingNumber);
         shipments.add(shipment);
