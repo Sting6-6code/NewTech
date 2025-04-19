@@ -44,7 +44,13 @@ public class MerchantRole extends Role{
     }
 
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-        ui.MerchantRole.MerchantHP merchantHP = new ui.MerchantRole.MerchantHP();
+        System.out.println("Creating MerchantHP with username: " + 
+            (account != null ? account.getUsername() : "null"));
+            
+        ui.MerchantRole.MerchantHP merchantHP = new ui.MerchantRole.MerchantHP(userProcessContainer, account.getUsername());
+        
+        // Set the account on the merchant homepage
+        merchantHP.setAccount(account);
         
         // Initialize with the demo supplier if available
         if (demoSupplier != null) {

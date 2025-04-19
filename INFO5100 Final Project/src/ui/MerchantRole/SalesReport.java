@@ -5,6 +5,7 @@
 package ui.MerchantRole;
 
 import Business.Product.SalesRecord;
+import Business.Product.SalesRecordDirectory;
 import Business.Product.SalesReportModel;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.CardLayout;
 import javax.swing.JPanel;
+import java.util.Calendar;
 
 /**
  *
@@ -25,7 +27,7 @@ import javax.swing.JPanel;
  */
 public class SalesReport extends javax.swing.JPanel {
 
-    private List<SalesRecord> salesRecords;
+    private SalesRecordDirectory salesRecordDirectory;
     private SalesReportModel reportModel;
     private JPanel userProcessContainer;
 
@@ -35,7 +37,7 @@ public class SalesReport extends javax.swing.JPanel {
     public SalesReport(JPanel userProcessContainer) {
         initComponents();
         this.userProcessContainer = userProcessContainer;
-        this.salesRecords = new ArrayList<>();
+        this.salesRecordDirectory = new SalesRecordDirectory();
         this.reportModel = new SalesReportModel();
     }
 
@@ -232,13 +234,10 @@ public class SalesReport extends javax.swing.JPanel {
         String end = sdf.format(endDateChooser.getDate());
         
         // 生成示例数据
-        salesRecords.clear();
-        salesRecords.add(new SalesRecord(1, "P001", "Laptop", 999.99, 2, 1999.98, 
-            startDateChooser.getDate(), "C001"));
-        salesRecords.add(new SalesRecord(2, "P002", "Mouse", 49.99, 5, 249.95, 
-            startDateChooser.getDate(), "C002"));
+        generateSampleData();
         
         // 创建报表模型
+        List<SalesRecord> salesRecords = salesRecordDirectory.getSalesRecordList();
         reportModel = new SalesReportModel(salesRecords, startDateChooser.getDate(), endDateChooser.getDate());
         
         // 生成报表文本
@@ -264,11 +263,10 @@ public class SalesReport extends javax.swing.JPanel {
         for (Map.Entry<String, Double> entry : productSales.entrySet()) {
             String productId = entry.getKey();
             String productName = "Unknown";
-            for (SalesRecord record : salesRecords) {
-                if (record.getProductId().equals(productId)) {
-                    productName = record.getProductName();
-                    break;
-                }
+            // Find product name from the first matching record
+            List<SalesRecord> matchingRecords = salesRecordDirectory.findSalesRecordsByProductId(productId);
+            if (!matchingRecords.isEmpty()) {
+                productName = matchingRecords.get(0).getProductName();
             }
             report.append(productName)
                  .append(" (").append(productId).append(")")
@@ -282,6 +280,35 @@ public class SalesReport extends javax.swing.JPanel {
         // 更新图表
         chartPanelBean1.updateChart(reportModel);
     }//GEN-LAST:event_btnGenerateActionPerformed
+
+    /**
+     * Generate sample sales data for demonstration
+     */
+    private void generateSampleData() {
+        // Clear existing records
+        salesRecordDirectory = new SalesRecordDirectory();
+        
+        // Add sample records with today's date
+        Date today = startDateChooser.getDate(); // Use selected date for sample data
+        
+        // Add various products with different quantities and prices
+        salesRecordDirectory.createSalesRecord("P001", "Laptop", 999.99, 2, today, "C001");
+        salesRecordDirectory.createSalesRecord("P002", "Mouse", 49.99, 5, today, "C002");
+        salesRecordDirectory.createSalesRecord("P003", "Keyboard", 89.99, 3, today, "C003");
+        salesRecordDirectory.createSalesRecord("P004", "Monitor", 299.99, 2, today, "C001");
+        salesRecordDirectory.createSalesRecord("P005", "Headphones", 129.99, 4, today, "C004");
+        
+        // Add some records from previous day if date range allows
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(today);
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        Date yesterday = cal.getTime();
+        
+        if (!yesterday.before(startDateChooser.getDate())) {
+            salesRecordDirectory.createSalesRecord("P001", "Laptop", 999.99, 1, yesterday, "C005");
+            salesRecordDirectory.createSalesRecord("P006", "Smartphone", 799.99, 3, yesterday, "C006");
+        }
+    }
 
     private void btnExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportActionPerformed
         // TODO add your handling code here:

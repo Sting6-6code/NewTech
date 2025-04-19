@@ -170,7 +170,7 @@ public class ComplaintManagementJpanel extends javax.swing.JPanel {
 
         jLabel1.setText("Status：");
 
-        StatusjComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "New", "In Progress", "Resolved" }));
+        StatusjComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pending", "In Progress", " " }));
 
         txtSearchComplaintID.setText("Saerch Complaint ID...");
         txtSearchComplaintID.addActionListener(new java.awt.event.ActionListener() {
@@ -268,7 +268,7 @@ public class ComplaintManagementJpanel extends javax.swing.JPanel {
 
         lblPrice3.setText("Select Department Role:");
 
-        jComboBoxRole.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Customer Service ", "Merchant", "Procurement Specialist", "Warehouse", "Fintech", "Customs Agent", "Logistics" }));
+        jComboBoxRole.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Warehouse", "Customs Agent", "Logistics" }));
         jComboBoxRole.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBoxRoleActionPerformed(evt);
@@ -455,17 +455,23 @@ public class ComplaintManagementJpanel extends javax.swing.JPanel {
             return;
         }
         
-        // Update complaint status to "In Progress"
-        complaintDirectory.updateComplaintStatus(selectedComplaint.getComplaintId(), "In Progress");
-        
         // Get selected department
         String selectedDepartment = jComboBoxRole.getSelectedItem().toString();
+        
+        // Update complaint status to include the forwarded department
+        complaintDirectory.updateComplaintStatus(
+            selectedComplaint.getComplaintId(), 
+            "Forwarded to " + selectedDepartment
+        );
+        
+        System.out.println("Complaint " + selectedComplaint.getComplaintId() + 
+                " status updated to 'Forwarded to " + selectedDepartment + "'");
         
         // In a real application, this would forward the complaint to the respective department
         JOptionPane.showMessageDialog(this, 
                 "Complaint " + selectedComplaint.getComplaintId() + 
                 " has been forwarded to " + selectedDepartment + 
-                " department, status updated to 'In Progress'");
+                " department, status updated to 'Forwarded to " + selectedDepartment + "'");
         
         // Clear form and refresh table
         clearForm();

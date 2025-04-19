@@ -50,6 +50,15 @@ public class ReturnTax extends javax.swing.JPanel {
     }
 
     private void populateTable() {
+        // 添加空值检查
+        if (organization == null || organization.getTaxReturnDirectory() == null) {
+            // 清空表格或显示默认内容
+            DefaultTableModel model = (DefaultTableModel) tblReturnApp.getModel();
+            model.setRowCount(0);
+            System.out.println("Warning: Organization or tax return directory is null in ReturnTax");
+            return;
+        }
+
         DefaultTableModel model = (DefaultTableModel) tblReturnApp.getModel();
         model.setRowCount(0);
 

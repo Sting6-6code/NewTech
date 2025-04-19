@@ -6,7 +6,9 @@ package ui.MerchantRole;
 
 
 import Business.Supplier.Supplier;
+import Business.UserAccount.UserAccount;
 import java.awt.CardLayout;
+import javax.swing.JPanel;
 
 /**
  *
@@ -18,10 +20,32 @@ public class MerchantHP extends javax.swing.JPanel {
      * Creates new form LogisticsCoordinatorHP
      */
     private Supplier supplier;
+    private String username;
+    private UserAccount account;
+    private JPanel userProcessContainer;
     
     public MerchantHP() {
         initComponents();
         // Set CardLayout for jPanel
+        MerchantWorkAreajPanel.setLayout(new CardLayout());
+    }
+    
+    // Constructor with username parameter
+    public MerchantHP(String username) {
+        initComponents();
+        this.username = username;
+        
+        // Set CardLayout for panel
+        MerchantWorkAreajPanel.setLayout(new CardLayout());
+    }
+    
+    // Constructor with userProcessContainer and username parameters
+    public MerchantHP(JPanel userProcessContainer, String username) {
+        initComponents();
+        this.userProcessContainer = userProcessContainer;
+        this.username = username;
+        
+        // Set CardLayout for panel
         MerchantWorkAreajPanel.setLayout(new CardLayout());
     }
     
@@ -31,6 +55,14 @@ public class MerchantHP extends javax.swing.JPanel {
     
     public Supplier getSupplier() {
         return supplier;
+    }
+    
+    public void setAccount(UserAccount account) {
+        this.account = account;
+    }
+    
+    public UserAccount getAccount() {
+        return account;
     }
 
     /**
@@ -161,12 +193,61 @@ public class MerchantHP extends javax.swing.JPanel {
     }//GEN-LAST:event_btnReportsActionPerformed
 
     private void btnProfileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfileActionPerformed
-        // TODO add your handling code here:
-        ManageOwnProfile manageOwnProfile = new ManageOwnProfile();
+        // Use the class account variable instead of looking it up
+        System.out.println("MerchantHP: Profile button clicked, current account: " + 
+            (account != null ? account.getUsername() : "null") + ", username: " + username);
+            
+        if (account == null) {
+            System.out.println("MerchantHP: Account is null, trying to find account for username: " + username);
+            try {
+                // Print all user accounts in the system for debugging
+                System.out.println("MerchantHP: Available users in system:");
+                for (Business.UserAccount.UserAccount ua : Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList()) {
+                    System.out.println(" - Username: " + ua.getUsername());
+                }
+                
+                // Try to find by exact username match
+                for (Business.UserAccount.UserAccount ua : Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList()) {
+                    if (ua.getUsername() != null && ua.getUsername().equals(this.username)) {
+                        account = ua;
+                        System.out.println("MerchantHP: Found matching account: " + ua.getUsername());
+                        break;
+                    }
+                }
+                
+                // If still null but username is "m", try finding merchant account
+                if (account == null && "m".equals(this.username)) {
+                    System.out.println("MerchantHP: Trying special case for merchant user 'm'");
+                    for (Business.UserAccount.UserAccount ua : Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList()) {
+                        if ("m".equals(ua.getUsername())) {
+                            account = ua;
+                            System.out.println("MerchantHP: Found merchant account with username 'm'");
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("MerchantHP: Error searching for account: " + e.getMessage());
+                e.printStackTrace();
+            }
+            
+            // If still null after lookup, show error
+            if (account == null) {
+                System.out.println("MerchantHP: Failed to find account, showing error message");
+                javax.swing.JOptionPane.showMessageDialog(this, 
+                        "Unable to get user information, please login again.", 
+                        "Error", 
+                        javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+        
+        // Create ManageOwnProfile panel with account data
+        System.out.println("MerchantHP: Creating ManageOwnProfile with account: " + account.getUsername());
+        ManageOwnProfile manageOwnProfile = new ManageOwnProfile(MerchantWorkAreajPanel, account);
         MerchantWorkAreajPanel.add("ManageOwnProfile", manageOwnProfile);
         CardLayout layout = (CardLayout) MerchantWorkAreajPanel.getLayout();
         layout.next(MerchantWorkAreajPanel);  
-        
     }//GEN-LAST:event_btnProfileActionPerformed
 
     private void btnViewMerchantRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewMerchantRequestActionPerformed

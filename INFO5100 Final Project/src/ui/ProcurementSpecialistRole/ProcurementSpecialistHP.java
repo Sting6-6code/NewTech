@@ -6,8 +6,11 @@ package ui.ProcurementSpecialistRole;
 
 
 
+import Business.Enterprise.Enterprise;
 import Business.Supplier.Supplier;
+import Business.UserAccount.UserAccount;
 import java.awt.CardLayout;
+import javax.swing.JPanel;
 
 /**
  *
@@ -20,9 +23,24 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
      */
     private Supplier supplier;
     private String username;
+    private Enterprise enterprise;
+    private UserAccount account;
+    private JPanel userProcessContainer;
     
     public ProcurementSpecialistHP(String username) {
         initComponents();
+        this.username = username;
+        
+        // 初始化面板布局
+        ProcurementSpecialistWorkAreajPanel.setLayout(new CardLayout());
+        jSplitPane2.setLeftComponent(ProcurementSpecialistPanel);
+        jSplitPane2.setRightComponent(ProcurementSpecialistWorkAreajPanel);
+    }
+    
+    // Add constructor with user process container
+    public ProcurementSpecialistHP(JPanel userProcessContainer, String username) {
+        initComponents();
+        this.userProcessContainer = userProcessContainer;
         this.username = username;
         
         // 初始化面板布局
@@ -38,6 +56,22 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
     public Supplier getSupplier() {
         return supplier;
     }
+    
+    public void setEnterprise(Enterprise enterprise) {
+        this.enterprise = enterprise;
+    }
+    
+    public Enterprise getEnterprise() {
+        return enterprise;
+    }
+    
+    public void setAccount(UserAccount account) {
+        this.account = account;
+    }
+    
+    public UserAccount getAccount() {
+        return account;
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -50,14 +84,14 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
 
         jSplitPane2 = new javax.swing.JSplitPane();
         ProcurementSpecialistPanel = new javax.swing.JPanel();
-        btnWarehouseRequest = new javax.swing.JButton();
+        btnMerchantRequest = new javax.swing.JButton();
         btnProfile1 = new javax.swing.JButton();
         ProcurementSpecialistWorkAreajPanel = new javax.swing.JPanel();
 
-        btnWarehouseRequest.setText("Warehouse Request");
-        btnWarehouseRequest.addActionListener(new java.awt.event.ActionListener() {
+        btnMerchantRequest.setText("Merchant Request");
+        btnMerchantRequest.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnWarehouseRequestActionPerformed(evt);
+                btnMerchantRequestActionPerformed(evt);
             }
         });
 
@@ -76,14 +110,14 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(ProcurementSpecialistPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(btnProfile1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnWarehouseRequest, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnMerchantRequest, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         ProcurementSpecialistPanelLayout.setVerticalGroup(
             ProcurementSpecialistPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ProcurementSpecialistPanelLayout.createSequentialGroup()
                 .addGap(303, 303, 303)
-                .addComponent(btnWarehouseRequest)
+                .addComponent(btnMerchantRequest)
                 .addGap(98, 98, 98)
                 .addComponent(btnProfile1)
                 .addContainerGap(2429, Short.MAX_VALUE))
@@ -122,31 +156,52 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnWarehouseRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnWarehouseRequestActionPerformed
-        // TODO add your handling code here:
-        MerchantRequestsJPanel warehouseRequestsJPanel = new MerchantRequestsJPanel(ProcurementSpecialistWorkAreajPanel);
-        ProcurementSpecialistWorkAreajPanel.add("WarehouseRequestsJPanel", warehouseRequestsJPanel);
-        CardLayout layout = (CardLayout) ProcurementSpecialistWorkAreajPanel.getLayout();
-        layout.next(ProcurementSpecialistWorkAreajPanel);    
-        
-    }//GEN-LAST:event_btnWarehouseRequestActionPerformed
-
-    private void btnProfile1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfile1ActionPerformed
-        // 从EcoSystem获取当前用户账户
-        Business.UserAccount.UserAccount account = null;
-        for (Business.UserAccount.UserAccount ua : Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList()) {
-            if (ua.getUsername().equals(this.username)) {
-                account = ua;
-                break;
+    private void btnMerchantRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMerchantRequestActionPerformed
+        // Verify account is not null
+        if (account == null) {
+            // If account is somehow still null, try to look it up
+            for (Business.UserAccount.UserAccount ua : Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList()) {
+                if (ua.getUsername().equals(this.username)) {
+                    account = ua;
+                    break;
+                }
+            }
+            
+            if (account == null) {
+                javax.swing.JOptionPane.showMessageDialog(this, 
+                    "Unable to get user account information, please login again.", 
+                    "Error", 
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
             }
         }
         
+        // Create merchant requests panel
+        MerchantRequestsJPanel warehouseRequestsJPanel = new MerchantRequestsJPanel(ProcurementSpecialistWorkAreajPanel, enterprise, account);
+        ProcurementSpecialistWorkAreajPanel.add("WarehouseRequestsJPanel", warehouseRequestsJPanel);
+        CardLayout layout = (CardLayout) ProcurementSpecialistWorkAreajPanel.getLayout();
+        layout.next(ProcurementSpecialistWorkAreajPanel);    
+    }//GEN-LAST:event_btnMerchantRequestActionPerformed
+
+    private void btnProfile1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfile1ActionPerformed
+        // Use the class account variable instead of looking it up
         if (account == null) {
-            javax.swing.JOptionPane.showMessageDialog(this, 
-                    "无法获取用户信息，请重新登录", 
-                    "错误", 
-                    javax.swing.JOptionPane.ERROR_MESSAGE);
-            return;
+            // If account is somehow still null, try to look it up
+            for (Business.UserAccount.UserAccount ua : Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList()) {
+                if (ua.getUsername().equals(this.username)) {
+                    account = ua;
+                    break;
+                }
+            }
+            
+            // If still null after lookup, show error
+            if (account == null) {
+                javax.swing.JOptionPane.showMessageDialog(this, 
+                        "Unable to get user information, please login again.", 
+                        "Error", 
+                        javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
+            }
         }
         
         // 创建ManageOwnProfile面板，传递工作区面板和用户账户
@@ -162,8 +217,8 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel ProcurementSpecialistPanel;
     private javax.swing.JPanel ProcurementSpecialistWorkAreajPanel;
+    private javax.swing.JButton btnMerchantRequest;
     private javax.swing.JButton btnProfile1;
-    private javax.swing.JButton btnWarehouseRequest;
     private javax.swing.JSplitPane jSplitPane2;
     // End of variables declaration//GEN-END:variables
 }

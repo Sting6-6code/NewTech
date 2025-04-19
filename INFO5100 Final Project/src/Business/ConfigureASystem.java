@@ -7,6 +7,7 @@ import Business.Role.LogisticsCoordinatorRole;
 import Business.Role.MerchantRole;
 import Business.Role.ProcurementSpecialistRole;
 import Business.Role.SystemAdminRole;
+import Business.Role.WarehouseManagerRole;
 import Business.UserAccount.UserAccount;
 import Business.Supplier.Supplier;
 import Business.Network.Network;
@@ -17,12 +18,14 @@ import Business.Organization.Organization;
 import Business.Role.AdminRole;
 import Business.Customer.ComplaintDirectory;
 import Business.Customer.CustomerComplaint;
+import Business.Enterprise.WarehouseSupplierEnterprise;
 import Business.Logistics.CustomsDeclaration;
 import Business.Logistics.CustomsDeclarationDirectory;
 import Business.Logistics.Shipment;
 import Business.Logistics.ShipmentDirectory;
 import Business.Logistics.TrackingInfo;
 import Business.Organization.CustomerExperienceOrganization;
+import Business.Organization.CustomsLiaisonOrganization;
 import Business.Organization.LogisticsOrganization;
 import Business.Product.Product;
 import Business.Warehouse.Warehouse;
@@ -32,6 +35,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.Timer;
+import java.util.TimerTask;
+import Business.Product.SalesRecord;
 
 /**
  *
@@ -66,81 +73,86 @@ public class ConfigureASystem {
         UserAccount procurement = system.getUserAccountDirectory().createUserAccount("p", "****", employee4, new ProcurementSpecialistRole());
         UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("l", "****", employee5, new CustomsAgentRole());
         UserAccount logistics = system.getUserAccountDirectory().createUserAccount("t", "****", employee6, new LogisticsCoordinatorRole());
+        UserAccount warehouse = system.getUserAccountDirectory().createUserAccount("w", "****", employee7, new WarehouseManagerRole());
+        
 
         // 初始化仓库和商品
         initializeWarehouse();
 
+        // Initialize sample sales records
+        initializeSalesRecords(system);
+
         // Create supplier and assign to merchant role
         Supplier techSupplier1 = new Supplier();
         techSupplier1.setSupplyName("TechGadgets Inc.");
-        
+
         // Set merchant's demo supplier
-        MerchantRole merchantRole = (MerchantRole)merchant.getRole();
+        MerchantRole merchantRole = (MerchantRole) merchant.getRole();
         merchantRole.setSupplier(techSupplier1);
-        
+
         // Also set the static version for backward compatibility
         MerchantRole.setDemoSupplier(techSupplier1);
-        
+
         // 确保仓库中的所有产品都设置为上架状态
-        Warehouse warehouse = Warehouse.getInstance();
-        
+        Warehouse warehouseInstance = Warehouse.getInstance();
+
         try {
             System.out.println("正在为商家设置示例产品目录...");
-            
+
             // 获取仓库中的所有产品
             List<Product> allProducts = new ArrayList<>();
-            for (Stock stockItem : warehouse.getStock()) {
+            for (Stock stockItem : warehouseInstance.getStock()) {
                 Product p = stockItem.getProduct();
                 p.upShelf(); // 确保产品上架
                 allProducts.add(p);
             }
-            
+
             System.out.println("仓库中共有 " + allProducts.size() + " 个产品");
-            
+
             // 确保有足够的产品添加到商家目录
             int productsToAdd = Math.min(10, allProducts.size());
             System.out.println("将添加 " + productsToAdd + " 个产品到商家目录");
-            
+
             // 向商家目录添加产品
             for (int i = 0; i < productsToAdd; i++) {
                 Product warehouseProduct = allProducts.get(i);
-                
+
                 // 克隆产品到商家目录，避免影响仓库库存
                 Product merchantProduct = new Product(
-                    warehouseProduct.getProductId(),
-                    warehouseProduct.getProductName(),
-                    warehouseProduct.getPrice(),
-                    20, // 设置初始库存
-                    10  // 设置警告阈值
+                        warehouseProduct.getProductId(),
+                        warehouseProduct.getProductName(),
+                        warehouseProduct.getPrice(),
+                        20, // 设置初始库存
+                        10 // 设置警告阈值
                 );
                 merchantProduct.upShelf(); // 确保产品上架
                 techSupplier1.addProduct(merchantProduct);
-                
+
                 System.out.println("已添加产品: " + merchantProduct.getProductName() + " 到商家目录");
             }
-            
+
             // 添加一些低库存产品作为示例
             if (allProducts.size() > productsToAdd) {
                 for (int i = productsToAdd; i < Math.min(productsToAdd + 3, allProducts.size()); i++) {
                     Product warehouseProduct = allProducts.get(i);
-                    
+
                     Product lowStockProduct = new Product(
-                        warehouseProduct.getProductId(),
-                        warehouseProduct.getProductName(),
-                        warehouseProduct.getPrice(),
-                        5, // 低库存
-                        15  // 警告阈值大于库存量，触发低库存状态
+                            warehouseProduct.getProductId(),
+                            warehouseProduct.getProductName(),
+                            warehouseProduct.getPrice(),
+                            5, // 低库存
+                            15 // 警告阈值大于库存量，触发低库存状态
                     );
                     lowStockProduct.upShelf();
                     lowStockProduct.setStockStatus("Low"); // 明确设置为低库存状态
                     techSupplier1.addProduct(lowStockProduct);
-                    
+
                     System.out.println("已添加低库存产品: " + lowStockProduct.getProductName() + " 到商家目录");
                 }
             }
-            
+
             System.out.println("商家目录设置完成，共 " + techSupplier1.getProductCatalog().size() + " 个产品");
-            
+
         } catch (Exception e) {
             System.err.println("设置商家目录时出错: " + e.getMessage());
             e.printStackTrace();
@@ -164,6 +176,20 @@ public class ConfigureASystem {
             network.getEnterpriseDirectory().getEnterpriseList().add(logisticsEnterprise);
         }
 
+         // 创建仓库企业
+        WarehouseSupplierEnterprise warehouseEnterprise = (WarehouseSupplierEnterprise) network.getEnterpriseDirectory()
+            .createAndAddEnterprise("Warehouse Enterprise", Enterprise.EnterpriseType.WarehouseSupplier);
+    
+        // 创建仓库组织
+        Organization warehouseOrg = warehouseEnterprise.getOrganizationDirectory()
+            .createOrganization(Organization.Type.WarehouseSupplier);
+    
+        // 将仓库用户账户添加到仓库组织
+        warehouseOrg.getUserAccountDirectory().getUserAccountList().add(warehouse);
+    
+        // 初始化仓库和商品
+        initializeWarehouse();
+    
         // Create customer experience organization
         if (retailEnterprise != null && retailEnterprise.getOrganizationDirectory() != null) {
             CustomerExperienceOrganization customerExpOrg = (CustomerExperienceOrganization) retailEnterprise.getOrganizationDirectory().createOrganization(Organization.Type.CustomerExperience);
@@ -216,6 +242,38 @@ public class ConfigureASystem {
             } catch (Exception e) {
                 System.out.println("Error creating LogisticsOrganization: " + e.getMessage());
                 e.printStackTrace();
+            }
+
+            // Create customs liaison organization
+            if (logisticsEnterprise != null) {
+                try {
+                    // Create customs liaison organization
+                    Organization customsOrg = logisticsEnterprise.getOrganizationDirectory().createOrganization(Organization.Type.CustomsAgent);
+                    if (customsOrg instanceof CustomsLiaisonOrganization) {
+                        CustomsLiaisonOrganization customsLiaisonOrg = (CustomsLiaisonOrganization) customsOrg;
+
+                        // Debug info
+                        System.out.println("Successfully created CustomsLiaisonOrganization");
+
+                        // Associate user account
+                        customsLiaisonOrg.getUserAccountDirectory().getUserAccountList().add(customsagent);
+
+                        // 创建示例海关数据
+                        createSampleCustomsDeclarations(customsLiaisonOrg);
+                        System.out.println("Created sample customs declarations");
+
+                        // Use customs declarations from logistics organization if needed
+                        if (logisticsOrg != null && logisticsOrg.getCustomsDeclarationDirectory() != null) {
+                            customsLiaisonOrg.setCustomsDeclarationDirectory(logisticsOrg.getCustomsDeclarationDirectory());
+                            System.out.println("Shared customs declarations with customs liaison organization");
+                        }
+                    } else {
+                        System.out.println("ERROR: Created organization is not CustomsLiaisonOrganization");
+                    }
+                } catch (Exception e) {
+                    System.out.println("Error creating CustomsLiaisonOrganization: " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
 
         }
@@ -306,7 +364,6 @@ public class ConfigureASystem {
         warehouse.addStock(p21, 75);
         warehouse.addStock(p22, 65);
 
-       
         // 立即执行一次库存检查，生成初始采购请求
         warehouse.checkAllInventoryLevels();
 
@@ -336,12 +393,57 @@ public class ConfigureASystem {
         p20.upShelf();
         p21.upShelf();
         p22.upShelf();
-        
-       
 
         System.out.println("Warehouse initialized with " + warehouse.getStock().size() + " products");
         System.out.println("Generated " + warehouse.getProcurementRequests().size() + " procurement requests");
 
+    }
+
+    // Method to initialize sample sales record data
+    private static void initializeSalesRecords(EcoSystem system) {
+        System.out.println("Initializing sample sales records...");
+        
+        if (system == null || system.getSalesRecordDirectory() == null) {
+            System.out.println("Warning: Cannot initialize sales records - system or sales record directory is null");
+            return;
+        }
+        
+        // Get current date for reference
+        Calendar calendar = Calendar.getInstance();
+        Date currentDate = calendar.getTime();
+        
+        // Create dates for previous months
+        calendar.add(Calendar.MONTH, -1);
+        Date oneMonthAgo = calendar.getTime();
+        
+        calendar.add(Calendar.MONTH, -1);
+        Date twoMonthsAgo = calendar.getTime();
+        
+        calendar.add(Calendar.MONTH, -1);
+        Date threeMonthsAgo = calendar.getTime();
+        
+        // Add sample sales records
+        system.getSalesRecordDirectory().createSalesRecord("SP-001", "Apple iPhone 15 Pro", 799.99, 5, threeMonthsAgo, "CUST001");
+        system.getSalesRecordDirectory().createSalesRecord("SP-001", "Apple iPhone 15 Pro", 799.99, 8, twoMonthsAgo, "CUST002");
+        system.getSalesRecordDirectory().createSalesRecord("SP-001", "Apple iPhone 15 Pro", 799.99, 12, oneMonthAgo, "CUST003");
+        system.getSalesRecordDirectory().createSalesRecord("SP-001", "Apple iPhone 15 Pro", 799.99, 10, currentDate, "CUST004");
+        
+        system.getSalesRecordDirectory().createSalesRecord("SP-002", "Samsung Galaxy S23", 999.99, 3, threeMonthsAgo, "CUST005");
+        system.getSalesRecordDirectory().createSalesRecord("SP-002", "Samsung Galaxy S23", 999.99, 7, twoMonthsAgo, "CUST006");
+        system.getSalesRecordDirectory().createSalesRecord("SP-002", "Samsung Galaxy S23", 999.99, 9, oneMonthAgo, "CUST007");
+        system.getSalesRecordDirectory().createSalesRecord("SP-002", "Samsung Galaxy S23", 999.99, 6, currentDate, "CUST008");
+        
+        system.getSalesRecordDirectory().createSalesRecord("LP-001", "MacBook Pro 14\"", 1299.99, 2, threeMonthsAgo, "CUST009");
+        system.getSalesRecordDirectory().createSalesRecord("LP-001", "MacBook Pro 14\"", 1299.99, 4, twoMonthsAgo, "CUST010");
+        system.getSalesRecordDirectory().createSalesRecord("LP-001", "MacBook Pro 14\"", 1299.99, 5, oneMonthAgo, "CUST011");
+        system.getSalesRecordDirectory().createSalesRecord("LP-001", "MacBook Pro 14\"", 1299.99, 3, currentDate, "CUST012");
+        
+        system.getSalesRecordDirectory().createSalesRecord("HP-001", "Apple AirPods Pro", 199.99, 10, threeMonthsAgo, "CUST013");
+        system.getSalesRecordDirectory().createSalesRecord("HP-001", "Apple AirPods Pro", 199.99, 15, twoMonthsAgo, "CUST014");
+        system.getSalesRecordDirectory().createSalesRecord("HP-001", "Apple AirPods Pro", 199.99, 20, oneMonthAgo, "CUST015");
+        system.getSalesRecordDirectory().createSalesRecord("HP-001", "Apple AirPods Pro", 199.99, 18, currentDate, "CUST016");
+        
+        System.out.println("Created " + system.getSalesRecordDirectory().getSalesRecordList().size() + " sample sales records");
     }
 
     // Create demo complaints
@@ -793,6 +895,143 @@ public class ConfigureASystem {
 
         declaration3.setItems(items3);
         declarationDir.addCustomsDeclaration(declaration3);
+
+        System.out.println("Created " + declarationDir.getCustomsDeclarationList().size() + " sample customs declarations");
+    }
+
+    private static void createSampleCustomsDeclarations(CustomsLiaisonOrganization customsOrg) {
+        if (customsOrg == null || customsOrg.getCustomsDeclarationDirectory() == null) {
+            System.out.println("Error: Cannot create sample customs declarations - invalid organization");
+            return;
+        }
+
+        CustomsDeclarationDirectory declarationDir = customsOrg.getCustomsDeclarationDirectory();
+        Calendar cal = Calendar.getInstance();
+
+        // 创建示例报关单1 - 待审核状态
+        CustomsDeclaration declaration1 = new CustomsDeclaration();
+        declaration1.setDeclarationId("CD202504120001");
+        declaration1.setShipmentId("SHP001");
+        declaration1.setStatus("Pending");
+        declaration1.setDeclarationDate(new Date());
+        declaration1.setSubmissionDate(new Date());
+        declaration1.setConsignor("Apple Store Shanghai");
+        declaration1.setConsignee("John Smith");
+        declaration1.setCountryOfOrigin("China");
+        declaration1.setDestinationCountry("United States");
+        declaration1.setCustomsOffice("Shanghai Customs");
+        declaration1.setNotes("High-value electronics, handle with care");
+
+        ArrayList<CustomsDeclaration.CustomsLineItem> items1 = new ArrayList<>();
+        CustomsDeclaration.CustomsLineItem item1 = new CustomsDeclaration.CustomsLineItem();
+        item1.setDescription("iPhone 15 Pro");
+        item1.setHsCode("8517.12.00");
+        item1.setQuantity(5);
+        item1.setUnit("PCS");
+        item1.setUnitValue(899.99);
+        item1.setGrossWeight(0.5);
+        items1.add(item1);
+
+        declaration1.setItems(items1);
+        declarationDir.addCustomsDeclaration(declaration1);
+
+        // 创建示例报关单2 - 已拒绝状态
+        CustomsDeclaration declaration2 = new CustomsDeclaration();
+        declaration2.setDeclarationId("CD202504150002");
+        declaration2.setShipmentId("SHP002");
+        declaration2.setStatus("Rejected");
+
+        // 设置日期为3天前
+        cal.setTime(new Date());
+        cal.add(Calendar.DAY_OF_MONTH, -3);
+        declaration2.setDeclarationDate(cal.getTime());
+        declaration2.setSubmissionDate(cal.getTime());
+
+        declaration2.setConsignor("Samsung Electronics");
+        declaration2.setConsignee("Tech Store USA");
+        declaration2.setCountryOfOrigin("South Korea");
+        declaration2.setDestinationCountry("United States");
+        declaration2.setCustomsOffice("Incheon Customs");
+        declaration2.setNotes("Documentation incomplete - missing certificate of origin");
+
+        ArrayList<CustomsDeclaration.CustomsLineItem> items2 = new ArrayList<>();
+        CustomsDeclaration.CustomsLineItem item2 = new CustomsDeclaration.CustomsLineItem();
+        item2.setDescription("Galaxy S24 Ultra");
+        item2.setHsCode("8517.12.00");
+        item2.setQuantity(10);
+        item2.setUnit("PCS");
+        item2.setUnitValue(1199.99);
+        item2.setGrossWeight(0.6);
+        items2.add(item2);
+
+        declaration2.setItems(items2);
+        declarationDir.addCustomsDeclaration(declaration2);
+
+        // 创建示例报关单3 - 需要补充信息状态
+        CustomsDeclaration declaration3 = new CustomsDeclaration();
+        declaration3.setDeclarationId("CD202504180003");
+        declaration3.setShipmentId("SHP003");
+        declaration3.setStatus("Information Requested");
+
+        // 设置日期为1天前
+        cal.setTime(new Date());
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        declaration3.setDeclarationDate(cal.getTime());
+        declaration3.setSubmissionDate(cal.getTime());
+
+        declaration3.setConsignor("Sony Corporation");
+        declaration3.setConsignee("Best Buy");
+        declaration3.setCountryOfOrigin("Japan");
+        declaration3.setDestinationCountry("United States");
+        declaration3.setCustomsOffice("Tokyo Customs");
+        declaration3.setNotes("Please provide detailed product specifications and safety certificates");
+
+        ArrayList<CustomsDeclaration.CustomsLineItem> items3 = new ArrayList<>();
+        CustomsDeclaration.CustomsLineItem item3 = new CustomsDeclaration.CustomsLineItem();
+        item3.setDescription("PlayStation 5");
+        item3.setHsCode("9504.50.00");
+        item3.setQuantity(20);
+        item3.setUnit("PCS");
+        item3.setUnitValue(499.99);
+        item3.setGrossWeight(4.5);
+        items3.add(item3);
+
+        declaration3.setItems(items3);
+        declarationDir.addCustomsDeclaration(declaration3);
+
+        // 创建示例报关单4 - 已批准状态
+        CustomsDeclaration declaration4 = new CustomsDeclaration();
+        declaration4.setDeclarationId("CD202504200004");
+        declaration4.setShipmentId("SHP004");
+        declaration4.setStatus("Approved");
+
+        // 设置日期为5天前
+        cal.setTime(new Date());
+        cal.add(Calendar.DAY_OF_MONTH, -5);
+        declaration4.setDeclarationDate(cal.getTime());
+        declaration4.setSubmissionDate(cal.getTime());
+        cal.add(Calendar.DAY_OF_MONTH, 1); // 处理日期为4天前
+        declaration4.setProcessingDate(cal.getTime());
+
+        declaration4.setConsignor("LG Electronics");
+        declaration4.setConsignee("Amazon");
+        declaration4.setCountryOfOrigin("South Korea");
+        declaration4.setDestinationCountry("United States");
+        declaration4.setCustomsOffice("Busan Customs");
+        declaration4.setNotes("All documentation complete and verified");
+
+        ArrayList<CustomsDeclaration.CustomsLineItem> items4 = new ArrayList<>();
+        CustomsDeclaration.CustomsLineItem item4 = new CustomsDeclaration.CustomsLineItem();
+        item4.setDescription("LG OLED TV");
+        item4.setHsCode("8528.72.00");
+        item4.setQuantity(15);
+        item4.setUnit("PCS");
+        item4.setUnitValue(1999.99);
+        item4.setGrossWeight(25.0);
+        items4.add(item4);
+
+        declaration4.setItems(items4);
+        declarationDir.addCustomsDeclaration(declaration4);
 
         System.out.println("Created " + declarationDir.getCustomsDeclarationList().size() + " sample customs declarations");
     }
