@@ -61,7 +61,17 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
         orderDirectory = new OrderDirectory();
 
         // Initialize the table
+        setupShipCartTable();
         populateTable();
+    }
+
+    private void setupShipCartTable() {
+        DefaultTableModel model = (DefaultTableModel) tblshipCart.getModel();
+        // Clear any existing rows and columns
+        model.setRowCount(0);
+        // Set column names
+        String[] columnNames = {"Product Name", "Purchase Cost", "Ship Quantity", "Total Amount"};
+        model.setColumnIdentifiers(columnNames);
     }
 
     private void populateTable() {
@@ -325,37 +335,65 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
 
     private void btnShipQuantityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipQuantityActionPerformed
 
+        // Get selected row
         int selectedRow = tblProductCatalog.getSelectedRow();
         if (selectedRow < 0) {
             JOptionPane.showMessageDialog(this, "Please select a product first");
             return;
         }
 
-        // 获取选中的产品信息
-        String productId = tblProductCatalog.getValueAt(selectedRow, 1).toString();
-        Product product = Warehouse.getInstance().findProductById(productId);
-
-        // 弹出发货对话框
-        String quantityStr = JOptionPane.showInputDialog(this,
-                "Enter shipping quantity for " + product.getProductName());
-        if (quantityStr == null || quantityStr.trim().isEmpty()) {
-            return;
-        }
-
-        String destination = JOptionPane.showInputDialog(this,
-                "Enter destination address");
-        if (destination == null || destination.trim().isEmpty()) {
+        // Get shipping quantity from input field
+        String quantityStr = txtshipQuantity.getText().trim();
+        if (quantityStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter shipping quantity");
             return;
         }
 
         try {
-            int quantity = Integer.parseInt(quantityStr);
-            initiateShipment(product, quantity, destination);
+            int shipQuantity = Integer.parseInt(quantityStr);
+            int currentQuantity = Integer.parseInt(tblProductCatalog.getValueAt(selectedRow, 3).toString());
+
+            // Validate quantity
+            if (shipQuantity <= 0) {
+                JOptionPane.showMessageDialog(this, "Shipping quantity must be greater than 0");
+                return;
+            }
+            if (shipQuantity > currentQuantity) {
+                JOptionPane.showMessageDialog(this, "Shipping quantity cannot exceed current stock");
+                return;
+            }
+
+            // Get product information
+            String productName = tblProductCatalog.getValueAt(selectedRow, 0).toString();
+            String productId = tblProductCatalog.getValueAt(selectedRow, 1).toString();
+            double price = Double.parseDouble(tblProductCatalog.getValueAt(selectedRow, 2).toString());
+
+            // Update inventory table
+            int newQuantity = currentQuantity - shipQuantity;
+            tblProductCatalog.setValueAt(newQuantity, selectedRow, 3);
+            tblProductCatalog.setValueAt(newQuantity > 0 ? "In Stock" : "Out of Stock", selectedRow, 4);
+
+            // Update actual warehouse inventory
+            Warehouse.getInstance().decreaseStock(productId, shipQuantity);
+
+            // Add to shipping cart table
+            DefaultTableModel shipCartModel = (DefaultTableModel) tblshipCart.getModel();
+            double totalAmount = price * shipQuantity;
+            // 格式化 totalAmount 为两位小数
+            String formattedTotal = String.format("%.2f", totalAmount);
+            Object[] row = new Object[]{
+                productName,
+                price,
+                shipQuantity,
+                Double.parseDouble(formattedTotal)
+            };
+            shipCartModel.addRow(row);
+
+            // Clear input field
+            txtshipQuantity.setText("");
+
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Invalid quantity format",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please enter a valid number");
         }
     }//GEN-LAST:event_btnShipQuantityActionPerformed
 
@@ -394,37 +432,85 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
             return;
         }
 
-        orderDirectory.getOrderList().remove(selectedRow);
-        updateCartTable();
+        try {
+            // Get the product information from the shipping cart
+            String productName = tblshipCart.getValueAt(selectedRow, 0).toString();
+            int shipQuantity = Integer.parseInt(tblshipCart.getValueAt(selectedRow, 2).toString());
+
+            // Find the product in the catalog table and update its quantity
+            DefaultTableModel catalogModel = (DefaultTableModel) tblProductCatalog.getModel();
+            for (int i = 0; i < catalogModel.getRowCount(); i++) {
+                if (catalogModel.getValueAt(i, 0).toString().equals(productName)) {
+                    // Get current quantity and add back the ship quantity
+                    int currentQuantity = Integer.parseInt(catalogModel.getValueAt(i, 3).toString());
+                    int newQuantity = currentQuantity + shipQuantity;
+                    String productId = catalogModel.getValueAt(i, 1).toString();
+
+                    // Update the catalog table
+                    catalogModel.setValueAt(newQuantity, i, 3);
+                    catalogModel.setValueAt("In Stock", i, 4);
+
+                    // Find the product in warehouse stock and update it
+                    for (Stock stock : wh.getStock()) {
+                        if (stock.getProduct().getProductId().equals(productId)) {
+                            stock.addAmount(shipQuantity);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            // Remove the row from shipping cart
+            DefaultTableModel shipCartModel = (DefaultTableModel) tblshipCart.getModel();
+            shipCartModel.removeRow(selectedRow);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error removing item: " + e.getMessage());
+        }
     }//GEN-LAST:event_btnRemoveOrderItemActionPerformed
 
     private void btnShipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipActionPerformed
-        if (orderDirectory.getOrderList().isEmpty()) {
+        DefaultTableModel model = (DefaultTableModel) tblshipCart.getModel();
+        if (model.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Cart is empty!");
             return;
         }
 
-        // 处理订单及发货流程
-        for (Order order : orderDirectory.getOrderList()) {
-            order.setStatus("Completed");
-            // 添加订单处理时间
-            order.setProcessDate(new java.util.Date());
+        try {
+            // 遍历购物车中的每个项目
+            for (int i = 0; i < model.getRowCount(); i++) {
+                String productName = model.getValueAt(i, 0).toString();
+                double price = Double.parseDouble(model.getValueAt(i, 1).toString());
+                int quantity = Integer.parseInt(model.getValueAt(i, 2).toString());
+                double totalAmount = Double.parseDouble(model.getValueAt(i, 3).toString());
 
-            // 通知仓库减少库存
-            notifyWarehouse(order);
+                // 创建订单
+                Order order = new Order();
+                order.setOrderId("ORD" + System.currentTimeMillis() + i);
+                order.setProductName(productName);
+                order.setPurchaseCost(price);
+                order.setQuantity(quantity);
+                order.setTotalAmount(totalAmount);
+                order.setStatus("Processing");
+                order.setCreateDate(new Date());
 
-            // 创建并发送物流工作请求
-            sendLogisticsWorkRequest(order);
+                // 发送物流工作请求
+                sendLogisticsWorkRequest(order);
+            }
+
+            // 清空购物车
+            model.setRowCount(0);
+
+            JOptionPane.showMessageDialog(this, "Orders have been processed successfully!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error processing orders: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
-
-        // 清空购物车
-        orderDirectory = new OrderDirectory();
-        updateCartTable();
-
-        // 刷新请求列表
-        refreshRequestTable();
-
-        JOptionPane.showMessageDialog(this, "Orders have been processed successfully!");
     }//GEN-LAST:event_btnShipActionPerformed
 
 
@@ -631,45 +717,50 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
             request.setQuantity(quantity);
             request.setDestination(destination);
             request.setShippingMethod(shippingMethod);
+
+            // 设置预计送达日期（例如：7天后）
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH, 7);
+            request.setEstimatedDeliveryDate(calendar.getTime());
+
+            // 设置请求状态
+            request.setStatus("Pending");
             request.setRequestDate(new Date());
 
-            // 6. 计算预计送达日期
-            Date estimatedDeliveryDate = calculateEstimatedDeliveryDate(destination, shippingMethod);
-            request.setEstimatedDeliveryDate(estimatedDeliveryDate);
-
-            // 7. 设置请求状态和消息
-            request.setStatus("Pending");
-            request.setMessage("Warehouse shipping request - Product: " + productName + ", Quantity: " + quantity);
-
-            // 8. 设置发送者(仓库管理员)
-            if (userAccount == null) {
-                throw new Exception("User account not available");
-            }
+            // 设置发送者和接收者
             request.setSender(userAccount);
-            System.out.println("Set sender for warehouse request: " + userAccount.getUsername());
 
-            // 9. 查找物流组织并发送请求
-            LogisticsOrganization logisticsOrg = findLogisticsOrganization();
-            if (logisticsOrg == null) {
-                throw new Exception("Logistics organization not found");
+            // 找到物流组织并添加工作请求
+            LogisticsOrganization logisticsOrg = null;
+            for (Network network : EcoSystem.getInstance().getNetworkList()) {
+                for (Enterprise e : network.getEnterpriseDirectory().getEnterpriseList()) {
+                    if (e instanceof LogisticsGroupEnterprise) {
+                        for (Organization org : e.getOrganizationDirectory().getOrganizationList()) {
+                            if (org instanceof LogisticsOrganization) {
+                                logisticsOrg = (LogisticsOrganization) org;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (logisticsOrg != null) {
+                    break;
+                }
             }
 
-            // 10. 将请求添加到物流组织的工作队列
+            if (logisticsOrg == null) {
+                throw new Exception("No logistics organization found");
+            }
+
+            // 将请求添加到物流组织的工作队列
             logisticsOrg.getWorkQueue().getWorkRequestList().add(request);
 
-            // 11. 创建Shipment对象
-            Shipment shipment = createShipment(request);
-
-            // 12. 添加到物流组织
-            logisticsOrg.getShipmentDirectory().addShipment(shipment);
-
-            System.out.println("Successfully sent shipping request: " + trackingNumber);
+            System.out.println("Work request sent to logistics: " + request.getTrackingNumber());
 
         } catch (Exception e) {
-            System.err.println("Error in sendLogisticsWorkRequest: " + e.getMessage());
             e.printStackTrace();
             JOptionPane.showMessageDialog(this,
-                    "Error processing shipping request: " + e.getMessage(),
+                    "Error sending logistics request: " + e.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         }

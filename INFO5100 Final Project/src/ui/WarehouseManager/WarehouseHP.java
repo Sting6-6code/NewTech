@@ -92,14 +92,16 @@ public class WarehouseHP extends javax.swing.JPanel {
             WarehousePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(WarehousePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(WarehousePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(btnWarehouseManagement, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnProcurementRequest, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(WarehousePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, WarehousePanelLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnProfile1, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(WarehousePanelLayout.createSequentialGroup()
+                        .addGroup(WarehousePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(btnWarehouseManagement, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnProcurementRequest, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(btnComplaintBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, WarehousePanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnProfile1, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         WarehousePanelLayout.setVerticalGroup(
@@ -244,6 +246,16 @@ public class WarehouseHP extends javax.swing.JPanel {
         CardLayout layout = (CardLayout) WarehouseWorkAreajPanel.getLayout();
         layout.next(WarehouseWorkAreajPanel);
     }//GEN-LAST:event_btnWarehouseManagementActionPerformed
+
+    private void btnComplaintBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComplaintBoxActionPerformed
+        // TODO add your handling code here:
+        WarehouseCustomerComplaintContent warehouseCustomerComplaintContent = new WarehouseCustomerComplaintContent(WarehouseWorkAreajPanel, 
+                Business.Warehouse.Warehouse.getInstance());
+        WarehouseWorkAreajPanel.add("WarehouseCustomerComplaintContent", warehouseCustomerComplaintContent);
+        CardLayout layout = (CardLayout) WarehouseWorkAreajPanel.getLayout();
+        layout.next(WarehouseWorkAreajPanel);
+
+    }//GEN-LAST:event_btnComplaintBoxActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
