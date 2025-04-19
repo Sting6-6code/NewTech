@@ -7,9 +7,12 @@ package Business.Role;
 import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
 import Business.Organization.Organization;
+import Business.Organization.WarehouseSupplierOrganization;
 import Business.UserAccount.UserAccount;
+import Business.Warehouse.Warehouse;
 import javax.swing.JPanel;
 import ui.WarehouseManager.WarehouseHP;
+import ui.WarehouseManager.WarehouseManagerHomePage;
 
 
 /**
@@ -21,9 +24,11 @@ public class WarehouseManagerRole extends Role {
     public WarehouseManagerRole() {
     }
 
-    public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-        ui.WarehouseManager.WarehouseHP warehouseHP = new ui.WarehouseManager.WarehouseHP(account.getUsername());
-        return warehouseHP;
-    }
+    @Override
+    public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, 
+            Organization organization, Enterprise enterprise, EcoSystem business) {
+        return new WarehouseManagerHomePage(
+            userProcessContainer, Warehouse.getInstance(), enterprise, account);
+        }
 
-}
+    }

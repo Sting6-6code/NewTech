@@ -39,6 +39,10 @@ public class EnterpriseDirectory {
             enterprise = new LogisticsGroupEnterprise(name);
             enterpriseList.add(enterprise);
         }
+        else if (type == Enterprise.EnterpriseType.WarehouseSupplier) {
+        enterprise = new WarehouseSupplierEnterprise(name);
+        enterpriseList.add(enterprise);
+        }
         return enterprise;
     }
 }

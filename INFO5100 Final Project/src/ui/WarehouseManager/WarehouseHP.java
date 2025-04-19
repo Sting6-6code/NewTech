@@ -4,6 +4,9 @@
  */
 package ui.WarehouseManager;
 
+import Business.EcoSystem;
+import Business.Enterprise.Enterprise;
+import Business.Network.Network;
 import Business.Supplier.Supplier;
 import Business.Warehouse.Warehouse;
 import java.awt.CardLayout;
@@ -19,21 +22,21 @@ public class WarehouseHP extends javax.swing.JPanel {
      */
     private Supplier supplier;
     private String username;
-    
+
     public WarehouseHP(String username) {
         initComponents();
         this.username = username;
-        
+
         // 初始化面板布局
         WarehouseWorkAreajPanel.setLayout(new CardLayout());
         jSplitPane2.setLeftComponent(WarehousePanel);
         jSplitPane2.setRightComponent(WarehouseWorkAreajPanel);
     }
-    
+
     public void setSupplier(Supplier supplier) {
         this.supplier = supplier;
     }
-    
+
     public Supplier getSupplier() {
         return supplier;
     }
@@ -151,8 +154,8 @@ public class WarehouseHP extends javax.swing.JPanel {
         ProcurementRequestsJPanel procurementRequestsJPanel = new ProcurementRequestsJPanel(WarehouseWorkAreajPanel);
         WarehouseWorkAreajPanel.add("ProcurementRequestsJPanel", procurementRequestsJPanel);
         CardLayout layout = (CardLayout) WarehouseWorkAreajPanel.getLayout();
-        layout.next(WarehouseWorkAreajPanel);    
-        
+        layout.next(WarehouseWorkAreajPanel);
+
     }//GEN-LAST:event_btnProcurementRequestActionPerformed
 
     private void btnProfile1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfile1ActionPerformed
@@ -166,45 +169,82 @@ public class WarehouseHP extends javax.swing.JPanel {
                 break;
             }
         }
-        
+
         if (account == null) {
-            System.out.println("WarehouseHP: 未找到账户，显示错误消息");
-            javax.swing.JOptionPane.showMessageDialog(this, 
-                    "无法获取用户信息，请重新登录", 
-                    "错误", 
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "无法获取用户信息，请重新登录",
+                    "错误",
                     javax.swing.JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         // 创建ManageOwnProfile面板，传递工作区面板和用户账户
         System.out.println("WarehouseHP: 使用账户创建ManageOwnProfile: " + account.getUsername());
         ManageOwnProfile manageOwnProfile = new ManageOwnProfile(WarehouseWorkAreajPanel, account);
         WarehouseWorkAreajPanel.add("ManageOwnProfile", manageOwnProfile);
-        
+
         // 使用CardLayout显示该面板
         CardLayout layout = (CardLayout) WarehouseWorkAreajPanel.getLayout();
         layout.next(WarehouseWorkAreajPanel);
     }//GEN-LAST:event_btnProfile1ActionPerformed
 
-    private void btnComplaintBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComplaintBoxActionPerformed
+    private void btnWarehouseManagementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnWarehouseManagementActionPerformed
         // TODO add your handling code here:
-        WarehouseCustomerComplaintContent warehouseCustomerComplaintContent = new WarehouseCustomerComplaintContent(WarehouseWorkAreajPanel, 
-                Business.Warehouse.Warehouse.getInstance());
-        WarehouseWorkAreajPanel.add("WarehouseCustomerComplaintContent", warehouseCustomerComplaintContent);
-        CardLayout layout = (CardLayout) WarehouseWorkAreajPanel.getLayout();
-        layout.next(WarehouseWorkAreajPanel);
-        
-        
-    }//GEN-LAST:event_btnComplaintBoxActionPerformed
+        // 获取当前用户账户
+        Business.UserAccount.UserAccount account = null;
+        for (Business.UserAccount.UserAccount ua : Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList()) {
+            if (ua.getUsername().equals(this.username)) {
+                account = ua;
+                break;
+            }
+        }
 
-    private void btnWarehouseManagementActionPerformed(java.awt.event.ActionEvent evt) {
-        // 创建仓库管理主页面
-        WarehouseManagerHomePage warehouseManagerHomePage = new WarehouseManagerHomePage(WarehouseWorkAreajPanel, 
-                Business.Warehouse.Warehouse.getInstance());
+        if (account == null) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "无法获取用户信息，请重新登录",
+                    "错误",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 获取企业实例
+        Enterprise enterprise = null;
+        EcoSystem system = Business.EcoSystem.getInstance();
+
+        // 遍历网络和企业目录来查找仓库企业
+        for (Network network : system.getNetworkList()) {
+            for (Enterprise e : network.getEnterpriseDirectory().getEnterpriseList()) {
+                if (e.getEnterpriseType().equals(Enterprise.EnterpriseType.WarehouseSupplier)) {
+                    enterprise = e;
+                    break;
+                }
+            }
+            if (enterprise != null) {
+                break;
+            }
+        }
+
+        if (enterprise == null) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "无法获取仓库企业信息",
+                    "错误",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 创建WarehouseManagerHomePage实例，传递更多参数
+        WarehouseManagerHomePage warehouseManagerHomePage = new WarehouseManagerHomePage(
+                WarehouseWorkAreajPanel,
+                Business.Warehouse.Warehouse.getInstance(),
+                enterprise, // 添加企业参数
+                account // 添加用户账户参数
+        );
+
         WarehouseWorkAreajPanel.add("WarehouseManagerHomePage", warehouseManagerHomePage);
         CardLayout layout = (CardLayout) WarehouseWorkAreajPanel.getLayout();
         layout.next(WarehouseWorkAreajPanel);
-    }
+    }//GEN-LAST:event_btnWarehouseManagementActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel WarehousePanel;
