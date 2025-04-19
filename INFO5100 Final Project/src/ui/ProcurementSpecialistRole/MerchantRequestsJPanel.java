@@ -493,7 +493,7 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
         JOptionPane.showMessageDialog(this, "Orders have been processed successfully!");
     }//GEN-LAST:event_btnCheckOutActionPerformed
 
-    private void btnProcessOrderActionPerformed(java.awt.event.ActionEvent evt) {                                                
+    private void btnProcessOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProcessOrderActionPerformed
         // 获取选中的行
         int selectedRow = RequestTable1.getSelectedRow();
         if (selectedRow < 0) {
@@ -525,10 +525,10 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
         order.setQuantity(quantity);
         order.setStatus("Processing");
         
-        // 设置价格（假设一个估计价格）
-        double estimatedPrice = 100.0; // 示例价格
-        order.setPurchaseCost(estimatedPrice);
-        order.setTotalAmount(estimatedPrice * quantity);
+        // 获取产品实际价格，而不是使用固定价格
+        double actualPrice = getPriceForProduct(productName);
+        order.setPurchaseCost(actualPrice);
+        order.setTotalAmount(actualPrice * quantity);
         
         // 添加到购物车
         orderDirectory.addOrder(order);
@@ -541,7 +541,7 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
             "Request added to processing cart", 
             "Success", 
             JOptionPane.INFORMATION_MESSAGE);
-    }
+    }//GEN-LAST:event_btnProcessOrderActionPerformed
 
     private void updateCartTable() {
         cartTableModel.setRowCount(0);
@@ -673,4 +673,33 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
     private javax.swing.JTextField txtNewQuantity;
     private javax.swing.JTextField txtSearchRequestID;
     // End of variables declaration//GEN-END:variables
+
+    // 添加获取产品价格的方法
+    private double getPriceForProduct(String productName) {
+        // 从仓库获取产品价格
+        for (Product product : warehouse.getAvailableProducts()) {
+            if (product.getProductName().equals(productName)) {
+                return product.getPrice(); // 使用正确的getPrice()方法
+            }
+        }
+        
+        // 如果在仓库中找不到产品，尝试从商家工作请求中获取价格
+        Business.EcoSystem system = Business.EcoSystem.getInstance();
+        if (system.getWorkQueue() != null) {
+            for (WorkRequest req : system.getWorkQueue().getWorkRequestList()) {
+                if (req instanceof MerchantWorkRequest) {
+                    MerchantWorkRequest merchantReq = (MerchantWorkRequest) req;
+                    if (productName.equals(merchantReq.getProductName())) {
+                        if (merchantReq.getPrice() > 0) {
+                            return merchantReq.getPrice();
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 如果无法获取实际价格，记录警告并返回默认价格
+        System.out.println("警告: 无法获取产品 '" + productName + "' 的价格，使用默认价格100.0");
+        return 100.0; // 默认价格，仅作为备选
+    }
 }

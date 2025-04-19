@@ -897,12 +897,13 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         
         System.out.println("开始创建示例产品...");
         
-        // 创建示例产品
-        Product p1 = new Product("SP-101", "Apple iPhone 15 Pro", 799.99, 50, 20);
-        Product p2 = new Product("SP-102", "Samsung Galaxy S23", 699.99, 40, 15);
-        Product p3 = new Product("LP-101", "MacBook Pro 14\"", 1299.99, 30, 10);
-        Product p4 = new Product("HP-101", "Apple AirPods Pro", 199.99, 70, 25);
-        Product p5 = new Product("TB-101", "iPad Pro 12.9\"", 499.99, 40, 15);
+        // 创建示例产品 - 使用与仓库相同的产品，但使用不同的ID
+        // 选择仓库中的几种关键产品确保价格与仓库一致
+        Product p1 = new Product("MERCH-SP-101", "Apple iPhone 15 Pro", 799.99, 50, 20);
+        Product p2 = new Product("MERCH-SP-102", "Samsung Galaxy S23", 999.99, 40, 15);
+        Product p3 = new Product("MERCH-LP-101", "MacBook Pro 14\"", 1299.99, 30, 10);
+        Product p4 = new Product("MERCH-HP-101", "Apple AirPods Pro", 199.99, 70, 25);
+        Product p5 = new Product("MERCH-TB-101", "iPad Pro 12.9\"", 499.99, 40, 15);
         
         // 设置所有产品为上架状态
         p1.upShelf();
@@ -926,8 +927,8 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         supplier.addProduct(p4);
         supplier.addProduct(p5);
         
-        // 添加一个低库存产品作为示例
-        Product lowStockProduct = new Product("SP-103", "Google Pixel 7", 599.99, 5, 15);
+        // 添加一个低库存产品作为示例 - 使用与仓库相同的产品名称和价格
+        Product lowStockProduct = new Product("MERCH-SP-103", "Google Pixel 7", 599.99, 5, 15);
         lowStockProduct.upShelf();
         lowStockProduct.setStockStatus("Low");
         lowStockProduct.setLastUpdated(now);
