@@ -27,6 +27,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import Business.ConfigureASystem;
 import Business.Organization.LogisticsOrganization;
+import Business.Role.WarehouseManagerRole;
 
 /**
  *
@@ -319,12 +320,15 @@ public class MainJFrame extends javax.swing.JFrame {
         Employee employee4 = system.getEmployeeDirectory().createEmployee("procurement");
         Employee employee5 = system.getEmployeeDirectory().createEmployee("customsagent");
         Employee employee6 = system.getEmployeeDirectory().createEmployee("logistics");
+        Employee employee7 = system.getEmployeeDirectory().createEmployee("warehouse");
+        
         UserAccount ua = system.getUserAccountDirectory().createUserAccount("sysadmin", "sysadmin", employee1, new AdminRole());
         UserAccount customerservice = system.getUserAccountDirectory().createUserAccount("c", "****", employee2, new CustomerServiceRepRole());
         UserAccount merchant = system.getUserAccountDirectory().createUserAccount("m", "****", employee3, new MerchantRole());
         UserAccount procurement = system.getUserAccountDirectory().createUserAccount("p", "****", employee4, new ProcurementSpecialistRole());
         UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("l", "****", employee5, new CustomsAgentRole());
         UserAccount logistics = system.getUserAccountDirectory().createUserAccount("t", "****", employee6, new LogisticsCoordinatorRole());
+        UserAccount warehouse = system.getUserAccountDirectory().createUserAccount("w", "****", employee7, new WarehouseManagerRole());
 
     }
 
