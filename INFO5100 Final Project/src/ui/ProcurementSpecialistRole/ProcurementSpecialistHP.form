@@ -52,7 +52,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" max="-2" attributes="0">
                           <Component id="btnProfile1" alignment="0" max="32767" attributes="0"/>
-                          <Component id="btnWarehouseRequest" alignment="0" max="32767" attributes="0"/>
+                          <Component id="btnMerchantRequest" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
@@ -62,7 +62,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="303" max="-2" attributes="0"/>
-                      <Component id="btnWarehouseRequest" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnMerchantRequest" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="98" max="-2" attributes="0"/>
                       <Component id="btnProfile1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace pref="2429" max="32767" attributes="0"/>
@@ -71,12 +71,12 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JButton" name="btnWarehouseRequest">
+            <Component class="javax.swing.JButton" name="btnMerchantRequest">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Warehouse Request"/>
+                <Property name="text" type="java.lang.String" value="Merchant Request"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnWarehouseRequestActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnMerchantRequestActionPerformed"/>
               </Events>
             </Component>
             <Component class="javax.swing.JButton" name="btnProfile1">

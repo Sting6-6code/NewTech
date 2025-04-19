@@ -52,58 +52,108 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
         DefaultTableModel model = (DefaultTableModel) RequestTable1.getModel();
         model.setRowCount(0);
         
+        // 打印调试信息
+        System.out.println("开始加载商家请求表格...");
+        
         // 从EcoSystem获取商家请求
         List<WorkRequest> requests = new ArrayList<>();
         Business.EcoSystem system = Business.EcoSystem.getInstance();
         if (system.getWorkQueue() != null) {
+            System.out.println("系统工作队列存在，请求总数: " + system.getWorkQueue().getWorkRequestList().size());
             for (WorkRequest req : system.getWorkQueue().getWorkRequestList()) {
                 if (req instanceof MerchantWorkRequest) {
-                    requests.add(req);
+                    MerchantWorkRequest merchantReq = (MerchantWorkRequest) req;
+                    // 确保至少有产品ID才添加请求
+                    if (merchantReq.getProductId() != null && !merchantReq.getProductId().trim().isEmpty()) {
+                        requests.add(req);
+                        System.out.println("找到有效商家请求: 产品=" + merchantReq.getProductName() + 
+                                         ", ID=" + merchantReq.getProductId() + 
+                                         ", 状态=" + merchantReq.getStatus());
+                    } else {
+                        System.out.println("跳过无效请求: 产品ID为空");
+                    }
                 }
             }
+        } else {
+            System.err.println("错误: 系统工作队列为空");
         }
         
         if (requests.isEmpty()) {
-            System.out.println("No merchant requests found!");
+            System.out.println("未找到有效商家请求，显示表格为空!");
             return;
         }
         
-        System.out.println("Found " + requests.size() + " merchant requests");
+        System.out.println("共找到 " + requests.size() + " 个有效商家请求");
         
         // 过滤请求（根据下拉框状态）
         String selectedStatus = StatusjComboBox.getSelectedItem().toString();
         String searchId = txtSearchRequestID.getText().trim();
         
+        System.out.println("筛选条件 - 状态: " + selectedStatus + ", 搜索文本: " + searchId);
+        
+        // 如果搜索框包含默认提示文本，则视为空搜索
+        if ("Saerch Request ID...".equals(searchId)) {
+            searchId = "";
+        }
+        
+        int addedRows = 0;
         for (WorkRequest request : requests) {
             MerchantWorkRequest merchantRequest = (MerchantWorkRequest) request;
             
+            // 创建请求ID：REQ-产品ID
+            String requestId = "REQ-" + merchantRequest.getProductId();
+            
             // 根据状态筛选
-            if ("All".equals(selectedStatus) || merchantRequest.getStatus().equals(selectedStatus)) {
-                // 根据ID筛选
-                if (searchId.isEmpty() || merchantRequest.getMessage().contains(searchId)) {
-                    // 创建表格行
-                    Object[] row = new Object[5];
-                    // 表格列: Request ID, Product Name, Quantity, Update Date, Status
-                    row[0] = "REQ-" + merchantRequest.getProductId(); // 请求ID
-                    row[1] = merchantRequest.getProductName();        // 产品名称
-                    row[2] = merchantRequest.getRequestedAmount();    // 请求数量
-                    row[3] = merchantRequest.getRequestDate();        // 更新日期
-                    row[4] = merchantRequest.getStatus();             // 状态
-                    
-                    model.addRow(row);
-                    
-                    System.out.println("Added request to table: " + merchantRequest.getProductName() + 
-                                     ", Status: " + merchantRequest.getStatus() +
-                                     ", Requested: " + merchantRequest.getRequestedAmount());
-                }
+            boolean statusMatch = "All".equals(selectedStatus) || selectedStatus.isEmpty() || 
+                           merchantRequest.getStatus() == null || merchantRequest.getStatus().equals(selectedStatus);
+            
+            // 根据ID或产品名称筛选
+            boolean searchMatch = searchId.isEmpty() || 
+                           requestId.toLowerCase().contains(searchId.toLowerCase()) || 
+                           (merchantRequest.getProductName() != null && 
+                            merchantRequest.getProductName().toLowerCase().contains(searchId.toLowerCase()));
+            
+            System.out.println("检查请求 " + requestId + " - 状态匹配: " + statusMatch + ", 搜索匹配: " + searchMatch);
+            
+            if (statusMatch && searchMatch) {
+                // 防止空值引起的错误
+                String displayProductName = merchantRequest.getProductName() != null ? 
+                                          merchantRequest.getProductName() : "未命名产品";
+                String displayStatus = merchantRequest.getStatus() != null ? 
+                                     merchantRequest.getStatus() : "Pending";
+                
+                // 创建表格行
+                Object[] row = new Object[5];
+                // 表格列: Request ID, Product Name, Quantity, Update Date, Status
+                row[0] = requestId;                        // 请求ID
+                row[1] = displayProductName;               // 产品名称
+                row[2] = merchantRequest.getRequestedAmount(); // 请求数量
+                row[3] = merchantRequest.getRequestDate(); // 更新日期
+                row[4] = displayStatus;                    // 状态
+                
+                model.addRow(row);
+                addedRows++;
+                
+                System.out.println("添加到表格: " + displayProductName + 
+                                 ", 状态: " + displayStatus +
+                                 ", 请求数量: " + merchantRequest.getRequestedAmount());
             }
         }
+        
+        System.out.println("表格加载完成，共添加了 " + addedRows + " 行数据");
     }
+    
+    
     
     private void refreshRequestTable() {
         loadMerchantRequests();
     }
 
+    
+    
+    
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
