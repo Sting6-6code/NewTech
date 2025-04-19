@@ -563,22 +563,6 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
             "Success", 
             JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnProcessOrderActionPerformed
-            // 保持原有功能：清空购物车
-            orderDirectory = new OrderDirectory();
-            updateCartTable();
-            refreshRequestTable();
-
-            JOptionPane.showMessageDialog(this, "Orders have been processed successfully!");
-
-        } catch (Exception e) {
-            System.out.println("Error processing checkout: " + e.getMessage());
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                    "Error processing orders: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-    }//GEN-LAST:event_btnCheckOutActionPerformed
 
     private void updateCartTable() {
         cartTableModel.setRowCount(0);
