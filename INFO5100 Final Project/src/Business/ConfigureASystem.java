@@ -7,6 +7,7 @@ import Business.Role.LogisticsCoordinatorRole;
 import Business.Role.MerchantRole;
 import Business.Role.ProcurementSpecialistRole;
 import Business.Role.SystemAdminRole;
+import Business.Role.WarehouseManagerRole;
 import Business.UserAccount.UserAccount;
 import Business.Supplier.Supplier;
 import Business.Network.Network;
@@ -67,6 +68,8 @@ public class ConfigureASystem {
         UserAccount procurement = system.getUserAccountDirectory().createUserAccount("p", "****", employee4, new ProcurementSpecialistRole());
         UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("l", "****", employee5, new CustomsAgentRole());
         UserAccount logistics = system.getUserAccountDirectory().createUserAccount("t", "****", employee6, new LogisticsCoordinatorRole());
+        UserAccount warehouse = system.getUserAccountDirectory().createUserAccount("w", "****", employee7, new WarehouseManagerRole());
+        
 
         // 初始化仓库和商品
         initializeWarehouse();
@@ -83,14 +86,14 @@ public class ConfigureASystem {
         MerchantRole.setDemoSupplier(techSupplier1);
 
         // 确保仓库中的所有产品都设置为上架状态
-        Warehouse warehouse = Warehouse.getInstance();
+        Warehouse warehouseInstance = Warehouse.getInstance();
 
         try {
             System.out.println("正在为商家设置示例产品目录...");
 
             // 获取仓库中的所有产品
             List<Product> allProducts = new ArrayList<>();
-            for (Stock stockItem : warehouse.getStock()) {
+            for (Stock stockItem : warehouseInstance.getStock()) {
                 Product p = stockItem.getProduct();
                 p.upShelf(); // 确保产品上架
                 allProducts.add(p);
