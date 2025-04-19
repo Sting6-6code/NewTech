@@ -38,6 +38,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import jdk.tools.jlink.internal.Platform;
@@ -185,7 +186,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblShipment = new javax.swing.JTable();
         btnViewDetails = new javax.swing.JButton();
-        btnTrackPath = new javax.swing.JButton();
+        btnAddNewShip = new javax.swing.JButton();
         btnUpdateStatus = new javax.swing.JButton();
         basicInfoJPanel = new javax.swing.JPanel();
         lblTraNo = new javax.swing.JLabel();
@@ -206,7 +207,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
         btnFinancialInfo = new javax.swing.JButton();
         trackPathJPanel = new javax.swing.JPanel();
         lblTrackPath = new javax.swing.JLabel();
-        btnSave = new javax.swing.JButton();
+        btnShip = new javax.swing.JButton();
 
         setMaximumSize(new java.awt.Dimension(1450, 800));
         setMinimumSize(new java.awt.Dimension(1450, 800));
@@ -247,7 +248,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
                 {null, null, null, null, null, null}
             },
             new String [] {
-                "Tracking Number", "Shipping Date", "Shipping Method", "Destination", "Status", "Estimated Delivery Date"
+                "ID", "Shipping Method", "Destination", "Status", "Shipping Date", "Estimated Delivery Date"
             }
         ));
         jScrollPane1.setViewportView(tblShipment);
@@ -259,10 +260,10 @@ public class ShipmentPanel extends javax.swing.JPanel {
             }
         });
 
-        btnTrackPath.setText("Track Path");
-        btnTrackPath.addActionListener(new java.awt.event.ActionListener() {
+        btnAddNewShip.setText("Add New Shipment");
+        btnAddNewShip.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnTrackPathActionPerformed(evt);
+                btnAddNewShipActionPerformed(evt);
             }
         });
 
@@ -457,10 +458,10 @@ public class ShipmentPanel extends javax.swing.JPanel {
                 .addContainerGap(317, Short.MAX_VALUE))
         );
 
-        btnSave.setText("Save");
-        btnSave.addActionListener(new java.awt.event.ActionListener() {
+        btnShip.setText("Ship");
+        btnShip.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSaveActionPerformed(evt);
+                btnShipActionPerformed(evt);
             }
         });
 
@@ -484,11 +485,11 @@ public class ShipmentPanel extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnViewDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(12, 12, 12)
-                        .addComponent(btnTrackPath, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnAddNewShip, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(btnUpdateStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(btnSave))
+                        .addComponent(btnShip, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
@@ -499,6 +500,9 @@ public class ShipmentPanel extends javax.swing.JPanel {
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 1403, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(32, Short.MAX_VALUE))
         );
+
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnShip, btnUpdateStatus});
+
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
@@ -523,15 +527,15 @@ public class ShipmentPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnViewDetails)
-                    .addComponent(btnTrackPath)
+                    .addComponent(btnAddNewShip)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(btnUpdateStatus)
-                        .addComponent(btnSave)))
-                .addGap(56, 56, 56)
+                        .addComponent(btnShip)))
+                .addGap(61, 61, 61)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(basicInfoJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(trackPathJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 36, Short.MAX_VALUE))
+                .addGap(0, 31, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -565,22 +569,10 @@ public class ShipmentPanel extends javax.swing.JPanel {
 
     }//GEN-LAST:event_btnViewDetailsActionPerformed
 
-    private void btnTrackPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTrackPathActionPerformed
+    private void btnAddNewShipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNewShipActionPerformed
 
-        int selectedRow = tblShipment.getSelectedRow();
-        if (selectedRow >= 0) {
-            String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
-            Shipment shipment = organization.getShipmentDirectory().findShipmentByTrackingNumber(trackingNumber);
-            if (shipment != null) {
-                showTrackingMap(shipment);
-            }
-        } else {
-            JOptionPane.showMessageDialog(this,
-                    "Please select a shipment first",
-                    "Information",
-                    JOptionPane.INFORMATION_MESSAGE);
-        }
-    }//GEN-LAST:event_btnTrackPathActionPerformed
+//        
+    }//GEN-LAST:event_btnAddNewShipActionPerformed
 
     private void btnUpdateStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateStatusActionPerformed
         int selectedRow = tblShipment.getSelectedRow();
@@ -617,9 +609,9 @@ public class ShipmentPanel extends javax.swing.JPanel {
         updateShipmentInfo();
     }//GEN-LAST:event_btnUpdateActionPerformed
 
-    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+    private void btnShipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_btnSaveActionPerformed
+    }//GEN-LAST:event_btnShipActionPerformed
 
     private void btnCustomsInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCustomsInfoActionPerformed
         // TODO add your handling code here:
@@ -644,15 +636,15 @@ public class ShipmentPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel basicInfoJPanel;
+    private javax.swing.JButton btnAddNewShip;
     private javax.swing.JButton btnBack;
     private javax.swing.JButton btnBasicInfo;
     private javax.swing.JButton btnCustomsInfo;
     private javax.swing.JButton btnFinancialInfo;
     private javax.swing.JButton btnPackageInfo;
     private javax.swing.JButton btnRefresh;
-    private javax.swing.JButton btnSave;
     private javax.swing.JButton btnSearch;
-    private javax.swing.JButton btnTrackPath;
+    private javax.swing.JButton btnShip;
     private javax.swing.JButton btnUpdate;
     private javax.swing.JButton btnUpdateStatus;
     private javax.swing.JButton btnViewDetails;
@@ -707,6 +699,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
         } else {
             System.out.println("Error: Organization or ShipmentDirectory is null");
         }
+        
     }
 
     private void searchShipment(String query) {
@@ -1193,5 +1186,20 @@ public class ShipmentPanel extends javax.swing.JPanel {
             // 6. 刷新显示
             populateTable();
         }
+    }
+
+    /**
+     * 根据行号显示货运详情
+     *
+     * @param rowIndex 要显示的行号
+     */
+    public void showShipmentDetails(int rowIndex) {
+        if (rowIndex >= 0 && rowIndex < tblShipment.getRowCount()) {
+            displayShipmentDetails(rowIndex);
+        }
+    }
+
+    public JTable getTblShipment() {
+        return tblShipment;
     }
 }

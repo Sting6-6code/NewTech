@@ -36,6 +36,9 @@ import javax.swing.table.DefaultTableModel;
 import java.text.SimpleDateFormat;
 import Business.Logistics.CustomsDeclaration;
 import Business.Logistics.CustomsDeclarationDirectory;
+import Business.WorkQueue.WarehouseWorkRequest;
+import Business.WorkQueue.WorkRequest;
+import javax.swing.JTable;
 
 /**
  *
@@ -139,12 +142,11 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         lblPendingCustoms = new javax.swing.JLabel();
         pendingCustomsJPanel = new javax.swing.JPanel();
         lblCompletedDeliveries = new javax.swing.JLabel();
-        AlertJPanel = new javax.swing.JPanel();
-        lblAlerts = new javax.swing.JLabel();
         pendingTasksJPanel = new javax.swing.JPanel();
         lblPendingTasks = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblPendingTasks = new javax.swing.JTable();
+        btnViewDetails = new javax.swing.JButton();
         recentShipJPanel = new javax.swing.JPanel();
         lblRecentShip = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -340,31 +342,6 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         logisticsWorkAreajPanel.add(pendingCustomsJPanel);
         pendingCustomsJPanel.setBounds(660, 40, 300, 180);
 
-        AlertJPanel.setBackground(new java.awt.Color(255, 255, 255));
-        AlertJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        lblAlerts.setText("Alerts & Notifications");
-
-        javax.swing.GroupLayout AlertJPanelLayout = new javax.swing.GroupLayout(AlertJPanel);
-        AlertJPanel.setLayout(AlertJPanelLayout);
-        AlertJPanelLayout.setHorizontalGroup(
-            AlertJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(AlertJPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblAlerts)
-                .addContainerGap(479, Short.MAX_VALUE))
-        );
-        AlertJPanelLayout.setVerticalGroup(
-            AlertJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(AlertJPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblAlerts)
-                .addContainerGap(243, Short.MAX_VALUE))
-        );
-
-        logisticsWorkAreajPanel.add(AlertJPanel);
-        AlertJPanel.setBounds(660, 260, 610, 270);
-
         pendingTasksJPanel.setBackground(new java.awt.Color(255, 255, 255));
         pendingTasksJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -373,40 +350,56 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         tblPendingTasks.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         tblPendingTasks.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "Task", "Priority", "Due Date", "Status"
+                "ID", "Task", "Priority", "Due Date", "Status"
             }
         ));
         jScrollPane2.setViewportView(tblPendingTasks);
+        if (tblPendingTasks.getColumnModel().getColumnCount() > 0) {
+            tblPendingTasks.getColumnModel().getColumn(1).setResizable(false);
+        }
+
+        btnViewDetails.setText("View Details");
+        btnViewDetails.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnViewDetailsActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout pendingTasksJPanelLayout = new javax.swing.GroupLayout(pendingTasksJPanel);
         pendingTasksJPanel.setLayout(pendingTasksJPanelLayout);
         pendingTasksJPanelLayout.setHorizontalGroup(
             pendingTasksJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pendingTasksJPanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnViewDetails)
+                .addGap(45, 45, 45))
             .addGroup(pendingTasksJPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(pendingTasksJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblPendingTasks)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 579, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(21, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1206, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
         pendingTasksJPanelLayout.setVerticalGroup(
             pendingTasksJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pendingTasksJPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lblPendingTasks)
-                .addGap(26, 26, 26)
+                .addGap(20, 20, 20)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(41, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnViewDetails)
+                .addContainerGap(12, Short.MAX_VALUE))
         );
 
         logisticsWorkAreajPanel.add(pendingTasksJPanel);
-        pendingTasksJPanel.setBounds(40, 260, 610, 270);
+        pendingTasksJPanel.setBounds(40, 260, 1230, 270);
 
         recentShipJPanel.setBackground(new java.awt.Color(255, 255, 255));
         recentShipJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -547,9 +540,46 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
 
     }//GEN-LAST:event_btnShipmentTraActionPerformed
 
+    private void btnViewDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewDetailsActionPerformed
+        // TODO add your handling code here:
+        int selectedRow = tblPendingTasks.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a task first");
+            return;
+        }
+
+        // 获取选中的运单号
+        String trackingNumber = tblPendingTasks.getValueAt(selectedRow, 0).toString();
+
+        // 根据运单号找到对应的物流请求
+        WorkRequest request = null;
+        for (WorkRequest req : organization.getWorkQueue().getWorkRequestList()) {
+            if (req instanceof WarehouseWorkRequest) {
+                WarehouseWorkRequest warehouseReq = (WarehouseWorkRequest) req;
+                if (warehouseReq.getTrackingNumber().equals(trackingNumber)) {
+                    request = warehouseReq;
+                    break;
+                }
+            }
+        }
+
+        if (request != null) {
+            // 跳转到ShipmentPanel显示详细信息
+            ShipmentPanel shipmentPanel = new ShipmentPanel(userProcessContainer, userAccount, enterprise, organization);
+            shipmentPanel.setSize(1450, 800);
+            userProcessContainer.add("Shipment", shipmentPanel);
+            CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+            layout.show(userProcessContainer, "Shipment");
+
+            // 选中对应的运输单
+            selectShipmentInPanel(shipmentPanel, trackingNumber);
+        } else {
+            JOptionPane.showMessageDialog(this, "No corresponding transport request found");
+        }
+    }//GEN-LAST:event_btnViewDetailsActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel AlertJPanel;
     private javax.swing.JPanel CompletedDeliveriesJPanel;
     private javax.swing.JPanel CustomerCompJPanel;
     private javax.swing.JPanel actShipmentJPanel;
@@ -559,11 +589,11 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnProfile;
     private javax.swing.JButton btnShipmentTra;
+    private javax.swing.JButton btnViewDetails;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSplitPane jSplitPane;
     private javax.swing.JLabel lblActiveShipments;
-    private javax.swing.JLabel lblAlerts;
     private javax.swing.JLabel lblCompletedDeliveries;
     private javax.swing.JLabel lblCustomerComplaint;
     private javax.swing.JLabel lblPendingCustoms;
@@ -662,47 +692,35 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     }
 
     private void populatePendingTasksTable() {
-        // Create a table model
+        // 创建表格模型
         javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblPendingTasks.getModel();
-        model.setRowCount(0); // Clear existing data
+        model.setRowCount(0); // 清空现有数据
 
-        // Get pending tasks from the organization
-        ArrayList<Task> pendingTasks = new ArrayList<>();
-        if (organization != null && organization.getTaskDirectory() != null) {
-            pendingTasks = organization.getTaskDirectory().getPendingTasks();
-        }
+        // 从物流组织获取待处理的工作请求
+        if (organization != null && organization.getWorkQueue() != null) {
+            for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
+                // 筛选出WarehouseWorkRequest类型的请求
+                if (request instanceof WarehouseWorkRequest) {
+                    WarehouseWorkRequest warehouseRequest = (WarehouseWorkRequest) request;
 
-        // Add rows to the table model
-        if (pendingTasks != null && !pendingTasks.isEmpty()) {
-            for (Task task : pendingTasks) {
-                Object[] row = new Object[4];
-                row[0] = task.getDescription();
-                row[1] = task.getPriority();
-                row[2] = new java.text.SimpleDateFormat("MM/dd/yyyy").format(task.getDueDate());
-                row[3] = task.getStatus();
-                model.addRow(row);
+                    // 创建表格行
+                    Object[] row = new Object[5];
+                    row[0] = warehouseRequest.getTrackingNumber(); // 任务ID使用运单号
+                    row[1] = "Logistics transport request"; // 任务类型
+                    row[2] = "Normal"; // 优先级，可根据实际需求从request中获取
+
+                    // 设置到期日期（目前使用预计送达日期）
+                    row[3] = warehouseRequest.getEstimatedDeliveryDate() != null
+                            ? new SimpleDateFormat("yyyy-MM-dd").format(warehouseRequest.getEstimatedDeliveryDate())
+                            : "";
+
+                    row[4] = warehouseRequest.getStatus(); // 状态
+
+                    model.addRow(row);
+                }
             }
-        } else {
-            // Add sample data if no tasks are available
-            java.util.Date today = new java.util.Date();
-            java.util.Calendar cal = java.util.Calendar.getInstance();
-            cal.setTime(today);
-
-            // Tomorrow
-            cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
-            java.util.Date tomorrow = cal.getTime();
-
-            // Day after tomorrow 
-            cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
-            java.util.Date dayAfter = cal.getTime();
-
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM/dd/yyyy");
-
-            model.addRow(new Object[]{"Review pending shipment documentation", "High", sdf.format(tomorrow), "Pending"});
-            model.addRow(new Object[]{"Update customer on delivery delay", "Medium", sdf.format(today), "In Progress"});
-            model.addRow(new Object[]{"Process customs declaration for shipment #TRK123456", "High", sdf.format(today), "Pending"});
-            model.addRow(new Object[]{"Contact carrier about damaged package", "Medium", sdf.format(dayAfter), "Not Started"});
         }
+
     }
 
     private void populateRecentShipmentsTable() {
@@ -736,99 +754,6 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             System.out.println("No actual shipments found, adding sample data...");
             addSampleShipmentData(model);
         }
-    }
-
-    private void updateAlertsPanel() {
-        // Create a StringBuilder to build the alerts text
-        StringBuilder alertsText = new StringBuilder("<html>");
-        boolean hasAlerts = false;
-
-        // Check for urgent shipments
-        if (organization != null && organization.getShipmentDirectory() != null) {
-            int urgentShipments = 0;
-            int delayedShipments = 0;
-            Date currentDate = new Date();
-
-            for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-                // Count urgent shipments
-                if ("Urgent".equals(shipment.getShipmentStatus())) {
-                    urgentShipments++;
-                }
-
-                // Check for delayed shipments
-                if (shipment.getEstimatedDeliveryDate() != null
-                        && currentDate.after(shipment.getEstimatedDeliveryDate())
-                        && !"Delivered".equals(shipment.getShipmentStatus())) {
-                    delayedShipments++;
-                }
-            }
-
-            // Add urgent shipments alert
-            if (urgentShipments > 0) {
-                alertsText.append("<p style='color: red;'>⚠ ")
-                        .append(urgentShipments)
-                        .append(" urgent shipment(s) requiring immediate attention</p>");
-                hasAlerts = true;
-            }
-
-            // Add delayed shipments alert
-            if (delayedShipments > 0) {
-                alertsText.append("<p style='color: orange;'>⚠ ")
-                        .append(delayedShipments)
-                        .append(" shipment(s) are delayed</p>");
-                hasAlerts = true;
-            }
-        }
-
-        // Check for pending customs declarations
-        if (organization != null && organization.getShipmentDirectory() != null) {
-            int pendingCustoms = 0;
-            for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-                if (shipment.getCustomsDeclaration() != null
-                        && "Pending".equals(shipment.getCustomsDeclaration().getStatus())) {
-                    pendingCustoms++;
-                }
-            }
-
-            if (pendingCustoms > 0) {
-                alertsText.append("<p style='color: blue;'>ℹ ")
-                        .append(pendingCustoms)
-                        .append(" customs declaration(s) pending review</p>");
-                hasAlerts = true;
-            }
-        }
-
-        // Check for high-priority tasks
-        if (organization != null && organization.getTaskDirectory() != null) {
-            int urgentTasks = 0;
-            Date currentDate = new Date();
-
-            for (Task task : organization.getTaskDirectory().getTasks()) {
-                if ("High".equals(task.getPriority())
-                        && !task.getStatus().equals("Completed")
-                        && task.getDueDate() != null
-                        && currentDate.after(task.getDueDate())) {
-                    urgentTasks++;
-                }
-            }
-
-            if (urgentTasks > 0) {
-                alertsText.append("<p style='color: red;'>⚠ ")
-                        .append(urgentTasks)
-                        .append(" overdue high-priority task(s)</p>");
-                hasAlerts = true;
-            }
-        }
-
-        // If no alerts, show a message
-        if (!hasAlerts) {
-            alertsText.append("<p style='color: green;'>✓ No urgent alerts at this time</p>");
-        }
-
-        alertsText.append("</html>");
-
-        // Update the alerts label
-        lblAlerts.setText(alertsText.toString());
     }
 
     private void addSampleShipmentData(javax.swing.table.DefaultTableModel model) {
@@ -993,5 +918,44 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
                 "",
                 new Color(51, 51, 255));
     }
+
+    /**
+     * 在ShipmentPanel中选中指定运单号的运输单
+     */
+    private void selectShipmentInPanel(ShipmentPanel shipmentPanel, String trackingNumber) {
+        try {
+            if (shipmentPanel == null) {
+                System.err.println("Error: ShipmentPanel is null");
+                return;
+            }
+
+            // 获取ShipmentPanel中的表格
+            JTable tblShipment = shipmentPanel.getTblShipment();
+            if (tblShipment == null) {
+                System.err.println("Error: Shipment table is null");
+                return;
+            }
+
+            // 遍历表格查找匹配的运单号
+            DefaultTableModel model = (DefaultTableModel) tblShipment.getModel();
+            for (int i = 0; i < model.getRowCount(); i++) {
+                Object value = model.getValueAt(i, 0);
+                if (value != null && trackingNumber.equals(value.toString())) {
+                    // 选中该行
+                    tblShipment.setRowSelectionInterval(i, i);
+                    // 确保选中的行可见
+                    tblShipment.scrollRectToVisible(tblShipment.getCellRect(i, 0, true));
+                    System.out.println("Selected shipment with tracking number: " + trackingNumber);
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error selecting shipment: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    
+
 
 }
