@@ -348,14 +348,10 @@
         <Component class="javax.swing.JComboBox" name="jComboBoxRole">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-              <StringArray count="7">
-                <StringItem index="0" value="Customer Service "/>
-                <StringItem index="1" value="Merchant"/>
-                <StringItem index="2" value="Procurement Specialist"/>
-                <StringItem index="3" value="Warehouse"/>
-                <StringItem index="4" value="Fintech"/>
-                <StringItem index="5" value="Customs Agent"/>
-                <StringItem index="6" value="Logistics"/>
+              <StringArray count="3">
+                <StringItem index="0" value="Warehouse"/>
+                <StringItem index="1" value="Customs Agent"/>
+                <StringItem index="2" value="Logistics"/>
               </StringArray>
             </Property>
           </Properties>

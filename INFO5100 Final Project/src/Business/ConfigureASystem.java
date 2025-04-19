@@ -34,6 +34,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.Timer;
+import java.util.TimerTask;
+import Business.Product.SalesRecord;
 
 /**
  *
@@ -73,6 +77,9 @@ public class ConfigureASystem {
 
         // 初始化仓库和商品
         initializeWarehouse();
+
+        // Initialize sample sales records
+        initializeSalesRecords(system);
 
         // Create supplier and assign to merchant role
         Supplier techSupplier1 = new Supplier();
@@ -375,6 +382,53 @@ public class ConfigureASystem {
         System.out.println("Warehouse initialized with " + warehouse.getStock().size() + " products");
         System.out.println("Generated " + warehouse.getProcurementRequests().size() + " procurement requests");
 
+    }
+
+    // Method to initialize sample sales record data
+    private static void initializeSalesRecords(EcoSystem system) {
+        System.out.println("Initializing sample sales records...");
+        
+        if (system == null || system.getSalesRecordDirectory() == null) {
+            System.out.println("Warning: Cannot initialize sales records - system or sales record directory is null");
+            return;
+        }
+        
+        // Get current date for reference
+        Calendar calendar = Calendar.getInstance();
+        Date currentDate = calendar.getTime();
+        
+        // Create dates for previous months
+        calendar.add(Calendar.MONTH, -1);
+        Date oneMonthAgo = calendar.getTime();
+        
+        calendar.add(Calendar.MONTH, -1);
+        Date twoMonthsAgo = calendar.getTime();
+        
+        calendar.add(Calendar.MONTH, -1);
+        Date threeMonthsAgo = calendar.getTime();
+        
+        // Add sample sales records
+        system.getSalesRecordDirectory().createSalesRecord("SP-001", "Apple iPhone 15 Pro", 799.99, 5, threeMonthsAgo, "CUST001");
+        system.getSalesRecordDirectory().createSalesRecord("SP-001", "Apple iPhone 15 Pro", 799.99, 8, twoMonthsAgo, "CUST002");
+        system.getSalesRecordDirectory().createSalesRecord("SP-001", "Apple iPhone 15 Pro", 799.99, 12, oneMonthAgo, "CUST003");
+        system.getSalesRecordDirectory().createSalesRecord("SP-001", "Apple iPhone 15 Pro", 799.99, 10, currentDate, "CUST004");
+        
+        system.getSalesRecordDirectory().createSalesRecord("SP-002", "Samsung Galaxy S23", 999.99, 3, threeMonthsAgo, "CUST005");
+        system.getSalesRecordDirectory().createSalesRecord("SP-002", "Samsung Galaxy S23", 999.99, 7, twoMonthsAgo, "CUST006");
+        system.getSalesRecordDirectory().createSalesRecord("SP-002", "Samsung Galaxy S23", 999.99, 9, oneMonthAgo, "CUST007");
+        system.getSalesRecordDirectory().createSalesRecord("SP-002", "Samsung Galaxy S23", 999.99, 6, currentDate, "CUST008");
+        
+        system.getSalesRecordDirectory().createSalesRecord("LP-001", "MacBook Pro 14\"", 1299.99, 2, threeMonthsAgo, "CUST009");
+        system.getSalesRecordDirectory().createSalesRecord("LP-001", "MacBook Pro 14\"", 1299.99, 4, twoMonthsAgo, "CUST010");
+        system.getSalesRecordDirectory().createSalesRecord("LP-001", "MacBook Pro 14\"", 1299.99, 5, oneMonthAgo, "CUST011");
+        system.getSalesRecordDirectory().createSalesRecord("LP-001", "MacBook Pro 14\"", 1299.99, 3, currentDate, "CUST012");
+        
+        system.getSalesRecordDirectory().createSalesRecord("HP-001", "Apple AirPods Pro", 199.99, 10, threeMonthsAgo, "CUST013");
+        system.getSalesRecordDirectory().createSalesRecord("HP-001", "Apple AirPods Pro", 199.99, 15, twoMonthsAgo, "CUST014");
+        system.getSalesRecordDirectory().createSalesRecord("HP-001", "Apple AirPods Pro", 199.99, 20, oneMonthAgo, "CUST015");
+        system.getSalesRecordDirectory().createSalesRecord("HP-001", "Apple AirPods Pro", 199.99, 18, currentDate, "CUST016");
+        
+        System.out.println("Created " + system.getSalesRecordDirectory().getSalesRecordList().size() + " sample sales records");
     }
 
     // Create demo complaints

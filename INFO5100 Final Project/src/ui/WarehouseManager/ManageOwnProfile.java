@@ -26,20 +26,24 @@ public class ManageOwnProfile extends javax.swing.JPanel {
      */
     public ManageOwnProfile() {
         initComponents();
+
+        
     }
 
-    public ManageOwnProfile(JPanel userProcessContainer, UserAccount account) {
+     public ManageOwnProfile(JPanel userProcessContainer, UserAccount account) {
         initComponents();
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
 
-        // Set initial field values
+        // 初始化用户信息
         populateUserInfo();
-
-        // Disable fields initially
+        
+        // 初始禁用字段
         setFieldsEditable(false);
         btnSave.setEnabled(false);
     }
+     
+     
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -192,8 +196,21 @@ public class ManageOwnProfile extends javax.swing.JPanel {
 
     private void populateUserInfo() {
         if (userAccount != null) {
-            txtUN.setText(userAccount.getUsername());
-            txtPW.setText(userAccount.getPassword());
+            try {
+                txtUN.setText(userAccount.getUsername());
+                txtPW.setText(userAccount.getPassword());
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, 
+                    "Error loading profile data: " + e.getMessage(), 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "User account information is not available", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
         }
     }
 
