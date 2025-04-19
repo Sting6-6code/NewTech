@@ -5,20 +5,28 @@
 package ui.WarehouseManager;
 
 import Business.ConfigureASystem;
+import Business.EcoSystem;
+import Business.Enterprise.Enterprise;
+import Business.Enterprise.LogisticsGroupEnterprise;
 import Business.Logistics.Shipment;
 import Business.Logistics.TrackingInfo;
+import Business.Network.Network;
 import Business.Order.Order;
 import Business.Order.OrderDirectory;
 import Business.Organization.LogisticsOrganization;
+import Business.Organization.Organization;
 import Business.Product.Product;
+import Business.UserAccount.UserAccount;
 import Business.Warehouse.Stock;
 import Business.Warehouse.Warehouse;
+import Business.WorkQueue.WarehouseWorkRequest;
 import java.awt.CardLayout;
 import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import java.lang.Integer;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -33,6 +41,8 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
     private javax.swing.JTextField txtProductNameView3;
     private javax.swing.JTextField txtIdView3;
     private javax.swing.JTextField txtPriceView3;
+    private Enterprise enterprise;
+    private UserAccount userAccount;
 
     /**
      * Creates new form WarehouseManagerHomePage
@@ -42,14 +52,26 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
         orderDirectory = new OrderDirectory();
     }
 
-    public WarehouseManagerHomePage(JPanel userProcessContainer, Warehouse warehouse) {
+    public WarehouseManagerHomePage(JPanel userProcessContainer, Warehouse warehouse, Enterprise enterprise, UserAccount account) {
         initComponents();
         this.workArea = userProcessContainer;
         this.wh = warehouse;
+        this.enterprise = enterprise;
+        this.userAccount = account;
         orderDirectory = new OrderDirectory();
 
         // Initialize the table
+        setupShipCartTable();
         populateTable();
+    }
+
+    private void setupShipCartTable() {
+        DefaultTableModel model = (DefaultTableModel) tblshipCart.getModel();
+        // Clear any existing rows and columns
+        model.setRowCount(0);
+        // Set column names
+        String[] columnNames = {"Product Name", "Purchase Cost", "Ship Quantity", "Total Amount"};
+        model.setColumnIdentifiers(columnNames);
     }
 
     private void populateTable() {
@@ -313,37 +335,65 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
 
     private void btnShipQuantityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipQuantityActionPerformed
 
+        // Get selected row
         int selectedRow = tblProductCatalog.getSelectedRow();
         if (selectedRow < 0) {
             JOptionPane.showMessageDialog(this, "Please select a product first");
             return;
         }
 
-        // 获取选中的产品信息
-        String productId = tblProductCatalog.getValueAt(selectedRow, 1).toString();
-        Product product = Warehouse.getInstance().findProductById(productId);
-
-        // 弹出发货对话框
-        String quantityStr = JOptionPane.showInputDialog(this,
-                "Enter shipping quantity for " + product.getProductName());
-        if (quantityStr == null || quantityStr.trim().isEmpty()) {
-            return;
-        }
-
-        String destination = JOptionPane.showInputDialog(this,
-                "Enter destination address");
-        if (destination == null || destination.trim().isEmpty()) {
+        // Get shipping quantity from input field
+        String quantityStr = txtshipQuantity.getText().trim();
+        if (quantityStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter shipping quantity");
             return;
         }
 
         try {
-            int quantity = Integer.parseInt(quantityStr);
-            initiateShipment(product, quantity, destination);
+            int shipQuantity = Integer.parseInt(quantityStr);
+            int currentQuantity = Integer.parseInt(tblProductCatalog.getValueAt(selectedRow, 3).toString());
+
+            // Validate quantity
+            if (shipQuantity <= 0) {
+                JOptionPane.showMessageDialog(this, "Shipping quantity must be greater than 0");
+                return;
+            }
+            if (shipQuantity > currentQuantity) {
+                JOptionPane.showMessageDialog(this, "Shipping quantity cannot exceed current stock");
+                return;
+            }
+
+            // Get product information
+            String productName = tblProductCatalog.getValueAt(selectedRow, 0).toString();
+            String productId = tblProductCatalog.getValueAt(selectedRow, 1).toString();
+            double price = Double.parseDouble(tblProductCatalog.getValueAt(selectedRow, 2).toString());
+
+            // Update inventory table
+            int newQuantity = currentQuantity - shipQuantity;
+            tblProductCatalog.setValueAt(newQuantity, selectedRow, 3);
+            tblProductCatalog.setValueAt(newQuantity > 0 ? "In Stock" : "Out of Stock", selectedRow, 4);
+
+            // Update actual warehouse inventory
+            Warehouse.getInstance().decreaseStock(productId, shipQuantity);
+
+            // Add to shipping cart table
+            DefaultTableModel shipCartModel = (DefaultTableModel) tblshipCart.getModel();
+            double totalAmount = price * shipQuantity;
+            // 格式化 totalAmount 为两位小数
+            String formattedTotal = String.format("%.2f", totalAmount);
+            Object[] row = new Object[]{
+                productName,
+                price,
+                shipQuantity,
+                Double.parseDouble(formattedTotal)
+            };
+            shipCartModel.addRow(row);
+
+            // Clear input field
+            txtshipQuantity.setText("");
+
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Invalid quantity format",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please enter a valid number");
         }
     }//GEN-LAST:event_btnShipQuantityActionPerformed
 
@@ -382,33 +432,85 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
             return;
         }
 
-        orderDirectory.getOrderList().remove(selectedRow);
-        updateCartTable();
+        try {
+            // Get the product information from the shipping cart
+            String productName = tblshipCart.getValueAt(selectedRow, 0).toString();
+            int shipQuantity = Integer.parseInt(tblshipCart.getValueAt(selectedRow, 2).toString());
+
+            // Find the product in the catalog table and update its quantity
+            DefaultTableModel catalogModel = (DefaultTableModel) tblProductCatalog.getModel();
+            for (int i = 0; i < catalogModel.getRowCount(); i++) {
+                if (catalogModel.getValueAt(i, 0).toString().equals(productName)) {
+                    // Get current quantity and add back the ship quantity
+                    int currentQuantity = Integer.parseInt(catalogModel.getValueAt(i, 3).toString());
+                    int newQuantity = currentQuantity + shipQuantity;
+                    String productId = catalogModel.getValueAt(i, 1).toString();
+
+                    // Update the catalog table
+                    catalogModel.setValueAt(newQuantity, i, 3);
+                    catalogModel.setValueAt("In Stock", i, 4);
+
+                    // Find the product in warehouse stock and update it
+                    for (Stock stock : wh.getStock()) {
+                        if (stock.getProduct().getProductId().equals(productId)) {
+                            stock.addAmount(shipQuantity);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            // Remove the row from shipping cart
+            DefaultTableModel shipCartModel = (DefaultTableModel) tblshipCart.getModel();
+            shipCartModel.removeRow(selectedRow);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error removing item: " + e.getMessage());
+        }
     }//GEN-LAST:event_btnRemoveOrderItemActionPerformed
 
     private void btnShipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipActionPerformed
-        if (orderDirectory.getOrderList().isEmpty()) {
+        DefaultTableModel model = (DefaultTableModel) tblshipCart.getModel();
+        if (model.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Cart is empty!");
             return;
         }
 
-        // 处理结账逻辑
-        for (Order order : orderDirectory.getOrderList()) {
-            order.setStatus("Completed");
-            // 添加订单处理时间
-            order.setProcessDate(new java.util.Date());
-            // 通知仓库
-            notifyWarehouse(order);
+        try {
+            // 遍历购物车中的每个项目
+            for (int i = 0; i < model.getRowCount(); i++) {
+                String productName = model.getValueAt(i, 0).toString();
+                double price = Double.parseDouble(model.getValueAt(i, 1).toString());
+                int quantity = Integer.parseInt(model.getValueAt(i, 2).toString());
+                double totalAmount = Double.parseDouble(model.getValueAt(i, 3).toString());
+
+                // 创建订单
+                Order order = new Order();
+                order.setOrderId("ORD" + System.currentTimeMillis() + i);
+                order.setProductName(productName);
+                order.setPurchaseCost(price);
+                order.setQuantity(quantity);
+                order.setTotalAmount(totalAmount);
+                order.setStatus("Processing");
+                order.setCreateDate(new Date());
+
+                // 发送物流工作请求
+                sendLogisticsWorkRequest(order);
+            }
+
+            // 清空购物车
+            model.setRowCount(0);
+
+            JOptionPane.showMessageDialog(this, "Orders have been processed successfully!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error processing orders: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
-
-        // 清空购物车
-        orderDirectory = new OrderDirectory();
-        updateCartTable();
-
-        // 刷新请求列表
-        refreshRequestTable();
-
-        JOptionPane.showMessageDialog(this, "Orders have been processed successfully!");
     }//GEN-LAST:event_btnShipActionPerformed
 
 
@@ -517,7 +619,7 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
     private void updateCartTable() {
         DefaultTableModel model = (DefaultTableModel) tblshipCart.getModel();
         model.setRowCount(0);
-        
+
         for (Order order : orderDirectory.getOrderList()) {
             Object[] row = new Object[4];
             row[0] = order.getProductName();
@@ -527,18 +629,18 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
             model.addRow(row);
         }
     }
-    
+
     private void refreshRequestTable() {
         // 刷新请求表格，实际项目中需要实现具体逻辑
         System.out.println("Refreshing request table...");
     }
-    
+
     private void notifyWarehouse(Order order) {
         // 处理订单并更新库存
         String requestId = order.getRequestId();
         String productName = order.getProductName();
         int actualAmount = order.getQuantity();
-        
+
         // 调用仓库处理请求的方法
         if (wh != null) {
             // 在库存中查找匹配名称的产品
@@ -549,13 +651,251 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
                     break;
                 }
             }
-            
+
             if (product != null) {
                 wh.decreaseStock(product.getProductId(), actualAmount);
-                System.out.println("Processed order: " + requestId + 
-                                " for product: " + productName +
-                                " with amount: " + actualAmount);
+                System.out.println("Processed order: " + requestId
+                        + " for product: " + productName
+                        + " with amount: " + actualAmount);
             }
         }
+    }
+
+    /**
+     * 创建并发送物流工作请求
+     *
+     * @param order 订单信息
+     */
+    private void sendLogisticsWorkRequest(Order order) {
+        try {
+            // 1. 生成唯一的运输单号和订单ID
+            String trackingNumber = "TRK" + System.currentTimeMillis();
+            String shipmentId = "SHP" + System.currentTimeMillis();
+
+            // 2. 获取订单信息
+            String productName = order.getProductName();
+            int quantity = order.getQuantity();
+
+            // 3. 获取目的地
+            String destination = getDestinationFromOrder(order);
+            if (destination == null || destination.isEmpty()) {
+                String[] destinations = {"Boston", "Los Angeles", "New York", "Cancun", "Guanajuato"};
+                destination = (String) JOptionPane.showInputDialog(
+                        this,
+                        "Select destination for order " + order.getOrderId() + ":",
+                        "Select Destination",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        destinations,
+                        destinations[0]);
+
+                if (destination == null) {
+                    throw new Exception("Destination is required");
+                }
+            }
+
+            // 4. 获取运输方式
+            String[] methods = {"Air Freight", "Sea Freight", "Ground", "Express"};
+            String shippingMethod = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Select shipping method for order " + order.getOrderId() + ":",
+                    "Select Shipping Method",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    methods,
+                    methods[0]);
+
+            if (shippingMethod == null) {
+                shippingMethod = "Ground"; // 默认选择陆运
+            }
+
+            // 5. 创建WarehouseWorkRequest
+            WarehouseWorkRequest request = new WarehouseWorkRequest();
+            request.setShipmentId(shipmentId);
+            request.setTrackingNumber(trackingNumber);
+            request.setProductName(productName);
+            request.setQuantity(quantity);
+            request.setDestination(destination);
+            request.setShippingMethod(shippingMethod);
+
+            // 设置预计送达日期（例如：7天后）
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH, 7);
+            request.setEstimatedDeliveryDate(calendar.getTime());
+
+            // 设置请求状态
+            request.setStatus("Pending");
+            request.setRequestDate(new Date());
+
+            // 设置发送者和接收者
+            request.setSender(userAccount);
+
+            // 找到物流组织并添加工作请求
+            LogisticsOrganization logisticsOrg = null;
+            for (Network network : EcoSystem.getInstance().getNetworkList()) {
+                for (Enterprise e : network.getEnterpriseDirectory().getEnterpriseList()) {
+                    if (e instanceof LogisticsGroupEnterprise) {
+                        for (Organization org : e.getOrganizationDirectory().getOrganizationList()) {
+                            if (org instanceof LogisticsOrganization) {
+                                logisticsOrg = (LogisticsOrganization) org;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (logisticsOrg != null) {
+                    break;
+                }
+            }
+
+            if (logisticsOrg == null) {
+                throw new Exception("No logistics organization found");
+            }
+
+            // 将请求添加到物流组织的工作队列
+            logisticsOrg.getWorkQueue().getWorkRequestList().add(request);
+
+            System.out.println("Work request sent to logistics: " + request.getTrackingNumber());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error sending logistics request: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private String getDestinationFromOrder(Order order) {
+        // 实际项目中，这里应该从Order对象中获取目的地信息
+        // 如果Order类中没有目的地字段，可以返回null或空字符串
+        return null;
+    }
+
+    /**
+     * 计算预计送达日期
+     */
+    private Date calculateEstimatedDeliveryDate(String destination, String shippingMethod) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date()); // 从今天开始计算
+
+        int daysToAdd = 5; // 默认时间
+
+        // 根据运输方式调整时间
+        if ("Air Freight".equals(shippingMethod) || "航空运输".equals(shippingMethod)) {
+            daysToAdd = 3; // 空运最快
+        } else if ("Sea Freight".equals(shippingMethod) || "海运".equals(shippingMethod)) {
+            daysToAdd = 30; // 海运最慢
+        } else if ("Express".equals(shippingMethod) || "快递".equals(shippingMethod)) {
+            daysToAdd = 2; // 特快
+        } else if ("Ground".equals(shippingMethod) || "陆运".equals(shippingMethod)) {
+            daysToAdd = 10; // 陆运
+        }
+
+        // 根据目的地调整时间
+        if (destination.contains("Boston") || destination.contains("波士顿")
+                || destination.contains("New York") || destination.contains("纽约")) {
+            daysToAdd += 10; // 美国东海岸
+        } else if (destination.contains("LA") || destination.contains("Los Angeles")
+                || destination.contains("洛杉矶")) {
+            daysToAdd += 12; // 美国西海岸
+        } else if (destination.contains("Cancun") || destination.contains("坎昆")
+                || destination.contains("Guanajuato")) {
+            daysToAdd += 15; // 墨西哥
+        } else if (destination.contains("上海") || destination.contains("Beijing")
+                || destination.contains("北京") || destination.contains("广州")
+                || destination.contains("深圳") || destination.contains("杭州")) {
+            daysToAdd = 1; // 国内城市
+        }
+
+        cal.add(Calendar.DAY_OF_MONTH, daysToAdd);
+        return cal.getTime();
+    }
+
+// 辅助方法：查找物流组织
+    private LogisticsOrganization findLogisticsOrganization() {
+        try {
+            // 1. 首先尝试使用全局实例
+            if (ConfigureASystem.logisticsOrg != null) {
+                System.out.println("Using global LogisticsOrganization instance");
+                return ConfigureASystem.logisticsOrg;
+            }
+
+            // 2. 如果全局实例不可用，从系统中查找
+            EcoSystem system = EcoSystem.getInstance();
+            if (system == null) {
+                throw new Exception("System instance is null");
+            }
+
+            if (system.getNetworkList() == null) {
+                throw new Exception("Network list is null");
+            }
+
+            for (Network network : system.getNetworkList()) {
+                if (network.getEnterpriseDirectory() == null) {
+                    continue;
+                }
+
+                for (Enterprise enterprise : network.getEnterpriseDirectory().getEnterpriseList()) {
+                    if (enterprise instanceof LogisticsGroupEnterprise) {
+                        System.out.println("Found LogisticsGroupEnterprise: " + enterprise.getName());
+
+                        if (enterprise.getOrganizationDirectory() == null) {
+                            continue;
+                        }
+
+                        for (Organization org : enterprise.getOrganizationDirectory().getOrganizationList()) {
+                            if (org instanceof LogisticsOrganization) {
+                                System.out.println("Found LogisticsOrganization in enterprise");
+                                return (LogisticsOrganization) org;
+                            }
+                        }
+
+                        // 如果找到企业但没有物流组织，创建一个
+                        System.out.println("Creating new LogisticsOrganization in existing enterprise");
+                        LogisticsOrganization newOrg = (LogisticsOrganization) enterprise.getOrganizationDirectory()
+                                .createOrganization(Organization.Type.Logistics);
+                        return newOrg;
+                    }
+                }
+            }
+
+            System.out.println("No LogisticsGroupEnterprise found in the system");
+            return null;
+
+        } catch (Exception e) {
+            System.err.println("Error in findLogisticsOrganization: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+// 辅助方法：创建Shipment对象
+    private Shipment createShipment(WarehouseWorkRequest request) {
+        Shipment shipment = new Shipment();
+        shipment.setShipmentId(request.getShipmentId());
+        shipment.setTrackingNumber(request.getTrackingNumber());
+        shipment.setProductName(request.getProductName());
+        shipment.setQuantity(request.getQuantity());
+        shipment.setDestination(request.getDestination());
+        shipment.setShippingMethod(request.getShippingMethod());
+        shipment.setShipmentStatus(Shipment.STATUS_PENDING);
+        shipment.setOrigin("Shanghai Warehouse");
+        shipment.setCurrentLocation("Shanghai Warehouse");
+        shipment.setShipDate(new Date());
+        shipment.setEstimatedDeliveryDate(request.getEstimatedDeliveryDate());
+
+        // 添加初始跟踪记录
+        TrackingInfo trackingInfo = new TrackingInfo();
+        trackingInfo.setShipmentId(shipment.getShipmentId());
+        trackingInfo.setTimestamp(new Date());
+        trackingInfo.setLocation("Shanghai Warehouse");
+        trackingInfo.setStatus(Shipment.STATUS_PENDING);
+        trackingInfo.setDescription("Order created, pending processing");
+        trackingInfo.setLatitude(31.2304);
+        trackingInfo.setLongitude(121.4737);
+        shipment.addTrackingInfo(trackingInfo);
+
+        return shipment;
     }
 }
