@@ -33,6 +33,9 @@ public class ManageOwnProfile extends javax.swing.JPanel {
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
 
+        System.out.println("CustomerService ManageOwnProfile received account: " + 
+            (account != null ? account.getUsername() : "null"));
+        
         // Set initial field values
         populateUserInfo();
 
@@ -191,9 +194,16 @@ public class ManageOwnProfile extends javax.swing.JPanel {
     // End of variables declaration//GEN-END:variables
 
     private void populateUserInfo() {
+        System.out.println("CustomerService populateUserInfo called, userAccount: " +
+            (userAccount != null ? userAccount.getUsername() : "null"));
+            
         if (userAccount != null) {
             txtUN.setText(userAccount.getUsername());
             txtPW.setText(userAccount.getPassword());
+            System.out.println("Set username: " + userAccount.getUsername() +
+                ", password: " + (userAccount.getPassword() != null ? "****" : "null"));
+        } else {
+            System.out.println("Warning: Cannot populate user info - userAccount is null");
         }
     }
 

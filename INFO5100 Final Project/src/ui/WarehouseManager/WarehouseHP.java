@@ -5,6 +5,7 @@
 package ui.WarehouseManager;
 
 import Business.Supplier.Supplier;
+import Business.Warehouse.Warehouse;
 import java.awt.CardLayout;
 
 /**
@@ -51,6 +52,7 @@ public class WarehouseHP extends javax.swing.JPanel {
         btnProcurementRequest = new javax.swing.JButton();
         btnProfile1 = new javax.swing.JButton();
         btnWarehouseManagement = new javax.swing.JButton();
+        btnComplaintBox = new javax.swing.JButton();
         WarehouseWorkAreajPanel = new javax.swing.JPanel();
 
         btnProcurementRequest.setText("Procurement Request");
@@ -74,6 +76,13 @@ public class WarehouseHP extends javax.swing.JPanel {
             }
         });
 
+        btnComplaintBox.setText("Complaint Box");
+        btnComplaintBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnComplaintBoxActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout WarehousePanelLayout = new javax.swing.GroupLayout(WarehousePanel);
         WarehousePanel.setLayout(WarehousePanelLayout);
         WarehousePanelLayout.setHorizontalGroup(
@@ -83,8 +92,12 @@ public class WarehouseHP extends javax.swing.JPanel {
                 .addGroup(WarehousePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(btnWarehouseManagement, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnProcurementRequest, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnProfile1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnComplaintBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, WarehousePanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnProfile1, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         WarehousePanelLayout.setVerticalGroup(
             WarehousePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -93,9 +106,11 @@ public class WarehouseHP extends javax.swing.JPanel {
                 .addComponent(btnProcurementRequest)
                 .addGap(31, 31, 31)
                 .addComponent(btnWarehouseManagement)
-                .addGap(44, 44, 44)
+                .addGap(31, 31, 31)
+                .addComponent(btnComplaintBox)
+                .addGap(29, 29, 29)
                 .addComponent(btnProfile1)
-                .addContainerGap(2431, Short.MAX_VALUE))
+                .addContainerGap(2392, Short.MAX_VALUE))
         );
 
         jSplitPane2.setLeftComponent(WarehousePanel);
@@ -142,6 +157,8 @@ public class WarehouseHP extends javax.swing.JPanel {
 
     private void btnProfile1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfile1ActionPerformed
         // 从EcoSystem获取当前用户账户
+        System.out.println("WarehouseHP: Profile button clicked, username: " + this.username);
+        
         Business.UserAccount.UserAccount account = null;
         for (Business.UserAccount.UserAccount ua : Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList()) {
             if (ua.getUsername().equals(this.username)) {
@@ -151,6 +168,7 @@ public class WarehouseHP extends javax.swing.JPanel {
         }
         
         if (account == null) {
+            System.out.println("WarehouseHP: 未找到账户，显示错误消息");
             javax.swing.JOptionPane.showMessageDialog(this, 
                     "无法获取用户信息，请重新登录", 
                     "错误", 
@@ -159,6 +177,7 @@ public class WarehouseHP extends javax.swing.JPanel {
         }
         
         // 创建ManageOwnProfile面板，传递工作区面板和用户账户
+        System.out.println("WarehouseHP: 使用账户创建ManageOwnProfile: " + account.getUsername());
         ManageOwnProfile manageOwnProfile = new ManageOwnProfile(WarehouseWorkAreajPanel, account);
         WarehouseWorkAreajPanel.add("ManageOwnProfile", manageOwnProfile);
         
@@ -166,6 +185,17 @@ public class WarehouseHP extends javax.swing.JPanel {
         CardLayout layout = (CardLayout) WarehouseWorkAreajPanel.getLayout();
         layout.next(WarehouseWorkAreajPanel);
     }//GEN-LAST:event_btnProfile1ActionPerformed
+
+    private void btnComplaintBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComplaintBoxActionPerformed
+        // TODO add your handling code here:
+        WarehouseCustomerComplaintContent warehouseCustomerComplaintContent = new WarehouseCustomerComplaintContent(WarehouseWorkAreajPanel, 
+                Business.Warehouse.Warehouse.getInstance());
+        WarehouseWorkAreajPanel.add("WarehouseCustomerComplaintContent", warehouseCustomerComplaintContent);
+        CardLayout layout = (CardLayout) WarehouseWorkAreajPanel.getLayout();
+        layout.next(WarehouseWorkAreajPanel);
+        
+        
+    }//GEN-LAST:event_btnComplaintBoxActionPerformed
 
     private void btnWarehouseManagementActionPerformed(java.awt.event.ActionEvent evt) {
         // 创建仓库管理主页面
@@ -179,6 +209,7 @@ public class WarehouseHP extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel WarehousePanel;
     private javax.swing.JPanel WarehouseWorkAreajPanel;
+    private javax.swing.JButton btnComplaintBox;
     private javax.swing.JButton btnProcurementRequest;
     private javax.swing.JButton btnProfile1;
     private javax.swing.JButton btnWarehouseManagement;

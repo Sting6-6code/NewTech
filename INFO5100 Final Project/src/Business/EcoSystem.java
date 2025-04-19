@@ -9,6 +9,7 @@ import Business.Network.Network;
 import Business.Organization.Organization;
 import Business.Role.AdminRole;
 import Business.Role.Role;
+import Business.Product.SalesRecordDirectory;
 
 import java.util.ArrayList;
 
@@ -20,6 +21,8 @@ public class EcoSystem extends Organization{
     
     private static EcoSystem business;
     private ArrayList<Network> networkList;
+    private SalesRecordDirectory salesRecordDirectory;
+    
     public static EcoSystem getInstance(){
         if(business==null){
             business=new EcoSystem();
@@ -41,6 +44,7 @@ public class EcoSystem extends Organization{
     private EcoSystem(){
         super(null);
         networkList=new ArrayList<Network>();
+        salesRecordDirectory = new SalesRecordDirectory();
     }
 
     public ArrayList<Network> getNetworkList() {
@@ -49,6 +53,14 @@ public class EcoSystem extends Organization{
 
     public void setNetworkList(ArrayList<Network> networkList) {
         this.networkList = networkList;
+    }
+    
+    public SalesRecordDirectory getSalesRecordDirectory() {
+        return salesRecordDirectory;
+    }
+    
+    public void setSalesRecordDirectory(SalesRecordDirectory salesRecordDirectory) {
+        this.salesRecordDirectory = salesRecordDirectory;
     }
     
     public boolean checkIfUserIsUnique(String userName){

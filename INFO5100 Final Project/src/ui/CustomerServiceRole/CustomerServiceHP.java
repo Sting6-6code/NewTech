@@ -5,10 +5,14 @@
 package ui.CustomerServiceRole;
 
 
-
-
 import Business.Supplier.Supplier;
+import ui.CustomerServiceRole.ComplaintManagementJpanel;
+import ui.CustomerServiceRole.CustomerComplaintContent;
+import ui.CustomerServiceRole.ManageOwnProfile;
 import java.awt.CardLayout;
+import Business.EcoSystem;
+import javax.swing.JPanel;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -20,9 +24,19 @@ public class CustomerServiceHP extends javax.swing.JPanel {
      * Creates new form LogisticsCoordinatorHP
      */
     private Supplier supplier;
+    private String username;
+    private Business.UserAccount.UserAccount account;
     
     public CustomerServiceHP() {
         initComponents();
+        // Set CardLayout for ComplaintWorkAreajPanel
+        ComplaintWorkAreajPanel.setLayout(new CardLayout());
+    }
+    
+    // Constructor with username
+    public CustomerServiceHP(String username) {
+        initComponents();
+        this.username = username;
         // Set CardLayout for ComplaintWorkAreajPanel
         ComplaintWorkAreajPanel.setLayout(new CardLayout());
     }
@@ -33,6 +47,14 @@ public class CustomerServiceHP extends javax.swing.JPanel {
     
     public Supplier getSupplier() {
         return supplier;
+    }
+    
+    public void setAccount(Business.UserAccount.UserAccount account) {
+        this.account = account;
+    }
+    
+    public Business.UserAccount.UserAccount getAccount() {
+        return account;
     }
 
     /**
@@ -131,15 +153,35 @@ public class CustomerServiceHP extends javax.swing.JPanel {
 
     private void btnComplaintManagementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComplaintManagementActionPerformed
         // TODO add your handling code here:
-        ComplaintManagementJpanel complaintManagementJPanel = new ComplaintManagementJpanel(ComplaintWorkAreajPanel);
-        ComplaintWorkAreajPanel.add("ComplaintManagementJPanel", complaintManagementJPanel);
+        ComplaintManagementJpanel complaintManagementJpanel = new ComplaintManagementJpanel(ComplaintWorkAreajPanel);
+        ComplaintWorkAreajPanel.add("ComplaintManagementJPanel", complaintManagementJpanel);
         CardLayout layout = (CardLayout) ComplaintWorkAreajPanel.getLayout();
         layout.next(ComplaintWorkAreajPanel);    
     }//GEN-LAST:event_btnComplaintManagementActionPerformed
 
     private void btnProfileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfileActionPerformed
-        // TODO add your handling code here:
-        ManageOwnProfile manageOwnProfile = new ManageOwnProfile();
+        // Use the class account variable instead of looking it up
+        if (account == null) {
+            // If account is somehow still null, try to look it up
+            for (Business.UserAccount.UserAccount ua : Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList()) {
+                if (ua.getUsername().equals(this.username)) {
+                    account = ua;
+                    break;
+                }
+            }
+            
+            // If still null after lookup, show error
+            if (account == null) {
+                javax.swing.JOptionPane.showMessageDialog(this, 
+                        "Unable to get user information, please login again.", 
+                        "Error", 
+                        javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+        
+        // Create ManageOwnProfile panel with account data
+        ManageOwnProfile manageOwnProfile = new ManageOwnProfile(ComplaintWorkAreajPanel, account);
         ComplaintWorkAreajPanel.add("ManageOwnProfile", manageOwnProfile);
         CardLayout layout = (CardLayout) ComplaintWorkAreajPanel.getLayout();
         layout.next(ComplaintWorkAreajPanel);  

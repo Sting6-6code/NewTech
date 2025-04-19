@@ -29,10 +29,18 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
     
     public ProcurementSpecialistHP(String username) {
         initComponents();
-        this.userProcessContainer = userProcessContainer;
-        this.enterprise = enterprise;
-        this.account = account;
+        this.username = username;
         
+        // 初始化面板布局
+        ProcurementSpecialistWorkAreajPanel.setLayout(new CardLayout());
+        jSplitPane2.setLeftComponent(ProcurementSpecialistPanel);
+        jSplitPane2.setRightComponent(ProcurementSpecialistWorkAreajPanel);
+    }
+    
+    // Add constructor with user process container
+    public ProcurementSpecialistHP(JPanel userProcessContainer, String username) {
+        initComponents();
+        this.userProcessContainer = userProcessContainer;
         this.username = username;
         
         // 初始化面板布局
@@ -47,6 +55,22 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
     
     public Supplier getSupplier() {
         return supplier;
+    }
+    
+    public void setEnterprise(Enterprise enterprise) {
+        this.enterprise = enterprise;
+    }
+    
+    public Enterprise getEnterprise() {
+        return enterprise;
+    }
+    
+    public void setAccount(UserAccount account) {
+        this.account = account;
+    }
+    
+    public UserAccount getAccount() {
+        return account;
     }
 
     /**
@@ -133,30 +157,51 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnMerchantRequestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMerchantRequestActionPerformed
-        // TODO add your handling code here:
+        // Verify account is not null
+        if (account == null) {
+            // If account is somehow still null, try to look it up
+            for (Business.UserAccount.UserAccount ua : Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList()) {
+                if (ua.getUsername().equals(this.username)) {
+                    account = ua;
+                    break;
+                }
+            }
+            
+            if (account == null) {
+                javax.swing.JOptionPane.showMessageDialog(this, 
+                    "Unable to get user account information, please login again.", 
+                    "Error", 
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+        
+        // Create merchant requests panel
         MerchantRequestsJPanel warehouseRequestsJPanel = new MerchantRequestsJPanel(ProcurementSpecialistWorkAreajPanel, enterprise, account);
         ProcurementSpecialistWorkAreajPanel.add("WarehouseRequestsJPanel", warehouseRequestsJPanel);
         CardLayout layout = (CardLayout) ProcurementSpecialistWorkAreajPanel.getLayout();
         layout.next(ProcurementSpecialistWorkAreajPanel);    
-        
     }//GEN-LAST:event_btnMerchantRequestActionPerformed
 
     private void btnProfile1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProfile1ActionPerformed
-        // 从EcoSystem获取当前用户账户
-        Business.UserAccount.UserAccount account = null;
-        for (Business.UserAccount.UserAccount ua : Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList()) {
-            if (ua.getUsername().equals(this.username)) {
-                account = ua;
-                break;
-            }
-        }
-        
+        // Use the class account variable instead of looking it up
         if (account == null) {
-            javax.swing.JOptionPane.showMessageDialog(this, 
-                    "无法获取用户信息，请重新登录", 
-                    "错误", 
-                    javax.swing.JOptionPane.ERROR_MESSAGE);
-            return;
+            // If account is somehow still null, try to look it up
+            for (Business.UserAccount.UserAccount ua : Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList()) {
+                if (ua.getUsername().equals(this.username)) {
+                    account = ua;
+                    break;
+                }
+            }
+            
+            // If still null after lookup, show error
+            if (account == null) {
+                javax.swing.JOptionPane.showMessageDialog(this, 
+                        "Unable to get user information, please login again.", 
+                        "Error", 
+                        javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
+            }
         }
         
         // 创建ManageOwnProfile面板，传递工作区面板和用户账户

@@ -33,51 +33,9 @@ public class ManageOwnProfile extends javax.swing.JPanel {
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
 
-        // 修改布局
-        setLayout(null); // 使用绝对布局以便自定义控件位置
-
-        // 添加标题
-        titleLabel = new javax.swing.JLabel("User Profile Management");
-        titleLabel.setFont(new java.awt.Font("Tahoma", 1, 24)); // 加大字体
-        titleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        add(titleLabel);
-        titleLabel.setBounds(150, 20, 300, 30);
-
-        // 调整现有控件位置
-        btnBack.setBounds(20, 20, 100, 30);
-        
-        // 创建一个面板来包含个人信息
-        javax.swing.JPanel infoPanel = new javax.swing.JPanel();
-        infoPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Account Information"));
-        infoPanel.setLayout(null);
-        add(infoPanel);
-        infoPanel.setBounds(100, 70, 400, 220);
-        
-        // 将用户名和密码字段添加到信息面板中
-        lblUN.setBounds(30, 50, 100, 25);
-        txtUN.setBounds(140, 50, 220, 25);
-        lblPW.setBounds(30, 100, 100, 25);
-        txtPW.setBounds(140, 100, 220, 25);
-        infoPanel.add(lblUN);
-        infoPanel.add(txtUN);
-        infoPanel.add(lblPW);
-        infoPanel.add(txtPW);
-        
-        // 添加按钮面板
-        javax.swing.JPanel buttonPanel = new javax.swing.JPanel();
-        buttonPanel.setLayout(null);
-        add(buttonPanel);
-        buttonPanel.setBounds(100, 300, 400, 60);
-        
-        // 调整按钮位置
-        btnUpdate.setBounds(100, 15, 100, 30);
-        btnSave.setBounds(220, 15, 100, 30);
-        buttonPanel.add(btnUpdate);
-        buttonPanel.add(btnSave);
-        
-        // 设置初始字段值
+        // 初始化用户信息
         populateUserInfo();
-
+        
         // 初始禁用字段
         setFieldsEditable(false);
         btnSave.setEnabled(false);
@@ -228,7 +186,7 @@ public class ManageOwnProfile extends javax.swing.JPanel {
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void txtUNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUNActionPerformed
-        // TODO add your handling code here:
+        // No action needed, just handle the event
     }//GEN-LAST:event_txtUNActionPerformed
 
 
