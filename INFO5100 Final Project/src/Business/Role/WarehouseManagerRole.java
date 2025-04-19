@@ -27,8 +27,7 @@ public class WarehouseManagerRole extends Role {
     @Override
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, 
             Organization organization, Enterprise enterprise, EcoSystem business) {
-        return new WarehouseManagerHomePage(
-            userProcessContainer, Warehouse.getInstance(), enterprise, account);
+        return new WarehouseHP(account.getUsername());
         }
 
     }
