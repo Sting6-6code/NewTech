@@ -5,6 +5,7 @@
 package ui.AdminRole;
 
 import Business.UserAccount.UserAccount;
+import java.awt.CardLayout;
 import javax.swing.JPanel;
 
 /**
@@ -44,6 +45,11 @@ public class AdminManageOwnProfile extends javax.swing.JPanel {
         btnSave = new javax.swing.JButton();
 
         btnBack.setText("<< Back");
+        btnBack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBackActionPerformed(evt);
+            }
+        });
 
         lblUN.setText("Username:");
 
@@ -102,6 +108,13 @@ public class AdminManageOwnProfile extends javax.swing.JPanel {
                 .addContainerGap(87, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        // TODO add your handling code here:
+        workArea.remove(this);
+        CardLayout l = (CardLayout) workArea.getLayout();
+        l.previous(workArea);
+    }//GEN-LAST:event_btnBackActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
