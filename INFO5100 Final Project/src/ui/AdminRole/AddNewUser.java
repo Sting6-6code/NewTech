@@ -4,17 +4,34 @@
  */
 package ui.AdminRole;
 
+import Business.EcoSystem;
+import Business.Enterprise.Enterprise;
+import Business.Organization.AdminOrganization;
+import Business.UserAccount.UserAccount;
+import java.awt.CardLayout;
+import javax.swing.JPanel;
+
 /**
  *
  * @author yushe
  */
 public class AddNewUser extends javax.swing.JPanel {
 
+    private JPanel workArea;
+    private UserAccount userAccount;
+    private Enterprise enterprise;
+    private AdminOrganization adminOrg;
+    private EcoSystem business;
     /**
      * Creates new form AddNewUser
      */
-    public AddNewUser() {
+    public AddNewUser(JPanel jp, UserAccount ua, Enterprise e, AdminOrganization ao, EcoSystem b) {
         initComponents();
+        workArea = jp;
+        userAccount = ua;
+        enterprise = e;
+        adminOrg = ao;
+        business = b;
     }
 
     /**
@@ -39,6 +56,11 @@ public class AddNewUser extends javax.swing.JPanel {
         txtPW = new javax.swing.JTextField();
 
         btnBack.setText("<< Back");
+        btnBack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBackActionPerformed(evt);
+            }
+        });
 
         lblTitle.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblTitle.setText("Add New User");
@@ -52,6 +74,11 @@ public class AddNewUser extends javax.swing.JPanel {
         jLabel4.setText("Password:");
 
         btnSave.setText("Save");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
 
         cmbRole.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
@@ -117,6 +144,21 @@ public class AddNewUser extends javax.swing.JPanel {
                 .addGap(91, 91, 91))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
+        // TODO add your handling code here:
+        workArea.remove(this);
+        AdminHP ahp = new AdminHP(workArea, userAccount, enterprise, adminOrg, business);
+        workArea.add("AdminHP", ahp);
+        CardLayout l = (CardLayout) workArea.getLayout();
+        l.show(workArea, "AdminHP");
+    }//GEN-LAST:event_btnBackActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        // TODO add your handling code here:
+        UserAccount newUser = new UserAccount();
+        business.getUserAccountDirectory().getUserAccountList().add(newUser);
+    }//GEN-LAST:event_btnSaveActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
