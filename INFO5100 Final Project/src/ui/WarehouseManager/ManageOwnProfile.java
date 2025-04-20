@@ -194,6 +194,9 @@ public class ManageOwnProfile extends javax.swing.JPanel {
     private javax.swing.JTextField txtUN;
     // End of variables declaration//GEN-END:variables
 
+
+    
+
     private void populateUserInfo() {
         if (userAccount != null) {
             try {

@@ -2,27 +2,169 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
-package ui.LogisticsRole;
+package ui.CustomsAgentRole;
 
+import ui.LogisticsRole.*;
+import ui.WarehouseManager.*;
 import ui.CustomerServiceRole.*;
 import java.awt.CardLayout;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+
+import Business.Customer.ComplaintDirectory;
+import Business.Customer.CustomerComplaint;
+import Business.EcoSystem;
+import Business.Enterprise.Enterprise;
+import Business.Network.Network;
+import Business.Organization.CustomerExperienceOrganization;
+import Business.Organization.Organization;
+import Business.Warehouse.Warehouse;
+import java.awt.CardLayout;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author wangsiting
  */
-public class CustomerComplaintLogistics extends javax.swing.JPanel {
+public class CustomsComplaintContent extends javax.swing.JPanel {
 
     private JPanel userProcessContainer;
-
+    private ComplaintDirectory complaintDirectory;
+    private CustomerComplaint selectedComplaint;
+    private EcoSystem system;
+    
     /**
      * Creates new form CustomerComplaintContent
      */
-    public CustomerComplaintLogistics(JPanel userProcessContainer) {
+    public CustomsComplaintContent(JPanel userProcessContainer) {
         initComponents();
         this.userProcessContainer = userProcessContainer;
+        this.system = EcoSystem.getInstance();
+        this.complaintDirectory = findComplaintDirectory();
+        populateTable();
     }
+
+    public CustomsComplaintContent(JPanel userProcessContainer, Warehouse warehouse) {
+        initComponents();
+        this.userProcessContainer = userProcessContainer;
+        this.system = EcoSystem.getInstance();
+        this.complaintDirectory = findComplaintDirectory();
+        populateTable();
+        System.out.println("Initialized WarehouseCustomerComplaintContent with warehouse instance");
+    }
+    
+    // 查找投诉目录
+    private ComplaintDirectory findComplaintDirectory() {
+        if (system == null) {
+            System.out.println("Error: System instance is null");
+            return null;
+        }
+        
+        System.out.println("Searching for complaint directory...");
+        if (system.getNetworkList() == null || system.getNetworkList().isEmpty()) {
+            System.out.println("Error: System network list is empty");
+            return null;
+        }
+        
+        System.out.println("Network count: " + system.getNetworkList().size());
+        
+        // 遍历networks和enterprises寻找CustomerExperienceOrganization
+        for (Network network : system.getNetworkList()) {
+            System.out.println("Checking network: " + network.getName());
+            
+            if (network.getEnterpriseDirectory() == null || 
+                network.getEnterpriseDirectory().getEnterpriseList() == null ||
+                network.getEnterpriseDirectory().getEnterpriseList().isEmpty()) {
+                System.out.println("No enterprises in network");
+                continue;
+            }
+            
+            for (Enterprise enterprise : network.getEnterpriseDirectory().getEnterpriseList()) {
+                System.out.println("Checking enterprise: " + enterprise.getName());
+                
+                if (enterprise.getOrganizationDirectory() == null || 
+                    enterprise.getOrganizationDirectory().getOrganizationList() == null ||
+                    enterprise.getOrganizationDirectory().getOrganizationList().isEmpty()) {
+                    System.out.println("No organizations in enterprise");
+                    continue;
+                }
+                
+                for (Organization organization : enterprise.getOrganizationDirectory().getOrganizationList()) {
+                    System.out.println("Checking organization: " + organization.getName() + ", type: " + organization.getClass().getSimpleName());
+                    
+                    if (organization instanceof CustomerExperienceOrganization) {
+                        CustomerExperienceOrganization custOrg = (CustomerExperienceOrganization) organization;
+                        ComplaintDirectory dir = custOrg.getComplaintDirectory();
+                        if (dir != null) {
+                            System.out.println("Found complaint directory, complaint count: " + dir.getComplaintCount());
+                            return dir;
+                        } else {
+                            System.out.println("CustomerExperienceOrganization's ComplaintDirectory is null");
+                        }
+                    }
+                }
+            }
+        }
+        
+        System.out.println("Could not find complaint directory");
+        return null;
+    }
+    
+    // 填充表格数据
+    private void populateTable() {
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0); // 清空表格
+        
+        if (complaintDirectory == null) {
+            System.out.println("Complaint directory is null, cannot populate table");
+            // 创建示例投诉以进行测试
+            
+            return;
+        }
+        
+        // 获取所有投诉
+        ArrayList<CustomerComplaint> allComplaints = complaintDirectory.getComplaints();
+        
+        // 
+        ArrayList<CustomerComplaint> warehouseComplaints = new ArrayList<>();
+        for (CustomerComplaint complaint : allComplaints) {
+            // 
+            if (complaint.getDescription().contains("Customs Agent") || 
+                complaint.getDescription().contains("Customs Agent") ||
+                complaint.getDescription().toLowerCase().contains("inventory") ||
+                complaint.getDescription().toLowerCase().contains("stock") ||
+                complaint.getStatus().equals("Forwarded to Customs Agent")) {
+                warehouseComplaints.add(complaint);
+            }
+        }
+        
+        // 填充表格
+        if (warehouseComplaints.isEmpty()) {
+            System.out.println("No complaints found for Customs Agent department");
+        } else {
+            for (CustomerComplaint complaint : warehouseComplaints) {
+                try {
+                    Object[] row = new Object[3];
+                    row[0] = complaint.getComplaintId();
+                    row[1] = complaint.getCustomerId();
+                    row[2] = "Customs Agent Issue";  // 投诉类型
+                    model.addRow(row);
+                } catch (Exception e) {
+                    System.out.println("Error adding row: " + e.getMessage());
+                }
+            }
+        }
+    }
+    
+    // 刷新表格
+    private void refreshRequestTable() {
+        populateTable();
+    }
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -119,6 +261,11 @@ public class CustomerComplaintLogistics extends javax.swing.JPanel {
         jScrollPane2.setViewportView(jScrollPane1);
 
         btnDetailed.setText("Detailed");
+        btnDetailed.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDetailedActionPerformed(evt);
+            }
+        });
 
         jPanel3.setLayout(new java.awt.CardLayout());
 
@@ -297,11 +444,57 @@ public class CustomerComplaintLogistics extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtCompaintIDActionPerformed
 
-    private void refreshRequestTable() {
-        // 这里应该添加刷新表格数据的逻辑
-        // 暂时留空，后续可以实现实际的数据刷新功能
-    }
+    private void btnDetailedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDetailedActionPerformed
+        // TODO add your handling code here:
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a complaint record");
+            return;
+        }
+        
+        String complaintId = jTable1.getValueAt(selectedRow, 0).toString();
+        selectedComplaint = complaintDirectory.findComplaintById(complaintId);
+        
+        if (selectedComplaint != null) {
+            // Fill form data
+            txtCompaintID.setText(selectedComplaint.getComplaintId());
+            txtCustomertName.setText(selectedComplaint.getCustomerId());
+            txtComplaintType.setText("Customer Complaint"); // In a real application, this might be extracted from the complaint
+            txtContent.setText(selectedComplaint.getDescription());
+            
+            // Disable text field editing
+            txtCompaintID.setEditable(false);
+            txtCustomertName.setEditable(false);
+            txtComplaintType.setEditable(false);
+            txtContent.setEditable(false);
+        }
+        
+        
+        
+        
+        
+        
+        
+    }//GEN-LAST:event_btnDetailedActionPerformed
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBack;
     private javax.swing.JButton btnDetailed;

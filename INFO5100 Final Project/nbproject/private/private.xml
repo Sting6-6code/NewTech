@@ -3,6 +3,34 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+<<<<<<< HEAD
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/WarehouseManagerRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/MainJFrame.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/MerchantRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/AdminRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/UserAccount/UserAccount.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/ProcurementSpecialistRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/LogisticsRole/LogisticsCoordinatorHP.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/Role.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/ConfigureASystem.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/CustomerServiceRepRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/AdminHP.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/AdminManageOwnProfile.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/LogisticsCoordinatorRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Organization/AdminOrganization.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/SystemAdminRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/CustomsAgentRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/FintechRole.java</file>
+=======
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/AdminHP.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/AdminManageOwnProfile.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/MainJFrame.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/LogisticsCoordinatorRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/SystemAdminRole.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/UserAccount/UserAccount.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/LogisticsRole/LogisticsCoordinatorHP.java</file>
+            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/ConfigureASystem.java</file>
+>>>>>>> 3a77e3f4cc0cc2a3a980f82b6568f821fa053451
             <file>file:/Users/zhuchenyan/Documents/INFO5100/INFO5100%20Final%20Project/INFO5100%20Final%20Project/src/ui/LogisticsRole/LogisticsCoordinatorHP.java</file>
             <file>file:/Users/zhuchenyan/Documents/INFO5100/INFO5100%20Final%20Project/INFO5100%20Final%20Project/src/ui/LogisticsRole/ShipmentPanel.java</file>
         </group>

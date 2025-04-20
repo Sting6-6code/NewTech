@@ -297,7 +297,7 @@
                                           <Component id="lblTrackDetails" min="-2" pref="232" max="-2" attributes="0"/>
                                           <Group type="102" attributes="0">
                                               <Component id="btnCustomsInfo" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace min="-2" pref="43" max="-2" attributes="0"/>
+                                              <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
                                               <Component id="btnPackageInfo" min="-2" max="-2" attributes="0"/>
                                               <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
                                               <Component id="btnFinancialInfo" min="-2" max="-2" attributes="0"/>
@@ -308,7 +308,7 @@
                           </Group>
                       </Group>
                       <Group type="102" attributes="0">
-                          <EmptySpace min="0" pref="464" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           <Component id="btnUpdate" min="-2" pref="144" max="-2" attributes="0"/>
                       </Group>
                   </Group>

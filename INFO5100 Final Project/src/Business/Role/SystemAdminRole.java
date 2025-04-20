@@ -29,8 +29,12 @@ public class SystemAdminRole extends Role{
             AdminOrganization ao = new AdminOrganization();
             return new ui.AdminRole.AdminHP(userProcessContainer, account, enterprise, ao, business);
         }
-        AdminHP ahp = new ui.AdminRole.AdminHP(userProcessContainer, account, enterprise, organization, business);
+        AdminHP ahp = new ui.AdminRole.AdminHP(userProcessContainer, account, enterprise, (AdminOrganization) organization, business);
         return ahp;
     }
     
+    @Override
+    public String toString() {
+        return "System Admin";
+    }
 }

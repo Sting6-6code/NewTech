@@ -80,6 +80,7 @@ public class MerchantHP extends javax.swing.JPanel {
         btnReports = new javax.swing.JButton();
         btnProfile = new javax.swing.JButton();
         btnViewMerchantRequest = new javax.swing.JButton();
+        btnTracking = new javax.swing.JButton();
         MerchantWorkAreajPanel = new javax.swing.JPanel();
 
         btnProductCatalog.setText("Manage Product Catalog");
@@ -110,6 +111,13 @@ public class MerchantHP extends javax.swing.JPanel {
             }
         });
 
+        btnTracking.setText("Tracking Information");
+        btnTracking.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTrackingActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout MerchantjPanelLayout = new javax.swing.GroupLayout(MerchantjPanel);
         MerchantjPanel.setLayout(MerchantjPanelLayout);
         MerchantjPanelLayout.setHorizontalGroup(
@@ -117,30 +125,31 @@ public class MerchantHP extends javax.swing.JPanel {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, MerchantjPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(MerchantjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnTracking, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnViewMerchantRequest, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, MerchantjPanelLayout.createSequentialGroup()
                         .addGroup(MerchantjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(btnProfile, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnProductCatalog, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnReports, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(btnViewMerchantRequest, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         MerchantjPanelLayout.setVerticalGroup(
             MerchantjPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(MerchantjPanelLayout.createSequentialGroup()
-                .addGap(303, 303, 303)
-                .addComponent(btnProductCatalog)
+                .addGap(271, 271, 271)
+                .addComponent(btnProductCatalog, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(36, 36, 36)
-                .addComponent(btnReports)
-                .addGap(39, 39, 39)
-                .addComponent(btnProfile)
-                .addGap(36, 36, 36)
-                .addComponent(btnViewMerchantRequest)
-                .addContainerGap(2382, Short.MAX_VALUE))
+                .addComponent(btnReports, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
+                .addComponent(btnProfile, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(33, 33, 33)
+                .addComponent(btnViewMerchantRequest, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(42, 42, 42)
+                .addComponent(btnTracking, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(2214, Short.MAX_VALUE))
         );
-
-        MerchantjPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnProductCatalog, btnProfile, btnReports});
 
         jSplitPane1.setLeftComponent(MerchantjPanel);
 
@@ -258,6 +267,28 @@ public class MerchantHP extends javax.swing.JPanel {
         layout.next(MerchantWorkAreajPanel);
     }//GEN-LAST:event_btnViewMerchantRequestActionPerformed
 
+    // Add refreshTables method
+    public void refreshTables() {
+        // This method can be called from child panels to refresh any tables in the merchant homepage
+        // Currently it doesn't need to do anything as there are no tables to refresh
+        System.out.println("MerchantHP: refreshTables called");
+    }
+
+    // Update the existing btnTracking button to add ActionListener
+    private void btnTrackingActionPerformed(java.awt.event.ActionEvent evt) {
+        // Create the MerchantTrackingJPanel
+        MerchantTrackingJPanel merchantTrackingJPanel = new MerchantTrackingJPanel(
+            MerchantWorkAreajPanel, 
+            account, 
+            null, // Enterprise is null for merchant
+            Business.ConfigureASystem.getLogisticsOrganization(), 
+            this // Pass this as parent panel
+        );
+        
+        MerchantWorkAreajPanel.add("MerchantTrackingJPanel", merchantTrackingJPanel);
+        CardLayout layout = (CardLayout) MerchantWorkAreajPanel.getLayout();
+        layout.next(MerchantWorkAreajPanel);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel MerchantWorkAreajPanel;
@@ -265,6 +296,7 @@ public class MerchantHP extends javax.swing.JPanel {
     private javax.swing.JButton btnProductCatalog;
     private javax.swing.JButton btnProfile;
     private javax.swing.JButton btnReports;
+    private javax.swing.JButton btnTracking;
     private javax.swing.JButton btnViewMerchantRequest;
     private javax.swing.JSplitPane jSplitPane1;
     // End of variables declaration//GEN-END:variables

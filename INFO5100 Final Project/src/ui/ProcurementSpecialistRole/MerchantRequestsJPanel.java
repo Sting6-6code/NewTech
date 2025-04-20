@@ -61,43 +61,43 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
         model.setRowCount(0);
 
         // 打印调试信息
-        System.out.println("开始加载商家请求表格...");
+        System.out.println("Starting to load merchant request table...");
 
         // 从EcoSystem获取商家请求
         List<WorkRequest> requests = new ArrayList<>();
         Business.EcoSystem system = Business.EcoSystem.getInstance();
         if (system.getWorkQueue() != null) {
-            System.out.println("系统工作队列存在，请求总数: " + system.getWorkQueue().getWorkRequestList().size());
+            System.out.println("System work queue exists, total requests: " + system.getWorkQueue().getWorkRequestList().size());
             for (WorkRequest req : system.getWorkQueue().getWorkRequestList()) {
                 if (req instanceof MerchantWorkRequest) {
                     MerchantWorkRequest merchantReq = (MerchantWorkRequest) req;
                     // 确保至少有产品ID才添加请求
                     if (merchantReq.getProductId() != null && !merchantReq.getProductId().trim().isEmpty()) {
                         requests.add(req);
-                        System.out.println("找到有效商家请求: 产品=" + merchantReq.getProductName()
+                        System.out.println("Found valid merchant request: Product=" + merchantReq.getProductName()
                                 + ", ID=" + merchantReq.getProductId()
-                                + ", 状态=" + merchantReq.getStatus());
+                                + ", Status=" + merchantReq.getStatus());
                     } else {
-                        System.out.println("跳过无效请求: 产品ID为空");
+                        System.out.println("Skipping invalid request: Product ID is empty");
                     }
                 }
             }
         } else {
-            System.err.println("错误: 系统工作队列为空");
+            System.err.println("Error: System work queue is empty");
         }
 
         if (requests.isEmpty()) {
-            System.out.println("未找到有效商家请求，显示表格为空!");
+            System.out.println("No valid merchant requests found, showing empty table!");
             return;
         }
 
-        System.out.println("共找到 " + requests.size() + " 个有效商家请求");
+        System.out.println("Found " + requests.size() + " valid merchant requests");
 
         // 过滤请求（根据下拉框状态）
         String selectedStatus = StatusjComboBox.getSelectedItem().toString();
         String searchId = txtSearchRequestID.getText().trim();
 
-        System.out.println("筛选条件 - 状态: " + selectedStatus + ", 搜索文本: " + searchId);
+        System.out.println("Filter criteria - Status: " + selectedStatus + ", Search text: " + searchId);
 
         // 如果搜索框包含默认提示文本，则视为空搜索
         if ("Saerch Request ID...".equals(searchId)) {
@@ -121,7 +121,7 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
                     || (merchantRequest.getProductName() != null
                     && merchantRequest.getProductName().toLowerCase().contains(searchId.toLowerCase()));
 
-            System.out.println("检查请求 " + requestId + " - 状态匹配: " + statusMatch + ", 搜索匹配: " + searchMatch);
+            System.out.println("Checking request " + requestId + " - Status match: " + statusMatch + ", Search match: " + searchMatch);
 
             if (statusMatch && searchMatch) {
                 // 防止空值引起的错误
@@ -142,13 +142,13 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
                 model.addRow(row);
                 addedRows++;
 
-                System.out.println("添加到表格: " + displayProductName
-                        + ", 状态: " + displayStatus
-                        + ", 请求数量: " + merchantRequest.getRequestedAmount());
+                System.out.println("Added to table: " + displayProductName
+                        + ", Status: " + displayStatus
+                        + ", Requested quantity: " + merchantRequest.getRequestedAmount());
             }
         }
 
-        System.out.println("表格加载完成，共添加了 " + addedRows + " 行数据");
+        System.out.println("Table loading complete, added " + addedRows + " rows of data");
     }
 
     private void refreshRequestTable() {
@@ -524,6 +524,10 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
 
                 System.out.println("Created procurement request: " + procRequest.getMessage());
 
+                // 在这里直接更新商家请求状态为"Completed"
+                updateRequestStatus(requestId, "Completed");
+                System.out.println("Updated merchant request status to Completed: " + requestId);
+
                 // 通知仓库（如果需要额外处理）
                 notifyWarehouse(order);
             }
@@ -609,7 +613,15 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
     }
 
     private void updateRequestStatus(String requestId, String newStatus) {
-        // 从EcoSystem获取工作队列
+        // Extract product ID from requestId
+        String productId = "";
+        if (requestId.startsWith("REQ-")) {
+            productId = requestId.substring(4); // Remove "REQ-" prefix
+        } else {
+            productId = requestId; // If no prefix, use as is
+        }
+        
+        // Get work queue from EcoSystem
         Business.EcoSystem system = Business.EcoSystem.getInstance();
         List<WorkRequest> requests = new ArrayList<>();
         if (system.getWorkQueue() != null) {
@@ -620,15 +632,24 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
             }
         }
 
+        // Match merchant request using product ID
+        boolean found = false;
         for (WorkRequest request : requests) {
             MerchantWorkRequest merchantRequest = (MerchantWorkRequest) request;
-            if (merchantRequest.getMessage().contains(requestId)) {
+            if (productId.equals(merchantRequest.getProductId())) {
                 merchantRequest.setStatus(newStatus);
+                System.out.println("Successfully updated merchant request status: ProductID=" + productId + 
+                               ", New Status=" + newStatus);
+                found = true;
                 break;
             }
         }
+        
+        if (!found) {
+            System.out.println("Warning: No matching merchant request found for ProductID=" + productId);
+        }
 
-        loadMerchantRequests(); // 刷新表格
+        loadMerchantRequests(); // Refresh table
     }
 
     private void notifyWarehouse(Order order) {
@@ -643,67 +664,67 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
         // 检查仓库中是否有对应产品
         boolean found = false;
         
-        System.out.println("正在处理订单: " + requestId + ", 产品: " + productName + ", 数量: " + actualAmount);
-        System.out.println("仓库可用产品数量: " + warehouse.getAvailableProducts().size());
+        System.out.println("Processing order: " + requestId + ", Product: " + productName + ", Quantity: " + actualAmount);
+        System.out.println("Available products in warehouse: " + warehouse.getAvailableProducts().size());
         
-        // 首先尝试按产品ID查找（从requestId中提取）
+        // First try to find product by ID (extracted from requestId)
         String productId = null;
         if (requestId.startsWith("REQ-")) {
-            productId = requestId.substring(4); // 去掉"REQ-"前缀
-            System.out.println("从请求ID提取产品ID: " + productId);
+            productId = requestId.substring(4); // Remove "REQ-" prefix
+            System.out.println("Extracted product ID from request ID: " + productId);
         }
         
-        // 首先按ID查找产品
+        // First try to find product by ID
         if (productId != null && !productId.isEmpty()) {
             Product productById = warehouse.findProductById(productId);
             if (productById != null) {
-                System.out.println("在仓库中找到产品 (通过ID): " + productById.getProductName() + 
-                               ", 当前库存: " + warehouse.getProductAmount(productId));
+                System.out.println("Found product in warehouse (by ID): " + productById.getProductName() + 
+                               ", Current stock: " + warehouse.getProductAmount(productId));
                 
-                // 如果仓库有足够库存，直接从仓库获取
+                // If warehouse has enough stock, directly get from warehouse
                 if (warehouse.getProductAmount(productId) >= actualAmount) {
                     boolean updated = warehouse.decreaseStock(productId, actualAmount);
                     if (updated) {
-                        System.out.println("成功从仓库减少库存，剩余: " + warehouse.getProductAmount(productId));
+                        System.out.println("Successfully decreased warehouse stock, remaining: " + warehouse.getProductAmount(productId));
                         found = true;
                     } else {
-                        System.out.println("减少库存失败，可能库存不足");
+                        System.out.println("Failed to decrease stock, possibly insufficient inventory");
                     }
                 } else {
-                    System.out.println("库存不足，无法满足请求。当前库存: " + warehouse.getProductAmount(productId) + 
-                                   ", 请求数量: " + actualAmount);
+                    System.out.println("Insufficient stock to fulfill request. Current stock: " + warehouse.getProductAmount(productId) + 
+                                   ", Requested quantity: " + actualAmount);
                 }
             } else {
-                System.out.println("通过ID " + productId + " 未找到产品");
+                System.out.println("Product not found by ID: " + productId);
             }
         }
         
-        // 如果按ID未找到，则尝试按名称查找
+        // If not found by ID, try to find by name
         if (!found) {
-            System.out.println("尝试按名称查找产品: " + productName);
+            System.out.println("Attempting to find product by name: " + productName);
             for (Product product : warehouse.getAvailableProducts()) {
-                System.out.println("检查仓库产品: " + product.getProductName() + " (ID: " + product.getProductId() + ")");
+                System.out.println("Checking warehouse product: " + product.getProductName() + " (ID: " + product.getProductId() + ")");
                 
                 if (product.getProductName().equals(productName)) {
                     found = true;
                     String pid = product.getProductId();
-                    System.out.println("按名称找到产品: " + productName + ", ID: " + pid + 
-                                   ", 当前库存: " + warehouse.getProductAmount(pid));
+                    System.out.println("Found product by name: " + productName + ", ID: " + pid + 
+                                   ", Current stock: " + warehouse.getProductAmount(pid));
                     
-                    // 如果仓库有足够库存，直接从仓库获取
+                    // If warehouse has enough stock, directly get from warehouse
                     if (warehouse.getProductAmount(pid) >= actualAmount) {
                         boolean updated = warehouse.decreaseStock(pid, actualAmount);
                         if (updated) {
-                            System.out.println("成功从仓库减少库存，剩余: " + warehouse.getProductAmount(pid));
+                            System.out.println("Successfully decreased warehouse stock, remaining: " + warehouse.getProductAmount(pid));
                         } else {
-                            System.out.println("减少库存失败，可能库存不足");
-                            // 创建采购请求
+                            System.out.println("Failed to decrease stock, possibly insufficient inventory");
+                            // Create procurement request
                             createProcurementRequest(pid, productName, actualAmount, warehouse.getProductAmount(pid), requestId);
                         }
                     } else {
-                        // 如果库存不足，创建采购请求
-                        System.out.println("库存不足，无法满足请求。当前库存: " + warehouse.getProductAmount(pid) + 
-                                       ", 请求数量: " + actualAmount);
+                        // If stock is insufficient, create procurement request
+                        System.out.println("Insufficient stock to fulfill request. Current stock: " + warehouse.getProductAmount(pid) + 
+                                       ", Requested quantity: " + actualAmount);
                         createProcurementRequest(pid, productName, actualAmount, warehouse.getProductAmount(pid), requestId);
                     }
                     break;
@@ -718,22 +739,22 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
                     "Product Not Found",
                     JOptionPane.WARNING_MESSAGE);
 
-            // 创建一个新的产品并添加采购请求
+            // Create a new product and add procurement request
             Product newProduct = new Product(
-                    "NEW-" + System.currentTimeMillis(), // 临时ID
+                    "NEW-" + System.currentTimeMillis(), // Temporary ID
                     productName,
                     order.getPurchaseCost(),
-                    0, // 当前数量为0
-                    actualAmount / 2 // 设置一个合理的警告阈值
+                    0, // Current quantity is 0
+                    actualAmount / 2 // Set a reasonable warning threshold
             );
             
             createProcurementRequest(newProduct.getProductId(), productName, actualAmount, 0, requestId);
         }
     }
     
-    // 添加一个辅助方法来创建采购请求
+    // Add an auxiliary method to create procurement request
     private void createProcurementRequest(String productId, String productName, int requestedAmount, int currentAmount, String originalRequestId) {
-        // 添加采购请求
+        // Add procurement request
         Business.WorkQueue.ProcurementWorkRequest procRequest = new Business.WorkQueue.ProcurementWorkRequest();
         procRequest.setProductId(productId);
         procRequest.setProductName(productName);
@@ -742,12 +763,12 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
         procRequest.setMessage("PROC-" + originalRequestId + ": Procurement needed for merchant request");
         procRequest.setStatus("Pending");
         
-        // 添加采购请求到仓库的工作队列
+        // Add procurement request to warehouse work queue
         warehouse.getWorkQueue().getWorkRequestList().add(procRequest);
         
-        System.out.println("已创建采购请求: " + procRequest.getMessage() + 
-                       ", 请求数量: " + requestedAmount + 
-                       ", 当前库存: " + currentAmount);
+        System.out.println("Created procurement request: " + procRequest.getMessage() + 
+                       ", Requested quantity: " + requestedAmount + 
+                       ", Current stock: " + currentAmount);
     }
 
     private void StatusjComboBoxActionPerformed(java.awt.event.ActionEvent evt) {
@@ -776,16 +797,16 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
     private javax.swing.JTextField txtSearchRequestID;
     // End of variables declaration//GEN-END:variables
 
-    // 添加获取产品价格的方法
+    // Add get product price method
     private double getPriceForProduct(String productName) {
-        // 从仓库获取产品价格
+        // Get product price from warehouse
         for (Product product : warehouse.getAvailableProducts()) {
             if (product.getProductName().equals(productName)) {
-                return product.getPrice(); // 使用正确的getPrice()方法
+                return product.getPrice(); // Use correct getPrice() method
             }
         }
 
-        // 如果在仓库中找不到产品，尝试从商家工作请求中获取价格
+        // If product not found in warehouse, try to get price from merchant work requests
         Business.EcoSystem system = Business.EcoSystem.getInstance();
         if (system.getWorkQueue() != null) {
             for (WorkRequest req : system.getWorkQueue().getWorkRequestList()) {
@@ -800,8 +821,8 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
             }
         }
 
-        // 如果无法获取实际价格，记录警告并返回默认价格
-        System.out.println("警告: 无法获取产品 '" + productName + "' 的价格，使用默认价格100.0");
-        return 100.0; // 默认价格，仅作为备选
+        // If unable to get actual price, log warning and return default price
+        System.out.println("Warning: Unable to get price for product '" + productName + "', using default price 100.0");
+        return 100.0; // Default price, only as a fallback
     }
 }
