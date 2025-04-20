@@ -28,7 +28,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Scene;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -46,7 +52,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
-import jdk.tools.jlink.internal.Platform;
+import javafx.application.Platform;
+
 
 /**
  *
@@ -64,6 +71,9 @@ public class ShipmentPanel extends javax.swing.JPanel {
     private JPanel detailsCardsPanel;
     private CardLayout detailsCardLayout;
     private JPanel parentPanel;
+    private WebView webView;
+private WebEngine webEngine;
+    private Map<String, double[]> locationMap; // 定义位置映射
 
     /**
      * Creates new form Shipment
@@ -74,6 +84,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
         initComponents();
         initializeMapComponents();
         setupDetailsCards();
+        initializeLocationMap();
 
         this.organization = ConfigureASystem.logisticsOrg;
         this.userProcessContainer = userProcessContainer;
@@ -86,28 +97,31 @@ public class ShipmentPanel extends javax.swing.JPanel {
     }
 
     private void initializeMapComponents() {
-        // Ensure trackPathJPanel uses BorderLayout
-        trackPathJPanel.setLayout(new BorderLayout());
-
-        // Create map view component
-        mapView = new JEditorPane();
-        mapView.setContentType("text/html");
-        mapView.setEditable(false);
-
-        // Add scroll support
-        JScrollPane scrollPane = new JScrollPane(mapView);
-
-        // Add map view to trackPathJPanel
-        trackPathJPanel.add(scrollPane, BorderLayout.CENTER);
-
-        // Add panel for tracking information
-        JPanel infoPanel = new JPanel();
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        infoPanel.setPreferredSize(new Dimension(300, 0)); // Set info panel width
-
-        // Add to the right side of trackPathJPanel
-        trackPathJPanel.add(infoPanel, BorderLayout.EAST);
+        // 确保trackPathJPanel使用BorderLayout布局
+    trackPathJPanel.setLayout(new BorderLayout());
+    
+    // 初始化JavaFX线程和面板
+    final JFXPanel jfxPanel = new JFXPanel();
+    
+    // 创建跟踪信息面板
+    JPanel infoPanel = new JPanel();
+    infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+    infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    infoPanel.setPreferredSize(new Dimension(300, 0)); // 设置信息面板宽度
+    
+    // 添加JavaFX面板到trackPathJPanel中央
+    trackPathJPanel.add(jfxPanel, BorderLayout.CENTER);
+    
+    // 添加信息面板到trackPathJPanel右侧
+    trackPathJPanel.add(infoPanel, BorderLayout.EAST);
+    
+    // 在JavaFX线程中初始化WebView
+    Platform.runLater(new Runnable() {
+    @Override
+    public void run() {
+        initFX(jfxPanel);
+    }
+});
     }
 
     private void setupDetailsCards() {
@@ -1018,72 +1032,207 @@ public class ShipmentPanel extends javax.swing.JPanel {
     }
 
     private void showTrackingMap(Shipment shipment) {
-        try {
-            // 清除现有内容
-            trackPathJPanel.removeAll();
-            trackPathJPanel.setLayout(new BorderLayout());
+        if (shipment == null) {
+        JOptionPane.showMessageDialog(this, 
+                "未选择运输单", 
+                "错误", 
+                JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    // 获取跟踪历史
+    List<TrackingInfo> trackingHistory = shipment.getTrackingHistory();
+    
+    if (trackingHistory == null || trackingHistory.isEmpty()) {
+        // 如果没有跟踪点，显示基于原点和目的地的默认地图
+        showDefaultMapForShipment(shipment);
+        return;
+    }
+    
+    // 创建带跟踪点的地图
+    Platform.runLater(() -> {
+        updateMapWithTrackingPoints(shipment, trackingHistory);
+    });
+    
+    // 更新右侧信息面板
+    JPanel infoPanel = (JPanel)trackPathJPanel.getComponent(1);
+    updateTrackingInfo(shipment, trackingHistory, infoPanel);
+    }
 
-            // 创建标题
-            JLabel titleLabel = new JLabel("Shipment Tracking Map", JLabel.CENTER);
-            titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
-            trackPathJPanel.add(titleLabel, BorderLayout.NORTH);
-
-            // 测试一个最简单的静态地图URL
-            String apiKey = "AIzaSyCsxjLs6wmSHnIQDKTxAtynpNfMAecSWqY";
-            String staticMapUrl = "https://maps.googleapis.com/maps/api/staticmap?center=31.2304,121.4737&zoom=10&size=600x400&key=" + apiKey;
-
-            System.out.println("Testing simple static map URL: " + staticMapUrl);
-
-            // 请求并显示地图图像
-            URL url = new URL(staticMapUrl);
-            BufferedImage image = ImageIO.read(url);
-
-            if (image != null) {
-                JLabel mapLabel = new JLabel(new ImageIcon(image));
-                trackPathJPanel.add(new JScrollPane(mapLabel), BorderLayout.CENTER);
-
-                // 添加信息面板（如果shipment不为空）
-                if (shipment != null && shipment.getTrackingHistory() != null && !shipment.getTrackingHistory().isEmpty()) {
-                    JPanel infoPanel = createSimpleTrackingInfoPanel(shipment);
-                    trackPathJPanel.add(infoPanel, BorderLayout.EAST);
-                }
-            } else {
-                JLabel errorLabel = new JLabel("Unable to load map image.", JLabel.CENTER);
-                trackPathJPanel.add(errorLabel, BorderLayout.CENTER);
-            }
-
-            // 刷新面板
-            trackPathJPanel.revalidate();
-            trackPathJPanel.repaint();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                    "Error displaying map: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+    
+    
+    /**
+ * 显示以上海仓库和目的地为中心的默认地图
+ * @param shipment 运输对象
+ */
+private void showDefaultMapForShipment(Shipment shipment) {
+    Platform.runLater(() -> {
+        // 上海仓库为固定起点
+        String origin = "上海";
+        String destination = shipment.getDestination();
+        
+        // 创建要在WebView中执行的JavaScript
+        StringBuilder script = new StringBuilder();
+        script.append("var map = window.map;");
+        script.append("if (!map) return;");
+        
+        // 清除之前的标记和路径
+        script.append("if (window.markers) {");
+        script.append("  for (var i = 0; i < window.markers.length; i++) {");
+        script.append("    window.markers[i].setMap(null);");
+        script.append("  }");
+        script.append("}");
+        script.append("window.markers = [];");
+        
+        script.append("if (window.path) { window.path.setMap(null); }");
+        
+        // 添加上海仓库位置（固定）
+        script.append("var shanghaiPos = {lat: 31.2304, lng: 121.4737};");
+        
+        // 添加上海仓库标记
+        script.append("var originMarker = new google.maps.Marker({");
+        script.append("  map: map,");
+        script.append("  position: shanghaiPos,");
+        script.append("  title: '").append(escapeJavaScript(origin)).append("',");
+        script.append("  label: 'A',");
+        script.append("  icon: {");
+        script.append("    url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'");
+        script.append("  }");
+        script.append("});");
+        
+        script.append("window.markers.push(originMarker);");
+        
+        // 根据不同目的地设置位置
+        script.append("var destPos;");
+        script.append("var zoomLevel = 5;"); // 默认缩放级别
+        
+        if (destination.contains("Boston") || destination.contains("波士顿")) {
+            script.append("destPos = {lat: 42.3601, lng: -71.0589};");
+            script.append("zoomLevel = 4;"); // 全球视图
+        } else if (destination.contains("LA") || destination.contains("Los Angeles") || destination.contains("洛杉矶")) {
+            script.append("destPos = {lat: 34.0522, lng: -118.2437};");
+            script.append("zoomLevel = 4;"); // 全球视图
+        } else if (destination.contains("New York") || destination.contains("纽约")) {
+            script.append("destPos = {lat: 40.7128, lng: -74.0060};");
+            script.append("zoomLevel = 4;"); // 全球视图
+        } else if (destination.contains("Cancun") || destination.contains("坎昆")) {
+            script.append("destPos = {lat: 21.1619, lng: -86.8515};");
+            script.append("zoomLevel = 4;"); // 全球视图
+        } else if (destination.contains("Guanajuato")) {
+            script.append("destPos = {lat: 21.0190, lng: -101.2574};");
+            script.append("zoomLevel = 4;"); // 全球视图
+        } else {
+            // 如果是未知目的地，使用地理编码
+            script.append("var geocoder = new google.maps.Geocoder();");
+            script.append("geocoder.geocode({'address': '").append(escapeJavaScript(destination)).append("'}, function(results, status) {");
+            script.append("  if (status === 'OK') {");
+            script.append("    destPos = results[0].geometry.location;");
+            script.append("    createDestinationMarker(destPos);");
+            script.append("  } else {");
+            script.append("    // 如果地理编码失败，使用默认位置");
+            script.append("    destPos = {lat: 35.0, lng: -100.0};");
+            script.append("    createDestinationMarker(destPos);");
+            script.append("  }");
+            script.append("});");
         }
+        
+        // 如果是已知目的地，直接创建标记
+        if (!destination.contains("未知")) {
+            script.append("createDestinationMarker(destPos);");
+        }
+        
+        // 创建目的地标记的函数
+        script.append("function createDestinationMarker(position) {");
+        script.append("  var destinationMarker = new google.maps.Marker({");
+        script.append("    map: map,");
+        script.append("    position: position,");
+        script.append("    title: '").append(escapeJavaScript(destination)).append("',");
+        script.append("    label: 'B',");
+        script.append("    icon: {");
+        script.append("      url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'");
+        script.append("    }");
+        script.append("  });");
+        
+        script.append("  window.markers.push(destinationMarker);");
+        
+        // 添加信息窗口
+        script.append("  var infoContent = '<div><strong>目的地: ").append(escapeJavaScript(destination)).append("</strong><br>';");
+        script.append("  infoContent += '状态: ' + getStatusBadge('").append(escapeJavaScript(shipment.getShipmentStatus())).append("') + '<br>';");
+        if (shipment.getEstimatedDeliveryDate() != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            script.append("  infoContent += '预计送达: ").append(escapeJavaScript(sdf.format(shipment.getEstimatedDeliveryDate()))).append("';");
+        }
+        script.append("  infoContent += '</div>';");
+        
+        script.append("  var infowindow = new google.maps.InfoWindow({");
+        script.append("    content: infoContent");
+        script.append("  });");
+        
+        script.append("  destinationMarker.addListener('click', function() {");
+        script.append("    infowindow.open(map, destinationMarker);");
+        script.append("  });");
+        
+        // 创建路径（如果不是Pending状态）
+        if (!shipment.getShipmentStatus().equals("Pending") && !shipment.getShipmentStatus().equals("Processing")) {
+            script.append("  // 添加行程路径");
+            script.append("  var path = new google.maps.Polyline({");
+            script.append("    path: [shanghaiPos, position],");
+            script.append("    geodesic: true,");
+            script.append("    strokeColor: '#FF0000',");
+            script.append("    strokeOpacity: 0.7,");
+            script.append("    strokeWeight: 2");
+            script.append("  });");
+            script.append("  path.setMap(map);");
+            script.append("  window.path = path;");
+        }
+        
+        // 调整地图以显示所有标记
+        script.append("  var bounds = new google.maps.LatLngBounds();");
+        script.append("  bounds.extend(shanghaiPos);");
+        script.append("  bounds.extend(position);");
+        script.append("  map.fitBounds(bounds);");
+        script.append("  // 限制最大缩放级别");
+        script.append("  var listener = google.maps.event.addListener(map, 'idle', function() {");
+        script.append("    if (map.getZoom() > zoomLevel) map.setZoom(zoomLevel);");
+        script.append("    google.maps.event.removeListener(listener);");
+        script.append("  });");
+        script.append("}");
+        
+        webEngine.executeScript(script.toString());
+    });
+    
+    // 更新信息面板
+    JPanel infoPanel = (JPanel)trackPathJPanel.getComponent(1);
+    infoPanel.removeAll();
+    
+    // 添加基本运输信息
+    JLabel titleLabel = new JLabel("运输信息");
+    titleLabel.setFont(new Font("Microsoft YaHei", Font.BOLD, 16));
+    titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    infoPanel.add(titleLabel);
+    infoPanel.add(Box.createVerticalStrut(10));
+    
+    addInfoLabel(infoPanel, "运单号: " + shipment.getTrackingNumber());
+    
+    if (shipment.getShipDate() != null) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        addInfoLabel(infoPanel, "发货日期: " + dateFormat.format(shipment.getShipDate()));
     }
-
-    // 简化版的跟踪信息面板
-    private JPanel createSimpleTrackingInfoPanel(Shipment shipment) {
-        JPanel infoPanel = new JPanel();
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        infoPanel.setPreferredSize(new Dimension(250, 400));
-
-        JLabel titleLabel = new JLabel("Shipment Information");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        infoPanel.add(titleLabel);
-        infoPanel.add(Box.createVerticalStrut(10));
-
-        infoPanel.add(new JLabel("Tracking #: " + shipment.getTrackingNumber()));
-        infoPanel.add(new JLabel("Status: " + shipment.getShipmentStatus()));
-        infoPanel.add(new JLabel("Origin: " + shipment.getOrigin()));
-        infoPanel.add(new JLabel("Destination: " + shipment.getDestination()));
-
-        return infoPanel;
+    
+    addInfoLabel(infoPanel, "发货方式: " + shipment.getShippingMethod());
+    addInfoLabel(infoPanel, "状态: " + shipment.getShipmentStatus());
+    addInfoLabel(infoPanel, "发货地: 上海仓库");
+    addInfoLabel(infoPanel, "目的地: " + shipment.getDestination());
+    addInfoLabel(infoPanel, "当前位置: " + shipment.getCurrentLocation());
+    
+    if (shipment.getEstimatedDeliveryDate() != null) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        addInfoLabel(infoPanel, "预计送达: " + dateFormat.format(shipment.getEstimatedDeliveryDate()));
     }
+    
+    infoPanel.revalidate();
+    infoPanel.repaint();
+}
 
     // 创建跟踪信息面板
     private JPanel createTrackingInfoPanel(Shipment shipment, List<TrackingInfo> trackingHistory) {
@@ -1177,14 +1326,16 @@ public class ShipmentPanel extends javax.swing.JPanel {
     }
 
     // Update right side information panel
-    private void updateTrackingInfo(Shipment shipment, List<TrackingInfo> trackingHistory) {
-        JPanel infoPanel = (JPanel) trackPathJPanel.getComponent(1); // Get right side info panel
+    private void updateTrackingInfo(Shipment shipment, List<TrackingInfo> trackingHistory, JPanel infoPanel) {
         infoPanel.removeAll();
-
-        // Add shipment basic information
-        JLabel titleLabel = new JLabel("Shipment Information");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        infoPanel.add(titleLabel);
+    infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+    
+    // 添加运输基本信息
+    JLabel titleLabel = new JLabel("Shipment Information");
+    titleLabel.setFont(new Font("Microsoft YaHei", Font.BOLD, 16));
+    titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    infoPanel.add(titleLabel);
+    infoPanel.add(Box.createVerticalStrut(10));
 
         addInfoLabel(infoPanel, "Order ID: " + shipment.getOrderId());
         addInfoLabel(infoPanel, "Tracking Number: " + shipment.getTrackingNumber());
@@ -1384,4 +1535,336 @@ public class ShipmentPanel extends javax.swing.JPanel {
     public JTable getTblShipment() {
         return tblShipment;
     }
+    
+    /**
+ * 初始化JavaFX WebView
+ */
+private void initFX(JFXPanel jfxPanel) {
+    // 创建WebView和WebEngine
+    webView = new WebView();
+    webEngine = webView.getEngine();
+    
+    // 设置WebView填充容器
+    webView.setPrefSize(800, 600);
+    
+    // 创建场景并设置到JFXPanel
+    Scene scene = new Scene(webView);
+    jfxPanel.setScene(scene);
+    
+    // 加载初始地图HTML
+    loadMapHTML();
+}
+
+/**
+ * 加载Google Maps到WebView
+ */
+private void loadMapHTML() {
+    try {
+        URL url = getClass().getResource("/src/map.html");
+        if (url != null) {
+            webEngine.load(url.toString());
+        } else {
+            // 如果无法找到HTML文件，使用内联HTML内容
+            String mapHTML = createMapHTML();
+            webEngine.loadContent(mapHTML);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        // 使用内联HTML作为备份
+        String mapHTML = createMapHTML();
+        webEngine.loadContent(mapHTML);
+    }
+}
+
+/**
+ * 创建Google Maps HTML内容
+ */
+private String createMapHTML() {
+    StringBuilder html = new StringBuilder();
+    html.append("<!DOCTYPE html>");
+    html.append("<html>");
+    html.append("<head>");
+    html.append("<meta charset=\"UTF-8\">");
+    html.append("<title>物流跟踪地图</title>");
+    html.append("<style>");
+    html.append("html, body, #map { height: 100%; margin: 0; padding: 0; }");
+    html.append(".status-badge {");
+    html.append("  display: inline-block;");
+    html.append("  padding: 2px 8px;");
+    html.append("  border-radius: 12px;");
+    html.append("  color: white;");
+    html.append("  font-weight: bold;");
+    html.append("  font-size: 12px;");
+    html.append("}");
+    html.append(".status-pending { background-color: #f39c12; }");
+    html.append(".status-processing { background-color: #3498db; }");
+    html.append(".status-shipped { background-color: #2ecc71; }");
+    html.append(".status-transit { background-color: #9b59b6; }");
+    html.append(".status-delivering { background-color: #1abc9c; }");
+    html.append(".status-delivered { background-color: #27ae60; }");
+    html.append(".status-exception { background-color: #e74c3c; }");
+    html.append("</style>");
+    html.append("</head>");
+    html.append("<body>");
+    html.append("<div id=\"map\"></div>");
+    html.append("<script>");
+    
+    // 初始化地图
+    html.append("function initMap() {");
+    html.append("  var map = new google.maps.Map(document.getElementById('map'), {");
+    html.append("    zoom: 4,");
+    html.append("    center: {lat: 31.2304, lng: 121.4737}"); // 默认以上海为中心
+    html.append("  });");
+    
+    // 将map存储在window对象中以便后续访问
+    html.append("  window.map = map;");
+    html.append("}");
+
+    // 定义获取状态样式的函数
+    html.append("function getStatusBadge(status) {");
+    html.append("  var statusClass = '';");
+    html.append("  switch(status.toLowerCase()) {");
+    html.append("    case 'pending': statusClass = 'status-pending'; break;");
+    html.append("    case 'processing': statusClass = 'status-processing'; break;");
+    html.append("    case 'shipped': statusClass = 'status-shipped'; break;");
+    html.append("    case 'in transit': statusClass = 'status-transit'; break;");
+    html.append("    case 'delivering': statusClass = 'status-delivering'; break;");
+    html.append("    case 'delivered': statusClass = 'status-delivered'; break;");
+    html.append("    case 'exception': statusClass = 'status-exception'; break;");
+    html.append("    default: statusClass = 'status-pending';");
+    html.append("  }");
+    html.append("  return '<span class=\"status-badge ' + statusClass + '\">' + status + '</span>';");
+    html.append("}");
+    
+    html.append("</script>");
+    html.append("<script src=\"https://maps.googleapis.com/maps/api/js?key=").append(GOOGLE_MAPS_API_KEY).append("&callback=initMap\" async defer></script>");
+    html.append("</body>");
+    html.append("</html>");
+    
+    return html.toString();
+}
+
+    
+
+    /**
+ * 使用跟踪点更新地图
+ * @param shipment 运输对象
+ * @param trackingHistory 跟踪历史
+ */
+private void updateMapWithTrackingPoints(Shipment shipment, List<TrackingInfo> trackingHistory) {
+    StringBuilder script = new StringBuilder();
+    script.append("var map = window.map;");
+    script.append("if (!map) return;");
+    
+    // 清除之前的标记
+    script.append("if (window.markers) {");
+    script.append("  for (var i = 0; i < window.markers.length; i++) {");
+    script.append("    window.markers[i].setMap(null);");
+    script.append("  }");
+    script.append("}");
+    script.append("window.markers = [];");
+    
+    // 清除之前的路径
+    script.append("if (window.path) { window.path.setMap(null); }");
+    
+    // 预设位置映射
+    script.append("var locationMap = {");
+    script.append("  '上海': {lat: 31.2304, lng: 121.4737},");
+    script.append("  '上海仓库': {lat: 31.2304, lng: 121.4737},");
+    script.append("  '北京': {lat: 39.9042, lng: 116.4074},");
+    script.append("  '广州': {lat: 23.1291, lng: 113.2644},");
+    script.append("  '深圳': {lat: 22.5431, lng: 114.0579},");
+    script.append("  '杭州': {lat: 30.2741, lng: 120.1551},");
+    script.append("  '成都': {lat: 30.5728, lng: 104.0668},");
+    script.append("  '重庆': {lat: 29.4316, lng: 106.9123},");
+    script.append("  'Boston': {lat: 42.3601, lng: -71.0589},");
+    script.append("  '波士顿': {lat: 42.3601, lng: -71.0589},");
+    script.append("  'Los Angeles': {lat: 34.0522, lng: -118.2437},");
+    script.append("  'LA': {lat: 34.0522, lng: -118.2437},");
+    script.append("  '洛杉矶': {lat: 34.0522, lng: -118.2437},");
+    script.append("  'New York': {lat: 40.7128, lng: -74.0060},");
+    script.append("  '纽约': {lat: 40.7128, lng: -74.0060},");
+    script.append("  'Cancun': {lat: 21.1619, lng: -86.8515},");
+    script.append("  '坎昆': {lat: 21.1619, lng: -86.8515},");
+    script.append("  'Guanajuato': {lat: 21.0190, lng: -101.2574}");
+    script.append("};");
+    
+    // 创建用于路径的坐标数组
+    script.append("var pathCoordinates = [];");
+    
+    // 添加起点标记（上海仓库）
+    script.append("var originPos = locationMap['上海仓库'];");
+    script.append("var originMarker = new google.maps.Marker({");
+    script.append("  position: originPos,");
+    script.append("  map: map,");
+    script.append("  title: '上海仓库',");
+    script.append("  label: 'A',");
+    script.append("  icon: {");
+    script.append("    url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'");
+    script.append("  }");
+    script.append("});");
+    script.append("window.markers.push(originMarker);");
+    script.append("pathCoordinates.push(originPos);");
+    
+    // 添加中间跟踪点
+    script.append("var trackPoints = [];");
+    for (int i = 0; i < trackingHistory.size(); i++) {
+        TrackingInfo info = trackingHistory.get(i);
+        String location = info.getLocation();
+        String status = info.getStatus();
+        String description = info.getDescription();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String time = dateFormat.format(info.getTimestamp());
+        
+        // 判断是否有经纬度数据
+        if (info.getLatitude() != 0 && info.getLongitude() != 0) {
+            script.append("trackPoints.push({");
+            script.append("  location: '").append(escapeJavaScript(location)).append("',");
+            script.append("  lat: ").append(info.getLatitude()).append(",");
+            script.append("  lng: ").append(info.getLongitude()).append(",");
+            script.append("  status: '").append(escapeJavaScript(status)).append("',");
+            script.append("  description: '").append(escapeJavaScript(description)).append("',");
+            script.append("  time: '").append(escapeJavaScript(time)).append("',");
+            script.append("  index: ").append(i + 1);
+            script.append("});");
+        } else if (locationMap.containsKey(location)) {
+            // 使用预设位置
+            script.append("trackPoints.push({");
+            script.append("  location: '").append(escapeJavaScript(location)).append("',");
+            script.append("  lat: locationMap['").append(escapeJavaScript(location)).append("'].lat,");
+            script.append("  lng: locationMap['").append(escapeJavaScript(location)).append("'].lng,");
+            script.append("  status: '").append(escapeJavaScript(status)).append("',");
+            script.append("  description: '").append(escapeJavaScript(description)).append("',");
+            script.append("  time: '").append(escapeJavaScript(time)).append("',");
+            script.append("  index: ").append(i + 1);
+            script.append("});");
+        }
+    }
+    
+    // 添加目的地标记
+    String destination = shipment.getDestination();
+    script.append("var destPos;");
+    script.append("if (locationMap['").append(escapeJavaScript(destination)).append("']) {");
+    script.append("  destPos = locationMap['").append(escapeJavaScript(destination)).append("'];");
+    script.append("} else {");
+    // 不在预设位置中，添加一些常见目的地的处理
+    script.append("  switch('").append(escapeJavaScript(destination)).append("') {");
+    script.append("    case 'Boston':case '波士顿': destPos = {lat: 42.3601, lng: -71.0589}; break;");
+    script.append("    case 'LA':case 'Los Angeles':case '洛杉矶': destPos = {lat: 34.0522, lng: -118.2437}; break;");
+    script.append("    case 'New York':case '纽约': destPos = {lat: 40.7128, lng: -74.0060}; break;");
+    script.append("    case 'Cancun':case '坎昆': destPos = {lat: 21.1619, lng: -86.8515}; break;");
+    script.append("    case 'Guanajuato': destPos = {lat: 21.0190, lng: -101.2574}; break;");
+    script.append("    default: destPos = {lat: 35.0, lng: -100.0};"); // 默认位置（美国中部）
+    script.append("  }");
+    script.append("}");
+    
+    script.append("var destinationMarker = new google.maps.Marker({");
+    script.append("  position: destPos,");
+    script.append("  map: map,");
+    script.append("  title: '").append(escapeJavaScript(destination)).append("',");
+    script.append("  label: 'B',");
+    script.append("  icon: {");
+    script.append("    url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'");
+    script.append("  }");
+    script.append("});");
+    script.append("window.markers.push(destinationMarker);");
+    
+    // 添加目的地信息窗口
+    script.append("var destInfoContent = '<div><strong>目的地: ").append(escapeJavaScript(destination)).append("</strong><br>';");
+    if (shipment.getEstimatedDeliveryDate() != null) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        script.append("destInfoContent += '预计送达: ").append(escapeJavaScript(sdf.format(shipment.getEstimatedDeliveryDate()))).append("';");
+    }
+    script.append("destInfoContent += '</div>';");
+    
+    script.append("var destInfoWindow = new google.maps.InfoWindow({");
+    script.append("  content: destInfoContent");
+    script.append("});");
+    
+    script.append("destinationMarker.addListener('click', function() {");
+    script.append("  destInfoWindow.open(map, destinationMarker);");
+    script.append("});");
+    
+    // 处理跟踪点
+    script.append("for (var i = 0; i < trackPoints.length; i++) {");
+    script.append("  var point = trackPoints[i];");
+    script.append("  var position = {lat: point.lat, lng: point.lng};");
+    script.append("  pathCoordinates.push(position);");
+    
+    script.append("  var marker = new google.maps.Marker({");
+    script.append("    position: position,");
+    script.append("    map: map,");
+    script.append("    title: point.location,");
+    script.append("    label: point.index.toString()");
+    script.append("  });");
+    
+    script.append("  window.markers.push(marker);");
+    
+    // 添加信息窗口
+    script.append("  var infoContent = '<div><strong>' + point.location + '</strong><br>';");
+    script.append("  infoContent += '时间: ' + point.time + '<br>';");
+    script.append("  infoContent += '状态: ' + getStatusBadge(point.status) + '<br>';");
+    script.append("  infoContent += point.description + '</div>';");
+    
+    script.append("  var infowindow = new google.maps.InfoWindow({");
+    script.append("    content: infoContent");
+    script.append("  });");
+    
+    script.append("  marker.addListener('click', function() {");
+    script.append("    infowindow.open(map, marker);");
+    script.append("  });");
+    script.append("}");
+    
+    // 如果有目的地且运输状态不是Delivered，添加目的地到路径
+    script.append("if ('").append(escapeJavaScript(shipment.getShipmentStatus())).append("' !== 'Delivered') {");
+    script.append("  pathCoordinates.push(destPos);");
+    script.append("}");
+    
+    // 创建路径
+    script.append("if (pathCoordinates.length > 1) {");
+    script.append("  window.path = new google.maps.Polyline({");
+    script.append("    path: pathCoordinates,");
+    script.append("    geodesic: true,");
+    script.append("    strokeColor: '#FF0000',");
+    script.append("    strokeOpacity: 0.7,");
+    script.append("    strokeWeight: 2");
+    script.append("  });");
+    script.append("  window.path.setMap(map);");
+    
+    // 调整地图以显示所有标记
+    script.append("  var bounds = new google.maps.LatLngBounds();");
+    script.append("  for (var i = 0; i < pathCoordinates.length; i++) {");
+    script.append("    bounds.extend(pathCoordinates[i]);");
+    script.append("  }");
+    script.append("  map.fitBounds(bounds);");
+    script.append("}");
+    
+    webEngine.executeScript(script.toString());
+}
+
+private void initializeLocationMap() {
+        locationMap = new HashMap<>();
+        locationMap.put("上海", new double[]{31.2304, 121.4737});
+        locationMap.put("上海仓库", new double[]{31.2304, 121.4737});
+        locationMap.put("北京", new double[]{39.9042, 116.4074});
+        locationMap.put("广州", new double[]{23.1291, 113.2644});
+        locationMap.put("深圳", new double[]{22.5431, 114.0579});
+        locationMap.put("杭州", new double[]{30.2741, 120.1551});
+        locationMap.put("成都", new double[]{30.5728, 104.0668});
+        locationMap.put("重庆", new double[]{29.4316, 106.9123});
+        locationMap.put("Boston", new double[]{42.3601, -71.0589});
+        locationMap.put("波士顿", new double[]{42.3601, -71.0589});
+        locationMap.put("Los Angeles", new double[]{34.0522, -118.2437});
+        locationMap.put("LA", new double[]{34.0522, -118.2437});
+        locationMap.put("洛杉矶", new double[]{34.0522, -118.2437});
+        locationMap.put("New York", new double[]{40.7128, -74.0060});
+        locationMap.put("纽约", new double[]{40.7128, -74.0060});
+        locationMap.put("Cancun", new double[]{21.1619, -86.8515});
+        locationMap.put("坎昆", new double[]{21.1619, -86.8515});
+        locationMap.put("Guanajuato", new double[]{21.0190, -101.2574});
+    }
+    
+    
+
+
 }

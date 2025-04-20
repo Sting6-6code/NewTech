@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>物流跟踪地图</title>
+    <style>
+        html, body, #map {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #info-window {
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            line-height: 1.5;
+        }
+        .tracking-status {
+            padding: 5px;
+            margin-bottom: 5px;
+            border-radius: 3px;
+            display: inline-block;
+            font-weight: bold;
+            color: white;
+        }
+        .status-pending { background-color: #f39c12; }
+        .status-processing { background-color: #3498db; }
+        .status-shipped { background-color: #2ecc71; }
+        .status-in-transit { background-color: #9b59b6; }
+        .status-delivering { background-color: #1abc9c; }
+        .status-delivered { background-color: #27ae60; }
+        .status-exception { background-color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        var map;
+        var markers = [];
+        var path;
+        
+        function initMap() {
+            // 初始化地图，以上海为中心
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 4,
+                center: {lat: 31.2304, lng: 121.4737}
+            });
+            
+            // 将地图对象存储在全局变量中，便于后续访问
+            window.map = map;
+        }
+        
+        // 获取状态标签的HTML
+        function getStatusBadge(status) {
+            var statusClass = '';
+            switch(status.toLowerCase()) {
+                case 'pending': statusClass = 'status-pending'; break;
+                case 'processing': statusClass = 'status-processing'; break;
+                case 'shipped': statusClass = 'status-shipped'; break;
+                case 'in transit': statusClass = 'status-in-transit'; break;
+                case 'delivering': statusClass = 'status-delivering'; break;
+                case 'delivered': statusClass = 'status-delivered'; break;
+                case 'exception': statusClass = 'status-exception'; break;
+                default: statusClass = 'status-pending';
+            }
+            return '<span class="tracking-status ' + statusClass + '">' + status + '</span>';
+        }
+        
+        // 清除地图上的所有标记和路径
+        function clearMap() {
+            // 清除标记
+            if (window.markers) {
+                for (var i = 0; i < window.markers.length; i++) {
+                    window.markers[i].setMap(null);
+                }
+            }
+            window.markers = [];
+            
+            // 清除路径
+            if (window.path) {
+                window.path.setMap(null);
+                window.path = null;
+            }
+        }
+        
+        // 添加起点标记
+        function addOriginMarker(position, title) {
+            var marker = new google.maps.Marker({
+                position: position,
+                map: map,
+                title: title,
+                label: 'A',
+                icon: {
+                    url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                }
+            });
+            
+            var infowindow = new google.maps.InfoWindow({
+                content: '<div id="info-window"><strong>' + title + '</strong><br>起点</div>'
+            });
+            
+            marker.addListener('click', function() {
+                infowindow.open(map, marker);
+            });
+            
+            window.markers.push(marker);
+            return marker;
+        }
+        
+        // 添加目的地标记
+        function addDestinationMarker(position, title, status, estimatedDelivery) {
+            var marker = new google.maps.Marker({
+                position: position,
+                map: map,
+                title: title,
+                label: 'B',
+                icon: {
+                    url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                }
+            });
+            
+            var infoContent = '<div id="info-window"><strong>' + title + '</strong><br>';
+            infoContent += '状态: ' + getStatusBadge(status) + '<br>';
+            if (estimatedDelivery) {
+                infoContent += '预计送达: ' + estimatedDelivery;
+            }
+            infoContent += '</div>';
+            
+            var infowindow = new google.maps.InfoWindow({
+                content: infoContent
+            });
+            
+            marker.addListener('click', function() {
+                infowindow.open(map, marker);
+            });
+            
+            window.markers.push(marker);
+            return marker;
+        }
+        
+        // 添加中转点标记
+        function addWaypointMarker(position, title, time, status, description, index) {
+            var marker = new google.maps.Marker({
+                position: position,
+                map: map,
+                title: title,
+                label: index.toString()
+            });
+            
+            var infoContent = '<div id="info-window"><strong>' + title + '</strong><br>';
+            infoContent += '时间: ' + time + '<br>';
+            infoContent += '状态: ' + getStatusBadge(status) + '<br>';
+            infoContent += description;
+            infoContent += '</div>';
+            
+            var infowindow = new google.maps.InfoWindow({
+                content: infoContent
+            });
+            
+            marker.addListener('click', function() {
+                infowindow.open(map, marker);
+            });
+            
+            window.markers.push(marker);
+            return marker;
+        }
+        
+        // 添加路径
+        function addPath(coordinates) {
+            window.path = new google.maps.Polyline({
+                path: coordinates,
+                geodesic: true,
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.7,
+                strokeWeight: 2
+            });
+            
+            window.path.setMap(map);
+        }
+        
+        // 调整地图视图以显示所有标记
+        function fitMapToBounds(coordinates) {
+            var bounds = new google.maps.LatLngBounds();
+            for (var i = 0; i < coordinates.length; i++) {
+                bounds.extend(coordinates[i]);
+            }
+            map.fitBounds(bounds);
+            
+            // 限制最大缩放级别
+            var listener = google.maps.event.addListener(map, 'idle', function() {
+                if (map.getZoom() > 5) map.setZoom(5);
+                google.maps.event.removeListener(listener);
+            });
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCsxjLs6wmSHnIQDKTxAtynpNfMAecSWqY&callback=initMap" async defer></script>
+</body>
+</html>

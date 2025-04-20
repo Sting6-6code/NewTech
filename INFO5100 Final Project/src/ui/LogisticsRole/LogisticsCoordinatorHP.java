@@ -263,7 +263,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             .addGroup(CustomerCompJPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lblCustomerComplaint)
-                .addContainerGap(153, Short.MAX_VALUE))
+                .addContainerGap(152, Short.MAX_VALUE))
         );
 
         logisticsWorkAreajPanel.add(CustomerCompJPanel);
