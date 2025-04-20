@@ -32,8 +32,4 @@ public class ProcurementSpecialistRole extends Role {
     public String toString() {
         return "Procurement Specialist";
     }
-<<<<<<< HEAD
-=======
-    
->>>>>>> 3a77e3f4cc0cc2a3a980f82b6568f821fa053451
 }

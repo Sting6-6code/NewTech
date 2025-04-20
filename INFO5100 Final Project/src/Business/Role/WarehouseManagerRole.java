@@ -29,17 +29,9 @@ public class WarehouseManagerRole extends Role {
         Organization organization, Enterprise enterprise, EcoSystem business) {
         return new WarehouseHP(account.getUsername());
     }
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> 3a77e3f4cc0cc2a3a980f82b6568f821fa053451
     @Override
     public String toString() {
         return "Warehouse Manager";
     }
-<<<<<<< HEAD
     
-=======
->>>>>>> 3a77e3f4cc0cc2a3a980f82b6568f821fa053451
 }
