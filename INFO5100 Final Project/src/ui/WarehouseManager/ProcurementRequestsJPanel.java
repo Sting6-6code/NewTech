@@ -15,6 +15,7 @@ import Business.WorkQueue.ProcurementWorkRequest;
 import Business.WorkQueue.WorkRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -37,7 +38,7 @@ public class ProcurementRequestsJPanel extends javax.swing.JPanel {
         warehouse = Warehouse.getInstance();
         setupCartTable();
 
-        // 加载所有仓库采购请求
+        // Load all warehouse procurement requests
         loadWarehouseRequests();
     }
 
@@ -48,25 +49,41 @@ public class ProcurementRequestsJPanel extends javax.swing.JPanel {
     }
 
     private void loadWarehouseRequests() {
-        // 清空表格
+        // Clear the table
         DefaultTableModel model = (DefaultTableModel) RequestTable1.getModel();
         model.setRowCount(0);
 
-        // 获取所有采购请求
+        // Get all procurement requests
         List<ProcurementWorkRequest> allRequests = new ArrayList<>();
+        
+        // Create a set to track unique request IDs
+        Set<String> processedRequestIds = new java.util.HashSet<>();
 
-        // 1. 从仓库获取请求
+        // 1. Get requests from warehouse
         List<ProcurementWorkRequest> warehouseRequests = warehouse.getProcurementRequests();
         if (warehouseRequests != null) {
-            allRequests.addAll(warehouseRequests);
+            for (ProcurementWorkRequest req : warehouseRequests) {
+                // Add only if this request ID hasn't been seen before
+                String requestId = req.getProductId();
+                if (requestId != null && !processedRequestIds.contains(requestId)) {
+                    processedRequestIds.add(requestId);
+                    allRequests.add(req);
+                }
+            }
         }
 
-        // 2. 从系统工作队列获取请求
+        // 2. Get requests from system work queue
         Business.EcoSystem system = Business.EcoSystem.getInstance();
         if (system.getWorkQueue() != null) {
             for (WorkRequest req : system.getWorkQueue().getWorkRequestList()) {
                 if (req instanceof ProcurementWorkRequest) {
-                    allRequests.add((ProcurementWorkRequest) req);
+                    ProcurementWorkRequest procReq = (ProcurementWorkRequest) req;
+                    // Add only if this request ID hasn't been seen before
+                    String requestId = procReq.getProductId();
+                    if (requestId != null && !processedRequestIds.contains(requestId)) {
+                        processedRequestIds.add(requestId);
+                        allRequests.add(procReq);
+                    }
                 }
             }
         }
@@ -76,39 +93,39 @@ public class ProcurementRequestsJPanel extends javax.swing.JPanel {
             return;
         }
 
-        System.out.println("Found " + allRequests.size() + " procurement requests");
+        System.out.println("Found " + allRequests.size() + " unique procurement requests");
 
-        // 过滤请求（根据下拉框状态）
+        // Filter requests (based on dropdown status)
         String selectedStatus = StatusjComboBox.getSelectedItem().toString();
         String searchId = txtSearchRequestID.getText().trim();
 
-        // 如果搜索框包含默认提示文本，则视为空搜索
+        // If search box contains default prompt text, treat as empty search
         if ("Saerch Request ID...".equals(searchId)) {
             searchId = "";
         }
 
         for (ProcurementWorkRequest request : allRequests) {
-            // 根据状态筛选
+            // Filter by status
             boolean statusMatch = "All".equals(selectedStatus)
                     || selectedStatus.isEmpty()
                     || request.getStatus() == null
                     || request.getStatus().equals(selectedStatus);
 
-            // 根据ID筛选
+            // Filter by ID or product info
             boolean searchMatch = searchId.isEmpty()
                     || (request.getMessage() != null && request.getMessage().contains(searchId))
                     || (request.getProductId() != null && request.getProductId().contains(searchId))
                     || (request.getProductName() != null && request.getProductName().contains(searchId));
 
             if (statusMatch && searchMatch) {
-                // 创建表格行
+                // Create table row
                 Object[] row = new Object[5];
-                // 表格列: Request ID, Product Name, Quantity, Update Date, Status
-                row[0] = "REQ-" + request.getProductId(); // 请求ID
-                row[1] = request.getProductName();        // 产品名称
-                row[2] = request.getRequestedAmount();    // 请求数量
-                row[3] = request.getRequestDate();        // 更新日期
-                row[4] = request.getStatus();             // 状态
+                // Table columns: Request ID, Product Name, Quantity, Update Date, Status
+                row[0] = "REQ-" + request.getProductId(); // Request ID
+                row[1] = request.getProductName();        // Product Name
+                row[2] = request.getRequestedAmount();    // Requested Quantity
+                row[3] = request.getRequestDate();        // Update Date
+                row[4] = request.getStatus();             // Status
 
                 model.addRow(row);
 
@@ -400,7 +417,7 @@ public class ProcurementRequestsJPanel extends javax.swing.JPanel {
                 break;
             }
         }
-        loadWarehouseRequests(); // 刷新表格
+        loadWarehouseRequests(); // Refresh the table
     }
 
     private void notifyWarehouse(Order order) {

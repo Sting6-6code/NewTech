@@ -73,6 +73,11 @@ public class WarehouseHP extends javax.swing.JPanel {
         });
 
         btnWarehouseManagement.setText("Management");
+        btnWarehouseManagement.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnWarehouseManagementActionPerformed(evt);
+            }
+        });
 
         btnComplaintBox.setText("Complaint Box");
         btnComplaintBox.addActionListener(new java.awt.event.ActionListener() {
