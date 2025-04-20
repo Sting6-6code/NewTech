@@ -28,16 +28,13 @@ public class AdminHP extends javax.swing.JPanel {
     
   
     public AdminHP() {
-<<<<<<< HEAD
 
-=======
 //        System.out.println("⚠️ Warning: Default constructor used — make sure this is intentional!");
 //        initComponents();
 //        this.setPreferredSize(new java.awt.Dimension(1450, 800));
 //        populateTable();
         
 //         throw new RuntimeException("🚨 Default constructor of AdminHP used! Stack trace below:");
->>>>>>> 3a77e3f4cc0cc2a3a980f82b6568f821fa053451
     }
     
     public AdminHP(JPanel jp, UserAccount ua, Enterprise e, AdminOrganization o, EcoSystem b) {
@@ -291,7 +288,7 @@ public class AdminHP extends javax.swing.JPanel {
 
     private void btnAddUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddUserActionPerformed
         // TODO add your handling code here:
-        AddNewUser anu = new AddNewUser();
+        AddNewUser anu = new AddNewUser(workArea, userAccount, enterprise, adminOrg, business);
         workArea.add("AddNewUser", anu);
         CardLayout l = (CardLayout) workArea.getLayout();
         l.show(workArea, "AddNewUser");

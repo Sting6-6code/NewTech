@@ -108,19 +108,19 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
             ProcurementSpecialistPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ProcurementSpecialistPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(ProcurementSpecialistPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(btnProfile1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnMerchantRequest, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(ProcurementSpecialistPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnMerchantRequest, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnProfile1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         ProcurementSpecialistPanelLayout.setVerticalGroup(
             ProcurementSpecialistPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ProcurementSpecialistPanelLayout.createSequentialGroup()
                 .addGap(303, 303, 303)
-                .addComponent(btnMerchantRequest)
-                .addGap(98, 98, 98)
-                .addComponent(btnProfile1)
-                .addContainerGap(2429, Short.MAX_VALUE))
+                .addComponent(btnMerchantRequest, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(78, 78, 78)
+                .addComponent(btnProfile1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(2411, Short.MAX_VALUE))
         );
 
         jSplitPane2.setLeftComponent(ProcurementSpecialistPanel);

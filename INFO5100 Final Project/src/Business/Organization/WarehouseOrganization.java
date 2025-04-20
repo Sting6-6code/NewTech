@@ -17,7 +17,7 @@ public class WarehouseOrganization extends Organization {
     private Warehouse warehouse;
     
     public WarehouseOrganization() {
-        super(Organization.Type.Warehouse.getValue());
+        super(Organization.Type.WarehouseSupplier.toString());  
         warehouse = Warehouse.getInstance();
     }
     
