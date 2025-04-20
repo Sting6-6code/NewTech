@@ -130,18 +130,25 @@ public class WarehouseCustomerComplaintContent extends javax.swing.JPanel {
         ArrayList<CustomerComplaint> warehouseComplaints = new ArrayList<>();
         for (CustomerComplaint complaint : allComplaints) {
             // 根据投诉描述或状态判断是否是转发给仓库的投诉
-            if (complaint.getDescription().contains("warehouse") || 
-                complaint.getDescription().contains("Warehouse") ||
-                complaint.getDescription().toLowerCase().contains("inventory") ||
-                complaint.getDescription().toLowerCase().contains("stock") ||
-                complaint.getStatus().equals("Forwarded to Warehouse")) {
+            if (complaint.getDescription().contains("[Warehouse]") || 
+                complaint.getStatus().equals("Forwarded to Warehouse") ||
+                (complaint.getDescription().contains("warehouse") && complaint.getStatus().contains("Forwarded")) ||
+                (complaint.getDescription().contains("Warehouse") && complaint.getStatus().contains("Forwarded")) ||
+                complaint.getDescription().toLowerCase().contains("[warehouse]")) {
                 warehouseComplaints.add(complaint);
+                System.out.println("Found warehouse complaint: " + complaint.getComplaintId() + 
+                                  ", Status: " + complaint.getStatus() + 
+                                  ", Description: " + complaint.getDescription());
             }
         }
         
         // 填充表格
         if (warehouseComplaints.isEmpty()) {
             System.out.println("No complaints found for warehouse department");
+            // 如果没有真实的仓库投诉数据，添加示例数据以便测试
+            if (model.getRowCount() == 0) {
+                addSampleComplaints();
+            }
         } else {
             for (CustomerComplaint complaint : warehouseComplaints) {
                 try {
@@ -150,6 +157,7 @@ public class WarehouseCustomerComplaintContent extends javax.swing.JPanel {
                     row[1] = complaint.getCustomerId();
                     row[2] = "Warehouse Issue";  // 投诉类型
                     model.addRow(row);
+                    System.out.println("Added row for complaint: " + complaint.getComplaintId());
                 } catch (Exception e) {
                     System.out.println("Error adding row: " + e.getMessage());
                 }
@@ -162,27 +170,31 @@ public class WarehouseCustomerComplaintContent extends javax.swing.JPanel {
         populateTable();
     }
     
-    // 添加示例投诉数据（仅在找不到投诉目录时使用）
+    // 添加示例投诉数据（仅在找不到投诉目录或没有仓库相关投诉时使用）
     private void addSampleComplaints() {
         System.out.println("Creating sample complaints for testing");
         
-        this.complaintDirectory = new ComplaintDirectory();
+        // 如果还没有创建，则创建投诉目录
+        if (this.complaintDirectory == null) {
+            this.complaintDirectory = new ComplaintDirectory();
+        }
         
         // 添加几个示例投诉
         CustomerComplaint complaint1 = complaintDirectory.createComplaint(
-                "W001", "CUST001", "Package received damaged from warehouse, requesting replacement");
+                "W001", "CUST001", "[Warehouse] Package received damaged from warehouse, requesting replacement");
         complaint1.setStatus("Forwarded to Warehouse");
         
         CustomerComplaint complaint2 = complaintDirectory.createComplaint(
-                "W002", "CUST002", "Ordered items not matching warehouse inventory, missing items");
+                "W002", "CUST002", "[Warehouse] Ordered items not matching warehouse inventory, missing items");
         complaint2.setStatus("Forwarded to Warehouse");
         
         CustomerComplaint complaint3 = complaintDirectory.createComplaint(
-                "W003", "CUST003", "Warehouse shipped wrong product, need to exchange");
+                "W003", "CUST003", "[Warehouse] Warehouse shipped wrong product, need to exchange");
         complaint3.setStatus("Forwarded to Warehouse");
         
         // 填充表格
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0); // 清空表格
         for (CustomerComplaint complaint : complaintDirectory.getComplaints()) {
             Object[] row = new Object[3];
             row[0] = complaint.getComplaintId();
@@ -443,11 +455,70 @@ public class WarehouseCustomerComplaintContent extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtSearchComplaintIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchComplaintIDActionPerformed
-        refreshRequestTable();
+        // 直接调用搜索按钮的事件处理器
+        btnSearchActionPerformed(evt);
     }//GEN-LAST:event_txtSearchComplaintIDActionPerformed
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-        refreshRequestTable();
+        String searchQuery = txtSearchComplaintID.getText().trim();
+        if (searchQuery.isEmpty() || searchQuery.equals("Saerch Complaint ID...")) {
+            populateTable();
+            return;
+        }
+        
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0); // 清空表格
+        
+        if (complaintDirectory == null) {
+            System.out.println("Complaint directory is null, cannot search");
+            JOptionPane.showMessageDialog(this, "Unable to search: Complaint directory is not available", 
+                                          "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // 根据ID直接查找
+        CustomerComplaint foundComplaint = complaintDirectory.findComplaintById(searchQuery);
+        if (foundComplaint != null && isWarehouseComplaint(foundComplaint)) {
+            // 如果找到匹配的ID且属于仓库投诉，添加到表格
+            Object[] row = new Object[3];
+            row[0] = foundComplaint.getComplaintId();
+            row[1] = foundComplaint.getCustomerId();
+            row[2] = "Warehouse Issue";
+            model.addRow(row);
+            System.out.println("Found complaint by ID: " + foundComplaint.getComplaintId());
+            return;
+        }
+        
+        // 如果没有匹配的ID，尝试搜索其他字段
+        ArrayList<CustomerComplaint> allComplaints = complaintDirectory.getComplaints();
+        boolean found = false;
+        
+        for (CustomerComplaint complaint : allComplaints) {
+            // 只处理仓库相关投诉
+            if (!isWarehouseComplaint(complaint)) {
+                continue;
+            }
+            
+            // 搜索客户ID、描述或状态
+            if (complaint.getCustomerId().toLowerCase().contains(searchQuery.toLowerCase()) ||
+                complaint.getDescription().toLowerCase().contains(searchQuery.toLowerCase()) ||
+                complaint.getStatus().toLowerCase().contains(searchQuery.toLowerCase())) {
+                
+                Object[] row = new Object[3];
+                row[0] = complaint.getComplaintId();
+                row[1] = complaint.getCustomerId();
+                row[2] = "Warehouse Issue";
+                model.addRow(row);
+                found = true;
+                System.out.println("Found complaint matching query: " + complaint.getComplaintId());
+            }
+        }
+        
+        if (!found) {
+            JOptionPane.showMessageDialog(this, "No warehouse complaints found matching: " + searchQuery,
+                                          "Information", JOptionPane.INFORMATION_MESSAGE);
+            populateTable(); // 如果没找到，恢复显示所有仓库投诉
+        }
     }//GEN-LAST:event_btnSearchActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
@@ -504,6 +575,15 @@ public class WarehouseCustomerComplaintContent extends javax.swing.JPanel {
         
         
     }//GEN-LAST:event_btnDetailedActionPerformed
+
+    // 辅助方法：检查投诉是否与仓库相关
+    private boolean isWarehouseComplaint(CustomerComplaint complaint) {
+        return complaint.getDescription().contains("[Warehouse]") || 
+               complaint.getStatus().equals("Forwarded to Warehouse") ||
+               (complaint.getDescription().contains("warehouse") && complaint.getStatus().contains("Forwarded")) ||
+               (complaint.getDescription().contains("Warehouse") && complaint.getStatus().contains("Forwarded")) ||
+               complaint.getDescription().toLowerCase().contains("[warehouse]");
+    }
 
     
     

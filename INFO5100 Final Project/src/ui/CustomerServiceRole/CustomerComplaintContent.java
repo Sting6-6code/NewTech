@@ -4,8 +4,18 @@
  */
 package ui.CustomerServiceRole;
 
+import Business.Customer.ComplaintDirectory;
+import Business.Customer.CustomerComplaint;
+import Business.EcoSystem;
+import Business.Enterprise.Enterprise;
+import Business.Network.Network;
+import Business.Organization.CustomerExperienceOrganization;
+import Business.Organization.Organization;
 import java.awt.CardLayout;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -14,6 +24,9 @@ import javax.swing.JPanel;
 public class CustomerComplaintContent extends javax.swing.JPanel {
 
     private JPanel userProcessContainer;
+    private ComplaintDirectory complaintDirectory;
+    private CustomerComplaint selectedComplaint;
+    private EcoSystem system;
     
     /**
      * Creates new form CustomerComplaintContent
@@ -21,6 +34,161 @@ public class CustomerComplaintContent extends javax.swing.JPanel {
     public CustomerComplaintContent(JPanel userProcessContainer) {
         initComponents();
         this.userProcessContainer = userProcessContainer;
+        this.system = EcoSystem.getInstance();
+        
+        // 查找投诉目录
+        this.complaintDirectory = findComplaintDirectory();
+        if (this.complaintDirectory == null) {
+            System.out.println("Warning: Could not find complaint directory in the system, creating a new empty directory");
+            this.complaintDirectory = new ComplaintDirectory();
+        } else {
+            System.out.println("Successfully found complaint directory, complaint count: " + this.complaintDirectory.getComplaintCount());
+        }
+        
+        populateTable();
+    }
+    
+    // 查找投诉目录
+    private ComplaintDirectory findComplaintDirectory() {
+        if (system == null) {
+            System.out.println("Error: System instance is null");
+            return null;
+        }
+        
+        System.out.println("Searching for complaint directory...");
+        if (system.getNetworkList() == null || system.getNetworkList().isEmpty()) {
+            System.out.println("Error: System network list is empty");
+            return null;
+        }
+        
+        System.out.println("Network count: " + system.getNetworkList().size());
+        
+        // 遍历networks和enterprises寻找CustomerExperienceOrganization
+        for (Network network : system.getNetworkList()) {
+            System.out.println("Checking network: " + network.getName());
+            
+            if (network.getEnterpriseDirectory() == null || 
+                network.getEnterpriseDirectory().getEnterpriseList() == null ||
+                network.getEnterpriseDirectory().getEnterpriseList().isEmpty()) {
+                System.out.println("No enterprises in network");
+                continue;
+            }
+            
+            for (Enterprise enterprise : network.getEnterpriseDirectory().getEnterpriseList()) {
+                System.out.println("Checking enterprise: " + enterprise.getName());
+                
+                if (enterprise.getOrganizationDirectory() == null || 
+                    enterprise.getOrganizationDirectory().getOrganizationList() == null ||
+                    enterprise.getOrganizationDirectory().getOrganizationList().isEmpty()) {
+                    System.out.println("No organizations in enterprise");
+                    continue;
+                }
+                
+                for (Organization organization : enterprise.getOrganizationDirectory().getOrganizationList()) {
+                    System.out.println("Checking organization: " + organization.getName() + ", type: " + organization.getClass().getSimpleName());
+                    
+                    if (organization instanceof CustomerExperienceOrganization) {
+                        CustomerExperienceOrganization custOrg = (CustomerExperienceOrganization) organization;
+                        ComplaintDirectory dir = custOrg.getComplaintDirectory();
+                        if (dir != null) {
+                            System.out.println("Found complaint directory, complaint count: " + dir.getComplaintCount());
+                            return dir;
+                        } else {
+                            System.out.println("CustomerExperienceOrganization's ComplaintDirectory is null");
+                        }
+                    }
+                }
+            }
+        }
+        
+        System.out.println("Could not find complaint directory");
+        return null;
+    }
+    
+    // 填充表格数据
+    private void populateTable() {
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0); // 清空表格
+        
+        if (complaintDirectory == null) {
+            System.out.println("Complaint directory is null, cannot populate table");
+            // 创建示例投诉以进行测试
+            addSampleComplaints();
+            return;
+        }
+        
+        // 获取所有投诉
+        ArrayList<CustomerComplaint> allComplaints = complaintDirectory.getComplaints();
+        
+        // 填充表格
+        if (allComplaints.isEmpty()) {
+            System.out.println("No complaints found");
+            // 如果没有投诉数据，添加示例数据
+            addSampleComplaints();
+        } else {
+            for (CustomerComplaint complaint : allComplaints) {
+                try {
+                    Object[] row = new Object[3];
+                    row[0] = complaint.getComplaintId();
+                    row[1] = complaint.getCustomerId();
+                    row[2] = determineComplaintType(complaint);
+                    model.addRow(row);
+                } catch (Exception e) {
+                    System.out.println("Error adding row: " + e.getMessage());
+                }
+            }
+        }
+    }
+    
+    // 判断投诉类型
+    private String determineComplaintType(CustomerComplaint complaint) {
+        String description = complaint.getDescription().toLowerCase();
+        String status = complaint.getStatus();
+        
+        if (description.contains("[warehouse]") || status.contains("Warehouse")) {
+            return "Warehouse Issue";
+        } else if (description.contains("[logistics]") || status.contains("Logistics")) {
+            return "Logistics Issue";
+        } else if (description.contains("[customs]") || status.contains("Customs")) {
+            return "Customs Issue";
+        } else {
+            return "General Issue";
+        }
+    }
+    
+    // 添加示例投诉数据
+    private void addSampleComplaints() {
+        System.out.println("Creating sample complaints for testing");
+        
+        if (this.complaintDirectory == null) {
+            this.complaintDirectory = new ComplaintDirectory();
+        }
+        
+        // 添加不同类型的示例投诉
+        CustomerComplaint complaint1 = complaintDirectory.createComplaint(
+                "C001", "CUST001", "Product quality is poor and does not match the description");
+        complaint1.setStatus("New");
+        
+        CustomerComplaint complaint2 = complaintDirectory.createComplaint(
+                "C002", "CUST002", "[Warehouse] Package received damaged, requesting replacement");
+        complaint2.setStatus("Forwarded to Warehouse");
+        
+        CustomerComplaint complaint3 = complaintDirectory.createComplaint(
+                "C003", "CUST003", "[Logistics] Package tracking not updating for 3 days");
+        complaint3.setStatus("Forwarded to Logistics");
+        
+        // 填充表格
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0); // 清空表格
+        for (CustomerComplaint complaint : complaintDirectory.getComplaints()) {
+            Object[] row = new Object[3];
+            row[0] = complaint.getComplaintId();
+            row[1] = complaint.getCustomerId();
+            row[2] = determineComplaintType(complaint);
+            model.addRow(row);
+        }
+        
+        System.out.println("Added " + complaintDirectory.getComplaintCount() + " sample complaints");
     }
 
     /**
@@ -118,6 +286,11 @@ public class CustomerComplaintContent extends javax.swing.JPanel {
         jScrollPane2.setViewportView(jScrollPane1);
 
         btnDetailed.setText("Detailed");
+        btnDetailed.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDetailedActionPerformed(evt);
+            }
+        });
 
         jPanel3.setLayout(new java.awt.CardLayout());
 
@@ -267,11 +440,64 @@ public class CustomerComplaintContent extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtSearchComplaintIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchComplaintIDActionPerformed
-        refreshRequestTable();
+        btnSearchActionPerformed(evt);
     }//GEN-LAST:event_txtSearchComplaintIDActionPerformed
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-        refreshRequestTable();
+        String searchQuery = txtSearchComplaintID.getText().trim();
+        if (searchQuery.isEmpty() || searchQuery.equals("Saerch Complaint ID...")) {
+            populateTable();
+            return;
+        }
+        
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0); // 清空表格
+        
+        if (complaintDirectory == null) {
+            System.out.println("Complaint directory is null, cannot search");
+            JOptionPane.showMessageDialog(this, "Unable to search: Complaint directory is not available", 
+                                          "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // 根据ID直接查找
+        CustomerComplaint foundComplaint = complaintDirectory.findComplaintById(searchQuery);
+        if (foundComplaint != null) {
+            // 如果找到匹配的ID，添加到表格
+            Object[] row = new Object[3];
+            row[0] = foundComplaint.getComplaintId();
+            row[1] = foundComplaint.getCustomerId();
+            row[2] = determineComplaintType(foundComplaint);
+            model.addRow(row);
+            System.out.println("Found complaint by ID: " + foundComplaint.getComplaintId());
+            return;
+        }
+        
+        // 如果没有匹配的ID，尝试搜索其他字段
+        ArrayList<CustomerComplaint> allComplaints = complaintDirectory.getComplaints();
+        boolean found = false;
+        
+        for (CustomerComplaint complaint : allComplaints) {
+            // 搜索客户ID、描述或状态
+            if (complaint.getCustomerId().toLowerCase().contains(searchQuery.toLowerCase()) ||
+                complaint.getDescription().toLowerCase().contains(searchQuery.toLowerCase()) ||
+                complaint.getStatus().toLowerCase().contains(searchQuery.toLowerCase())) {
+                
+                Object[] row = new Object[3];
+                row[0] = complaint.getComplaintId();
+                row[1] = complaint.getCustomerId();
+                row[2] = determineComplaintType(complaint);
+                model.addRow(row);
+                found = true;
+                System.out.println("Found complaint matching query: " + complaint.getComplaintId());
+            }
+        }
+        
+        if (!found) {
+            JOptionPane.showMessageDialog(this, "No complaints found matching: " + searchQuery,
+                                          "Information", JOptionPane.INFORMATION_MESSAGE);
+            populateTable(); // 如果没找到，恢复显示所有投诉
+        }
     }//GEN-LAST:event_btnSearchActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
@@ -281,25 +507,45 @@ public class CustomerComplaintContent extends javax.swing.JPanel {
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void txtContentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtContentActionPerformed
-        // TODO add your handling code here:
+        // 不需要实现
     }//GEN-LAST:event_txtContentActionPerformed
 
     private void txtComplaintTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtComplaintTypeActionPerformed
-        // TODO add your handling code here:
+        // 不需要实现
     }//GEN-LAST:event_txtComplaintTypeActionPerformed
 
     private void txtCustomertNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCustomertNameActionPerformed
-        // TODO add your handling code here:
+        // 不需要实现
     }//GEN-LAST:event_txtCustomertNameActionPerformed
 
     private void txtCompaintIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCompaintIDActionPerformed
-        // TODO add your handling code here:
+        // 不需要实现
     }//GEN-LAST:event_txtCompaintIDActionPerformed
-
-    private void refreshRequestTable() {
-        // 这里应该添加刷新表格数据的逻辑
-        // 暂时留空，后续可以实现实际的数据刷新功能
-    }
+    
+    private void btnDetailedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDetailedActionPerformed
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a complaint record");
+            return;
+        }
+        
+        String complaintId = jTable1.getValueAt(selectedRow, 0).toString();
+        selectedComplaint = complaintDirectory.findComplaintById(complaintId);
+        
+        if (selectedComplaint != null) {
+            // Fill form data
+            txtCompaintID.setText(selectedComplaint.getComplaintId());
+            txtCustomertName.setText(selectedComplaint.getCustomerId());
+            txtComplaintType.setText(determineComplaintType(selectedComplaint));
+            txtContent.setText(selectedComplaint.getDescription());
+            
+            // Disable text field editing
+            txtCompaintID.setEditable(false);
+            txtCustomertName.setEditable(false);
+            txtComplaintType.setEditable(false);
+            txtContent.setEditable(false);
+        }
+    }//GEN-LAST:event_btnDetailedActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBack;

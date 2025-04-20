@@ -113,6 +113,42 @@ public class CustomsComplaintContent extends javax.swing.JPanel {
         return null;
     }
     
+    // 添加示例投诉数据（仅在找不到投诉目录或没有海关相关投诉时使用）
+    private void addSampleComplaints() {
+        System.out.println("Creating sample complaints for testing");
+        
+        // 如果还没有创建，则创建投诉目录
+        if (this.complaintDirectory == null) {
+            this.complaintDirectory = new ComplaintDirectory();
+        }
+        
+        // 添加几个示例投诉
+        CustomerComplaint complaint1 = complaintDirectory.createComplaint(
+                "CA001", "CUST001", "[Customs Agent] Package held at customs, need documentation");
+        complaint1.setStatus("Forwarded to Customs Agent");
+        
+        CustomerComplaint complaint2 = complaintDirectory.createComplaint(
+                "CA002", "CUST002", "[Customs Agent] Import duties overcharged, requesting review");
+        complaint2.setStatus("Forwarded to Customs Agent");
+        
+        CustomerComplaint complaint3 = complaintDirectory.createComplaint(
+                "CA003", "CUST003", "[Customs Agent] Customs clearance delay, need assistance");
+        complaint3.setStatus("Forwarded to Customs Agent");
+        
+        // 填充表格
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0); // 清空表格
+        for (CustomerComplaint complaint : complaintDirectory.getComplaints()) {
+            Object[] row = new Object[3];
+            row[0] = complaint.getComplaintId();
+            row[1] = complaint.getCustomerId();
+            row[2] = "Customs Issue";
+            model.addRow(row);
+        }
+        
+        System.out.println("Added " + complaintDirectory.getComplaintCount() + " sample complaints");
+    }
+    
     // 填充表格数据
     private void populateTable() {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
@@ -121,42 +157,59 @@ public class CustomsComplaintContent extends javax.swing.JPanel {
         if (complaintDirectory == null) {
             System.out.println("Complaint directory is null, cannot populate table");
             // 创建示例投诉以进行测试
-            
+            addSampleComplaints();
             return;
         }
         
         // 获取所有投诉
         ArrayList<CustomerComplaint> allComplaints = complaintDirectory.getComplaints();
         
-        // 
-        ArrayList<CustomerComplaint> warehouseComplaints = new ArrayList<>();
+        // 仅显示转发给海关部门的投诉
+        ArrayList<CustomerComplaint> customsComplaints = new ArrayList<>();
         for (CustomerComplaint complaint : allComplaints) {
-            // 
-            if (complaint.getDescription().contains("Customs Agent") || 
-                complaint.getDescription().contains("Customs Agent") ||
-                complaint.getDescription().toLowerCase().contains("inventory") ||
-                complaint.getDescription().toLowerCase().contains("stock") ||
-                complaint.getStatus().equals("Forwarded to Customs Agent")) {
-                warehouseComplaints.add(complaint);
+            // 根据投诉描述或状态判断是否是转发给海关的投诉
+            if (complaint.getDescription().contains("[Customs Agent]") || 
+                complaint.getStatus().equals("Forwarded to Customs Agent") ||
+                (complaint.getDescription().contains("customs") && complaint.getStatus().contains("Forwarded")) ||
+                (complaint.getDescription().contains("Customs") && complaint.getStatus().contains("Forwarded")) ||
+                complaint.getDescription().toLowerCase().contains("[customs]")) {
+                customsComplaints.add(complaint);
+                System.out.println("Found customs complaint: " + complaint.getComplaintId() + 
+                                  ", Status: " + complaint.getStatus() + 
+                                  ", Description: " + complaint.getDescription());
             }
         }
         
         // 填充表格
-        if (warehouseComplaints.isEmpty()) {
+        if (customsComplaints.isEmpty()) {
             System.out.println("No complaints found for Customs Agent department");
+            // 如果没有真实的海关投诉数据，添加示例数据以便测试
+            if (model.getRowCount() == 0) {
+                addSampleComplaints();
+            }
         } else {
-            for (CustomerComplaint complaint : warehouseComplaints) {
+            for (CustomerComplaint complaint : customsComplaints) {
                 try {
                     Object[] row = new Object[3];
                     row[0] = complaint.getComplaintId();
                     row[1] = complaint.getCustomerId();
-                    row[2] = "Customs Agent Issue";  // 投诉类型
+                    row[2] = "Customs Issue";  // 投诉类型
                     model.addRow(row);
+                    System.out.println("Added row for complaint: " + complaint.getComplaintId());
                 } catch (Exception e) {
                     System.out.println("Error adding row: " + e.getMessage());
                 }
             }
         }
+    }
+    
+    // 辅助方法：检查投诉是否与海关相关
+    private boolean isCustomsComplaint(CustomerComplaint complaint) {
+        return complaint.getDescription().contains("[Customs Agent]") || 
+               complaint.getStatus().equals("Forwarded to Customs Agent") ||
+               (complaint.getDescription().contains("customs") && complaint.getStatus().contains("Forwarded")) ||
+               (complaint.getDescription().contains("Customs") && complaint.getStatus().contains("Forwarded")) ||
+               complaint.getDescription().toLowerCase().contains("[customs]");
     }
     
     // 刷新表格
@@ -415,11 +468,70 @@ public class CustomsComplaintContent extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtSearchComplaintIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchComplaintIDActionPerformed
-        refreshRequestTable();
+        // 直接调用搜索按钮的事件处理器
+        btnSearchActionPerformed(evt);
     }//GEN-LAST:event_txtSearchComplaintIDActionPerformed
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-        refreshRequestTable();
+        String searchQuery = txtSearchComplaintID.getText().trim();
+        if (searchQuery.isEmpty() || searchQuery.equals("Saerch Complaint ID...")) {
+            populateTable();
+            return;
+        }
+        
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0); // 清空表格
+        
+        if (complaintDirectory == null) {
+            System.out.println("Complaint directory is null, cannot search");
+            JOptionPane.showMessageDialog(this, "Unable to search: Complaint directory is not available", 
+                                          "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // 根据ID直接查找
+        CustomerComplaint foundComplaint = complaintDirectory.findComplaintById(searchQuery);
+        if (foundComplaint != null && isCustomsComplaint(foundComplaint)) {
+            // 如果找到匹配的ID且属于海关投诉，添加到表格
+            Object[] row = new Object[3];
+            row[0] = foundComplaint.getComplaintId();
+            row[1] = foundComplaint.getCustomerId();
+            row[2] = "Customs Issue";
+            model.addRow(row);
+            System.out.println("Found complaint by ID: " + foundComplaint.getComplaintId());
+            return;
+        }
+        
+        // 如果没有匹配的ID，尝试搜索其他字段
+        ArrayList<CustomerComplaint> allComplaints = complaintDirectory.getComplaints();
+        boolean found = false;
+        
+        for (CustomerComplaint complaint : allComplaints) {
+            // 只处理海关相关投诉
+            if (!isCustomsComplaint(complaint)) {
+                continue;
+            }
+            
+            // 搜索客户ID、描述或状态
+            if (complaint.getCustomerId().toLowerCase().contains(searchQuery.toLowerCase()) ||
+                complaint.getDescription().toLowerCase().contains(searchQuery.toLowerCase()) ||
+                complaint.getStatus().toLowerCase().contains(searchQuery.toLowerCase())) {
+                
+                Object[] row = new Object[3];
+                row[0] = complaint.getComplaintId();
+                row[1] = complaint.getCustomerId();
+                row[2] = "Customs Issue";
+                model.addRow(row);
+                found = true;
+                System.out.println("Found complaint matching query: " + complaint.getComplaintId());
+            }
+        }
+        
+        if (!found) {
+            JOptionPane.showMessageDialog(this, "No customs complaints found matching: " + searchQuery,
+                                          "Information", JOptionPane.INFORMATION_MESSAGE);
+            populateTable(); // 如果没找到，恢复显示所有海关投诉
+        }
     }//GEN-LAST:event_btnSearchActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
@@ -445,7 +557,6 @@ public class CustomsComplaintContent extends javax.swing.JPanel {
     }//GEN-LAST:event_txtCompaintIDActionPerformed
 
     private void btnDetailedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDetailedActionPerformed
-        // TODO add your handling code here:
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow < 0) {
             JOptionPane.showMessageDialog(this, "Please select a complaint record");
@@ -459,7 +570,7 @@ public class CustomsComplaintContent extends javax.swing.JPanel {
             // Fill form data
             txtCompaintID.setText(selectedComplaint.getComplaintId());
             txtCustomertName.setText(selectedComplaint.getCustomerId());
-            txtComplaintType.setText("Customer Complaint"); // In a real application, this might be extracted from the complaint
+            txtComplaintType.setText("Customs Issue"); // 设置为海关相关投诉类型
             txtContent.setText(selectedComplaint.getDescription());
             
             // Disable text field editing
@@ -467,14 +578,9 @@ public class CustomsComplaintContent extends javax.swing.JPanel {
             txtCustomertName.setEditable(false);
             txtComplaintType.setEditable(false);
             txtContent.setEditable(false);
+            
+            System.out.println("Displaying details for customs complaint: " + complaintId);
         }
-        
-        
-        
-        
-        
-        
-        
     }//GEN-LAST:event_btnDetailedActionPerformed
 
     

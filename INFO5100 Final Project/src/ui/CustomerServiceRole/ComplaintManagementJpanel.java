@@ -459,19 +459,27 @@ public class ComplaintManagementJpanel extends javax.swing.JPanel {
         String selectedDepartment = jComboBoxRole.getSelectedItem().toString();
         
         // Update complaint status to include the forwarded department
+        String newStatus = "Forwarded to " + selectedDepartment;
         complaintDirectory.updateComplaintStatus(
             selectedComplaint.getComplaintId(), 
-            "Forwarded to " + selectedDepartment
+            newStatus
         );
         
+        // 添加部门信息到投诉描述，使其能被目标部门检索到
+        // Add department tag to description to make it searchable by target department
+        String originalDescription = selectedComplaint.getDescription();
+        String updatedDescription = "[" + selectedDepartment + "] " + originalDescription;
+        selectedComplaint.setDescription(updatedDescription);
+        
         System.out.println("Complaint " + selectedComplaint.getComplaintId() + 
-                " status updated to 'Forwarded to " + selectedDepartment + "'");
+                " status updated to '" + newStatus + "'");
+        System.out.println("Description updated with department tag: " + updatedDescription);
         
         // In a real application, this would forward the complaint to the respective department
         JOptionPane.showMessageDialog(this, 
                 "Complaint " + selectedComplaint.getComplaintId() + 
                 " has been forwarded to " + selectedDepartment + 
-                " department, status updated to 'Forwarded to " + selectedDepartment + "'");
+                " department, status updated to '" + newStatus + "'");
         
         // Clear form and refresh table
         clearForm();
