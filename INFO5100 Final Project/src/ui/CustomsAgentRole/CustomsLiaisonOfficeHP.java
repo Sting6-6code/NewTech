@@ -18,6 +18,8 @@ import javax.swing.table.DefaultTableModel;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.swing.JOptionPane;
+import ui.CustomerServiceRole.CustomerComplaintContent;
+
 
 /**
  *
@@ -224,13 +226,6 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
     private void initComponents() {
 
         jSplitPane = new javax.swing.JSplitPane();
-        cusHPControlJPanel = new javax.swing.JPanel();
-        btnDashBoard = new javax.swing.JButton();
-        btnDocReview = new javax.swing.JButton();
-        btnSubmitDocs = new javax.swing.JButton();
-        btnReturnTax = new javax.swing.JButton();
-        btnProfile = new javax.swing.JButton();
-        btnLogout = new javax.swing.JButton();
         cusHPWorkspaceJPanel = new javax.swing.JPanel();
         pendingRevsJPanel = new javax.swing.JPanel();
         lblPendingReviews = new javax.swing.JLabel();
@@ -250,86 +245,17 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         lblRecentActivities = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblRecentActivities = new javax.swing.JTable();
+        cusHPControlJPanel = new javax.swing.JPanel();
+        btnDashBoard = new javax.swing.JButton();
+        btnDocReview = new javax.swing.JButton();
+        btnSubmitDocs = new javax.swing.JButton();
+        btnReturnTax = new javax.swing.JButton();
+        btnProfile = new javax.swing.JButton();
+        btnLogout = new javax.swing.JButton();
+        btnCusComplaint = new javax.swing.JButton();
 
         setMaximumSize(new java.awt.Dimension(1450, 800));
         setMinimumSize(new java.awt.Dimension(1450, 800));
-
-        btnDashBoard.setText("DashBoard");
-        btnDashBoard.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDashBoardActionPerformed(evt);
-            }
-        });
-
-        btnDocReview.setText("Document Review");
-        btnDocReview.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDocReviewActionPerformed(evt);
-            }
-        });
-
-        btnSubmitDocs.setText("Submit Documents");
-        btnSubmitDocs.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSubmitDocsActionPerformed(evt);
-            }
-        });
-
-        btnReturnTax.setText("Return Tax");
-        btnReturnTax.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnReturnTaxActionPerformed(evt);
-            }
-        });
-
-        btnProfile.setText("My Profile");
-        btnProfile.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnProfileActionPerformed(evt);
-            }
-        });
-
-        btnLogout.setText("Logout");
-        btnLogout.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnLogoutActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout cusHPControlJPanelLayout = new javax.swing.GroupLayout(cusHPControlJPanel);
-        cusHPControlJPanel.setLayout(cusHPControlJPanelLayout);
-        cusHPControlJPanelLayout.setHorizontalGroup(
-            cusHPControlJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(cusHPControlJPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(cusHPControlJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(btnDashBoard, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnDocReview, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnSubmitDocs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnReturnTax, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnProfile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnLogout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        cusHPControlJPanelLayout.setVerticalGroup(
-            cusHPControlJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(cusHPControlJPanelLayout.createSequentialGroup()
-                .addGap(161, 161, 161)
-                .addComponent(btnDashBoard, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(35, 35, 35)
-                .addComponent(btnDocReview, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(36, 36, 36)
-                .addComponent(btnSubmitDocs, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(27, 27, 27)
-                .addComponent(btnReturnTax, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(29, 29, 29)
-                .addComponent(btnProfile, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 262, Short.MAX_VALUE)
-                .addComponent(btnLogout)
-                .addGap(47, 47, 47))
-        );
-
-        jSplitPane.setLeftComponent(cusHPControlJPanel);
 
         cusHPWorkspaceJPanel.setBackground(new java.awt.Color(255, 255, 255));
         cusHPWorkspaceJPanel.setMaximumSize(new java.awt.Dimension(1000, 800));
@@ -344,7 +270,7 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         pendingRevsJPanelLayout.setHorizontalGroup(
             pendingRevsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pendingRevsJPanelLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(177, 177, 177)
                 .addComponent(lblPendingReviews)
                 .addContainerGap(188, Short.MAX_VALUE))
         );
@@ -353,7 +279,7 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
             .addGroup(pendingRevsJPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lblPendingReviews)
-                .addContainerGap(153, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         ApprovedDocumentsJPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -529,7 +455,7 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         cusHPWorkspaceJPanelLayout.setHorizontalGroup(
             cusHPWorkspaceJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(cusHPWorkspaceJPanelLayout.createSequentialGroup()
-                .addContainerGap(56, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(cusHPWorkspaceJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(cusHPWorkspaceJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addGroup(cusHPWorkspaceJPanelLayout.createSequentialGroup()
@@ -547,7 +473,7 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
                     .addGroup(cusHPWorkspaceJPanelLayout.createSequentialGroup()
                         .addGap(2, 2, 2)
                         .addComponent(recentActivitiesJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         cusHPWorkspaceJPanelLayout.setVerticalGroup(
             cusHPWorkspaceJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -564,16 +490,104 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
                     .addComponent(pendingDocsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(recentActivitiesJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jSplitPane.setRightComponent(cusHPWorkspaceJPanel);
+
+        btnDashBoard.setText("DashBoard");
+        btnDashBoard.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDashBoardActionPerformed(evt);
+            }
+        });
+
+        btnDocReview.setText("Document Review");
+        btnDocReview.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDocReviewActionPerformed(evt);
+            }
+        });
+
+        btnSubmitDocs.setText("Submit Documents");
+        btnSubmitDocs.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSubmitDocsActionPerformed(evt);
+            }
+        });
+
+        btnReturnTax.setText("Return Tax");
+        btnReturnTax.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReturnTaxActionPerformed(evt);
+            }
+        });
+
+        btnProfile.setText("My Profile");
+        btnProfile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnProfileActionPerformed(evt);
+            }
+        });
+
+        btnLogout.setText("Logout");
+        btnLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLogoutActionPerformed(evt);
+            }
+        });
+
+        btnCusComplaint.setText("Customer Complaint");
+        btnCusComplaint.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCusComplaintActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout cusHPControlJPanelLayout = new javax.swing.GroupLayout(cusHPControlJPanel);
+        cusHPControlJPanel.setLayout(cusHPControlJPanelLayout);
+        cusHPControlJPanelLayout.setHorizontalGroup(
+            cusHPControlJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(cusHPControlJPanelLayout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addGroup(cusHPControlJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(cusHPControlJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(btnDashBoard, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnLogout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnCusComplaint, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnProfile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnReturnTax, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnSubmitDocs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnDocReview, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        cusHPControlJPanelLayout.setVerticalGroup(
+            cusHPControlJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(cusHPControlJPanelLayout.createSequentialGroup()
+                .addGap(161, 161, 161)
+                .addComponent(btnDashBoard, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(35, 35, 35)
+                .addComponent(btnDocReview, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(36, 36, 36)
+                .addComponent(btnSubmitDocs, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(27, 27, 27)
+                .addComponent(btnReturnTax, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(29, 29, 29)
+                .addComponent(btnProfile, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(26, 26, 26)
+                .addComponent(btnCusComplaint, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 195, Short.MAX_VALUE)
+                .addComponent(btnLogout)
+                .addGap(47, 47, 47))
+        );
+
+        jSplitPane.setLeftComponent(cusHPControlJPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 1450, Short.MAX_VALUE)
+            .addComponent(jSplitPane)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -671,12 +685,27 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
 
     }//GEN-LAST:event_btnLogoutActionPerformed
 
+    private void btnCusComplaintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCusComplaintActionPerformed
+        // TODO add your handling code here:
+        
+        CustomsComplaintContent complaintPanel = new CustomsComplaintContent(userProcessContainer);
+        complaintPanel.setSize(1450, 800);
+        userProcessContainer.add("CustomsComplaintContent", complaintPanel);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.show(userProcessContainer, "CustomsComplaintContent");
+
+        
+        
+        
+    }//GEN-LAST:event_btnCusComplaintActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel AlertJPanel;
     private javax.swing.JPanel ApprovedDocumentsJPanel;
     private javax.swing.JPanel RejectedDocsJPanel;
     private javax.swing.JPanel TaxReturnsJPanel;
+    private javax.swing.JButton btnCusComplaint;
     private javax.swing.JButton btnDashBoard;
     private javax.swing.JButton btnDocReview;
     private javax.swing.JButton btnLogout;

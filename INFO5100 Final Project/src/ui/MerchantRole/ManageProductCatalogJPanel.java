@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import Business.WorkQueue.MerchantWorkRequest;
 
 /**
- * 商家产品目录管理面板
+ * Merchant Product Catalog Management Panel
  * @author Rushabh, wangsiting
  */
 public class ManageProductCatalogJPanel extends javax.swing.JPanel {
@@ -25,9 +25,9 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
     private Warehouse warehouse;
 
     /**
-     * 创建商家产品目录管理面板
-     * @param upc 用户处理容器
-     * @param s 供应商对象
+     * Create merchant product catalog management panel
+     * @param upc User process container
+     * @param s Supplier object
      */
     public ManageProductCatalogJPanel(JPanel upc, Supplier s) {
         initComponents();
@@ -35,66 +35,66 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         supplier = s;
         warehouse = Warehouse.getInstance();
 
-        System.out.println("初始化ManageProductCatalogJPanel...");
+        System.out.println("Initializing ManageProductCatalogJPanel...");
         System.out.println("Supplier: " + (supplier != null ? supplier.getSupplyName() : "null"));
         
-        // 如果supplier为空，尝试从MerchantRole获取
+        // If supplier is null, try to get from MerchantRole
         if (supplier == null) {
-            System.out.println("警告: 提供的supplier为空，尝试从MerchantRole获取默认supplier");
+            System.out.println("Warning: Provided supplier is null, attempting to get default supplier from MerchantRole");
             supplier = Business.Role.MerchantRole.getDemoSupplier();
-            System.out.println("从MerchantRole获取supplier: " + (supplier != null ? supplier.getSupplyName() : "仍然为空"));
+            System.out.println("Supplier from MerchantRole: " + (supplier != null ? supplier.getSupplyName() : "Still null"));
         }
         
-        // 检查supplier的产品目录
+        // Check supplier's product catalog
         if (supplier != null && supplier.getProductCatalog() != null) {
-            System.out.println("产品目录中有 " + supplier.getProductCatalog().size() + " 个产品");
+            System.out.println("Product catalog contains " + supplier.getProductCatalog().size() + " products");
             
-            // 如果目录为空，添加示例产品
+            // If catalog is empty, add sample products
             if (supplier.getProductCatalog().isEmpty()) {
-                System.out.println("产品目录为空，添加示例产品");
+                System.out.println("Product catalog is empty, adding sample products");
                 createAndAddSampleProducts();
             }
         } else {
-            System.out.println("警告: 产品目录为空或不可用");
+            System.out.println("Warning: Product catalog is empty or unavailable");
             
-            // 如果supplier不为空但目录为空，初始化目录
+            // If supplier is not null but catalog is null, initialize catalog
             if (supplier != null && supplier.getProductCatalog() == null) {
                 supplier.setProductCatalog(new ArrayList<>());
                 createAndAddSampleProducts();
             }
         }
         
-        // 设置标题
+        // Set title
         if (supplier != null) {
             lblTitle1.setText("Product Management System for " + supplier.getSupplyName());
         } else {
             lblTitle1.setText("Product Management System");
         }
         
-        // 刷新表格
+        // Refresh table
         refreshTable();
     }
 
     /**
-     * 刷新产品表格
+     * Refresh product table
      */
     public void refreshTable() {
         DefaultTableModel model = (DefaultTableModel) tblProductCatalog.getModel();
         model.setRowCount(0);
         
-        System.out.println("开始刷新产品表格...");
+        System.out.println("Starting to refresh product table...");
         
         if (supplier == null) {
-            System.out.println("错误: supplier为空");
+            System.out.println("Error: supplier is null");
             return;
         }
         
         if (supplier.getProductCatalog() == null) {
-            System.out.println("错误: 产品目录为空");
+            System.out.println("Error: Product catalog is empty");
             return;
         }
         
-        System.out.println("产品目录中产品数量: " + supplier.getProductCatalog().size());
+        System.out.println("Number of products in catalog: " + supplier.getProductCatalog().size());
 
         for (Product p : supplier.getProductCatalog()) {
             Object row[] = new Object[6];
@@ -105,10 +105,10 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             row[4] = p.getStockStatus();
             row[5] = p.getLastUpdated();
             model.addRow(row);
-            System.out.println("添加产品到表格: " + p.getProductName() + " (ID: " + p.getProductId() + ")");
+            System.out.println("Adding product to table: " + p.getProductName() + " (ID: " + p.getProductId() + ")");
         }
         
-        System.out.println("表格刷新完成，行数: " + model.getRowCount());
+        System.out.println("Table refresh completed, row count: " + model.getRowCount());
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -595,11 +595,11 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
     private void btnAdd2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd2ActionPerformed
         // 处理请求按钮点击事件
         try {
-            System.out.println("开始处理商品请求...");
+            System.out.println("Processing product request...");
             
             // 检查请求数量是否有效
             if (txtRequestQuantity.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(null, "请输入请求数量", "错误", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Please enter the request quantity", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
@@ -607,11 +607,11 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             try {
                 requestedAmount = Integer.parseInt(txtRequestQuantity.getText().trim());
                 if (requestedAmount <= 0) {
-                    JOptionPane.showMessageDialog(null, "请输入大于0的数量", "错误", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Please enter a quantity greater than 0", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "请输入有效的数字", "错误", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
@@ -621,31 +621,31 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             
             // 检查产品信息是否为空
             if (productId == null || productId.trim().isEmpty()) {
-                System.out.println("警告: 产品ID为空，尝试从隐藏字段获取");
+                System.out.println("Product ID is empty, trying to get from hidden field");
                 productId = txtProductId.getText();
             }
             
             if (productName == null || productName.trim().isEmpty()) {
-                System.out.println("警告: 产品名称为空，尝试从隐藏字段获取");
+                System.out.println("Product name is empty, trying to get from hidden field");
                 productName = txtProductNameView4.getText();
             }
             
             // 再次检查产品信息
             if (productId == null || productId.trim().isEmpty() || productName == null || productName.trim().isEmpty()) {
-                JOptionPane.showMessageDialog(null, "无法识别产品信息，请重新选择产品", "错误", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Unable to identify product information, please select a product again", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
-            System.out.println("请求信息 - 产品ID: " + productId + ", 产品名称: " + productName + ", 数量: " + requestedAmount);
+                System.out.println( "Product information - Product ID: " + productId + ", Product Name: " + productName + ", Quantity: " + requestedAmount);
             
             // 检查价格字段是否为空
             if (txtPriceView2.getText() == null || txtPriceView2.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(null, "价格不能为空", "错误", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Price cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
             double price = Double.parseDouble(txtPriceView2.getText().trim());
-            System.out.println("产品价格: " + price);
+            System.out.println("Product price: " + price);
             
             // 创建工作请求
             MerchantWorkRequest request = new MerchantWorkRequest();
@@ -653,29 +653,29 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             request.setProductName(productName);
             request.setPrice(price);
             request.setRequestedAmount(requestedAmount);
-            request.setMessage("商家请求产品: " + productName + " (ID: " + productId + ")");
+            request.setMessage("Merchant requests product: " + productName + " (ID: " + productId + ")");
             request.setStatus("Pending"); // 设置初始状态为Pending
             request.setRequestDate(new Date()); // 设置请求日期
             
-            System.out.println("已创建请求: " + request.getMessage() + ", 状态: " + request.getStatus());
+            System.out.println("Request created: " + request.getMessage() + ", Status: " + request.getStatus());
             
             // 设置发送者，如果有用户账户的话
             if (Business.EcoSystem.getInstance().getUserAccountDirectory() != null &&
                 !Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList().isEmpty()) {
                 request.setSender(Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList().get(0));
-                System.out.println("设置请求发送者: " + request.getSender().getUsername());
+                System.out.println("Set request sender: " + request.getSender().getUsername());
             } else {
-                System.out.println("警告: 无法设置请求发送者 - 用户账户为空");
+                System.out.println("Warning: Unable to set request sender - User account is empty");
             }
             
             // 获取系统工作队列并添加请求
             Business.EcoSystem system = Business.EcoSystem.getInstance();
             if (system.getWorkQueue() == null) {
-                System.out.println("系统工作队列为空，创建新队列");
+                System.out.println("System work queue is empty, creating new queue");
                 system.setWorkQueue(new Business.WorkQueue.WorkQueue());
             }
             system.getWorkQueue().getWorkRequestList().add(request);
-            System.out.println("请求已添加到系统工作队列，当前队列大小: " + system.getWorkQueue().getWorkRequestList().size());
+            System.out.println("Request added to system work queue, current queue size: " + system.getWorkQueue().getWorkRequestList().size());
             
             // 更新产品状态为"已请求"
             boolean productFound = false;
@@ -684,13 +684,13 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
                     p.setStockStatus("Requested");
                     p.setLastUpdated(new Date());
                     productFound = true;
-                    System.out.println("已更新产品 " + p.getProductName() + " 的状态为: Requested");
+                    System.out.println("Product " + p.getProductName() + " status updated to: Requested");
                     break;
                 }
             }
             
             if (!productFound) {
-                System.out.println("警告: 无法在产品目录中找到产品 ID: " + productId);
+                System.out.println("Warning: Unable to find product in product catalog with ID: " + productId);
             }
             
             // 刷新表格显示更新后的状态
@@ -698,18 +698,18 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             
             // 显示成功消息
             JOptionPane.showMessageDialog(null,
-                "已成功提交" + requestedAmount + "个" + productName + "的采购请求",
-                "请求已提交",
+                "Successfully submitted a purchase request for " + requestedAmount + " " + productName,
+                "Request submitted",
                 JOptionPane.INFORMATION_MESSAGE);
             
             // 清空请求面板
             txtRequestQuantity.setText("");
-            System.out.println("产品请求处理完成");
+            System.out.println("Product request processing completed");
             
         } catch (Exception e) {
-            System.err.println("处理产品请求时出错: " + e.getMessage());
+            System.err.println("Error processing product request: " + e.getMessage());
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "错误: " + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnAdd2ActionPerformed
 
@@ -763,18 +763,18 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         
         // 检查是否有选中的行，以及supplier是否有产品目录
         if (selectedRowIndex < 0) {
-            JOptionPane.showMessageDialog(null, "请选择一个产品进行请求", "提示", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Please select a product to request", "Info", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         
         // 检查商家的产品目录是否为空
         if (supplier == null || supplier.getProductCatalog() == null || supplier.getProductCatalog().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "产品目录为空，请先添加产品", "提示", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Product catalog is empty, please add products first", "Info", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
         try {
-            System.out.println("准备请求产品，选中行索引: " + selectedRowIndex);
+            System.out.println("Preparing to request product, selected row index: " + selectedRowIndex);
             
             // 获取产品信息
             Product p = supplier.getProductCatalog().get(selectedRowIndex);
@@ -782,7 +782,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             String productName = p.getProductName();
             double price = p.getPrice();
             
-            System.out.println("获取到产品信息 - ID: " + productId + ", 名称: " + productName + ", 价格: " + price);
+            System.out.println("Got product information - ID: " + productId + ", Name: " + productName + ", Price: " + price);
             
             // 在请求面板中显示产品信息
             txtProductNameView2.setText(productName);
@@ -792,7 +792,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             // 确保价格字段不为空
             if (txtPriceView2.getText() == null || txtPriceView2.getText().trim().isEmpty()) {
                 txtPriceView2.setText("0.0"); // 设置默认价格，防止空值异常
-                System.out.println("警告: 产品价格为空，已设置默认值0.0");
+                System.out.println("Product price is empty, default value 0.0 set");
             }
             
             // 保存产品名称和ID到隐藏字段，以备后续使用
@@ -807,26 +807,26 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             if ("Low".equals(p.getStockStatus())) {
                 txtRequestQuantity.setText("20"); // 建议订购量
                 JOptionPane.showMessageDialog(null, 
-                    "该产品库存不足，建议补充库存。", 
-                    "库存状态", 
+                    "The product is low in stock, please replenish the stock.", 
+                    "Stock status", 
                     JOptionPane.INFORMATION_MESSAGE);
             } else {
                 txtRequestQuantity.setText(""); // 清空请求数量
             }
             
         } catch (IndexOutOfBoundsException ex) {
-            System.err.println("索引错误: " + ex.getMessage());
+            System.err.println("Index error: " + ex.getMessage());
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, 
-                "无法访问选定的产品，请刷新产品列表后重试。", 
-                "错误", 
+                "Unable to access selected product, please refresh product list and try again.", 
+                "Error", 
                 JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
-            System.err.println("错误: " + ex.getMessage());
+            System.err.println("Error: " + ex.getMessage());
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, 
-                "处理请求时出错: " + ex.getMessage(), 
-                "错误", 
+                "Error processing request: " + ex.getMessage(), 
+                "Error", 
                 JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnRequestProductsActionPerformed
@@ -891,11 +891,11 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
      */
     private void createAndAddSampleProducts() {
         if (supplier == null) {
-            System.out.println("错误: 无法添加示例产品，supplier为空");
+            System.out.println("Error: Unable to add sample products, supplier is null");
             return;
         }
         
-        System.out.println("开始创建示例产品...");
+        System.out.println("Starting to create sample products...");
         
         // 创建示例产品 - 使用与仓库完全相同的产品ID和名称
         Product p1 = new Product("SP-001", "Apple iPhone 15 Pro", 799.99, 50, 20);
@@ -933,7 +933,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         lowStockProduct.setLastUpdated(now);
         supplier.addProduct(lowStockProduct);
         
-        System.out.println("成功创建并添加 " + supplier.getProductCatalog().size() + " 个示例产品到商家目录");
+        System.out.println("Successfully created and added " + supplier.getProductCatalog().size() + " sample products to merchant catalog");
     }
 }
 

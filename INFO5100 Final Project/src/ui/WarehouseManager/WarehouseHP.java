@@ -107,15 +107,15 @@ public class WarehouseHP extends javax.swing.JPanel {
         WarehousePanelLayout.setVerticalGroup(
             WarehousePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(WarehousePanelLayout.createSequentialGroup()
-                .addGap(301, 301, 301)
-                .addComponent(btnProcurementRequest)
-                .addGap(31, 31, 31)
-                .addComponent(btnWarehouseManagement)
-                .addGap(31, 31, 31)
-                .addComponent(btnComplaintBox)
-                .addGap(29, 29, 29)
-                .addComponent(btnProfile1)
-                .addContainerGap(2392, Short.MAX_VALUE))
+                .addGap(272, 272, 272)
+                .addComponent(btnProcurementRequest, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(25, 25, 25)
+                .addComponent(btnWarehouseManagement, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(26, 26, 26)
+                .addComponent(btnComplaintBox, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(42, 42, 42)
+                .addComponent(btnProfile1, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(2304, Short.MAX_VALUE))
         );
 
         jSplitPane2.setLeftComponent(WarehousePanel);
