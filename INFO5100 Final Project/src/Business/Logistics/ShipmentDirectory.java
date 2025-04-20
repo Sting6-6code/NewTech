@@ -88,4 +88,14 @@ public class ShipmentDirectory {
 
         return shipment;
     }
+    
+    public boolean removeShipmentByTrackingNumber(String trackingNumber) {
+    for (Shipment shipment : shipments) {
+        if (shipment.getTrackingNumber().equals(trackingNumber)) {
+            shipments.remove(shipment);
+            return true;
+        }
+    }
+    return false;
+}
 }
