@@ -28,6 +28,14 @@ import javax.swing.JPanel;
 import Business.ConfigureASystem;
 import Business.Organization.LogisticsOrganization;
 import Business.Role.WarehouseManagerRole;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Image;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JTextField;
 
 /**
  *
@@ -71,6 +79,9 @@ public class MainJFrame extends javax.swing.JFrame {
             }
         }
 
+        setupBackgroundImage();
+        setupLoginPanel();
+        
         this.setSize(1680, 1050);
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -331,5 +342,65 @@ public class MainJFrame extends javax.swing.JFrame {
         UserAccount warehouse = system.getUserAccountDirectory().createUserAccount("w", "****", employee7, new WarehouseManagerRole());
 
     }
+    
+    private void setupBackgroundImage() {
+    // Create a custom JPanel with the background image
+    JPanel backgroundPanel = new JPanel() {
+        private Image backgroundImage = new ImageIcon("src/NewTechLogo.png").getImage();
+        
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            // Draw the background image
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
+    };
+    
+    // Set the layout for the background panel to be the same as container's current layout
+    backgroundPanel.setLayout(new java.awt.CardLayout());
+    
+    // Move all components from container to backgroundPanel
+    for (Component comp : container.getComponents()) {
+        backgroundPanel.add(comp);
+    }
+    
+    // Clear container and add backgroundPanel to it
+    container.removeAll();
+    container.add(backgroundPanel);
+    container.revalidate();
+    container.repaint();
+}
+    
+    private void setupLoginPanel() {
+    // 设置登录面板的背景色和透明度
+    jPanel1.setBackground(new Color(12, 45, 107, 220)); // 深蓝色带透明度
+    
+    // 设置文本标签颜色
+    jLabel1.setForeground(new Color(74, 125, 208)); // 亮蓝色
+    jLabel2.setForeground(new Color(74, 125, 208)); // 亮蓝色
+    loginJLabel.setForeground(new Color(74, 125, 208)); // 亮蓝色
+    
+    // 设置按钮样式
+    styleButton(loginJButton);
+    styleButton(logoutJButton);
+    
+    // 设置文本框样式
+    styleTextField(userNameJTextField);
+    styleTextField(passwordField);
+}
+
+private void styleButton(JButton button) {
+    button.setBackground(new Color(26, 79, 156)); // 中蓝色
+    button.setForeground(Color.WHITE);
+    button.setFocusPainted(false);
+    button.setBorderPainted(false);
+}
+
+private void styleTextField(JTextField textField) {
+    textField.setBackground(new Color(13, 25, 51)); // 暗蓝色
+    textField.setForeground(new Color(150, 190, 255)); // 浅蓝色
+    textField.setCaretColor(Color.WHITE);
+    textField.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+}
 
 }
