@@ -5,12 +5,16 @@
 package ui.LogisticsRole;
 
 import Business.ConfigureASystem;
+import Business.DB4OUtil.DB4OUtil;
+import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
 import Business.Organization.LogisticsOrganization;
 import Business.UserAccount.UserAccount;
 import Business.Logistics.Shipment;
 import Business.Logistics.TrackingInfo;
 import Business.Organization.Organization;
+import Business.WorkQueue.WarehouseWorkRequest;
+import Business.WorkQueue.WorkRequest;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
@@ -40,6 +44,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import jdk.tools.jlink.internal.Platform;
 
@@ -58,12 +63,13 @@ public class ShipmentPanel extends javax.swing.JPanel {
     private static final String GOOGLE_MAPS_API_KEY = "AIzaSyCsxjLs6wmSHnIQDKTxAtynpNfMAecSWqY";
     private JPanel detailsCardsPanel;
     private CardLayout detailsCardLayout;
+    private JPanel parentPanel;
 
     /**
      * Creates new form Shipment
      */
     public ShipmentPanel(JPanel userProcessContainer, UserAccount account,
-            Enterprise enterprise, LogisticsOrganization organization) {
+            Enterprise enterprise, LogisticsOrganization organization, JPanel parentPanel) {
 
         initComponents();
         initializeMapComponents();
@@ -73,6 +79,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.enterprise = enterprise;
+        this.parentPanel = parentPanel;
 
         populateTable();
 
@@ -540,9 +547,15 @@ public class ShipmentPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-        userProcessContainer.remove(this);
-        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
-        layout.previous(userProcessContainer);
+        // 返回上一个面板前，刷新物流协调员主页的表格
+    if (parentPanel instanceof LogisticsCoordinatorHP) {
+        ((LogisticsCoordinatorHP) parentPanel).refreshTables();
+    }
+    
+    // 返回上一个面板
+    userProcessContainer.remove(this);
+    CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+    layout.previous(userProcessContainer);
 
     }//GEN-LAST:event_btnBackActionPerformed
 
@@ -611,6 +624,155 @@ public class ShipmentPanel extends javax.swing.JPanel {
 
     private void btnShipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipActionPerformed
         // TODO add your handling code here:
+        int selectedRow = tblShipment.getSelectedRow();
+    if (selectedRow < 0) {
+        JOptionPane.showMessageDialog(this, "Please select a shipment to process");
+        return;
+    }
+
+    // 获取选中行的信息
+    String id = tblShipment.getValueAt(selectedRow, 0).toString();
+    
+    // 只处理 Pending 状态的订单
+    if (!id.startsWith("Pending-")) {
+        JOptionPane.showMessageDialog(this, "Can only ship pending orders");
+        return;
+    }
+    
+    // 获取表格中已有的目的地信息（这很关键）
+    String existingDestination = tblShipment.getValueAt(selectedRow, 2).toString();
+
+    // 获取物流组织实例
+    LogisticsOrganization logisticsOrg = ConfigureASystem.getLogisticsOrganization();
+    if (logisticsOrg == null) {
+        return;
+    }
+
+    try {
+        // 1. 获取运输方式
+        String[] methods = {"Express", "Air Freight", "Sea Freight", "Ground"};
+        String shippingMethod = (String) JOptionPane.showInputDialog(
+            this,
+            "Select shipping method:",
+            "Shipping Method",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            methods,
+            methods[0]
+        );
+        
+        if (shippingMethod == null) {
+            return; // 用户取消选择
+        }
+        
+        // 2. 确认目的地，如果是默认值则请求用户输入
+        String destination = existingDestination;
+        if (destination == null || destination.isEmpty() || 
+            destination.equals("Not specified") || destination.equals("To be assigned")) {
+            
+            destination = JOptionPane.showInputDialog(this, 
+                "Enter the destination for this shipment:", 
+                "Destination", 
+                JOptionPane.QUESTION_MESSAGE);
+            
+            if (destination == null || destination.trim().isEmpty()) {
+                destination = "Not specified";
+            }
+        }
+
+        // 3. 创建新的 Shipment
+        String shipmentId = id.replace("Pending-", "");
+        String trackingNumber = "TRK" + System.currentTimeMillis();
+        
+        Shipment shipment = new Shipment();
+        shipment.setTrackingNumber(trackingNumber);
+        shipment.setShipDate(new Date());
+        shipment.setShippingMethod(shippingMethod);
+        shipment.setDestination(destination);  // 设置目的地
+        shipment.setShipmentStatus("Shipped");
+        
+        // 4. 计算预计送达时间
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        switch (shippingMethod) {
+            case "Express":
+                cal.add(Calendar.DAY_OF_MONTH, 3);  // Express 是 3 天
+                break;
+            case "Air Freight":
+                cal.add(Calendar.DAY_OF_MONTH, 7);  // Air Freight 是 7 天
+                break;
+            case "Sea Freight":
+                cal.add(Calendar.DAY_OF_MONTH, 30); // Sea Freight 是 30 天
+                break;
+            case "Ground":
+                cal.add(Calendar.DAY_OF_MONTH, 15); // Ground 是 15 天
+                break;
+        }
+        shipment.setEstimatedDeliveryDate(cal.getTime());
+
+        // 5. 添加初始追踪信息
+        TrackingInfo trackInfo = new TrackingInfo();
+        trackInfo.setShipmentId(shipment.getShipmentId());
+        trackInfo.setTimestamp(new Date());
+        trackInfo.setLocation("Shanghai Warehouse");
+        trackInfo.setDescription("Package processed and ready for shipping");
+        trackInfo.setStatus("Shipped");
+        shipment.addTrackingInfo(trackInfo);
+
+        // 6. 将 Shipment 添加到目录
+        logisticsOrg.getShipmentDirectory().addShipment(shipment);
+
+        // 7. 更新对应的工作请求状态
+        for (WorkRequest request : logisticsOrg.getWorkQueue().getWorkRequestList()) {
+            if (request instanceof WarehouseWorkRequest) {
+                WarehouseWorkRequest warehouseRequest = (WarehouseWorkRequest) request;
+                if (warehouseRequest.getShipmentId().equals(shipmentId)) {
+                    
+                    // 更新工作请求中的信息
+                    warehouseRequest.setStatus("Shipped");
+                    warehouseRequest.setTrackingNumber(trackingNumber);
+                    warehouseRequest.setShippingMethod(shippingMethod);
+                    warehouseRequest.setDestination(destination);  // 更新目的地
+                    warehouseRequest.setEstimatedDeliveryDate(shipment.getEstimatedDeliveryDate());
+                    warehouseRequest.setResolveDate(new Date());
+                    
+                    // 从工作请求复制信息到 Shipment
+                    if (warehouseRequest.getProductName() != null) {
+                        shipment.setProductName(warehouseRequest.getProductName());
+                    }
+                    
+                    if (warehouseRequest.getQuantity() > 0) {
+                        shipment.setQuantity(warehouseRequest.getQuantity());
+                    }
+                    
+                    break;
+                }
+            }
+        }
+
+        // 8. 保存系统更新
+        EcoSystem system = EcoSystem.getInstance();
+        DB4OUtil.getInstance().storeSystem(system);
+        
+        // 9. 刷新表格
+        populateTable();
+        
+        // 10. 刷新 LogisticsCoordinatorHP 的表格
+        if (parentPanel instanceof LogisticsCoordinatorHP) {
+            ((LogisticsCoordinatorHP) parentPanel).refreshTables();
+        }
+
+        // 11. 显示成功消息
+        JOptionPane.showMessageDialog(this,
+            "Shipment processed successfully!\nTracking Number: " + trackingNumber + 
+            "\nDestination: " + destination);
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this,
+            "Error processing shipment: " + e.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnShipActionPerformed
 
     private void btnCustomsInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCustomsInfoActionPerformed
@@ -669,37 +831,54 @@ public class ShipmentPanel extends javax.swing.JPanel {
     // End of variables declaration//GEN-END:variables
 
     private void populateTable() {
-        System.out.println("Starting populateTable...");
-        System.out.println("Organization: " + (organization != null ? "exists" : "null"));
-        System.out.println("ShipmentDirectory: " + (organization != null && organization.getShipmentDirectory() != null ? "exists" : "null"));
-
         DefaultTableModel model = (DefaultTableModel) tblShipment.getModel();
         model.setRowCount(0);
 
-        // 从logistics org获取货件列表
-        if (organization != null && organization.getShipmentDirectory() != null) {
-            System.out.println("Populating table with shipments...");
+        // 获取物流组织实例
+        LogisticsOrganization logisticsOrg = ConfigureASystem.getLogisticsOrganization();
+        if (logisticsOrg == null) {
+            return;
+        }
 
-            for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
+        // 1. 添加所有已有的 Shipments（历史订单）
+        if (logisticsOrg.getShipmentDirectory() != null) {
+            for (Shipment shipment : logisticsOrg.getShipmentDirectory().getShipments()) {
                 Object[] row = new Object[6];
                 row[0] = shipment.getTrackingNumber();
-                row[1] = shipment.getShipDate() != null
+                row[1] = shipment.getShippingMethod();
+                row[2] = shipment.getDestination() != null ? shipment.getDestination() : "Not specified";;
+                row[3] = shipment.getShipmentStatus();
+                row[4] = shipment.getShipDate() != null
                         ? new SimpleDateFormat("yyyy-MM-dd").format(shipment.getShipDate()) : "";
-                row[2] = shipment.getShippingMethod();
-                row[3] = shipment.getDestination();
-                row[4] = shipment.getShipmentStatus();
                 row[5] = shipment.getEstimatedDeliveryDate() != null
                         ? new SimpleDateFormat("yyyy-MM-dd").format(shipment.getEstimatedDeliveryDate()) : "";
-
                 model.addRow(row);
-                System.out.println("Added shipment: " + shipment.getTrackingNumber());
             }
-
-            System.out.println("Added " + model.getRowCount() + " shipments to table");
-        } else {
-            System.out.println("Error: Organization or ShipmentDirectory is null");
         }
-        
+
+        // 2. 添加待处理的订单（从 tblPendingTasks）
+        if (logisticsOrg.getWorkQueue() != null) {
+            for (WorkRequest request : logisticsOrg.getWorkQueue().getWorkRequestList()) {
+                if (request instanceof WarehouseWorkRequest) {
+                    WarehouseWorkRequest warehouseRequest = (WarehouseWorkRequest) request;
+
+                    // 只添加状态为 Pending 的请求
+                    if ("Pending".equals(warehouseRequest.getStatus())) {
+                        Object[] row = new Object[6];
+                        row[0] = "Pending-" + warehouseRequest.getShipmentId(); // 使用 shipmentId
+                        row[1] = warehouseRequest.getShippingMethod() != null ? 
+                            warehouseRequest.getShippingMethod() : "To be assigned";  // 待分配运输方式
+                        row[2] = warehouseRequest.getDestination() != null
+                                ? warehouseRequest.getDestination() : "To be assigned";
+                        row[3] = warehouseRequest.getStatus();
+                        row[4] = new SimpleDateFormat("yyyy-MM-dd").format(warehouseRequest.getRequestDate());
+                        row[5] = "To be determined";
+                        model.addRow(row);
+                    }
+                }
+            }
+        }
+
     }
 
     private void searchShipment(String query) {
@@ -1151,7 +1330,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
         }
 
         // 2. 分配运输方式
-        String[] methods = {"Air Freight", "Sea Freight", "Ground"};
+        String[] methods = {"Air Freight", "Sea Freight", "Ground", "Express"};
         String method = (String) JOptionPane.showInputDialog(
                 this,
                 "Select shipping method:",
@@ -1174,6 +1353,9 @@ public class ShipmentPanel extends javax.swing.JPanel {
                     break;
                 case "Sea Freight":
                     cal.add(Calendar.DAY_OF_MONTH, 30);
+                    break;
+                case "Express":
+                    cal.add(Calendar.DAY_OF_MONTH, 3);
                     break;
                 default:
                     cal.add(Calendar.DAY_OF_MONTH, 15);
