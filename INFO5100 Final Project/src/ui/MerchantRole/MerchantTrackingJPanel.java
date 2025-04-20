@@ -18,6 +18,7 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Dimension;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,50 +79,92 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         detailsCardLayout = new CardLayout();
         detailsCardsPanel.setLayout(detailsCardLayout);
 
-        // Create basic info content panel
-        JPanel shipmentBasicInfoContent = new JPanel(new GridLayout(0, 2, 10, 10));
-        shipmentBasicInfoContent.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        // Add basic info fields to content panel
-        shipmentBasicInfoContent.add(lblTraNo);
-        shipmentBasicInfoContent.add(txtTrcNo);
-        shipmentBasicInfoContent.add(lblShippingDate);
-        shipmentBasicInfoContent.add(txtShippingDate);
-        shipmentBasicInfoContent.add(lblShippingMethod);
-        shipmentBasicInfoContent.add(txtShippingMethod);
-        shipmentBasicInfoContent.add(lblDestination);
-        shipmentBasicInfoContent.add(txtDestination);
-        shipmentBasicInfoContent.add(lblStatus);
-        shipmentBasicInfoContent.add(txtStatus);
-
-        // Add content panel to card layout
-        detailsCardsPanel.add(shipmentBasicInfoContent, "BasicInfo");
-
-        // Clear and update basicInfoJPanel
+        // 设置标题样式
+        lblTrackDetails.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
+        lblTrackDetails.setHorizontalAlignment(JLabel.CENTER);
+        
+        // 设置标签和输入框样式
+        Font labelFont = new Font("Helvetica Neue", Font.BOLD, 14);
+        lblTraNo.setFont(labelFont);
+        lblShippingDate.setFont(labelFont);
+        lblShippingMethod.setFont(labelFont);
+        lblDestination.setFont(labelFont);
+        lblStatus.setFont(labelFont);
+        
+        // 美化按钮
+        btnBasicInfo.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        btnBasicInfo.setBackground(new java.awt.Color(51, 153, 255));
+        btnBasicInfo.setForeground(java.awt.Color.WHITE);
+        btnBasicInfo.setFocusPainted(false);
+        
+        btnUpdate.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        btnUpdate.setBackground(new java.awt.Color(0, 102, 204));
+        btnUpdate.setForeground(java.awt.Color.WHITE);
+        btnUpdate.setFocusPainted(false);
+        
+        btnSave3.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        btnSave3.setBackground(new java.awt.Color(46, 139, 87));
+        btnSave3.setForeground(java.awt.Color.WHITE);
+        btnSave3.setFocusPainted(false);
+        
+        // 直接在basicInfoJPanel中创建面板，不使用桌面设计器生成的布局
         basicInfoJPanel.removeAll();
-        basicInfoJPanel.setLayout(new BorderLayout());
+        basicInfoJPanel.setLayout(new BorderLayout(10, 10));
+        basicInfoJPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
-        // Add navigation button at the top
-        JPanel navigationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        navigationPanel.add(btnBasicInfo);
+        // 顶部面板 - 标题和导航
+        JPanel topPanel = new JPanel(new BorderLayout(0, 10));
+        topPanel.add(lblTrackDetails, BorderLayout.NORTH);
         
-        // Create main container
-        JPanel mainContainer = new JPanel(new BorderLayout());
-        mainContainer.add(navigationPanel, BorderLayout.NORTH);
-        mainContainer.add(detailsCardsPanel, BorderLayout.CENTER);
+        JPanel navPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        navPanel.add(btnBasicInfo);
+        topPanel.add(navPanel, BorderLayout.CENTER);
         
-        // Add button panel at the bottom
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        // 中间面板 - 字段信息
+        JPanel fieldsPanel = new JPanel(new GridLayout(5, 2, 20, 15));
+        fieldsPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        
+        // 使所有文本框不可编辑
+        txtTrcNo.setEditable(false);
+        txtShippingDate.setEditable(false);
+        txtShippingMethod.setEditable(false);
+        txtDestination.setEditable(false);
+        txtStatus.setEditable(false);
+        
+        // 文本框样式
+        txtTrcNo.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        txtShippingDate.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        txtShippingMethod.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        txtDestination.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        txtStatus.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        
+        // 添加字段到面板
+        fieldsPanel.add(lblTraNo);
+        fieldsPanel.add(txtTrcNo);
+        fieldsPanel.add(lblShippingDate);
+        fieldsPanel.add(txtShippingDate);
+        fieldsPanel.add(lblShippingMethod);
+        fieldsPanel.add(txtShippingMethod);
+        fieldsPanel.add(lblDestination);
+        fieldsPanel.add(txtDestination);
+        fieldsPanel.add(lblStatus);
+        fieldsPanel.add(txtStatus);
+        
+        // 底部面板 - 按钮
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
         buttonPanel.add(btnUpdate);
         buttonPanel.add(btnSave3);
-        mainContainer.add(buttonPanel, BorderLayout.SOUTH);
         
-        basicInfoJPanel.add(mainContainer);
-
-        // Show basic info panel
+        // 将所有面板添加到主面板
+        basicInfoJPanel.add(topPanel, BorderLayout.NORTH);
+        basicInfoJPanel.add(fieldsPanel, BorderLayout.CENTER);
+        basicInfoJPanel.add(buttonPanel, BorderLayout.SOUTH);
+        
+        // 添加面板到卡片布局
+        detailsCardsPanel.add(basicInfoJPanel, "BasicInfo");
         detailsCardLayout.show(detailsCardsPanel, "BasicInfo");
-
-        // Refresh panel
+        
+        // 刷新面板
         basicInfoJPanel.revalidate();
         basicInfoJPanel.repaint();
     }
@@ -287,7 +330,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
                 .addContainerGap(47, Short.MAX_VALUE)
                 .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnBasicInfo)
-                    .addComponent(lblTrackDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 481, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblTrackDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 681, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(basicInfoJPanelLayout.createSequentialGroup()
                         .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(lblTraNo)
@@ -297,49 +340,49 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
                             .addComponent(lblDestination))
                         .addGap(37, 37, 37)
                         .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtShippingDate, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtTrcNo, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtShippingMethod, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtDestination, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(txtShippingDate, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtTrcNo, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtShippingMethod, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtDestination, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(basicInfoJPanelLayout.createSequentialGroup()
                         .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                        .addGap(48, 48, 48)
                         .addComponent(btnSave3, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                .addContainerGap(60, Short.MAX_VALUE))
         );
         basicInfoJPanelLayout.setVerticalGroup(
             basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(basicInfoJPanelLayout.createSequentialGroup()
                 .addGap(22, 22, 22)
-                .addComponent(lblTrackDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(lblTrackDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(31, 31, 31)
                 .addComponent(btnBasicInfo)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
                 .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtTrcNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblTraNo, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(txtTrcNo, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblTraNo, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtShippingDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblShippingDate, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(txtShippingDate, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblShippingDate, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtShippingMethod, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblShippingMethod, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(txtShippingMethod, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblShippingMethod, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtDestination, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblDestination, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(txtDestination, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblDestination, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                    .addComponent(lblStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(25, 25, 25)
                 .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnUpdate)
-                    .addComponent(btnSave3))
-                .addGap(25, 25, 25))
+                    .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSave3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(30, 30, 30))
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -366,7 +409,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1403, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                         .addGap(29, 29, 29)
-                        .addComponent(basicInfoJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(basicInfoJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 800, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(32, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -392,8 +435,8 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnViewDetails)
-                .addGap(57, 57, 57)
-                .addComponent(basicInfoJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
+                .addComponent(basicInfoJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 31, Short.MAX_VALUE))
         );
 
