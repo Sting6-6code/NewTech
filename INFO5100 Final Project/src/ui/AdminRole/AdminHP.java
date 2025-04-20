@@ -288,7 +288,7 @@ public class AdminHP extends javax.swing.JPanel {
 
     private void btnAddUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddUserActionPerformed
         // TODO add your handling code here:
-        AddNewUser anu = new AddNewUser();
+        AddNewUser anu = new AddNewUser(workArea, userAccount, enterprise, adminOrg, business);
         workArea.add("AddNewUser", anu);
         CardLayout l = (CardLayout) workArea.getLayout();
         l.show(workArea, "AddNewUser");
