@@ -8,12 +8,17 @@ import Business.ConfigureASystem;
 import Business.DB4OUtil.DB4OUtil;
 import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
+import Business.Enterprise.LogisticsGroupEnterprise;
 import Business.Logistics.CustomsDeclaration;
 import Business.Logistics.CustomsDeclaration.CustomsLineItem;
 import Business.Logistics.CustomsDeclarationDirectory;
 import Business.Logistics.Shipment;
+import Business.Network.Network;
+import Business.Organization.CustomsLiaisonOrganization;
 import Business.Organization.LogisticsOrganization;
+import Business.Organization.Organization;
 import Business.UserAccount.UserAccount;
+import Business.WorkQueue.LogisticsWorkRequest;
 import java.awt.CardLayout;
 import java.awt.GridLayout;
 import java.text.SimpleDateFormat;
@@ -49,9 +54,8 @@ public class DocumentationDetails extends javax.swing.JPanel {
     private CustomsDeclaration currentDeclaration;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private JPanel parentPanel;
-    
-    // 声明UI组件
 
+    // 声明UI组件
     private JTable tblItems;
     private JLabel lblDeclarationId;
     private JTextField txtDeclarationId;
@@ -86,14 +90,19 @@ public class DocumentationDetails extends javax.swing.JPanel {
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.enterprise = enterprise;
-        this.organization = ConfigureASystem.logisticsOrg;
+        this.organization = ConfigureASystem.getLogisticsOrganization();
+        if (this.organization != null) {
+            this.declarationDirectory = this.organization.getCustomsDeclarationDirectory();
+            System.out.println("共加载了 " + this.declarationDirectory.getCustomsDeclarationList().size() + " 个报关单");
+        }
+
         this.declarationDirectory = organization.getCustomsDeclarationDirectory();
         this.currentShipment = shipment;
         this.parentPanel = parentPanel;
 
         if (this.currentShipment != null) {
             this.currentDeclaration = currentShipment.getCustomsDeclaration();
-            
+
             // 如果没有海关文档，创建一个新的
             if (this.currentDeclaration == null) {
                 this.currentDeclaration = new CustomsDeclaration();
@@ -105,29 +114,29 @@ public class DocumentationDetails extends javax.swing.JPanel {
 //                this.currentDeclaration.setDestinationCountry(extractCountry(currentShipment.getDestination()));
                 this.currentDeclaration.setDeclarationDate(new Date());
                 this.currentDeclaration.setStatus("Pending");
-                
+
                 currentShipment.setCustomsDeclaration(this.currentDeclaration);
-                
+
                 // 保存到系统
                 EcoSystem system = EcoSystem.getInstance();
                 DB4OUtil.getInstance().storeSystem(system);
             }
         }
-        
+
         initComponents();
         populateFields();
     }
-    
+
     private void populateFields() {
         if (currentDeclaration != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            
+
             // 基本信息
             txtDeclarationId.setText(currentDeclaration.getDeclarationId());
-            txtDeclarationNumber.setText(currentDeclaration.getDeclarationNumber() != null ? 
-                                        currentDeclaration.getDeclarationNumber() : "");
+            txtDeclarationNumber.setText(currentDeclaration.getDeclarationNumber() != null
+                    ? currentDeclaration.getDeclarationNumber() : "");
             txtShipmentId.setText(currentDeclaration.getShipmentId());
-            
+
             if (currentDeclaration.getDeclarationType() != null) {
                 for (int i = 0; i < cmbDeclarationType.getItemCount(); i++) {
                     if (cmbDeclarationType.getItemAt(i).equals(currentDeclaration.getDeclarationType())) {
@@ -136,7 +145,7 @@ public class DocumentationDetails extends javax.swing.JPanel {
                     }
                 }
             }
-            
+
             if (currentDeclaration.getStatus() != null) {
                 for (int i = 0; i < cmbStatus.getItemCount(); i++) {
                     if (cmbStatus.getItemAt(i).equals(currentDeclaration.getStatus())) {
@@ -145,36 +154,36 @@ public class DocumentationDetails extends javax.swing.JPanel {
                     }
                 }
             }
-            
-            txtDeclarationDate.setText(currentDeclaration.getDeclarationDate() != null ? 
-                                     dateFormat.format(currentDeclaration.getDeclarationDate()) : "");
-            txtSubmissionDate.setText(currentDeclaration.getSubmissionDate() != null ? 
-                                    dateFormat.format(currentDeclaration.getSubmissionDate()) : "");
-            txtProcessingDate.setText(currentDeclaration.getProcessingDate() != null ? 
-                                    dateFormat.format(currentDeclaration.getProcessingDate()) : "");
-            
+
+            txtDeclarationDate.setText(currentDeclaration.getDeclarationDate() != null
+                    ? dateFormat.format(currentDeclaration.getDeclarationDate()) : "");
+            txtSubmissionDate.setText(currentDeclaration.getSubmissionDate() != null
+                    ? dateFormat.format(currentDeclaration.getSubmissionDate()) : "");
+            txtProcessingDate.setText(currentDeclaration.getProcessingDate() != null
+                    ? dateFormat.format(currentDeclaration.getProcessingDate()) : "");
+
             // 详细信息
-            txtConsignor.setText(currentDeclaration.getConsignor() != null ? 
-                               currentDeclaration.getConsignor() : "");
-            txtConsignee.setText(currentDeclaration.getConsignee() != null ? 
-                               currentDeclaration.getConsignee() : "");
-            txtCountryOfOrigin.setText(currentDeclaration.getCountryOfOrigin() != null ? 
-                                     currentDeclaration.getCountryOfOrigin() : "");
-            txtDestinationCountry.setText(currentDeclaration.getDestinationCountry() != null ? 
-                                        currentDeclaration.getDestinationCountry() : "");
-            txtCustomsOffice.setText(currentDeclaration.getCustomsOffice() != null ? 
-                                   currentDeclaration.getCustomsOffice() : "");
-            txtHsCode.setText(currentDeclaration.getHsCode() != null ? 
-                            currentDeclaration.getHsCode() : "");
-            
+            txtConsignor.setText(currentDeclaration.getConsignor() != null
+                    ? currentDeclaration.getConsignor() : "");
+            txtConsignee.setText(currentDeclaration.getConsignee() != null
+                    ? currentDeclaration.getConsignee() : "");
+            txtCountryOfOrigin.setText(currentDeclaration.getCountryOfOrigin() != null
+                    ? currentDeclaration.getCountryOfOrigin() : "");
+            txtDestinationCountry.setText(currentDeclaration.getDestinationCountry() != null
+                    ? currentDeclaration.getDestinationCountry() : "");
+            txtCustomsOffice.setText(currentDeclaration.getCustomsOffice() != null
+                    ? currentDeclaration.getCustomsOffice() : "");
+            txtHsCode.setText(currentDeclaration.getHsCode() != null
+                    ? currentDeclaration.getHsCode() : "");
+
             // 备注
-            txtNotes.setText(currentDeclaration.getNotes() != null ? 
-                           currentDeclaration.getNotes() : "");
-            
+            txtNotes.setText(currentDeclaration.getNotes() != null
+                    ? currentDeclaration.getNotes() : "");
+
             // 物品列表
             DefaultTableModel model = (DefaultTableModel) tblItems.getModel();
             model.setRowCount(0);
-            
+
             if (currentDeclaration.getItems() != null) {
                 for (CustomsLineItem item : currentDeclaration.getItems()) {
                     model.addRow(new Object[]{
@@ -882,9 +891,12 @@ public class DocumentationDetails extends javax.swing.JPanel {
                 declarationDirectory.addCustomsDeclaration(currentDeclaration);
             }
 
+            // 创建并发送 LogisticsWorkRequest 到海关
+            sendCustomsWorkRequest(currentDeclaration);
+
             refreshDeclarationList();
             updateButtonStates();
-            JOptionPane.showMessageDialog(this, "Declaration submitted successfully.");
+            JOptionPane.showMessageDialog(this, "Declaration submitted successfully and sent to Customs Office.");
         }
     }//GEN-LAST:event_btnSubmitActionPerformed
 
@@ -1066,26 +1078,26 @@ public class DocumentationDetails extends javax.swing.JPanel {
         // 创建对话框
         JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
+
         JLabel lblDescription = new JLabel("Description:");
         JTextField txtDescription = new JTextField(20);
-        
+
         JLabel lblHsCode = new JLabel("HS Code:");
         JTextField txtHsCode = new JTextField(20);
-        
+
         JLabel lblQuantity = new JLabel("Quantity:");
         JTextField txtQuantity = new JTextField(20);
-        
+
         JLabel lblUnit = new JLabel("Unit:");
         JTextField txtUnit = new JTextField(20);
         txtUnit.setText("PCS");
-        
+
         JLabel lblUnitValue = new JLabel("Unit Value:");
         JTextField txtUnitValue = new JTextField(20);
-        
+
         JLabel lblGrossWeight = new JLabel("Gross Weight:");
         JTextField txtGrossWeight = new JTextField(20);
-        
+
         panel.add(lblDescription);
         panel.add(txtDescription);
         panel.add(lblHsCode);
@@ -1098,10 +1110,10 @@ public class DocumentationDetails extends javax.swing.JPanel {
         panel.add(txtUnitValue);
         panel.add(lblGrossWeight);
         panel.add(txtGrossWeight);
-        
+
         int result = JOptionPane.showConfirmDialog(null, panel, "Add Declaration Item",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        
+
         if (result == JOptionPane.OK_OPTION) {
             try {
                 String description = txtDescription.getText();
@@ -1110,9 +1122,9 @@ public class DocumentationDetails extends javax.swing.JPanel {
                 String unit = txtUnit.getText();
                 double unitValue = Double.parseDouble(txtUnitValue.getText());
                 double grossWeight = Double.parseDouble(txtGrossWeight.getText());
-                
+
                 double totalValue = quantity * unitValue;
-                
+
                 DefaultTableModel model = (DefaultTableModel) tblItems.getModel();
                 model.addRow(new Object[]{
                     description, hsCode, quantity, unit, unitValue, totalValue, grossWeight
@@ -1241,5 +1253,82 @@ public class DocumentationDetails extends javax.swing.JPanel {
         }
 
         return true;
+    }
+
+    public void initializeUI() {
+        // 确保declarationDirectory已正确初始化
+        if (this.organization != null) {
+            this.declarationDirectory = this.organization.getCustomsDeclarationDirectory();
+
+            // 调试信息
+            System.out.println("初始化UI...");
+            if (this.declarationDirectory != null) {
+                System.out.println("报关单数量: " + this.declarationDirectory.getCustomsDeclarationList().size());
+            } else {
+                System.out.println("报关单目录为空");
+            }
+        }
+
+        // 设置表格
+        setupDeclarationListTable();
+
+        // 如果有报关单，选择第一个
+        if (tblList != null && tblList.getModel().getRowCount() > 0) {
+            tblList.setRowSelectionInterval(0, 0);
+            String declarationId = tblList.getValueAt(0, 0).toString();
+            displayDeclarationDetails(declarationId);
+        }
+    }
+
+    private void sendCustomsWorkRequest(CustomsDeclaration declaration) {
+        try {
+            // 创建物流工作请求
+            LogisticsWorkRequest request = new LogisticsWorkRequest();
+
+            // 设置报关单信息
+            request.setDeclarationId(declaration.getDeclarationId());
+            request.setShipmentId(declaration.getShipmentId());
+            request.setDeclarationType(declaration.getDeclarationType());
+            request.setConsignor(declaration.getConsignor());
+            request.setConsignee(declaration.getConsignee());
+            request.setCountryOfOrigin(declaration.getCountryOfOrigin());
+            request.setDestinationCountry(declaration.getDestinationCountry());
+            request.setNotes(declaration.getNotes());
+
+            // 设置发送者和接收者
+            request.setSender(userAccount);
+
+            // 查找海关组织
+            Organization customsOrg = null;
+            for (Network network : EcoSystem.getInstance().getNetworkList()) {
+                for (Enterprise e : network.getEnterpriseDirectory().getEnterpriseList()) {
+                    if (e instanceof LogisticsGroupEnterprise) {
+                        for (Organization org : e.getOrganizationDirectory().getOrganizationList()) {
+                            if (org instanceof CustomsLiaisonOrganization) {
+                                customsOrg = org;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (customsOrg != null) {
+                    break;
+                }
+            }
+
+            // 将请求添加到海关组织的工作队列
+            if (customsOrg != null) {
+                customsOrg.getWorkQueue().getWorkRequestList().add(request);
+                System.out.println("Logistics work request sent to customs: " + request.getDeclarationId());
+            } else {
+                throw new Exception("No customs organization found");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error sending customs request: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

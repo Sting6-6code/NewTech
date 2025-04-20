@@ -462,12 +462,50 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
 
     private void btnCustomsDeclarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCustomsDeclarActionPerformed
         // TODO add your handling code here:
-        // Create and display customs declaration panel
-        DocumentationDetails documentPanel = new DocumentationDetails(userProcessContainer, userAccount, enterprise, organization, null,this);
+        try {
+        // 确保使用系统中最新的物流组织实例
+        LogisticsOrganization logisticsOrg = ConfigureASystem.getLogisticsOrganization();
+        if (logisticsOrg == null) {
+            JOptionPane.showMessageDialog(this, 
+                    "Cannot access logistics organization data.", 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // 确保报关单数据已初始化
+        if (logisticsOrg.getCustomsDeclarationDirectory() == null || 
+            logisticsOrg.getCustomsDeclarationDirectory().getCustomsDeclarationList().isEmpty()) {
+            // 如果没有报关单数据，创建示例数据
+            ConfigureASystem.createSampleCustomsDeclarations(logisticsOrg);
+            System.out.println("已创建示例报关单数据");
+        }
+        
+        // 创建报关单面板
+        DocumentationDetails documentPanel = new DocumentationDetails(
+                userProcessContainer, 
+                userAccount, 
+                enterprise, 
+                logisticsOrg,
+                null,
+                this);
+                
+        // 在显示面板之前，确保数据已加载
+        // 这里应该添加一个初始化方法调用，确保表格被填充
+        documentPanel.initializeUI();  // 在DocumentationDetails类中添加此方法
+                
         documentPanel.setSize(1450, 800);
         userProcessContainer.add("CustomsDeclaration", documentPanel);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.show(userProcessContainer, "CustomsDeclaration");
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, 
+                "Error loading customs declaration data: " + e.getMessage(), 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnCustomsDeclarActionPerformed
 
     private void btnDashBoardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDashBoardActionPerformed
@@ -545,22 +583,22 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     private void btnViewDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewDetailsActionPerformed
         // TODO add your handling code here:
         int selectedRow = tblPendingTasks.getSelectedRow();
-    if (selectedRow < 0) {
-        JOptionPane.showMessageDialog(this, "Please select a task");
-        return;
-    }
-    
-    String trackingNumber = tblPendingTasks.getValueAt(selectedRow, 0).toString();
-    
-    // 创建 ShipmentPanel 并传递 this 作为父面板
-    ShipmentPanel shipmentPanel = new ShipmentPanel(userProcessContainer, userAccount, enterprise, organization, this);
-    userProcessContainer.add("ShipmentPanel", shipmentPanel);
-    
-    // 自动选中对应的货件
-    selectShipmentInPanel(shipmentPanel, trackingNumber);
-    
-    CardLayout layout = (CardLayout) userProcessContainer.getLayout();
-    layout.next(userProcessContainer);
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a task");
+            return;
+        }
+
+        String trackingNumber = tblPendingTasks.getValueAt(selectedRow, 0).toString();
+
+        // 创建 ShipmentPanel 并传递 this 作为父面板
+        ShipmentPanel shipmentPanel = new ShipmentPanel(userProcessContainer, userAccount, enterprise, organization, this);
+        userProcessContainer.add("ShipmentPanel", shipmentPanel);
+
+        // 自动选中对应的货件
+        selectShipmentInPanel(shipmentPanel, trackingNumber);
+
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.next(userProcessContainer);
     }//GEN-LAST:event_btnViewDetailsActionPerformed
 
 
@@ -679,54 +717,54 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     private void populatePendingTasksTable() {
         // 创建表格模型
         DefaultTableModel model = (DefaultTableModel) tblPendingTasks.getModel();
-    model.setRowCount(0);
-    
-    if (organization != null && organization.getWorkQueue() != null) {
-        for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
-            if (request instanceof WarehouseWorkRequest) {
-                WarehouseWorkRequest warehouseRequest = (WarehouseWorkRequest) request;
-                
-                // 只显示状态为 Pending 的请求
-                if ("Pending".equals(warehouseRequest.getStatus())) {
-                    Object[] row = new Object[5];
-                    row[0] = warehouseRequest.getTrackingNumber();
-                    row[1] = "Logistics transport request";
-                    row[2] = "Normal";
-                    row[3] = warehouseRequest.getRequestDate();
-                    row[4] = warehouseRequest.getStatus();
-                    
-                    model.addRow(row);
+        model.setRowCount(0);
+
+        if (organization != null && organization.getWorkQueue() != null) {
+            for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
+                if (request instanceof WarehouseWorkRequest) {
+                    WarehouseWorkRequest warehouseRequest = (WarehouseWorkRequest) request;
+
+                    // 只显示状态为 Pending 的请求
+                    if ("Pending".equals(warehouseRequest.getStatus())) {
+                        Object[] row = new Object[5];
+                        row[0] = warehouseRequest.getTrackingNumber();
+                        row[1] = "Logistics transport request";
+                        row[2] = "Normal";
+                        row[3] = warehouseRequest.getRequestDate();
+                        row[4] = warehouseRequest.getStatus();
+
+                        model.addRow(row);
+                    }
                 }
             }
         }
-    }
 
     }
 
     private void populateRecentShipmentsTable() {
         DefaultTableModel model = (DefaultTableModel) tblRecentShipment.getModel();
-    model.setRowCount(0);
-    
-    if (organization != null && organization.getWorkQueue() != null) {
-        for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
-            if (request instanceof WarehouseWorkRequest) {
-                WarehouseWorkRequest warehouseRequest = (WarehouseWorkRequest) request;
-                
-                // 只显示状态为 Shipped 的请求
-                if ("Shipped".equals(warehouseRequest.getStatus())) {
-                    Object[] row = new Object[6];
-                    row[0] = warehouseRequest.getTrackingNumber();
-                    row[1] = warehouseRequest.getShippingMethod();
-                    row[2] = warehouseRequest.getDestination();
-                    row[3] = warehouseRequest.getStatus();
-                    row[4] = warehouseRequest.getRequestDate();
-                    row[5] = warehouseRequest.getEstimatedDeliveryDate();
-                    
-                    model.addRow(row);
+        model.setRowCount(0);
+
+        if (organization != null && organization.getWorkQueue() != null) {
+            for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
+                if (request instanceof WarehouseWorkRequest) {
+                    WarehouseWorkRequest warehouseRequest = (WarehouseWorkRequest) request;
+
+                    // 只显示状态为 Shipped 的请求
+                    if ("Shipped".equals(warehouseRequest.getStatus())) {
+                        Object[] row = new Object[6];
+                        row[0] = warehouseRequest.getTrackingNumber();
+                        row[1] = warehouseRequest.getShippingMethod();
+                        row[2] = warehouseRequest.getDestination();
+                        row[3] = warehouseRequest.getStatus();
+                        row[4] = warehouseRequest.getRequestDate();
+                        row[5] = warehouseRequest.getEstimatedDeliveryDate();
+
+                        model.addRow(row);
+                    }
                 }
             }
         }
-    }
     }
 
     private void addSampleShipmentData(javax.swing.table.DefaultTableModel model) {
@@ -928,10 +966,9 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         }
     }
 
-    
     public void refreshTables() {
-    populatePendingTasksTable();
-    populateRecentShipmentsTable();
-}
+        populatePendingTasksTable();
+        populateRecentShipmentsTable();
+    }
 
 }

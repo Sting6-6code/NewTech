@@ -10,6 +10,8 @@ import Business.Logistics.CustomsDeclaration;
 import Business.Organization.CustomsLiaisonOrganization;
 import Business.Organization.Organization;
 import Business.UserAccount.UserAccount;
+import Business.WorkQueue.LogisticsWorkRequest;
+import Business.WorkQueue.WorkRequest;
 import java.awt.CardLayout;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,7 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.swing.JOptionPane;
 import ui.CustomerServiceRole.CustomerComplaintContent;
-
 
 /**
  *
@@ -45,7 +46,6 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         lblApprovedDocs.setText("Approved Documents: 0");
         lblRejectedDocs.setText("Rejected Documents: 0");
         lblTaxReturns.setText("Tax Returns: 0");
-        lblAlerts.setText("No urgent notifications");
     }
 
     public CustomsLiaisonOfficeHP(JPanel userProcessContainer, UserAccount account,
@@ -74,7 +74,7 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
                 System.out.println("Using customs declarations from logistics organization");
             } else {
                 System.out.println("Warning: No logistics organization data available");
-                lblAlerts.setText("Error: Customs organization data not available");
+//                lblAlerts.setText("Error: Customs organization data not available");
                 return;
             }
         } else {
@@ -94,8 +94,6 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         // Update recent activities table
         populateRecentActivitiesTable();
 
-        // Update alerts
-        updateAlerts();
     }
 
     private void updateStatisticsPanels() {
@@ -127,92 +125,65 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
 
     private void populatePendingDocsTable() {
         // Check if organization is null
-        if (organization == null || organization.getCustomsDeclarationDirectory() == null) {
-            System.out.println("Warning: Organization or customs declaration directory is null");
-            // Set default values
-            lblPendingReviews.setText("Pending Reviews: 0");
-            lblApprovedDocs.setText("Approved Documents: 0");
-            lblRejectedDocs.setText("Rejected Documents: 0");
-            lblTaxReturns.setText("Tax Returns: 0");
-            return;
-        }
-
         DefaultTableModel model = (DefaultTableModel) tblPendingDocs.getModel();
-        model.setRowCount(0); // Clear existing rows
+        model.setRowCount(0);
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        // 设置列标题
+        String[] columns = {"Declaration ID", "Type", "Status", "Submission Date"};
+        model.setColumnIdentifiers(columns);
 
-        List<CustomsDeclaration> pendingDeclarations = organization.getCustomsDeclarationDirectory().getPendingDeclarations();
+        if (organization != null && organization.getWorkQueue() != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-        for (CustomsDeclaration declaration : pendingDeclarations) {
-            Object[] row = {
-                declaration.getDeclarationId(),
-                "Customs Declaration",
-                dateFormat.format(declaration.getSubmissionDate()),
-                declaration.getStatus(),
-                "Review"
-            };
-            model.addRow(row);
+            for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
+                if (request instanceof LogisticsWorkRequest) {
+                    LogisticsWorkRequest customsRequest = (LogisticsWorkRequest) request;
+
+                    // 只显示提交状态为"Submitted"的请求，但显示为"Pending"
+                    if ("Submitted".equals(customsRequest.getStatus())) {
+                        Object[] row = new Object[4];
+                        row[0] = customsRequest.getDeclarationId();
+                        row[1] = customsRequest.getDeclarationType() != null
+                                ? customsRequest.getDeclarationType() : "Standard";
+                        row[2] = "Pending"; // 显示为Pending
+                        row[3] = dateFormat.format(customsRequest.getRequestDate());
+
+                        model.addRow(row);
+                    }
+                }
+            }
         }
     }
 
     private void populateRecentActivitiesTable() {
-        // Check if organization is null
-        if (organization == null || organization.getCustomsDeclarationDirectory() == null) {
-            System.out.println("Warning: Organization or customs declaration directory is null");
-            // Set default values
-            lblPendingReviews.setText("Pending Reviews: 0");
-            lblApprovedDocs.setText("Approved Documents: 0");
-            lblRejectedDocs.setText("Rejected Documents: 0");
-            lblTaxReturns.setText("Tax Returns: 0");
-            return;
-        }
-
         DefaultTableModel model = (DefaultTableModel) tblRecentActivities.getModel();
-        model.setRowCount(0); // Clear existing rows
+        model.setRowCount(0);
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        if (organization != null && organization.getWorkQueue() != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-        List<CustomsDeclaration> recentDeclarations = organization.getCustomsDeclarationDirectory().getRecentDeclarations();
+            for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
+                if (request instanceof LogisticsWorkRequest) {
+                    LogisticsWorkRequest customsRequest = (LogisticsWorkRequest) request;
 
-        for (CustomsDeclaration declaration : recentDeclarations) {
-            Object[] row = {
-                "Declaration Processing",
-                declaration.getDeclarationId(),
-                dateFormat.format(declaration.getDeclarationDate()),
-                userAccount.getUsername(),
-                declaration.getStatus(),
-                "View"
-            };
-            model.addRow(row);
-        }
-    }
+                    // 只显示已处理的请求(状态为Approved、Rejected或Information Needed)
+                    if ("Approved".equals(customsRequest.getStatus())
+                            || "Rejected".equals(customsRequest.getStatus())
+                            || "Information Needed".equals(customsRequest.getStatus())) {
 
-    private void updateAlerts() {
-        // Check if organization is null
-        if (organization == null || organization.getCustomsDeclarationDirectory() == null) {
-            System.out.println("Warning: Organization or customs declaration directory is null");
-            // Set default values
-            lblPendingReviews.setText("Pending Reviews: 0");
-            lblApprovedDocs.setText("Approved Documents: 0");
-            lblRejectedDocs.setText("Rejected Documents: 0");
-            lblTaxReturns.setText("Tax Returns: 0");
-            return;
-        }
+                        Object[] row = new Object[4];
+                        row[0] = customsRequest.getDeclarationId();
+                        row[1] = customsRequest.getDeclarationType() != null
+                                ? customsRequest.getDeclarationType() : "Standard";
+                        row[2] = customsRequest.getStatus();
+                        row[3] = customsRequest.getResolveDate() != null
+                                ? dateFormat.format(customsRequest.getResolveDate())
+                                : dateFormat.format(new Date());
 
-        // Get overdue declarations
-        List<CustomsDeclaration> overdueDeclarations = organization.getCustomsDeclarationDirectory().getOverdueDeclarations();
-
-        if (!overdueDeclarations.isEmpty()) {
-            StringBuilder alertText = new StringBuilder("<html>Alerts:<br/>");
-            for (CustomsDeclaration declaration : overdueDeclarations) {
-                alertText.append("- Declaration ").append(declaration.getDeclarationId())
-                        .append(" is pending for over 48 hours<br/>");
+                        model.addRow(row);
+                    }
+                }
             }
-            alertText.append("</html>");
-            lblAlerts.setText(alertText.toString());
-        } else {
-            lblAlerts.setText("No urgent notifications");
         }
     }
 
@@ -239,8 +210,7 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         lblPendingDocs = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblPendingDocs = new javax.swing.JTable();
-        AlertJPanel = new javax.swing.JPanel();
-        lblAlerts = new javax.swing.JLabel();
+        btnViewDetails = new javax.swing.JButton();
         recentActivitiesJPanel = new javax.swing.JPanel();
         lblRecentActivities = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -367,6 +337,13 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         ));
         jScrollPane2.setViewportView(tblPendingDocs);
 
+        btnViewDetails.setText("View Details");
+        btnViewDetails.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnViewDetailsActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout pendingDocsJPanelLayout = new javax.swing.GroupLayout(pendingDocsJPanel);
         pendingDocsJPanel.setLayout(pendingDocsJPanelLayout);
         pendingDocsJPanelLayout.setHorizontalGroup(
@@ -375,39 +352,23 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(pendingDocsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblPendingDocs)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 630, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(16, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1267, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(37, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pendingDocsJPanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnViewDetails)
+                .addGap(64, 64, 64))
         );
         pendingDocsJPanelLayout.setVerticalGroup(
             pendingDocsJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pendingDocsJPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lblPendingDocs)
-                .addGap(26, 26, 26)
+                .addGap(22, 22, 22)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(41, Short.MAX_VALUE))
-        );
-
-        AlertJPanel.setBackground(new java.awt.Color(255, 255, 255));
-        AlertJPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        lblAlerts.setText("Notifications");
-
-        javax.swing.GroupLayout AlertJPanelLayout = new javax.swing.GroupLayout(AlertJPanel);
-        AlertJPanel.setLayout(AlertJPanelLayout);
-        AlertJPanelLayout.setHorizontalGroup(
-            AlertJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(AlertJPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblAlerts)
-                .addContainerGap(479, Short.MAX_VALUE))
-        );
-        AlertJPanelLayout.setVerticalGroup(
-            AlertJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(AlertJPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblAlerts)
-                .addContainerGap(243, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnViewDetails)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         recentActivitiesJPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -437,15 +398,15 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(recentActivitiesJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblRecentActivities)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1208, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(12, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1268, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(34, Short.MAX_VALUE))
         );
         recentActivitiesJPanelLayout.setVerticalGroup(
             recentActivitiesJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(recentActivitiesJPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lblRecentActivities)
-                .addGap(18, 18, 18)
+                .addGap(20, 20, 20)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(9, Short.MAX_VALUE))
         );
@@ -457,40 +418,33 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
             .addGroup(cusHPWorkspaceJPanelLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(cusHPWorkspaceJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(cusHPWorkspaceJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(cusHPWorkspaceJPanelLayout.createSequentialGroup()
-                            .addComponent(pendingDocsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(AlertJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(cusHPWorkspaceJPanelLayout.createSequentialGroup()
-                            .addComponent(pendingRevsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(18, 18, 18)
-                            .addComponent(ApprovedDocumentsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(18, 18, 18)
-                            .addComponent(RejectedDocsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(18, 18, 18)
-                            .addComponent(TaxReturnsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(cusHPWorkspaceJPanelLayout.createSequentialGroup()
-                        .addGap(2, 2, 2)
-                        .addComponent(recentActivitiesJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(pendingRevsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(ApprovedDocumentsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(RejectedDocsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(TaxReturnsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(cusHPWorkspaceJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(recentActivitiesJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(pendingDocsJPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         cusHPWorkspaceJPanelLayout.setVerticalGroup(
             cusHPWorkspaceJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(cusHPWorkspaceJPanelLayout.createSequentialGroup()
                 .addGap(31, 31, 31)
-                .addGroup(cusHPWorkspaceJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pendingRevsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(ApprovedDocumentsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(RejectedDocsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(TaxReturnsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(cusHPWorkspaceJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(ApprovedDocumentsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(RejectedDocsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(TaxReturnsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(pendingRevsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(54, 54, 54)
-                .addGroup(cusHPWorkspaceJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(AlertJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pendingDocsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(pendingDocsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(recentActivitiesJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         jSplitPane.setRightComponent(cusHPWorkspaceJPanel);
@@ -551,9 +505,8 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
             .addGroup(cusHPControlJPanelLayout.createSequentialGroup()
                 .addGap(14, 14, 14)
                 .addGroup(cusHPControlJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(cusHPControlJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(btnDashBoard, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnLogout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnDashBoard, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnLogout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnCusComplaint, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnProfile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnReturnTax, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -687,21 +640,38 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
 
     private void btnCusComplaintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCusComplaintActionPerformed
         // TODO add your handling code here:
-        
+
         CustomsComplaintContent complaintPanel = new CustomsComplaintContent(userProcessContainer);
         complaintPanel.setSize(1450, 800);
         userProcessContainer.add("CustomsComplaintContent", complaintPanel);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.show(userProcessContainer, "CustomsComplaintContent");
 
-        
-        
-        
+
     }//GEN-LAST:event_btnCusComplaintActionPerformed
+
+    private void btnViewDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewDetailsActionPerformed
+        // TODO add your handling code here:
+        // 获取Pending Documents表格中选中的行
+        int selectedRow = tblPendingDocs.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a document to view");
+            return;
+        }
+
+        // 获取选中的申报单ID
+        String declarationId = tblPendingDocs.getValueAt(selectedRow, 0).toString();
+
+        // 跳转到DocumentReview页面
+        DocumentReview documentReview = new DocumentReview(userProcessContainer, userAccount, organization);
+        documentReview.setSelectedDeclarationId(declarationId); // 设置选中的申报单ID，便于在目标页面加载
+        userProcessContainer.add("DocumentReview", documentReview);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.next(userProcessContainer);
+    }//GEN-LAST:event_btnViewDetailsActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel AlertJPanel;
     private javax.swing.JPanel ApprovedDocumentsJPanel;
     private javax.swing.JPanel RejectedDocsJPanel;
     private javax.swing.JPanel TaxReturnsJPanel;
@@ -712,12 +682,12 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
     private javax.swing.JButton btnProfile;
     private javax.swing.JButton btnReturnTax;
     private javax.swing.JButton btnSubmitDocs;
+    private javax.swing.JButton btnViewDetails;
     private javax.swing.JPanel cusHPControlJPanel;
     private javax.swing.JPanel cusHPWorkspaceJPanel;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSplitPane jSplitPane;
-    private javax.swing.JLabel lblAlerts;
     private javax.swing.JLabel lblApprovedDocs;
     private javax.swing.JLabel lblPendingDocs;
     private javax.swing.JLabel lblPendingReviews;
@@ -730,4 +700,93 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
     private javax.swing.JTable tblPendingDocs;
     private javax.swing.JTable tblRecentActivities;
     // End of variables declaration//GEN-END:variables
+
+    /**
+     * 刷新所有数据表格和面板 在状态变更后调用此方法以更新UI
+     */
+    public void refreshData() {
+        System.out.println("Refreshing data in CustomsLiaisonOfficeHP");
+
+        // 刷新待处理文档表格
+        populatePendingDocumentsTable();
+
+        // 刷新最近活动表格
+        populateRecentActivitiesTable();
+
+        // 刷新其他可能需要更新的UI组件
+        refreshStatistics();
+
+        // 重绘面板
+        this.repaint();
+        this.revalidate();
+    }
+
+    /**
+     * 刷新待处理文档表格
+     */
+    private void populatePendingDocumentsTable() {
+        DefaultTableModel model = (DefaultTableModel) tblPendingDocs.getModel();
+        model.setRowCount(0);
+
+        if (organization != null && organization.getWorkQueue() != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+            for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
+                if (request instanceof LogisticsWorkRequest) {
+                    LogisticsWorkRequest customsRequest = (LogisticsWorkRequest) request;
+
+                    // 只显示提交状态为"Submitted"的请求，显示为"Pending"
+                    if ("Submitted".equals(customsRequest.getStatus())) {
+                        Object[] row = new Object[4];
+                        row[0] = customsRequest.getDeclarationId();
+                        row[1] = customsRequest.getDeclarationType() != null
+                                ? customsRequest.getDeclarationType() : "Standard";
+                        row[2] = "Pending"; // 显示为Pending
+                        row[3] = dateFormat.format(customsRequest.getRequestDate());
+
+                        model.addRow(row);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 刷新统计数据
+     */
+    private void refreshStatistics() {
+        // 计算各种状态的文档数量
+        int pendingCount = 0;
+        int approvedCount = 0;
+        int rejectedCount = 0;
+        int infoNeededCount = 0;
+
+        if (organization != null && organization.getWorkQueue() != null) {
+            for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
+                if (request instanceof LogisticsWorkRequest) {
+                    LogisticsWorkRequest customsRequest = (LogisticsWorkRequest) request;
+
+                    if ("Submitted".equals(customsRequest.getStatus())) {
+                        pendingCount++;
+                    } else if ("Approved".equals(customsRequest.getStatus())) {
+                        approvedCount++;
+                    } else if ("Rejected".equals(customsRequest.getStatus())) {
+                        rejectedCount++;
+                    } else if ("Information Needed".equals(customsRequest.getStatus())) {
+                        infoNeededCount++;
+                    }
+                }
+            }
+        }
+
+        // 更新统计标签（如果有的话）
+        // 如果您有显示统计数据的标签，请取消注释并修改以下代码
+        /*
+    lblPendingCount.setText(String.valueOf(pendingCount));
+    lblApprovedCount.setText(String.valueOf(approvedCount));
+    lblRejectedCount.setText(String.valueOf(rejectedCount));
+    lblInfoNeededCount.setText(String.valueOf(infoNeededCount));
+         */
+        // 如果您使用图表，请在此更新图表数据
+    }
 }
