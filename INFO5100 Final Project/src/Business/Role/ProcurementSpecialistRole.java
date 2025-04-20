@@ -28,4 +28,8 @@ public class ProcurementSpecialistRole extends Role {
         return procurementSpecialistHP;
     }
     
+    @Override
+    public String toString() {
+        return "Procurement Specialist";
+    }
 }

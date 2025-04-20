@@ -28,6 +28,11 @@ public class WarehouseManagerRole extends Role {
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, 
             Organization organization, Enterprise enterprise, EcoSystem business) {
         return new WarehouseHP(account.getUsername());
-        }
-
     }
+
+    @Override
+    public String toString() {
+        return "Warehouse Manager";
+    }
+    
+}

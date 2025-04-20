@@ -31,6 +31,9 @@ public class CustomerServiceRepRole extends Role {
         return customerServiceHP;
     }
     
-    
+    @Override
+    public String toString() {
+        return "Customer Service Rep";
+    }
     
 }

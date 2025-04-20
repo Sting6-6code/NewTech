@@ -28,27 +28,34 @@ public class AdminHP extends javax.swing.JPanel {
     
   
     public AdminHP() {
-//        System.out.println("⚠️ Warning: Default constructor used — make sure this is intentional!");
-//        initComponents();
-//        this.setPreferredSize(new java.awt.Dimension(1450, 800));
-//        populateTable();
-        
-         throw new RuntimeException("🚨 Default constructor of AdminHP used! Stack trace below:");
+
     }
     
-    public AdminHP(JPanel jp, UserAccount ua, Enterprise e, Organization o, EcoSystem b) {
-        System.out.println("⚠️ Warning: Default constructor used — make sure this is intentional!");
+    public AdminHP(JPanel jp, UserAccount ua, Enterprise e, AdminOrganization o, EcoSystem b) {
         this.setPreferredSize(new java.awt.Dimension(1450, 800));
         this.workArea = jp;
         this.userAccount = ua;
         this.enterprise = e;
         adminOrg = o;
         business = b;
+        
+        // Transfer user accounts from system to AdminOrganization
+        if (adminOrg != null && business != null) {
+            System.out.println("Transferring user accounts from system to AdminOrganization...");
+            for (UserAccount systemUA : business.getUserAccountDirectory().getUserAccountList()) {
+                adminOrg.getUserAccountDirectory().getUserAccountList().add(systemUA);
+            }
+            System.out.println("Transferred " + adminOrg.getUserAccountDirectory().getUserAccountList().size() + " user accounts");
+        }
+        
         System.out.println("Received JPanel: " + (jp != null ? "Not null ✅" : "NULL ❌"));
         System.out.println("JPanel class: " + (jp != null ? jp.getClass().getName() : "null"));
+        System.out.println("AdminOrg: " + (adminOrg != null ? "Not null ✅" : "NULL ❌"));
+        System.out.println("UserAccountDirectory: " + (adminOrg != null && adminOrg.getUserAccountDirectory() != null ? "Not null ✅" : "NULL ❌"));
+        System.out.println("Number of user accounts: " + (adminOrg != null && adminOrg.getUserAccountDirectory() != null ? adminOrg.getUserAccountDirectory().getUserAccountList().size() : "N/A"));
+        
         initComponents();
         populateTable();
-//        System.out.println(workArea.getName());
     }
 
     /**
@@ -309,13 +316,24 @@ public class AdminHP extends javax.swing.JPanel {
         DefaultTableModel m = (DefaultTableModel) tblUsers.getModel();
         m.setRowCount(0);
         
+        // Debug logging
+        System.out.println("Accessing UserAccountDirectory from AdminOrganization...");
+        System.out.println("AdminOrg: " + (adminOrg != null ? "Not null ✅" : "NULL ❌"));
+        System.out.println("UserAccountDirectory: " + (adminOrg != null && adminOrg.getUserAccountDirectory() != null ? "Not null ✅" : "NULL ❌"));
+        
+        if (adminOrg != null && adminOrg.getUserAccountDirectory() != null) {
+            System.out.println("Number of user accounts: " + adminOrg.getUserAccountDirectory().getUserAccountList().size());
+            System.out.println("User accounts: " + adminOrg.getUserAccountDirectory().getUserAccountList());
+        }
+        
         for (UserAccount ua : adminOrg.getUserAccountDirectory().getUserAccountList()) {
+            System.out.println("Processing user account: " + ua.toString());
             Object[] row = new Object[5];
             row[0] = ua;
-            row[1] = ua.getPassword();
-            row[2] = ua.getEmployee().getId();
-            row[3] = ua.getEmployee().toString();
-            row[5] = ua.getRole();
+            row[1] = ua.getEmployee().getId();
+            row[2] = ua.getEmployee().toString();
+            row[3] = ua.getRole();
+            row[4] = ua.getPassword();
             m.addRow(row);
         }
     }
