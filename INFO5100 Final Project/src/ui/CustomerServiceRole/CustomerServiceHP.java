@@ -7,7 +7,7 @@ package ui.CustomerServiceRole;
 
 import Business.Supplier.Supplier;
 import ui.CustomerServiceRole.ComplaintManagementJpanel;
-import ui.CustomerServiceRole.CustomerComplaintContent;
+//import ui.CustomerServiceRole.CustomerComplaintContent;
 import ui.CustomerServiceRole.ManageOwnProfile;
 import java.awt.CardLayout;
 import Business.EcoSystem;
@@ -70,7 +70,6 @@ public class CustomerServiceHP extends javax.swing.JPanel {
         ComplaintPanel = new javax.swing.JPanel();
         btnComplaintManagement = new javax.swing.JButton();
         btnProfile = new javax.swing.JButton();
-        btnComplaintContent = new javax.swing.JButton();
         ComplaintWorkAreajPanel = new javax.swing.JPanel();
 
         btnComplaintManagement.setText("Complaint Management");
@@ -87,25 +86,14 @@ public class CustomerServiceHP extends javax.swing.JPanel {
             }
         });
 
-        btnComplaintContent.setText("Complaint Content");
-        btnComplaintContent.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnComplaintContentActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout ComplaintPanelLayout = new javax.swing.GroupLayout(ComplaintPanel);
         ComplaintPanel.setLayout(ComplaintPanelLayout);
         ComplaintPanelLayout.setHorizontalGroup(
             ComplaintPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ComplaintPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(ComplaintPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(ComplaintPanelLayout.createSequentialGroup()
-                        .addComponent(btnProfile, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(btnComplaintContent, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                .addComponent(btnProfile, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(ComplaintPanelLayout.createSequentialGroup()
                 .addComponent(btnComplaintManagement)
                 .addGap(0, 0, Short.MAX_VALUE))
@@ -115,9 +103,7 @@ public class CustomerServiceHP extends javax.swing.JPanel {
             .addGroup(ComplaintPanelLayout.createSequentialGroup()
                 .addGap(303, 303, 303)
                 .addComponent(btnComplaintManagement)
-                .addGap(36, 36, 36)
-                .addComponent(btnComplaintContent)
-                .addGap(39, 39, 39)
+                .addGap(98, 98, 98)
                 .addComponent(btnProfile)
                 .addContainerGap(2441, Short.MAX_VALUE))
         );
@@ -187,18 +173,9 @@ public class CustomerServiceHP extends javax.swing.JPanel {
         layout.next(ComplaintWorkAreajPanel);  
     }//GEN-LAST:event_btnProfileActionPerformed
 
-    private void btnComplaintContentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComplaintContentActionPerformed
-        // TODO add your handling code here:
-        CustomerComplaintContent customerComplaintContent = new CustomerComplaintContent(ComplaintWorkAreajPanel);
-        ComplaintWorkAreajPanel.add("ComplaintContentJPanel", customerComplaintContent);
-        CardLayout layout = (CardLayout) ComplaintWorkAreajPanel.getLayout();
-        layout.next(ComplaintWorkAreajPanel);
-    }//GEN-LAST:event_btnComplaintContentActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel ComplaintPanel;
     private javax.swing.JPanel ComplaintWorkAreajPanel;
-    private javax.swing.JButton btnComplaintContent;
     private javax.swing.JButton btnComplaintManagement;
     private javax.swing.JButton btnProfile;
     private javax.swing.JSplitPane jSplitPane1;
