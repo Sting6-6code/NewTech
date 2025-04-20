@@ -242,6 +242,7 @@ public class ViewMerchantRequestsJPanel extends javax.swing.JPanel {
             }
         });
 
+        RequestTable1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         RequestTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},

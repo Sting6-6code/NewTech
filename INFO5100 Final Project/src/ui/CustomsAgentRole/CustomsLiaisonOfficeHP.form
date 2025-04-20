@@ -532,10 +532,8 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="btnDashBoard" alignment="0" max="32767" attributes="0"/>
-                              <Component id="btnLogout" alignment="0" max="32767" attributes="0"/>
-                          </Group>
+                          <Component id="btnDashBoard" alignment="0" max="32767" attributes="0"/>
+                          <Component id="btnLogout" alignment="0" max="32767" attributes="0"/>
                           <Component id="btnCusComplaint" max="32767" attributes="0"/>
                           <Component id="btnProfile" alignment="0" max="32767" attributes="0"/>
                           <Component id="btnReturnTax" alignment="0" max="32767" attributes="0"/>

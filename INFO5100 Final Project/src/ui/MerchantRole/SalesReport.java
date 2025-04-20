@@ -86,6 +86,7 @@ public class SalesReport extends javax.swing.JPanel {
         endDateChooser.setDateFormatString("yyyy-MM-dd");
 
         jTextArea1.setColumns(20);
+        jTextArea1.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); // NOI18N
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
 
