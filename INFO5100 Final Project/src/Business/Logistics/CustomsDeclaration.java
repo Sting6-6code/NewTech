@@ -28,6 +28,9 @@ public class CustomsDeclaration {
     private String customsOffice;
     private Date processingDate;
     private String notes;
+    private String declarationType;
+    private String hsCode;
+    
 
     public CustomsDeclaration() {
         this.declarationDate = new Date();
@@ -178,6 +181,22 @@ public class CustomsDeclaration {
 
     public String getDeclarationNumber() {
         return declarationNumber;
+    }
+
+    public String getDeclarationType() {
+        return declarationType;
+    }
+
+    public void setDeclarationType(String declarationType) {
+        this.declarationType = declarationType;
+    }
+
+    public String getHsCode() {
+        return hsCode;
+    }
+
+    public void setHsCode(String hsCode) {
+        this.hsCode = hsCode;
     }
 
     @Override

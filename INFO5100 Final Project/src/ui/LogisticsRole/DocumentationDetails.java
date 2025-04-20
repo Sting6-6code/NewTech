@@ -5,19 +5,36 @@
 package ui.LogisticsRole;
 
 import Business.ConfigureASystem;
+import Business.DB4OUtil.DB4OUtil;
+import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
+import Business.Enterprise.LogisticsGroupEnterprise;
 import Business.Logistics.CustomsDeclaration;
+import Business.Logistics.CustomsDeclaration.CustomsLineItem;
 import Business.Logistics.CustomsDeclarationDirectory;
+import Business.Logistics.Shipment;
+import Business.Network.Network;
+import Business.Organization.CustomsLiaisonOrganization;
 import Business.Organization.LogisticsOrganization;
+import Business.Organization.Organization;
 import Business.UserAccount.UserAccount;
+import Business.WorkQueue.LogisticsWorkRequest;
 import java.awt.CardLayout;
+import java.awt.GridLayout;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -33,52 +50,154 @@ public class DocumentationDetails extends javax.swing.JPanel {
     private Enterprise enterprise;
     private LogisticsOrganization organization;
     private CustomsDeclarationDirectory declarationDirectory;
+    private Shipment currentShipment;
     private CustomsDeclaration currentDeclaration;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private JPanel parentPanel;
+
+    // 声明UI组件
+    private JTable tblItems;
+    private JLabel lblDeclarationId;
+    private JTextField txtDeclarationId;
+    private JLabel lblDeclarationNumber;
+    private JTextField txtDeclarationNumber;
+    private JLabel lblShipmentId;
+    private JTextField txtShipmentId;
+    private JLabel lblDeclarationType;
+    private JComboBox<String> cmbDeclarationType;
+    private JComboBox<String> cmbStatus;
+    private JLabel lblDeclarationDate;
+    private JTextField txtDeclarationDate;
+    private JLabel lblSubmissionDate;
+    private JTextField txtSubmissionDate;
+    private JLabel lblCountryOfOrigin;
+    private JTextField txtCountryOfOrigin;
+    private JLabel lblDestinationCountry;
+    private JTextField txtDestinationCountry;
+    private JLabel lblHsCode;
+    private JTextField txtHsCode;
+    private JLabel lblNotes;
+    private JTextArea txtNotes;
+    private JButton btnRemoveItem;
 
     /**
      * Creates new form Documentation
      */
     public DocumentationDetails(JPanel userProcessContainer, UserAccount account,
-            Enterprise enterprise, LogisticsOrganization organization) {
+            Enterprise enterprise, LogisticsOrganization organization, Shipment shipment, JPanel parentPanel) {
         initComponents();
 
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.enterprise = enterprise;
-        this.organization = ConfigureASystem.logisticsOrg;
-        this.declarationDirectory = organization.getCustomsDeclarationDirectory();
-
-        if (this.organization == null) {
-            this.organization = organization;
-            System.out.println("WARNING: Using passed organization instance because global instance is null");
-        }
-        System.out.println("DocumentationDetails initialized with organization: "
-                + (this.organization != null ? "Yes" : "No"));
-
+        this.organization = ConfigureASystem.getLogisticsOrganization();
         if (this.organization != null) {
             this.declarationDirectory = this.organization.getCustomsDeclarationDirectory();
-
-            if (this.declarationDirectory != null) {
-                System.out.println("CustomsDeclarationDirectory exists with "
-                        + this.declarationDirectory.getCustomsDeclarationList().size() + " declarations");
-            } else {
-                System.out.println("CustomsDeclarationDirectory is null");
-            }
-        } else {
-            System.out.println("ERROR: Organization is null");
+            System.out.println("共加载了 " + this.declarationDirectory.getCustomsDeclarationList().size() + " 个报关单");
         }
 
-        // 初始化表格
-        setupDeclarationListTable();
-        setupGoodsInfoTable();
+        this.declarationDirectory = organization.getCustomsDeclarationDirectory();
+        this.currentShipment = shipment;
+        this.parentPanel = parentPanel;
 
-        // 设置按钮初始状态
-        btnSave.setEnabled(false);
-        btnSubmit.setEnabled(false);
-        btnPrint.setEnabled(false);
-        btnDelete.setEnabled(false);
-        btnAddItem.setEnabled(false);
+        if (this.currentShipment != null) {
+            this.currentDeclaration = currentShipment.getCustomsDeclaration();
+
+            // 如果没有海关文档，创建一个新的
+            if (this.currentDeclaration == null) {
+                this.currentDeclaration = new CustomsDeclaration();
+                this.currentDeclaration.setDeclarationId("CD" + System.currentTimeMillis());
+                this.currentDeclaration.setShipmentId(currentShipment.getShipmentId());
+                this.currentDeclaration.setCountryOfOrigin("China");
+                this.currentDeclaration.setConsignor("Shanghai Warehouse");
+                this.currentDeclaration.setConsignee(currentShipment.getDestination());
+//                this.currentDeclaration.setDestinationCountry(extractCountry(currentShipment.getDestination()));
+                this.currentDeclaration.setDeclarationDate(new Date());
+                this.currentDeclaration.setStatus("Pending");
+
+                currentShipment.setCustomsDeclaration(this.currentDeclaration);
+
+                // 保存到系统
+                EcoSystem system = EcoSystem.getInstance();
+                DB4OUtil.getInstance().storeSystem(system);
+            }
+        }
+
+        initComponents();
+        populateFields();
+    }
+
+    private void populateFields() {
+        if (currentDeclaration != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+            // 基本信息
+            txtDeclarationId.setText(currentDeclaration.getDeclarationId());
+            txtDeclarationNumber.setText(currentDeclaration.getDeclarationNumber() != null
+                    ? currentDeclaration.getDeclarationNumber() : "");
+            txtShipmentId.setText(currentDeclaration.getShipmentId());
+
+            if (currentDeclaration.getDeclarationType() != null) {
+                for (int i = 0; i < cmbDeclarationType.getItemCount(); i++) {
+                    if (cmbDeclarationType.getItemAt(i).equals(currentDeclaration.getDeclarationType())) {
+                        cmbDeclarationType.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            }
+
+            if (currentDeclaration.getStatus() != null) {
+                for (int i = 0; i < cmbStatus.getItemCount(); i++) {
+                    if (cmbStatus.getItemAt(i).equals(currentDeclaration.getStatus())) {
+                        cmbStatus.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            }
+
+            txtDeclarationDate.setText(currentDeclaration.getDeclarationDate() != null
+                    ? dateFormat.format(currentDeclaration.getDeclarationDate()) : "");
+            txtSubmissionDate.setText(currentDeclaration.getSubmissionDate() != null
+                    ? dateFormat.format(currentDeclaration.getSubmissionDate()) : "");
+            txtProcessingDate.setText(currentDeclaration.getProcessingDate() != null
+                    ? dateFormat.format(currentDeclaration.getProcessingDate()) : "");
+
+            // 详细信息
+            txtConsignor.setText(currentDeclaration.getConsignor() != null
+                    ? currentDeclaration.getConsignor() : "");
+            txtConsignee.setText(currentDeclaration.getConsignee() != null
+                    ? currentDeclaration.getConsignee() : "");
+            txtCountryOfOrigin.setText(currentDeclaration.getCountryOfOrigin() != null
+                    ? currentDeclaration.getCountryOfOrigin() : "");
+            txtDestinationCountry.setText(currentDeclaration.getDestinationCountry() != null
+                    ? currentDeclaration.getDestinationCountry() : "");
+            txtCustomsOffice.setText(currentDeclaration.getCustomsOffice() != null
+                    ? currentDeclaration.getCustomsOffice() : "");
+            txtHsCode.setText(currentDeclaration.getHsCode() != null
+                    ? currentDeclaration.getHsCode() : "");
+
+            // 备注
+            txtNotes.setText(currentDeclaration.getNotes() != null
+                    ? currentDeclaration.getNotes() : "");
+
+            // 物品列表
+            DefaultTableModel model = (DefaultTableModel) tblItems.getModel();
+            model.setRowCount(0);
+
+            if (currentDeclaration.getItems() != null) {
+                for (CustomsLineItem item : currentDeclaration.getItems()) {
+                    model.addRow(new Object[]{
+                        item.getDescription(),
+                        item.getHsCode(),
+                        item.getQuantity(),
+                        item.getUnit(),
+                        item.getUnitValue(),
+                        item.getTotalValue(),
+                        item.getGrossWeight()
+                    });
+                }
+            }
+        }
     }
 
     // 初始化报关单列表表格
@@ -772,9 +891,12 @@ public class DocumentationDetails extends javax.swing.JPanel {
                 declarationDirectory.addCustomsDeclaration(currentDeclaration);
             }
 
+            // 创建并发送 LogisticsWorkRequest 到海关
+            sendCustomsWorkRequest(currentDeclaration);
+
             refreshDeclarationList();
             updateButtonStates();
-            JOptionPane.showMessageDialog(this, "Declaration submitted successfully.");
+            JOptionPane.showMessageDialog(this, "Declaration submitted successfully and sent to Customs Office.");
         }
     }//GEN-LAST:event_btnSubmitActionPerformed
 
@@ -953,9 +1075,64 @@ public class DocumentationDetails extends javax.swing.JPanel {
 
     private void btnAddItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddItemActionPerformed
         // TODO add your handling code here:
-        if (currentDeclaration != null) {
-            DefaultTableModel model = (DefaultTableModel) tblGoodsInfo.getModel();
-            model.addRow(new Object[]{"", "", 0, "", 0.0, 0.0, 0.0});
+        // 创建对话框
+        JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JLabel lblDescription = new JLabel("Description:");
+        JTextField txtDescription = new JTextField(20);
+
+        JLabel lblHsCode = new JLabel("HS Code:");
+        JTextField txtHsCode = new JTextField(20);
+
+        JLabel lblQuantity = new JLabel("Quantity:");
+        JTextField txtQuantity = new JTextField(20);
+
+        JLabel lblUnit = new JLabel("Unit:");
+        JTextField txtUnit = new JTextField(20);
+        txtUnit.setText("PCS");
+
+        JLabel lblUnitValue = new JLabel("Unit Value:");
+        JTextField txtUnitValue = new JTextField(20);
+
+        JLabel lblGrossWeight = new JLabel("Gross Weight:");
+        JTextField txtGrossWeight = new JTextField(20);
+
+        panel.add(lblDescription);
+        panel.add(txtDescription);
+        panel.add(lblHsCode);
+        panel.add(txtHsCode);
+        panel.add(lblQuantity);
+        panel.add(txtQuantity);
+        panel.add(lblUnit);
+        panel.add(txtUnit);
+        panel.add(lblUnitValue);
+        panel.add(txtUnitValue);
+        panel.add(lblGrossWeight);
+        panel.add(txtGrossWeight);
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "Add Declaration Item",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            try {
+                String description = txtDescription.getText();
+                String hsCode = txtHsCode.getText();
+                int quantity = Integer.parseInt(txtQuantity.getText());
+                String unit = txtUnit.getText();
+                double unitValue = Double.parseDouble(txtUnitValue.getText());
+                double grossWeight = Double.parseDouble(txtGrossWeight.getText());
+
+                double totalValue = quantity * unitValue;
+
+                DefaultTableModel model = (DefaultTableModel) tblItems.getModel();
+                model.addRow(new Object[]{
+                    description, hsCode, quantity, unit, unitValue, totalValue, grossWeight
+                });
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null, "Please enter valid numbers for quantity, unit value, and gross weight.",
+                        "Invalid Input", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }//GEN-LAST:event_btnAddItemActionPerformed
 
@@ -1076,5 +1253,82 @@ public class DocumentationDetails extends javax.swing.JPanel {
         }
 
         return true;
+    }
+
+    public void initializeUI() {
+        // 确保declarationDirectory已正确初始化
+        if (this.organization != null) {
+            this.declarationDirectory = this.organization.getCustomsDeclarationDirectory();
+
+            // 调试信息
+            System.out.println("初始化UI...");
+            if (this.declarationDirectory != null) {
+                System.out.println("报关单数量: " + this.declarationDirectory.getCustomsDeclarationList().size());
+            } else {
+                System.out.println("报关单目录为空");
+            }
+        }
+
+        // 设置表格
+        setupDeclarationListTable();
+
+        // 如果有报关单，选择第一个
+        if (tblList != null && tblList.getModel().getRowCount() > 0) {
+            tblList.setRowSelectionInterval(0, 0);
+            String declarationId = tblList.getValueAt(0, 0).toString();
+            displayDeclarationDetails(declarationId);
+        }
+    }
+
+    private void sendCustomsWorkRequest(CustomsDeclaration declaration) {
+        try {
+            // 创建物流工作请求
+            LogisticsWorkRequest request = new LogisticsWorkRequest();
+
+            // 设置报关单信息
+            request.setDeclarationId(declaration.getDeclarationId());
+            request.setShipmentId(declaration.getShipmentId());
+            request.setDeclarationType(declaration.getDeclarationType());
+            request.setConsignor(declaration.getConsignor());
+            request.setConsignee(declaration.getConsignee());
+            request.setCountryOfOrigin(declaration.getCountryOfOrigin());
+            request.setDestinationCountry(declaration.getDestinationCountry());
+            request.setNotes(declaration.getNotes());
+
+            // 设置发送者和接收者
+            request.setSender(userAccount);
+
+            // 查找海关组织
+            Organization customsOrg = null;
+            for (Network network : EcoSystem.getInstance().getNetworkList()) {
+                for (Enterprise e : network.getEnterpriseDirectory().getEnterpriseList()) {
+                    if (e instanceof LogisticsGroupEnterprise) {
+                        for (Organization org : e.getOrganizationDirectory().getOrganizationList()) {
+                            if (org instanceof CustomsLiaisonOrganization) {
+                                customsOrg = org;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (customsOrg != null) {
+                    break;
+                }
+            }
+
+            // 将请求添加到海关组织的工作队列
+            if (customsOrg != null) {
+                customsOrg.getWorkQueue().getWorkRequestList().add(request);
+                System.out.println("Logistics work request sent to customs: " + request.getDeclarationId());
+            } else {
+                throw new Exception("No customs organization found");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error sending customs request: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
