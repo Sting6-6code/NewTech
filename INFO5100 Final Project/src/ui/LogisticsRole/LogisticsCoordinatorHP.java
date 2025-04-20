@@ -53,6 +53,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     private JLabel deltaLabel;
     private CustomsDeclarationDirectory declarationDirectory;
     private CustomsDeclaration currentDeclaration;
+    private JPanel parentPanel;
 
     /**
      * Creates new form LogisticsCoordinatorHP
@@ -73,6 +74,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         this.enterprise = enterprise;
 
         this.organization = ConfigureASystem.logisticsOrg;
+        this.parentPanel = parentPanel;
 
         if (this.organization != null) {
             this.declarationDirectory = this.organization.getCustomsDeclarationDirectory();
@@ -261,7 +263,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             .addGroup(CustomerCompJPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lblCustomerComplaint)
-                .addContainerGap(153, Short.MAX_VALUE))
+                .addContainerGap(152, Short.MAX_VALUE))
         );
 
         logisticsWorkAreajPanel.add(CustomerCompJPanel);
@@ -532,7 +534,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
                     + logisticsOrg.getShipmentDirectory().getShipments().size());
         }
 
-        ShipmentPanel shipmentPanel = new ShipmentPanel(userProcessContainer, userAccount, enterprise, logisticsOrg);
+        ShipmentPanel shipmentPanel = new ShipmentPanel(userProcessContainer, userAccount, enterprise, logisticsOrg, parentPanel);
         shipmentPanel.setSize(1450, 800);
         userProcessContainer.add("Shipment", shipmentPanel);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
@@ -543,39 +545,22 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     private void btnViewDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewDetailsActionPerformed
         // TODO add your handling code here:
         int selectedRow = tblPendingTasks.getSelectedRow();
-        if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Please select a task first");
-            return;
-        }
-
-        // 获取选中的运单号
-        String trackingNumber = tblPendingTasks.getValueAt(selectedRow, 0).toString();
-
-        // 根据运单号找到对应的物流请求
-        WorkRequest request = null;
-        for (WorkRequest req : organization.getWorkQueue().getWorkRequestList()) {
-            if (req instanceof WarehouseWorkRequest) {
-                WarehouseWorkRequest warehouseReq = (WarehouseWorkRequest) req;
-                if (warehouseReq.getTrackingNumber().equals(trackingNumber)) {
-                    request = warehouseReq;
-                    break;
-                }
-            }
-        }
-
-        if (request != null) {
-            // 跳转到ShipmentPanel显示详细信息
-            ShipmentPanel shipmentPanel = new ShipmentPanel(userProcessContainer, userAccount, enterprise, organization);
-            shipmentPanel.setSize(1450, 800);
-            userProcessContainer.add("Shipment", shipmentPanel);
-            CardLayout layout = (CardLayout) userProcessContainer.getLayout();
-            layout.show(userProcessContainer, "Shipment");
-
-            // 选中对应的运输单
-            selectShipmentInPanel(shipmentPanel, trackingNumber);
-        } else {
-            JOptionPane.showMessageDialog(this, "No corresponding transport request found");
-        }
+    if (selectedRow < 0) {
+        JOptionPane.showMessageDialog(this, "Please select a task");
+        return;
+    }
+    
+    String trackingNumber = tblPendingTasks.getValueAt(selectedRow, 0).toString();
+    
+    // 创建 ShipmentPanel 并传递 this 作为父面板
+    ShipmentPanel shipmentPanel = new ShipmentPanel(userProcessContainer, userAccount, enterprise, organization, this);
+    userProcessContainer.add("ShipmentPanel", shipmentPanel);
+    
+    // 自动选中对应的货件
+    selectShipmentInPanel(shipmentPanel, trackingNumber);
+    
+    CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+    layout.next(userProcessContainer);
     }//GEN-LAST:event_btnViewDetailsActionPerformed
 
 
@@ -693,67 +678,55 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
 
     private void populatePendingTasksTable() {
         // 创建表格模型
-        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) tblPendingTasks.getModel();
-        model.setRowCount(0); // 清空现有数据
-
-        // 从物流组织获取待处理的工作请求
-        if (organization != null && organization.getWorkQueue() != null) {
-            for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
-                // 筛选出WarehouseWorkRequest类型的请求
-                if (request instanceof WarehouseWorkRequest) {
-                    WarehouseWorkRequest warehouseRequest = (WarehouseWorkRequest) request;
-
-                    // 创建表格行
+        DefaultTableModel model = (DefaultTableModel) tblPendingTasks.getModel();
+    model.setRowCount(0);
+    
+    if (organization != null && organization.getWorkQueue() != null) {
+        for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
+            if (request instanceof WarehouseWorkRequest) {
+                WarehouseWorkRequest warehouseRequest = (WarehouseWorkRequest) request;
+                
+                // 只显示状态为 Pending 的请求
+                if ("Pending".equals(warehouseRequest.getStatus())) {
                     Object[] row = new Object[5];
-                    row[0] = warehouseRequest.getTrackingNumber(); // 任务ID使用运单号
-                    row[1] = "Logistics transport request"; // 任务类型
-                    row[2] = "Normal"; // 优先级，可根据实际需求从request中获取
-
-                    // 设置到期日期（目前使用预计送达日期）
-                    row[3] = warehouseRequest.getEstimatedDeliveryDate() != null
-                            ? new SimpleDateFormat("yyyy-MM-dd").format(warehouseRequest.getEstimatedDeliveryDate())
-                            : "";
-
-                    row[4] = warehouseRequest.getStatus(); // 状态
-
+                    row[0] = warehouseRequest.getTrackingNumber();
+                    row[1] = "Logistics transport request";
+                    row[2] = "Normal";
+                    row[3] = warehouseRequest.getRequestDate();
+                    row[4] = warehouseRequest.getStatus();
+                    
                     model.addRow(row);
                 }
             }
         }
+    }
 
     }
 
     private void populateRecentShipmentsTable() {
-        // Create a table model
         DefaultTableModel model = (DefaultTableModel) tblRecentShipment.getModel();
-        model.setRowCount(0);
-
-        // 设置列名
-        String[] columnNames = {"Tracking Number", "Ship Date", "Method", "Destination", "Status", "Est. Delivery"};
-        model.setColumnIdentifiers(columnNames);
-
-        // 首先尝试从组织获取实际的shipments
-        if (organization != null && organization.getShipmentDirectory() != null
-                && !organization.getShipmentDirectory().getShipments().isEmpty()) {
-
-            for (Shipment shipment : organization.getShipmentDirectory().getShipments()) {
-                Object[] row = new Object[6];
-                row[0] = shipment.getTrackingNumber();
-                row[1] = shipment.getShipDate() != null
-                        ? new SimpleDateFormat("MM/dd/yyyy").format(shipment.getShipDate()) : "";
-                row[2] = shipment.getShippingMethod();
-                row[3] = shipment.getDestination();
-                row[4] = shipment.getShipmentStatus();
-                row[5] = shipment.getEstimatedDeliveryDate() != null
-                        ? new SimpleDateFormat("MM/dd/yyyy").format(shipment.getEstimatedDeliveryDate()) : "";
-                model.addRow(row);
+    model.setRowCount(0);
+    
+    if (organization != null && organization.getWorkQueue() != null) {
+        for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
+            if (request instanceof WarehouseWorkRequest) {
+                WarehouseWorkRequest warehouseRequest = (WarehouseWorkRequest) request;
+                
+                // 只显示状态为 Shipped 的请求
+                if ("Shipped".equals(warehouseRequest.getStatus())) {
+                    Object[] row = new Object[6];
+                    row[0] = warehouseRequest.getTrackingNumber();
+                    row[1] = warehouseRequest.getShippingMethod();
+                    row[2] = warehouseRequest.getDestination();
+                    row[3] = warehouseRequest.getStatus();
+                    row[4] = warehouseRequest.getRequestDate();
+                    row[5] = warehouseRequest.getEstimatedDeliveryDate();
+                    
+                    model.addRow(row);
+                }
             }
-
-        } else {
-            // 如果没有实际的shipments，添加示例数据
-            System.out.println("No actual shipments found, adding sample data...");
-            addSampleShipmentData(model);
         }
+    }
     }
 
     private void addSampleShipmentData(javax.swing.table.DefaultTableModel model) {
@@ -956,6 +929,9 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     }
 
     
-
+    public void refreshTables() {
+    populatePendingTasksTable();
+    populateRecentShipmentsTable();
+}
 
 }

@@ -67,4 +67,9 @@ public class MerchantRole extends Role{
         
         return merchantHP;
     }
+    
+    @Override
+    public String toString() {
+        return "Merchant";
+    }
 }

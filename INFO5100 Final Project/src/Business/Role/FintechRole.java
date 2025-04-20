@@ -25,4 +25,9 @@ public class FintechRole extends Role {
 
         return null;
     }
+    
+    @Override
+    public String toString() {
+        return "Payment Team";
+    }
 }
