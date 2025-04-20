@@ -463,7 +463,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     private void btnCustomsDeclarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCustomsDeclarActionPerformed
         // TODO add your handling code here:
         // Create and display customs declaration panel
-        DocumentationDetails documentPanel = new DocumentationDetails(userProcessContainer, userAccount, enterprise, organization);
+        DocumentationDetails documentPanel = new DocumentationDetails(userProcessContainer, userAccount, enterprise, organization, null,this);
         documentPanel.setSize(1450, 800);
         userProcessContainer.add("CustomsDeclaration", documentPanel);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
