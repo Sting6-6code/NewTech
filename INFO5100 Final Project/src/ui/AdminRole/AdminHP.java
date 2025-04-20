@@ -22,13 +22,22 @@ public class AdminHP extends javax.swing.JPanel {
     private JPanel workArea;
     private UserAccount userAccount;
     private Enterprise enterprise;
-    private Organization adminOrg;
+    private AdminOrganization adminOrg;
     private EcoSystem business;
     
     
   
     public AdminHP() {
+<<<<<<< HEAD
 
+=======
+//        System.out.println("⚠️ Warning: Default constructor used — make sure this is intentional!");
+//        initComponents();
+//        this.setPreferredSize(new java.awt.Dimension(1450, 800));
+//        populateTable();
+        
+//         throw new RuntimeException("🚨 Default constructor of AdminHP used! Stack trace below:");
+>>>>>>> 3a77e3f4cc0cc2a3a980f82b6568f821fa053451
     }
     
     public AdminHP(JPanel jp, UserAccount ua, Enterprise e, AdminOrganization o, EcoSystem b) {
@@ -104,7 +113,7 @@ public class AdminHP extends javax.swing.JPanel {
                 {null, null, null, null, null}
             },
             new String [] {
-                "Employee Name", "ID", "Role", "Username", "Password"
+                "Username", "ID", "Employee Name", "Role", "Password"
             }
         ));
         viewUsersScrollPane.setViewportView(tblUsers);

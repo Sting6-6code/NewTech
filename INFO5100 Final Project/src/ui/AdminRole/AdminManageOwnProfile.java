@@ -25,6 +25,8 @@ public class AdminManageOwnProfile extends javax.swing.JPanel {
         initComponents();
         this.workArea = jp;
         this.ua = ua;
+        txtUN.setText(ua.getUsername());
+        txtPW.setText(ua.getPassword());
     }
 
     /**
