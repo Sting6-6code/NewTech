@@ -125,6 +125,9 @@ public class DocumentationDetails extends javax.swing.JPanel {
 
         initComponents();
         populateFields();
+        
+        // Apply UI theme
+        setupTheme();
     }
 
     private void populateFields() {
@@ -810,9 +813,7 @@ public class DocumentationDetails extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(lblSearchID, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(txtSearchBox, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(txtSearchBox, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(24, 24, 24))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
@@ -825,12 +826,11 @@ public class DocumentationDetails extends javax.swing.JPanel {
                 .addGap(22, 22, 22)
                 .addComponent(btnBack)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnSearch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(txtSearchBox)
-                        .addComponent(lblSearchID, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtSearchBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblSearchID, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSearch))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(declarDetailsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -891,7 +891,7 @@ public class DocumentationDetails extends javax.swing.JPanel {
                 declarationDirectory.addCustomsDeclaration(currentDeclaration);
             }
 
-            // 创建并发送 LogisticsWorkRequest 到海关
+            // Create and send LogisticsWorkRequest to Customs Office
             sendCustomsWorkRequest(currentDeclaration);
 
             refreshDeclarationList();
@@ -907,12 +907,12 @@ public class DocumentationDetails extends javax.swing.JPanel {
             return;
         }
 
-        // 创建要打印的文本内容
+        // Create text content for printing
         StringBuilder printContent = new StringBuilder();
         printContent.append("CUSTOMS DECLARATION REPORT\n");
         printContent.append("=========================\n\n");
 
-        // 基本信息
+        // Basic information
         printContent.append("BASIC INFORMATION\n");
         printContent.append("-----------------\n");
         printContent.append("Declaration ID: ").append(currentDeclaration.getDeclarationId()).append("\n");
@@ -920,7 +920,7 @@ public class DocumentationDetails extends javax.swing.JPanel {
         printContent.append("Status: ").append(currentDeclaration.getStatus()).append("\n");
         printContent.append("Declaration Date: ").append(dateFormat.format(currentDeclaration.getDeclarationDate())).append("\n\n");
 
-        // 当事人信息
+        // Party information
         printContent.append("PARTY INFORMATION\n");
         printContent.append("-----------------\n");
         printContent.append("Consignor: ").append(currentDeclaration.getConsignor()).append("\n");
@@ -928,7 +928,7 @@ public class DocumentationDetails extends javax.swing.JPanel {
         printContent.append("Country of Origin: ").append(currentDeclaration.getCountryOfOrigin()).append("\n");
         printContent.append("Destination Country: ").append(currentDeclaration.getDestinationCountry()).append("\n\n");
 
-        // 商品信息
+        // Goods information
         printContent.append("GOODS INFORMATION\n");
         printContent.append("-----------------\n");
         if (currentDeclaration.getItems() != null) {
@@ -944,7 +944,7 @@ public class DocumentationDetails extends javax.swing.JPanel {
         }
         printContent.append("\n");
 
-        // 处理信息
+        // Processing information
         printContent.append("PROCESSING INFORMATION\n");
         printContent.append("---------------------\n");
         printContent.append("Customs Office: ").append(currentDeclaration.getCustomsOffice()).append("\n");
@@ -953,7 +953,7 @@ public class DocumentationDetails extends javax.swing.JPanel {
         }
         printContent.append("Notes: ").append(currentDeclaration.getNotes()).append("\n");
 
-        // 创建一个临时的 JTextArea 来打印内容
+        // Create a temporary JTextArea for printing
         JTextArea printArea = new JTextArea(printContent.toString());
         printArea.setEditable(false);
 
@@ -980,7 +980,7 @@ public class DocumentationDetails extends javax.swing.JPanel {
             return;
         }
 
-        // 检查报关单状态，只有Draft状态的报关单可以删除
+        // Check declaration status, only Draft status declarations can be deleted
         if (!"Draft".equals(currentDeclaration.getStatus())) {
             JOptionPane.showMessageDialog(this,
                     "Only declarations in 'Draft' status can be deleted.\n"
@@ -990,7 +990,7 @@ public class DocumentationDetails extends javax.swing.JPanel {
             return;
         }
 
-        // 显示确认对话框
+        // Display confirmation dialog
         int response = JOptionPane.showConfirmDialog(this,
                 "Are you sure you want to delete this declaration?\n\n"
                 + "Declaration ID: " + currentDeclaration.getDeclarationId() + "\n"
@@ -1003,33 +1003,33 @@ public class DocumentationDetails extends javax.swing.JPanel {
 
         if (response == JOptionPane.YES_OPTION) {
             try {
-                // 从目录中删除报关单
+                // Remove declaration from directory
                 declarationDirectory.removeCustomsDeclaration(currentDeclaration);
 
-                // 刷新列表
+                // Refresh list
                 refreshDeclarationList();
 
-                // 清空表单
+                // Clear form
                 clearForm();
 
-                // 禁用按钮
+                // Disable buttons
                 btnSave.setEnabled(false);
                 btnSubmit.setEnabled(false);
                 btnPrint.setEnabled(false);
                 btnDelete.setEnabled(false);
                 btnAddItem.setEnabled(false);
 
-                // 清除当前选中的报关单
+                // Clear current selected declaration
                 currentDeclaration = null;
 
-                // 显示成功消息
+                // Display success message
                 JOptionPane.showMessageDialog(this,
                         "Declaration deleted successfully",
                         "Success",
                         JOptionPane.INFORMATION_MESSAGE);
 
             } catch (Exception e) {
-                // 如果删除过程中发生错误
+                // If an error occurs during deletion
                 JOptionPane.showMessageDialog(this,
                         "Error deleting declaration: " + e.getMessage(),
                         "Error",
@@ -1281,54 +1281,232 @@ public class DocumentationDetails extends javax.swing.JPanel {
     }
 
     private void sendCustomsWorkRequest(CustomsDeclaration declaration) {
-        try {
-            // 创建物流工作请求
-            LogisticsWorkRequest request = new LogisticsWorkRequest();
-
-            // 设置报关单信息
-            request.setDeclarationId(declaration.getDeclarationId());
-            request.setShipmentId(declaration.getShipmentId());
-            request.setDeclarationType(declaration.getDeclarationType());
-            request.setConsignor(declaration.getConsignor());
-            request.setConsignee(declaration.getConsignee());
-            request.setCountryOfOrigin(declaration.getCountryOfOrigin());
-            request.setDestinationCountry(declaration.getDestinationCountry());
-            request.setNotes(declaration.getNotes());
-
-            // 设置发送者和接收者
-            request.setSender(userAccount);
-
-            // 查找海关组织
-            Organization customsOrg = null;
-            for (Network network : EcoSystem.getInstance().getNetworkList()) {
-                for (Enterprise e : network.getEnterpriseDirectory().getEnterpriseList()) {
-                    if (e instanceof LogisticsGroupEnterprise) {
-                        for (Organization org : e.getOrganizationDirectory().getOrganizationList()) {
-                            if (org instanceof CustomsLiaisonOrganization) {
-                                customsOrg = org;
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (customsOrg != null) {
+        // Get a list of all customs organizations within the enterprise's network
+        Enterprise customsEnterprise = null;
+        for (Network network : EcoSystem.getInstance().getNetworkList()) {
+            for (Enterprise ent : network.getEnterpriseDirectory().getEnterpriseList()) {
+                if (ent instanceof LogisticsGroupEnterprise) {
+                    customsEnterprise = ent;
                     break;
                 }
             }
-
-            // 将请求添加到海关组织的工作队列
-            if (customsOrg != null) {
-                customsOrg.getWorkQueue().getWorkRequestList().add(request);
-                System.out.println("Logistics work request sent to customs: " + request.getDeclarationId());
-            } else {
-                throw new Exception("No customs organization found");
+            if (customsEnterprise != null) {
+                break;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                    "Error sending customs request: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
         }
+
+        if (customsEnterprise == null) {
+            JOptionPane.showMessageDialog(this, "No customs organization found in the system!",
+                    "Submission Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Get the customs organization
+        Organization customsOrg = null;
+        for (Organization org : customsEnterprise.getOrganizationDirectory().getOrganizationList()) {
+            if (org instanceof CustomsLiaisonOrganization) {
+                customsOrg = org;
+                break;
+            }
+        }
+
+        if (customsOrg == null) {
+            JOptionPane.showMessageDialog(this, "No customs department found in customs enterprise!",
+                    "Submission Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Create a new LogisticsWorkRequest
+        LogisticsWorkRequest request = new LogisticsWorkRequest();
+        request.setShipmentId(currentDeclaration.getShipmentId());
+        request.setDeclarationId(currentDeclaration.getDeclarationId());
+        request.setMessage("Customs declaration submitted for review");
+        request.setSender(userAccount);
+        request.setStatus("Submitted");
+        request.setRequestDate(new Date());
+
+        // Send the request to customs organization
+        customsOrg.getWorkQueue().getWorkRequestList().add(request);
+        userAccount.getWorkQueue().getWorkRequestList().add(request);
+
+        System.out.println("LogisticsWorkRequest sent to Customs Office. Shipment ID: " + 
+                currentDeclaration.getShipmentId() + ", Declaration ID: " + 
+                currentDeclaration.getDeclarationId());
+    }
+
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new java.awt.Color(240, 245, 255));
+        DeclaListJPanel.setBackground(new java.awt.Color(240, 245, 255));
+        basicInfoJPanel.setBackground(new java.awt.Color(240, 245, 255));
+        declarDetailsJPanel.setBackground(new java.awt.Color(240, 245, 255));
+        goodsInfoJPanel.setBackground(new java.awt.Color(240, 245, 255));
+        processingInfoJPanel.setBackground(new java.awt.Color(240, 245, 255));
+        
+        // Style all buttons
+        styleButton(btnBack);
+        styleButton(btnSearch);
+        styleButton(btnSave);
+        styleButton(btnSubmit);
+        styleButton(btnPrint);
+        styleButton(btnDelete);
+        styleButton(btnCreateNew);
+        styleButton(btnAddItem);
+        
+        // Style all text fields
+        styleTextField(txtSearchBox);
+        styleTextField(txtDeclarID);
+        styleTextField(txtShipmentNumber);
+        styleTextField(txtDeclarDate);
+        styleTextField(txtProcessingDate);
+        styleTextField(txtOrigin);
+        styleTextField(txtDestination);
+        styleTextField(txtConsignor);
+        styleTextField(txtConsignee);
+        styleTextField(txtCustomsOffice);
+        styleTextField(txtComments);
+        styleTextField(txtStatus);
+        
+        // Style all labels
+        styleTitleLabel(lblTitle);
+        styleTitleLabel(lblListTitle);
+        styleTitleLabel(lblDetailsTitle);
+        styleTitleLabel(lblBasicInfo);
+        styleTitleLabel(lblProcessingInfo);
+        styleTitleLabel(lblGoodsInfo);
+        
+        styleLabel(lblSearchID);
+        styleLabel(lblDeclarID);
+        styleLabel(lblShipNo);
+        styleLabel(lblDeclarDate);
+        styleLabel(lblProcessingDate);
+        styleLabel(lblOrigin);
+        styleLabel(lblDestination);
+        styleLabel(lblConsignor);
+        styleLabel(lblConsignee);
+        styleLabel(lblCustomsOffice);
+        styleLabel(lblComments);
+        styleLabel(lblStatus);
+        
+        // Style tables
+        styleTable(tblList);
+        styleTable(tblGoodsInfo);
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new java.awt.Color(26, 79, 156)); // Medium blue
+        button.setForeground(java.awt.Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        button.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new java.awt.Color(35, 100, 190)); // Lighter blue on hover
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new java.awt.Color(26, 79, 156)); // Back to normal
+            }
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                button.setBackground(new java.awt.Color(13, 60, 130)); // Darker when pressed
+            }
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                button.setBackground(new java.awt.Color(35, 100, 190)); // Back to hover
+            }
+        });
+    }
+    
+    /**
+     * Apply consistent styling to a text field
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new java.awt.Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new java.awt.Color(13, 25, 51));    // Dark blue text
+        textField.setCaretColor(new java.awt.Color(26, 79, 156));   // Medium blue cursor
+        textField.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(90, 141, 224), 1));
+        textField.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+    }
+    
+    /**
+     * Apply consistent styling to a combo box
+     * @param comboBox ComboBox to style
+     */
+    private void styleComboBox(JComboBox comboBox) {
+        comboBox.setBackground(java.awt.Color.WHITE);
+        comboBox.setForeground(new java.awt.Color(13, 25, 51));
+        comboBox.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(90, 141, 224), 1));
+        comboBox.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+    }
+    
+    /**
+     * Apply title label styling
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 18));
+        label.setForeground(new java.awt.Color(13, 25, 51)); // Dark blue text
+        label.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 5, 10, 5));
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        label.setForeground(new java.awt.Color(13, 25, 51)); // Dark blue text
+        label.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 2, 5, 2));
+    }
+    
+    /**
+     * Style the table with consistent formatting
+     * @param table Table to style
+     */
+    private void styleTable(JTable table) {
+        // Style the header
+        if (table.getTableHeader() != null) {
+            table.getTableHeader().setBackground(new java.awt.Color(26, 79, 156)); // Medium blue
+            table.getTableHeader().setForeground(java.awt.Color.WHITE);
+            table.getTableHeader().setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+            table.getTableHeader().setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(13, 60, 130), 1));
+        }
+        
+        // Style the table
+        table.setBackground(java.awt.Color.WHITE);
+        table.setForeground(new java.awt.Color(13, 25, 51)); // Dark blue text
+        table.setGridColor(new java.awt.Color(230, 230, 230));
+        table.setRowHeight(25);
+        table.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        table.setSelectionBackground(new java.awt.Color(232, 242, 254)); // Very light blue
+        table.setSelectionForeground(new java.awt.Color(13, 25, 51)); // Keep text dark
+        
+        // Add custom cell renderer for alternating row colors
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                java.awt.Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? java.awt.Color.WHITE : new java.awt.Color(245, 245, 250));
+                }
+                
+                return c;
+            }
+        });
     }
 }

@@ -45,6 +45,7 @@ public class CustomsComplaintContent extends javax.swing.JPanel {
         this.system = EcoSystem.getInstance();
         this.complaintDirectory = findComplaintDirectory();
         populateTable();
+        setupTheme();
     }
 
     public CustomsComplaintContent(JPanel userProcessContainer, Warehouse warehouse) {
@@ -54,6 +55,7 @@ public class CustomsComplaintContent extends javax.swing.JPanel {
         this.complaintDirectory = findComplaintDirectory();
         populateTable();
         System.out.println("Initialized WarehouseCustomerComplaintContent with warehouse instance");
+        setupTheme();
     }
     
     // 查找投诉目录
@@ -217,7 +219,153 @@ public class CustomsComplaintContent extends javax.swing.JPanel {
         populateTable();
     }
     
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background colors
+        this.setBackground(new java.awt.Color(240, 245, 255));
+        jPanel1.setBackground(new java.awt.Color(240, 245, 255));
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        handlePanel.setBackground(new java.awt.Color(255, 255, 255));
+        
+        // Style the title labels
+        styleHeaderLabel(lblTitle);
+        styleHeaderLabel(lblTitle1);
+        
+        // Apply shadow border to panels
+        jPanel2.setBorder(createShadowBorder());
+        handlePanel.setBorder(createShadowBorder());
+        
+        // Style buttons
+        styleButton(btnBack);
+        styleButton(btnSearch);
+        styleButton(btnDetailed);
+        
+        // Style the search button differently
+        btnSearch.setBackground(new java.awt.Color(30, 144, 255));
+        
+        // Style the detailed button
+        btnDetailed.setBackground(new java.awt.Color(0, 153, 204));
+        
+        // Style table
+        styleTable(jTable1);
+        
+        // Style form labels
+        styleFormLabel(lblCompaintID);
+        styleFormLabel(lblPN);
+        styleFormLabel(lblPrice1);
+        styleFormLabel(lblPrice2);
+        
+        // Style text fields
+        styleTextField(txtSearchComplaintID);
+        styleTextField(txtCompaintID);
+        styleTextField(txtCustomertName);
+        styleTextField(txtComplaintType);
+        styleTextField(txtContent);
+        
+        // Make content text field multiline appearance
+        txtContent.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 1),
+                javax.swing.BorderFactory.createEmptyBorder(8, 8, 8, 8)));
+    }
     
+    /**
+     * Style header labels with consistent formatting
+     */
+    private void styleHeaderLabel(javax.swing.JLabel label) {
+        label.setFont(new java.awt.Font("SansSerif", 1, 24));
+        label.setForeground(new java.awt.Color(0, 102, 153));
+    }
+    
+    /**
+     * Create a shadow border for panels
+     */
+    private javax.swing.border.Border createShadowBorder() {
+        return javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(230, 235, 245), 1),
+                javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    }
+    
+    /**
+     * Style form labels with consistent formatting
+     */
+    private void styleFormLabel(javax.swing.JLabel label) {
+        label.setFont(new java.awt.Font("SansSerif", 0, 16));
+        label.setForeground(new java.awt.Color(51, 51, 51));
+    }
+    
+    /**
+     * Style text fields with consistent formatting
+     */
+    private void styleTextField(javax.swing.JTextField textField) {
+        textField.setFont(new java.awt.Font("SansSerif", 0, 14));
+        textField.setBackground(new java.awt.Color(245, 245, 250));
+        textField.setForeground(new java.awt.Color(13, 25, 51));
+        textField.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(90, 141, 224), 1),
+                javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+    }
+    
+    /**
+     * Style buttons with consistent formatting and hover effects
+     */
+    private void styleButton(javax.swing.JButton button) {
+        button.setBackground(new java.awt.Color(26, 79, 156));
+        button.setForeground(java.awt.Color.WHITE);
+        button.setFont(new java.awt.Font("SansSerif", 1, 14));
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (button.isEnabled()) {
+                    java.awt.Color originalColor = button.getBackground();
+                    button.setBackground(originalColor.brighter());
+                }
+            }
+            
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if (button.isEnabled()) {
+                    if (button == btnSearch) {
+                        button.setBackground(new java.awt.Color(30, 144, 255));
+                    } else if (button == btnDetailed) {
+                        button.setBackground(new java.awt.Color(0, 153, 204));
+                    } else {
+                        button.setBackground(new java.awt.Color(26, 79, 156));
+                    }
+                }
+            }
+        });
+    }
+    
+    /**
+     * Style table with consistent formatting
+     */
+    private void styleTable(javax.swing.JTable table) {
+        // Set row height
+        table.setRowHeight(30);
+        
+        // Set selection colors
+        table.setSelectionBackground(new java.awt.Color(173, 216, 230));
+        table.setSelectionForeground(new java.awt.Color(0, 0, 0));
+        
+        // Style header
+        table.getTableHeader().setFont(new java.awt.Font("SansSerif", 1, 14));
+        table.getTableHeader().setBackground(new java.awt.Color(26, 79, 156));
+        table.getTableHeader().setForeground(java.awt.Color.WHITE);
+        
+        // Set grid colors
+        table.setGridColor(new java.awt.Color(230, 230, 230));
+        
+        // Set font
+        table.setFont(new java.awt.Font("SansSerif", 0, 14));
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.

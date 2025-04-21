@@ -37,6 +37,9 @@ public class ManageOwnProfile extends javax.swing.JPanel {
         // Disable fields initially
         setFieldsEditable(false);
         btnSave.setEnabled(false);
+        
+        // Apply consistent UI styling
+        setupTheme();
     }
 
     /**
@@ -208,5 +211,181 @@ public class ManageOwnProfile extends javax.swing.JPanel {
     private void setFieldsEditable(boolean editable) {
         txtUN.setEditable(editable);
         txtPW.setEditable(editable);
+    }
+    
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background colors
+        this.setBackground(new java.awt.Color(240, 245, 255));
+        
+        // Add a title label for the profile management
+        javax.swing.JLabel titleLabel = new javax.swing.JLabel("Manage Profile");
+        titleLabel.setFont(new java.awt.Font("SansSerif", 1, 24));
+        titleLabel.setForeground(new java.awt.Color(0, 102, 153));
+        
+        // Create a profile panel with shadow border
+        javax.swing.JPanel profilePanel = new javax.swing.JPanel();
+        profilePanel.setBackground(new java.awt.Color(255, 255, 255));
+        profilePanel.setBorder(createShadowBorder());
+        
+        // Style form labels
+        styleFormLabel(lblUN);
+        styleFormLabel(lblPW);
+        
+        // Style text fields
+        styleTextField(txtUN);
+        styleTextField(txtPW);
+        
+        // Style buttons
+        styleButton(btnBack);
+        styleButton(btnUpdate);
+        styleButton(btnSave);
+        
+        // Make the update button stand out
+        btnUpdate.setBackground(new java.awt.Color(0, 153, 204));
+        btnSave.setBackground(new java.awt.Color(0, 153, 102));
+        
+        // Add the components to the profile panel
+        javax.swing.GroupLayout profilePanelLayout = new javax.swing.GroupLayout(profilePanel);
+        profilePanel.setLayout(profilePanelLayout);
+        
+        // Add all components to the main panel
+        this.removeAll();
+        
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnBack)
+                    .addComponent(titleLabel))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.CENTER, layout.createSequentialGroup()
+                .addGap(50, 50, 50)
+                .addComponent(profilePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 500, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(50, 50, 50))
+        );
+        
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addComponent(btnBack)
+                .addGap(20, 20, 20)
+                .addComponent(titleLabel)
+                .addGap(30, 30, 30)
+                .addComponent(profilePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(100, Short.MAX_VALUE))
+        );
+        
+        // Set up the profile panel layout
+        profilePanelLayout.setHorizontalGroup(
+            profilePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(profilePanelLayout.createSequentialGroup()
+                .addGap(50, 50, 50)
+                .addGroup(profilePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(profilePanelLayout.createSequentialGroup()
+                        .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(30, 30, 30)
+                        .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(profilePanelLayout.createSequentialGroup()
+                        .addGroup(profilePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblUN)
+                            .addComponent(lblPW))
+                        .addGap(30, 30, 30)
+                        .addGroup(profilePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(txtUN, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
+                            .addComponent(txtPW))))
+                .addContainerGap(50, Short.MAX_VALUE))
+        );
+        
+        profilePanelLayout.setVerticalGroup(
+            profilePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(profilePanelLayout.createSequentialGroup()
+                .addGap(50, 50, 50)
+                .addGroup(profilePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblUN)
+                    .addComponent(txtUN, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(30, 30, 30)
+                .addGroup(profilePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblPW)
+                    .addComponent(txtPW, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(50, 50, 50)
+                .addGroup(profilePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(50, Short.MAX_VALUE))
+        );
+    }
+    
+    /**
+     * Create a shadow border for panels
+     */
+    private javax.swing.border.Border createShadowBorder() {
+        return javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(230, 235, 245), 1),
+                javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    }
+    
+    /**
+     * Style form labels with consistent formatting
+     */
+    private void styleFormLabel(javax.swing.JLabel label) {
+        label.setFont(new java.awt.Font("SansSerif", 0, 16));
+        label.setForeground(new java.awt.Color(51, 51, 51));
+    }
+    
+    /**
+     * Style text fields with consistent formatting
+     */
+    private void styleTextField(javax.swing.JTextField textField) {
+        textField.setFont(new java.awt.Font("SansSerif", 0, 14));
+        textField.setBackground(new java.awt.Color(245, 245, 250));
+        textField.setForeground(new java.awt.Color(13, 25, 51));
+        textField.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(90, 141, 224), 1),
+                javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+    }
+    
+    /**
+     * Style buttons with consistent formatting and hover effects
+     */
+    private void styleButton(javax.swing.JButton button) {
+        button.setBackground(new java.awt.Color(26, 79, 156));
+        button.setForeground(java.awt.Color.WHITE);
+        button.setFont(new java.awt.Font("SansSerif", 1, 14));
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (button.isEnabled()) {
+                    java.awt.Color originalColor = button.getBackground();
+                    button.setBackground(originalColor.brighter());
+                }
+            }
+            
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if (button.isEnabled()) {
+                    if (button == btnUpdate) {
+                        button.setBackground(new java.awt.Color(0, 153, 204));
+                    } else if (button == btnSave) {
+                        button.setBackground(new java.awt.Color(0, 153, 102));
+                    } else {
+                        button.setBackground(new java.awt.Color(26, 79, 156));
+                    }
+                }
+            }
+        });
     }
 }

@@ -39,6 +39,7 @@ import Business.Logistics.CustomsDeclarationDirectory;
 import Business.WorkQueue.WarehouseWorkRequest;
 import Business.WorkQueue.WorkRequest;
 import javax.swing.JTable;
+import javax.swing.JButton;
 
 /**
  *
@@ -108,6 +109,9 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         populateDashboard();
         populateRecentShipmentsTable();
         populatePendingTasksTable();
+        
+        // Apply UI theme
+        setupTheme();
 
         // Debug output
         System.out.println("LogisticsCoordinatorHP initialized");
@@ -969,6 +973,92 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     public void refreshTables() {
         populatePendingTasksTable();
         populateRecentShipmentsTable();
+    }
+
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        logisticsControljPanel.setBackground(new Color(240, 245, 255));
+        logisticsWorkAreajPanel.setBackground(new Color(240, 245, 255));
+        
+        // Style all buttons
+        styleAllButtons();
+        
+        // Style tables
+        styleTable(tblRecentShipment, "jScrollPane1");
+        styleTable(tblPendingTasks, "jScrollPane2");
+    }
+    
+    /**
+     * Apply consistent styling to all buttons
+     */
+    private void styleAllButtons() {
+        styleButton(btnDashBoard);
+        styleButton(btnCustomsDeclar);
+        styleButton(btnCusComplaint);
+        styleButton(btnProfile);
+        styleButton(btnLogout);
+        styleButton(btnShipmentTra);
+        styleButton(btnViewDetails);
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+    }
+    
+    /**
+     * Style table with consistent theme
+     * @param table Table to style
+     * @param scrollPaneName Name of the scrollpane
+     */
+    private void styleTable(JTable table, String scrollPaneName) {
+        // Style table header
+        if (table.getTableHeader() != null) {
+            table.getTableHeader().setBackground(new Color(26, 79, 156));
+            table.getTableHeader().setForeground(Color.WHITE);
+            table.getTableHeader().setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+            if (table.getTableHeader().getBorder() != null) {
+                table.getTableHeader().setBorder(BorderFactory.createLineBorder(new Color(13, 60, 130)));
+            }
+        }
+        
+        // Style table - using darker colors for better visibility
+        table.setBackground(new Color(240, 240, 250)); // Slightly darker background
+        table.setForeground(new Color(0, 0, 0)); // Black text for maximum contrast
+        table.setGridColor(new Color(180, 195, 235)); // Darker grid lines
+        table.setSelectionBackground(new Color(90, 141, 224));
+        table.setSelectionForeground(Color.WHITE);
+        table.setFont(new Font("Helvetica Neue", Font.BOLD, 14)); // Bold font for better visibility
+        table.setRowHeight(30); // Increase row height for better readability
+        
+        // Set alternating row colors with more contrast
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? new Color(240, 240, 250) : new Color(220, 220, 235));
+                    c.setForeground(new Color(0, 0, 0)); // Ensure text is always black for maximum contrast
+                }
+                return c;
+            }
+        });
     }
 
 }

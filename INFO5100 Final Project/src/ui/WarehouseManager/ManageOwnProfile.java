@@ -8,8 +8,14 @@ import ui.MerchantRole.*;
 import ui.LogisticsRole.*;
 import Business.UserAccount.UserAccount;
 import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Font;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import ui.AdminRole.*;
 
 /**
@@ -41,6 +47,9 @@ public class ManageOwnProfile extends javax.swing.JPanel {
         // 初始禁用字段
         setFieldsEditable(false);
         btnSave.setEnabled(false);
+        
+        // Apply UI theme
+        setupTheme();
     }
      
      
@@ -220,6 +229,100 @@ public class ManageOwnProfile extends javax.swing.JPanel {
     private void setFieldsEditable(boolean editable) {
         txtUN.setEditable(editable);
         txtPW.setEditable(editable);
+    }
+
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        
+        // Style all buttons
+        styleButton(btnBack);
+        styleButton(btnUpdate);
+        styleButton(btnSave);
+        
+        // Style all text fields
+        styleTextField(txtUN);
+        styleTextField(txtPW);
+        
+        // Style all labels
+        styleLabel(lblUN);
+        styleLabel(lblPW);
+        
+        // Add a title label
+        JLabel titleLabel = new JLabel("Manage Your Profile");
+        titleLabel.setBounds(120, 20, 300, 30);
+        styleTitleLabel(titleLabel);
+        this.add(titleLabel);
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(46, 109, 196)); // Lighter blue on hover
+            }
+            
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(26, 79, 156)); // Return to original color
+            }
+            
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(13, 60, 130)); // Darker blue when pressed
+            }
+            
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(46, 109, 196)); // Return to hover color if still hovering
+            }
+        });
+    }
+    
+    /**
+     * Apply consistent styling to a text field
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51));    // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156));   // Medium blue cursor
+        textField.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+    }
+    
+    /**
+     * Apply title label styling
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
+        label.setHorizontalAlignment(JLabel.CENTER);
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
     }
 
 }

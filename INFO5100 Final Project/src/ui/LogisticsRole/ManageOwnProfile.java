@@ -9,6 +9,12 @@ import java.awt.CardLayout;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import ui.AdminRole.*;
+import java.awt.Color;
+import javax.swing.JButton;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import java.awt.Component;
+import java.awt.Font;
 
 /**
  *
@@ -37,6 +43,9 @@ public class ManageOwnProfile extends javax.swing.JPanel {
         // Disable fields initially
         setFieldsEditable(false);
         btnSave.setEnabled(false);
+        
+        // Apply UI theme
+        setupTheme();
     }
 
     /**
@@ -208,6 +217,83 @@ public class ManageOwnProfile extends javax.swing.JPanel {
     private void setFieldsEditable(boolean editable) {
         txtUN.setEditable(editable);
         txtPW.setEditable(editable);
+    }
+
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        
+        // Style all buttons
+        styleButton(btnBack);
+        styleButton(btnUpdate);
+        styleButton(btnSave);
+        
+        // Style all text fields
+        styleTextField(txtUN);
+        styleTextField(txtPW);
+        
+        // Style all labels
+        styleLabel(lblUN);
+        styleLabel(lblPW);
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(35, 100, 190)); // Lighter blue on hover
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(26, 79, 156)); // Back to normal
+            }
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(13, 60, 130)); // Darker when pressed
+            }
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(35, 100, 190)); // Back to hover
+            }
+        });
+    }
+    
+    /**
+     * Apply consistent styling to a text field
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51));    // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156));   // Medium blue cursor
+        textField.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        label.setForeground(new Color(13, 25, 51)); // Dark blue text
+        label.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 2, 5, 2));
     }
 
 }
