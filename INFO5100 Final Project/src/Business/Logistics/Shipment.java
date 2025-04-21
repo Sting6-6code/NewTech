@@ -27,7 +27,6 @@ public class Shipment {
     private double weight;
     private CustomsDeclaration customsDeclaration;
     private ArrayList<TrackingInfo> trackingHistory;
-//    private String warehouseId; // only one warehouse 
     private String orderId;      
     private String productName;   
     private int quantity; 

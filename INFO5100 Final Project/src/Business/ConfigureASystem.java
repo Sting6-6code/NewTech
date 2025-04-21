@@ -39,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 import Business.Product.SalesRecord;
+import Business.Role.FintechRole;
 
 /**
  *
@@ -74,7 +75,7 @@ public class ConfigureASystem {
         UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("l", "****", employee5, new CustomsAgentRole());
         UserAccount logistics = system.getUserAccountDirectory().createUserAccount("t", "****", employee6, new LogisticsCoordinatorRole());
         UserAccount warehouse = system.getUserAccountDirectory().createUserAccount("w", "****", employee7, new WarehouseManagerRole());
-        
+        UserAccount fintech = system.getUserAccountDirectory().createUserAccount("pay", "****", employee8, new FintechRole());
 
         // 初始化仓库和商品
         initializeWarehouse();
@@ -176,20 +177,20 @@ public class ConfigureASystem {
             network.getEnterpriseDirectory().getEnterpriseList().add(logisticsEnterprise);
         }
 
-         // 创建仓库企业
+        // 创建仓库企业
         WarehouseSupplierEnterprise warehouseEnterprise = (WarehouseSupplierEnterprise) network.getEnterpriseDirectory()
-            .createAndAddEnterprise("Warehouse Enterprise", Enterprise.EnterpriseType.WarehouseSupplier);
-    
+                .createAndAddEnterprise("Warehouse Enterprise", Enterprise.EnterpriseType.WarehouseSupplier);
+
         // 创建仓库组织
         Organization warehouseOrg = warehouseEnterprise.getOrganizationDirectory()
-            .createOrganization(Organization.Type.WarehouseSupplier);
-    
+                .createOrganization(Organization.Type.WarehouseSupplier);
+
         // 将仓库用户账户添加到仓库组织
         warehouseOrg.getUserAccountDirectory().getUserAccountList().add(warehouse);
-    
+
         // 初始化仓库和商品
         initializeWarehouse();
-    
+
         // Create customer experience organization
         if (retailEnterprise != null && retailEnterprise.getOrganizationDirectory() != null) {
             CustomerExperienceOrganization customerExpOrg = (CustomerExperienceOrganization) retailEnterprise.getOrganizationDirectory().createOrganization(Organization.Type.CustomerExperience);
@@ -402,47 +403,47 @@ public class ConfigureASystem {
     // Method to initialize sample sales record data
     private static void initializeSalesRecords(EcoSystem system) {
         System.out.println("Initializing sample sales records...");
-        
+
         if (system == null || system.getSalesRecordDirectory() == null) {
             System.out.println("Warning: Cannot initialize sales records - system or sales record directory is null");
             return;
         }
-        
+
         // Get current date for reference
         Calendar calendar = Calendar.getInstance();
         Date currentDate = calendar.getTime();
-        
+
         // Create dates for previous months
         calendar.add(Calendar.MONTH, -1);
         Date oneMonthAgo = calendar.getTime();
-        
+
         calendar.add(Calendar.MONTH, -1);
         Date twoMonthsAgo = calendar.getTime();
-        
+
         calendar.add(Calendar.MONTH, -1);
         Date threeMonthsAgo = calendar.getTime();
-        
+
         // Add sample sales records
         system.getSalesRecordDirectory().createSalesRecord("SP-001", "Apple iPhone 15 Pro", 799.99, 5, threeMonthsAgo, "CUST001");
         system.getSalesRecordDirectory().createSalesRecord("SP-001", "Apple iPhone 15 Pro", 799.99, 8, twoMonthsAgo, "CUST002");
         system.getSalesRecordDirectory().createSalesRecord("SP-001", "Apple iPhone 15 Pro", 799.99, 12, oneMonthAgo, "CUST003");
         system.getSalesRecordDirectory().createSalesRecord("SP-001", "Apple iPhone 15 Pro", 799.99, 10, currentDate, "CUST004");
-        
+
         system.getSalesRecordDirectory().createSalesRecord("SP-002", "Samsung Galaxy S23", 999.99, 3, threeMonthsAgo, "CUST005");
         system.getSalesRecordDirectory().createSalesRecord("SP-002", "Samsung Galaxy S23", 999.99, 7, twoMonthsAgo, "CUST006");
         system.getSalesRecordDirectory().createSalesRecord("SP-002", "Samsung Galaxy S23", 999.99, 9, oneMonthAgo, "CUST007");
         system.getSalesRecordDirectory().createSalesRecord("SP-002", "Samsung Galaxy S23", 999.99, 6, currentDate, "CUST008");
-        
+
         system.getSalesRecordDirectory().createSalesRecord("LP-001", "MacBook Pro 14\"", 1299.99, 2, threeMonthsAgo, "CUST009");
         system.getSalesRecordDirectory().createSalesRecord("LP-001", "MacBook Pro 14\"", 1299.99, 4, twoMonthsAgo, "CUST010");
         system.getSalesRecordDirectory().createSalesRecord("LP-001", "MacBook Pro 14\"", 1299.99, 5, oneMonthAgo, "CUST011");
         system.getSalesRecordDirectory().createSalesRecord("LP-001", "MacBook Pro 14\"", 1299.99, 3, currentDate, "CUST012");
-        
+
         system.getSalesRecordDirectory().createSalesRecord("HP-001", "Apple AirPods Pro", 199.99, 10, threeMonthsAgo, "CUST013");
         system.getSalesRecordDirectory().createSalesRecord("HP-001", "Apple AirPods Pro", 199.99, 15, twoMonthsAgo, "CUST014");
         system.getSalesRecordDirectory().createSalesRecord("HP-001", "Apple AirPods Pro", 199.99, 20, oneMonthAgo, "CUST015");
         system.getSalesRecordDirectory().createSalesRecord("HP-001", "Apple AirPods Pro", 199.99, 18, currentDate, "CUST016");
-        
+
         System.out.println("Created " + system.getSalesRecordDirectory().getSalesRecordList().size() + " sample sales records");
     }
 
@@ -476,57 +477,6 @@ public class ConfigureASystem {
         complaintDirectory.updateComplaintStatus("C009", "Resolved");
     }
 
-    // 物流自己的测试数据，和仓库库存无联系
-//    public static void createSampleShipments(LogisticsOrganization logistics) {
-//        if (logistics == null || logistics.getShipmentDirectory() == null) {
-//            System.out.println("Error: Cannot create sample shipments - invalid organization");
-//            return;
-//        }
-//
-//        ShipmentDirectory shipmentDir = logistics.getShipmentDirectory();
-//
-//        // 创建示例货件
-//        String[] destinations = {"New York", "Los Angeles", "Chicago", "Houston", "Phoenix"};
-//        String[] methods = {"Air Freight", "Sea Freight", "Ground"};
-//        String[] statuses = {
-//            Shipment.STATUS_PENDING,
-//            Shipment.STATUS_PROCESSING,
-//            Shipment.STATUS_SHIPPED,
-//            Shipment.STATUS_IN_TRANSIT,
-//            Shipment.STATUS_DELIVERING
-//        };
-//
-//        for (int i = 1; i <= 10; i++) {
-//            String shipmentId = "SHP" + String.format("%03d", i);
-//            String trackingNumber = "TRK" + String.format("%03d", i);
-//
-//            Shipment shipment = shipmentDir.createShipment(shipmentId, trackingNumber);
-//
-//            // 设置基本信息
-//            shipment.setShipDate(new Date());
-//            shipment.setShippingMethod(methods[i % methods.length]);
-//            shipment.setOrigin("Shanghai Warehouse");
-//            shipment.setDestination(destinations[i % destinations.length]);
-//            shipment.setShipmentStatus(statuses[i % statuses.length]);
-//            shipment.setCurrentLocation("Shanghai Warehouse");
-//
-//            // 设置订单相关信息
-//            shipment.setOrderId("ORD" + String.format("%03d", i));
-//            shipment.setProductName("Product " + i);
-//            shipment.setQuantity(i * 10);
-//
-//            // 添加跟踪记录
-//            TrackingInfo trackInfo = new TrackingInfo();
-//            trackInfo.setShipmentId(shipmentId);
-//            trackInfo.setTimestamp(new Date());
-//            trackInfo.setLocation("Shanghai Warehouse");
-//            trackInfo.setDescription("Shipment created");
-//            trackInfo.setStatus("Completed");
-//            shipment.addTrackingInfo(trackInfo);
-//
-//            System.out.println("Created sample shipment: " + shipmentId);
-//        }
-//    }
     // 从仓库的库存中创建订单
     public static void createSampleShipments(LogisticsOrganization logistics) {
         try {
@@ -752,15 +702,488 @@ public class ConfigureASystem {
         shipment.setShipmentStatus(status);
     }
 
-    private static void createSampleCustomsDeclarations(LogisticsOrganization logistics) {
-        if (logistics == null || logistics.getCustomsDeclarationDirectory() == null) {
+    public static void createSampleCustomsDeclarations(LogisticsOrganization logistics) {
+        if (logistics == null) {
+            System.out.println("Error: Cannot create sample customs declarations - logistics organization is null");
+            return;
+        }
+
+        // 确保报关单目录存在
+        CustomsDeclarationDirectory declarationDir;
+        if (logistics.getCustomsDeclarationDirectory() == null) {
+            declarationDir = new CustomsDeclarationDirectory();
+            logistics.setCustomsDeclarationDirectory(declarationDir);
+        } else {
+            declarationDir = logistics.getCustomsDeclarationDirectory();
+        }
+
+        // 创建示例报关单1 - 草稿状态
+        CustomsDeclaration declaration1 = new CustomsDeclaration();
+        declaration1.setDeclarationId("CD202504120001");
+        declaration1.setShipmentId("TRK001");  // 对应TRK001
+        declaration1.setStatus("Draft");
+        declaration1.setDeclarationDate(new Date());
+        declaration1.setConsignor("Apple Store Shanghai");
+        declaration1.setConsignee("John Smith");
+        declaration1.setCountryOfOrigin("China");
+        declaration1.setDestinationCountry("United States");
+        declaration1.setCustomsOffice("Shanghai Customs");
+        declaration1.setNotes("High-value electronics, handle with care");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items1 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item1 = new CustomsDeclaration.CustomsLineItem();
+        item1.setDescription("iPhone 15 Pro");
+        item1.setHsCode("8517.12.00");
+        item1.setQuantity(5);
+        item1.setUnit("PCS");
+        item1.setUnitValue(899.99);
+        item1.setGrossWeight(0.5);
+        items1.add(item1);
+
+        CustomsDeclaration.CustomsLineItem item2 = new CustomsDeclaration.CustomsLineItem();
+        item2.setDescription("MacBook Pro 14\"");
+        item2.setHsCode("8471.30.00");
+        item2.setQuantity(2);
+        item2.setUnit("PCS");
+        item2.setUnitValue(1999.99);
+        item2.setGrossWeight(1.5);
+        items1.add(item2);
+
+        declaration1.setItems(items1);
+        declarationDir.addCustomsDeclaration(declaration1);
+
+        // 创建示例报关单2 - 已提交状态
+        CustomsDeclaration declaration2 = new CustomsDeclaration();
+        declaration2.setDeclarationId("CD202504150002");
+        declaration2.setShipmentId("TRK002");  // 对应TRK002
+        declaration2.setStatus("Submitted");
+
+        // 设置日期 (5天前)
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -5);
+        declaration2.setDeclarationDate(cal.getTime());
+
+        // 设置提交日期 (3天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -3);
+        declaration2.setSubmissionDate(cal.getTime());
+
+        declaration2.setConsignor("Samsung Electronics Co., Ltd.");
+        declaration2.setConsignee("Jane Doe");
+        declaration2.setCountryOfOrigin("South Korea");
+        declaration2.setDestinationCountry("United States");
+        declaration2.setCustomsOffice("Incheon Customs");
+        declaration2.setNotes("Electronics with lithium batteries, declaration complete");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items2 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item3 = new CustomsDeclaration.CustomsLineItem();
+        item3.setDescription("Samsung Galaxy S23");
+        item3.setHsCode("8517.12.00");
+        item3.setQuantity(10);
+        item3.setUnit("PCS");
+        item3.setUnitValue(799.99);
+        item3.setGrossWeight(0.4);
+        items2.add(item3);
+
+        CustomsDeclaration.CustomsLineItem item4 = new CustomsDeclaration.CustomsLineItem();
+        item4.setDescription("Samsung TV QLED Q80T");
+        item4.setHsCode("8528.72.00");
+        item4.setQuantity(3);
+        item4.setUnit("PCS");
+        item4.setUnitValue(1499.99);
+        item4.setGrossWeight(20.0);
+        items2.add(item4);
+
+        declaration2.setItems(items2);
+        declarationDir.addCustomsDeclaration(declaration2);
+
+        // 创建示例报关单3 - 已批准状态
+        CustomsDeclaration declaration3 = new CustomsDeclaration();
+        declaration3.setDeclarationId("CD202504010003");
+        declaration3.setShipmentId("TRK003");  // 对应TRK003
+        declaration3.setStatus("Approved");
+
+        // 设置日期 (15天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -15);
+        declaration3.setDeclarationDate(cal.getTime());
+
+        // 设置提交日期 (14天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -14);
+        declaration3.setSubmissionDate(cal.getTime());
+
+        // 设置处理日期 (12天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -12);
+        declaration3.setProcessingDate(cal.getTime());
+
+        declaration3.setConsignor("Sony Corporation");
+        declaration3.setConsignee("Robert Wilson");
+        declaration3.setCountryOfOrigin("Japan");
+        declaration3.setDestinationCountry("United States");
+        declaration3.setCustomsOffice("Tokyo Customs");
+        declaration3.setNotes("Electronics and accessories, approved for import");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items3 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item5 = new CustomsDeclaration.CustomsLineItem();
+        item5.setDescription("Sony PlayStation 5");
+        item5.setHsCode("9504.50.00");
+        item5.setQuantity(20);
+        item5.setUnit("PCS");
+        item5.setUnitValue(499.99);
+        item5.setGrossWeight(4.5);
+        items3.add(item5);
+
+        CustomsDeclaration.CustomsLineItem item6 = new CustomsDeclaration.CustomsLineItem();
+        item6.setDescription("Sony WH-1000XM5 Headphones");
+        item6.setHsCode("8518.30.00");
+        item6.setQuantity(30);
+        item6.setUnit("PCS");
+        item6.setUnitValue(349.99);
+        item6.setGrossWeight(0.25);
+        items3.add(item6);
+
+        declaration3.setItems(items3);
+        declarationDir.addCustomsDeclaration(declaration3);
+
+        // 创建示例报关单4 - 已提交状态
+        CustomsDeclaration declaration4 = new CustomsDeclaration();
+        declaration4.setDeclarationId("CD202504020004");
+        declaration4.setShipmentId("TRK004");  // 对应TRK004
+        declaration4.setStatus("Submitted");
+
+        // 设置日期 (10天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -10);
+        declaration4.setDeclarationDate(cal.getTime());
+
+        // 设置提交日期 (8天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -8);
+        declaration4.setSubmissionDate(cal.getTime());
+
+        declaration4.setConsignor("Dell Technologies");
+        declaration4.setConsignee("Michael Johnson");
+        declaration4.setCountryOfOrigin("United States");
+        declaration4.setDestinationCountry("China");
+        declaration4.setCustomsOffice("Houston Customs");
+        declaration4.setNotes("Computer equipment, awaiting customs clearance");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items4 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item7 = new CustomsDeclaration.CustomsLineItem();
+        item7.setDescription("Dell XPS 15 Laptop");
+        item7.setHsCode("8471.30.00");
+        item7.setQuantity(8);
+        item7.setUnit("PCS");
+        item7.setUnitValue(1599.99);
+        item7.setGrossWeight(2.0);
+        items4.add(item7);
+
+        CustomsDeclaration.CustomsLineItem item8 = new CustomsDeclaration.CustomsLineItem();
+        item8.setDescription("Dell UltraSharp Monitor");
+        item8.setHsCode("8528.52.00");
+        item8.setQuantity(5);
+        item8.setUnit("PCS");
+        item8.setUnitValue(399.99);
+        item8.setGrossWeight(5.0);
+        items4.add(item8);
+
+        declaration4.setItems(items4);
+        declarationDir.addCustomsDeclaration(declaration4);
+
+        // 创建示例报关单5 - 已批准状态
+        CustomsDeclaration declaration5 = new CustomsDeclaration();
+        declaration5.setDeclarationId("CD202504030005");
+        declaration5.setShipmentId("TRK005");  // 对应TRK005
+        declaration5.setStatus("Approved");
+
+        // 设置日期 (20天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -20);
+        declaration5.setDeclarationDate(cal.getTime());
+
+        // 设置提交日期 (19天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -19);
+        declaration5.setSubmissionDate(cal.getTime());
+
+        // 设置处理日期 (18天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -18);
+        declaration5.setProcessingDate(cal.getTime());
+
+        declaration5.setConsignor("LG Electronics");
+        declaration5.setConsignee("Sarah Williams");
+        declaration5.setCountryOfOrigin("South Korea");
+        declaration5.setDestinationCountry("Australia");
+        declaration5.setCustomsOffice("Seoul Customs");
+        declaration5.setNotes("Electronics shipment, customs cleared");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items5 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item9 = new CustomsDeclaration.CustomsLineItem();
+        item9.setDescription("LG OLED TV C2");
+        item9.setHsCode("8528.72.00");
+        item9.setQuantity(5);
+        item9.setUnit("PCS");
+        item9.setUnitValue(1299.99);
+        item9.setGrossWeight(25.0);
+        items5.add(item9);
+
+        CustomsDeclaration.CustomsLineItem item10 = new CustomsDeclaration.CustomsLineItem();
+        item10.setDescription("LG SoundBar S80QY");
+        item10.setHsCode("8518.22.00");
+        item10.setQuantity(5);
+        item10.setUnit("PCS");
+        item10.setUnitValue(399.99);
+        item10.setGrossWeight(3.0);
+        items5.add(item10);
+
+        declaration5.setItems(items5);
+        declarationDir.addCustomsDeclaration(declaration5);
+
+        // 创建示例报关单6 - 草稿状态
+        CustomsDeclaration declaration6 = new CustomsDeclaration();
+        declaration6.setDeclarationId("CD202504100006");
+        declaration6.setShipmentId("TRK006");  // 对应TRK006
+        declaration6.setStatus("Draft");
+        declaration6.setDeclarationDate(new Date());
+        declaration6.setConsignor("Microsoft Corporation");
+        declaration6.setConsignee("Thomas Anderson");
+        declaration6.setCountryOfOrigin("United States");
+        declaration6.setDestinationCountry("United Kingdom");
+        declaration6.setCustomsOffice("Seattle Customs");
+        declaration6.setNotes("Computer hardware, preparing documentation");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items6 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item11 = new CustomsDeclaration.CustomsLineItem();
+        item11.setDescription("Surface Pro 9");
+        item11.setHsCode("8471.30.00");
+        item11.setQuantity(12);
+        item11.setUnit("PCS");
+        item11.setUnitValue(1299.99);
+        item11.setGrossWeight(0.9);
+        items6.add(item11);
+
+        CustomsDeclaration.CustomsLineItem item12 = new CustomsDeclaration.CustomsLineItem();
+        item12.setDescription("Xbox Series X");
+        item12.setHsCode("9504.50.00");
+        item12.setQuantity(8);
+        item12.setUnit("PCS");
+        item12.setUnitValue(499.99);
+        item12.setGrossWeight(4.5);
+        items6.add(item12);
+
+        declaration6.setItems(items6);
+        declarationDir.addCustomsDeclaration(declaration6);
+
+        // 创建示例报关单7 - 已提交状态
+        CustomsDeclaration declaration7 = new CustomsDeclaration();
+        declaration7.setDeclarationId("CD202504050007");
+        declaration7.setShipmentId("TRK007");  // 对应TRK007
+        declaration7.setStatus("Submitted");
+
+        // 设置日期 (8天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -8);
+        declaration7.setDeclarationDate(cal.getTime());
+
+        // 设置提交日期 (6天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -6);
+        declaration7.setSubmissionDate(cal.getTime());
+
+        declaration7.setConsignor("Huawei Technologies");
+        declaration7.setConsignee("Jessica Brown");
+        declaration7.setCountryOfOrigin("China");
+        declaration7.setDestinationCountry("Germany");
+        declaration7.setCustomsOffice("Shenzhen Customs");
+        declaration7.setNotes("Telecommunications equipment, awaiting approval");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items7 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item13 = new CustomsDeclaration.CustomsLineItem();
+        item13.setDescription("Huawei MatePad Pro");
+        item13.setHsCode("8471.30.00");
+        item13.setQuantity(20);
+        item13.setUnit("PCS");
+        item13.setUnitValue(599.99);
+        item13.setGrossWeight(0.7);
+        items7.add(item13);
+
+        CustomsDeclaration.CustomsLineItem item14 = new CustomsDeclaration.CustomsLineItem();
+        item14.setDescription("Huawei FreeBuds Pro");
+        item14.setHsCode("8518.30.00");
+        item14.setQuantity(50);
+        item14.setUnit("PCS");
+        item14.setUnitValue(199.99);
+        item14.setGrossWeight(0.1);
+        items7.add(item14);
+
+        declaration7.setItems(items7);
+        declarationDir.addCustomsDeclaration(declaration7);
+
+        // 创建示例报关单8 - 已批准状态
+        CustomsDeclaration declaration8 = new CustomsDeclaration();
+        declaration8.setDeclarationId("CD202504010008");
+        declaration8.setShipmentId("TRK008");  // 对应TRK008
+        declaration8.setStatus("Approved");
+
+        // 设置日期 (25天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -25);
+        declaration8.setDeclarationDate(cal.getTime());
+
+        // 设置提交日期 (24天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -24);
+        declaration8.setSubmissionDate(cal.getTime());
+
+        // 设置处理日期 (22天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -22);
+        declaration8.setProcessingDate(cal.getTime());
+
+        declaration8.setConsignor("Xiaomi");
+        declaration8.setConsignee("David Wilson");
+        declaration8.setCountryOfOrigin("China");
+        declaration8.setDestinationCountry("India");
+        declaration8.setCustomsOffice("Beijing Customs");
+        declaration8.setNotes("Mobile devices, approved for export");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items8 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item15 = new CustomsDeclaration.CustomsLineItem();
+        item15.setDescription("Xiaomi Mi 13");
+        item15.setHsCode("8517.12.00");
+        item15.setQuantity(50);
+        item15.setUnit("PCS");
+        item15.setUnitValue(699.99);
+        item15.setGrossWeight(0.3);
+        items8.add(item15);
+
+        CustomsDeclaration.CustomsLineItem item16 = new CustomsDeclaration.CustomsLineItem();
+        item16.setDescription("Xiaomi Band 7");
+        item16.setHsCode("8517.62.00");
+        item16.setQuantity(100);
+        item16.setUnit("PCS");
+        item16.setUnitValue(59.99);
+        item16.setGrossWeight(0.05);
+        items8.add(item16);
+
+        declaration8.setItems(items8);
+        declarationDir.addCustomsDeclaration(declaration8);
+
+        // 创建示例报关单9 - 已提交状态
+        CustomsDeclaration declaration9 = new CustomsDeclaration();
+        declaration9.setDeclarationId("CD202504060009");
+        declaration9.setShipmentId("TRK009");  // 对应TRK009
+        declaration9.setStatus("Submitted");
+
+        // 设置日期 (7天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -7);
+        declaration9.setDeclarationDate(cal.getTime());
+
+        // 设置提交日期 (5天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -5);
+        declaration9.setSubmissionDate(cal.getTime());
+
+        declaration9.setConsignor("Nintendo Co., Ltd.");
+        declaration9.setConsignee("Richard Martin");
+        declaration9.setCountryOfOrigin("Japan");
+        declaration9.setDestinationCountry("France");
+        declaration9.setCustomsOffice("Kyoto Customs");
+        declaration9.setNotes("Gaming consoles and accessories, awaiting clearance");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items9 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item17 = new CustomsDeclaration.CustomsLineItem();
+        item17.setDescription("Nintendo Switch OLED");
+        item17.setHsCode("9504.50.00");
+        item17.setQuantity(30);
+        item17.setUnit("PCS");
+        item17.setUnitValue(349.99);
+        item17.setGrossWeight(0.4);
+        items9.add(item17);
+
+        CustomsDeclaration.CustomsLineItem item18 = new CustomsDeclaration.CustomsLineItem();
+        item18.setDescription("Nintendo Game Cartridges");
+        item18.setHsCode("9504.50.00");
+        item18.setQuantity(100);
+        item18.setUnit("PCS");
+        item18.setUnitValue(59.99);
+        item18.setGrossWeight(0.01);
+        items9.add(item18);
+
+        declaration9.setItems(items9);
+        declarationDir.addCustomsDeclaration(declaration9);
+
+        // 创建示例报关单10 - 草稿状态
+        CustomsDeclaration declaration10 = new CustomsDeclaration();
+        declaration10.setDeclarationId("CD202504110010");
+        declaration10.setShipmentId("TRK010");  // 对应TRK010
+        declaration10.setStatus("Draft");
+        declaration10.setDeclarationDate(new Date());
+        declaration10.setConsignor("HP Inc.");
+        declaration10.setConsignee("Emma Davis");
+        declaration10.setCountryOfOrigin("United States");
+        declaration10.setDestinationCountry("Brazil");
+        declaration10.setCustomsOffice("Miami Customs");
+        declaration10.setNotes("Computer equipment, preparing documentation");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items10 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item19 = new CustomsDeclaration.CustomsLineItem();
+        item19.setDescription("HP Spectre Laptop");
+        item19.setHsCode("8471.30.00");
+        item19.setQuantity(15);
+        item19.setUnit("PCS");
+        item19.setUnitValue(1399.99);
+        item19.setGrossWeight(1.3);
+        items10.add(item19);
+
+        CustomsDeclaration.CustomsLineItem item20 = new CustomsDeclaration.CustomsLineItem();
+        item20.setDescription("HP LaserJet Printer");
+        item20.setHsCode("8443.31.00");
+        item20.setQuantity(8);
+        item20.setUnit("PCS");
+        item20.setUnitValue(499.99);
+        item20.setGrossWeight(8.5);
+        items10.add(item20);
+
+        declaration10.setItems(items10);
+        declarationDir.addCustomsDeclaration(declaration10);
+
+        System.out.println("Created " + declarationDir.getCustomsDeclarationList().size() + " sample customs declarations");
+    }
+
+    private static void createSampleCustomsDeclarations(CustomsLiaisonOrganization customsOrg) {
+        if (customsOrg == null || customsOrg.getCustomsDeclarationDirectory() == null) {
             System.out.println("Error: Cannot create sample customs declarations - invalid organization");
             return;
         }
 
-        CustomsDeclarationDirectory declarationDir = logistics.getCustomsDeclarationDirectory();
+        CustomsDeclarationDirectory declarationDir = customsOrg.getCustomsDeclarationDirectory();
 
-        // 创建示例报关单1 - 草稿状态
+        // 创建示例报关单1 - 草稿状态（已存在）
         CustomsDeclaration declaration1 = new CustomsDeclaration();
         declaration1.setDeclarationId("CD202504120001");
         declaration1.setShipmentId("SHP001");
@@ -797,7 +1220,7 @@ public class ConfigureASystem {
         declaration1.setItems(items1);
         declarationDir.addCustomsDeclaration(declaration1);
 
-        // 创建示例报关单2 - 已提交状态
+        // 创建示例报关单2 - 已提交状态（已存在）
         CustomsDeclaration declaration2 = new CustomsDeclaration();
         declaration2.setDeclarationId("CD202504150002");
         declaration2.setShipmentId("SHP002");
@@ -844,7 +1267,7 @@ public class ConfigureASystem {
         declaration2.setItems(items2);
         declarationDir.addCustomsDeclaration(declaration2);
 
-        // 创建示例报关单3 - 已批准状态
+        // 创建示例报关单3 - 已批准状态（已存在）
         CustomsDeclaration declaration3 = new CustomsDeclaration();
         declaration3.setDeclarationId("CD202504010003");
         declaration3.setShipmentId("SHP003");
@@ -896,142 +1319,344 @@ public class ConfigureASystem {
         declaration3.setItems(items3);
         declarationDir.addCustomsDeclaration(declaration3);
 
-        System.out.println("Created " + declarationDir.getCustomsDeclarationList().size() + " sample customs declarations");
-    }
-
-    private static void createSampleCustomsDeclarations(CustomsLiaisonOrganization customsOrg) {
-        if (customsOrg == null || customsOrg.getCustomsDeclarationDirectory() == null) {
-            System.out.println("Error: Cannot create sample customs declarations - invalid organization");
-            return;
-        }
-
-        CustomsDeclarationDirectory declarationDir = customsOrg.getCustomsDeclarationDirectory();
-        Calendar cal = Calendar.getInstance();
-
-        // 创建示例报关单1 - 待审核状态
-        CustomsDeclaration declaration1 = new CustomsDeclaration();
-        declaration1.setDeclarationId("CD202504120001");
-        declaration1.setShipmentId("SHP001");
-        declaration1.setStatus("Pending");
-        declaration1.setDeclarationDate(new Date());
-        declaration1.setSubmissionDate(new Date());
-        declaration1.setConsignor("Apple Store Shanghai");
-        declaration1.setConsignee("John Smith");
-        declaration1.setCountryOfOrigin("China");
-        declaration1.setDestinationCountry("United States");
-        declaration1.setCustomsOffice("Shanghai Customs");
-        declaration1.setNotes("High-value electronics, handle with care");
-
-        ArrayList<CustomsDeclaration.CustomsLineItem> items1 = new ArrayList<>();
-        CustomsDeclaration.CustomsLineItem item1 = new CustomsDeclaration.CustomsLineItem();
-        item1.setDescription("iPhone 15 Pro");
-        item1.setHsCode("8517.12.00");
-        item1.setQuantity(5);
-        item1.setUnit("PCS");
-        item1.setUnitValue(899.99);
-        item1.setGrossWeight(0.5);
-        items1.add(item1);
-
-        declaration1.setItems(items1);
-        declarationDir.addCustomsDeclaration(declaration1);
-
-        // 创建示例报关单2 - 已拒绝状态
-        CustomsDeclaration declaration2 = new CustomsDeclaration();
-        declaration2.setDeclarationId("CD202504150002");
-        declaration2.setShipmentId("SHP002");
-        declaration2.setStatus("Rejected");
-
-        // 设置日期为3天前
-        cal.setTime(new Date());
-        cal.add(Calendar.DAY_OF_MONTH, -3);
-        declaration2.setDeclarationDate(cal.getTime());
-        declaration2.setSubmissionDate(cal.getTime());
-
-        declaration2.setConsignor("Samsung Electronics");
-        declaration2.setConsignee("Tech Store USA");
-        declaration2.setCountryOfOrigin("South Korea");
-        declaration2.setDestinationCountry("United States");
-        declaration2.setCustomsOffice("Incheon Customs");
-        declaration2.setNotes("Documentation incomplete - missing certificate of origin");
-
-        ArrayList<CustomsDeclaration.CustomsLineItem> items2 = new ArrayList<>();
-        CustomsDeclaration.CustomsLineItem item2 = new CustomsDeclaration.CustomsLineItem();
-        item2.setDescription("Galaxy S24 Ultra");
-        item2.setHsCode("8517.12.00");
-        item2.setQuantity(10);
-        item2.setUnit("PCS");
-        item2.setUnitValue(1199.99);
-        item2.setGrossWeight(0.6);
-        items2.add(item2);
-
-        declaration2.setItems(items2);
-        declarationDir.addCustomsDeclaration(declaration2);
-
-        // 创建示例报关单3 - 需要补充信息状态
-        CustomsDeclaration declaration3 = new CustomsDeclaration();
-        declaration3.setDeclarationId("CD202504180003");
-        declaration3.setShipmentId("SHP003");
-        declaration3.setStatus("Information Requested");
-
-        // 设置日期为1天前
-        cal.setTime(new Date());
-        cal.add(Calendar.DAY_OF_MONTH, -1);
-        declaration3.setDeclarationDate(cal.getTime());
-        declaration3.setSubmissionDate(cal.getTime());
-
-        declaration3.setConsignor("Sony Corporation");
-        declaration3.setConsignee("Best Buy");
-        declaration3.setCountryOfOrigin("Japan");
-        declaration3.setDestinationCountry("United States");
-        declaration3.setCustomsOffice("Tokyo Customs");
-        declaration3.setNotes("Please provide detailed product specifications and safety certificates");
-
-        ArrayList<CustomsDeclaration.CustomsLineItem> items3 = new ArrayList<>();
-        CustomsDeclaration.CustomsLineItem item3 = new CustomsDeclaration.CustomsLineItem();
-        item3.setDescription("PlayStation 5");
-        item3.setHsCode("9504.50.00");
-        item3.setQuantity(20);
-        item3.setUnit("PCS");
-        item3.setUnitValue(499.99);
-        item3.setGrossWeight(4.5);
-        items3.add(item3);
-
-        declaration3.setItems(items3);
-        declarationDir.addCustomsDeclaration(declaration3);
-
-        // 创建示例报关单4 - 已批准状态
+        // 创建示例报关单4 - 已拒绝状态
         CustomsDeclaration declaration4 = new CustomsDeclaration();
-        declaration4.setDeclarationId("CD202504200004");
+        declaration4.setDeclarationId("CD202503250004");
         declaration4.setShipmentId("SHP004");
-        declaration4.setStatus("Approved");
+        declaration4.setStatus("Rejected");
 
-        // 设置日期为5天前
-        cal.setTime(new Date());
-        cal.add(Calendar.DAY_OF_MONTH, -5);
+        // 设置日期 (20天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -20);
         declaration4.setDeclarationDate(cal.getTime());
+
+        // 设置提交日期 (19天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -19);
         declaration4.setSubmissionDate(cal.getTime());
-        cal.add(Calendar.DAY_OF_MONTH, 1); // 处理日期为4天前
+
+        // 设置处理日期 (18天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -18);
         declaration4.setProcessingDate(cal.getTime());
 
-        declaration4.setConsignor("LG Electronics");
-        declaration4.setConsignee("Amazon");
-        declaration4.setCountryOfOrigin("South Korea");
-        declaration4.setDestinationCountry("United States");
-        declaration4.setCustomsOffice("Busan Customs");
-        declaration4.setNotes("All documentation complete and verified");
+        declaration4.setConsignor("Dell Technologies");
+        declaration4.setConsignee("Michael Johnson");
+        declaration4.setCountryOfOrigin("United States");
+        declaration4.setDestinationCountry("China");
+        declaration4.setCustomsOffice("Shanghai Customs");
+        declaration4.setNotes("Documentation incomplete, missing invoice details");
 
+        // 添加商品项目
         ArrayList<CustomsDeclaration.CustomsLineItem> items4 = new ArrayList<>();
-        CustomsDeclaration.CustomsLineItem item4 = new CustomsDeclaration.CustomsLineItem();
-        item4.setDescription("LG OLED TV");
-        item4.setHsCode("8528.72.00");
-        item4.setQuantity(15);
-        item4.setUnit("PCS");
-        item4.setUnitValue(1999.99);
-        item4.setGrossWeight(25.0);
-        items4.add(item4);
+
+        CustomsDeclaration.CustomsLineItem item7 = new CustomsDeclaration.CustomsLineItem();
+        item7.setDescription("Dell XPS 15 Laptop");
+        item7.setHsCode("8471.30.00");
+        item7.setQuantity(8);
+        item7.setUnit("PCS");
+        item7.setUnitValue(1599.99);
+        item7.setGrossWeight(2.0);
+        items4.add(item7);
+
+        CustomsDeclaration.CustomsLineItem item8 = new CustomsDeclaration.CustomsLineItem();
+        item8.setDescription("Dell UltraSharp Monitor");
+        item8.setHsCode("8528.52.00");
+        item8.setQuantity(5);
+        item8.setUnit("PCS");
+        item8.setUnitValue(399.99);
+        item8.setGrossWeight(5.0);
+        items4.add(item8);
 
         declaration4.setItems(items4);
         declarationDir.addCustomsDeclaration(declaration4);
+
+        // 创建示例报关单5 - 草稿状态
+        CustomsDeclaration declaration5 = new CustomsDeclaration();
+        declaration5.setDeclarationId("CD202504180005");
+        declaration5.setShipmentId("SHP005");
+        declaration5.setStatus("Draft");
+
+        // 设置日期 (2天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -2);
+        declaration5.setDeclarationDate(cal.getTime());
+
+        declaration5.setConsignor("LG Electronics");
+        declaration5.setConsignee("Sarah Williams");
+        declaration5.setCountryOfOrigin("South Korea");
+        declaration5.setDestinationCountry("Canada");
+        declaration5.setCustomsOffice("Incheon Customs");
+        declaration5.setNotes("Electronics shipment with mixed items");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items5 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item9 = new CustomsDeclaration.CustomsLineItem();
+        item9.setDescription("LG OLED TV C2");
+        item9.setHsCode("8528.72.00");
+        item9.setQuantity(5);
+        item9.setUnit("PCS");
+        item9.setUnitValue(1299.99);
+        item9.setGrossWeight(25.0);
+        items5.add(item9);
+
+        CustomsDeclaration.CustomsLineItem item10 = new CustomsDeclaration.CustomsLineItem();
+        item10.setDescription("LG SoundBar S80QY");
+        item10.setHsCode("8518.22.00");
+        item10.setQuantity(5);
+        item10.setUnit("PCS");
+        item10.setUnitValue(399.99);
+        item10.setGrossWeight(3.0);
+        items5.add(item10);
+
+        declaration5.setItems(items5);
+        declarationDir.addCustomsDeclaration(declaration5);
+
+        // 创建示例报关单6 - 已提交状态
+        CustomsDeclaration declaration6 = new CustomsDeclaration();
+        declaration6.setDeclarationId("CD202504160006");
+        declaration6.setShipmentId("SHP006");
+        declaration6.setStatus("Submitted");
+
+        // 设置日期 (4天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -4);
+        declaration6.setDeclarationDate(cal.getTime());
+
+        // 设置提交日期 (3天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -3);
+        declaration6.setSubmissionDate(cal.getTime());
+
+        declaration6.setConsignor("Huawei Technologies");
+        declaration6.setConsignee("Thomas Anderson");
+        declaration6.setCountryOfOrigin("China");
+        declaration6.setDestinationCountry("Germany");
+        declaration6.setCustomsOffice("Shenzhen Customs");
+        declaration6.setNotes("Telecommunications equipment, awaiting approval");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items6 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item11 = new CustomsDeclaration.CustomsLineItem();
+        item11.setDescription("Huawei MatePad Pro");
+        item11.setHsCode("8471.30.00");
+        item11.setQuantity(20);
+        item11.setUnit("PCS");
+        item11.setUnitValue(599.99);
+        item11.setGrossWeight(0.7);
+        items6.add(item11);
+
+        CustomsDeclaration.CustomsLineItem item12 = new CustomsDeclaration.CustomsLineItem();
+        item12.setDescription("Huawei FreeBuds Pro");
+        item12.setHsCode("8518.30.00");
+        item12.setQuantity(50);
+        item12.setUnit("PCS");
+        item12.setUnitValue(199.99);
+        item12.setGrossWeight(0.1);
+        items6.add(item12);
+
+        declaration6.setItems(items6);
+        declarationDir.addCustomsDeclaration(declaration6);
+
+        // 创建示例报关单7 - 已批准状态
+        CustomsDeclaration declaration7 = new CustomsDeclaration();
+        declaration7.setDeclarationId("CD202503100007");
+        declaration7.setShipmentId("SHP007");
+        declaration7.setStatus("Approved");
+
+        // 设置日期 (25天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -25);
+        declaration7.setDeclarationDate(cal.getTime());
+
+        // 设置提交日期 (24天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -24);
+        declaration7.setSubmissionDate(cal.getTime());
+
+        // 设置处理日期 (22天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -22);
+        declaration7.setProcessingDate(cal.getTime());
+
+        declaration7.setConsignor("Microsoft Corporation");
+        declaration7.setConsignee("Jessica Brown");
+        declaration7.setCountryOfOrigin("United States");
+        declaration7.setDestinationCountry("Australia");
+        declaration7.setCustomsOffice("Seattle Customs");
+        declaration7.setNotes("Computer hardware and accessories, approved for export");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items7 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item13 = new CustomsDeclaration.CustomsLineItem();
+        item13.setDescription("Surface Pro 9");
+        item13.setHsCode("8471.30.00");
+        item13.setQuantity(12);
+        item13.setUnit("PCS");
+        item13.setUnitValue(1299.99);
+        item13.setGrossWeight(0.9);
+        items7.add(item13);
+
+        CustomsDeclaration.CustomsLineItem item14 = new CustomsDeclaration.CustomsLineItem();
+        item14.setDescription("Xbox Series X");
+        item14.setHsCode("9504.50.00");
+        item14.setQuantity(8);
+        item14.setUnit("PCS");
+        item14.setUnitValue(499.99);
+        item14.setGrossWeight(4.5);
+        items7.add(item14);
+
+        declaration7.setItems(items7);
+        declarationDir.addCustomsDeclaration(declaration7);
+
+        // 创建示例报关单8 - 已拒绝状态
+        CustomsDeclaration declaration8 = new CustomsDeclaration();
+        declaration8.setDeclarationId("CD202503150008");
+        declaration8.setShipmentId("SHP008");
+        declaration8.setStatus("Rejected");
+
+        // 设置日期 (30天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -30);
+        declaration8.setDeclarationDate(cal.getTime());
+
+        // 设置提交日期 (29天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -29);
+        declaration8.setSubmissionDate(cal.getTime());
+
+        // 设置处理日期 (28天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -28);
+        declaration8.setProcessingDate(cal.getTime());
+
+        declaration8.setConsignor("Xiaomi");
+        declaration8.setConsignee("David Wilson");
+        declaration8.setCountryOfOrigin("China");
+        declaration8.setDestinationCountry("India");
+        declaration8.setCustomsOffice("Beijing Customs");
+        declaration8.setNotes("Incorrect tariff classification, resubmission required");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items8 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item15 = new CustomsDeclaration.CustomsLineItem();
+        item15.setDescription("Xiaomi Mi 13");
+        item15.setHsCode("8517.12.00");
+        item15.setQuantity(50);
+        item15.setUnit("PCS");
+        item15.setUnitValue(699.99);
+        item15.setGrossWeight(0.3);
+        items8.add(item15);
+
+        CustomsDeclaration.CustomsLineItem item16 = new CustomsDeclaration.CustomsLineItem();
+        item16.setDescription("Xiaomi Band 7");
+        item16.setHsCode("8517.62.00");
+        item16.setQuantity(100);
+        item16.setUnit("PCS");
+        item16.setUnitValue(59.99);
+        item16.setGrossWeight(0.05);
+        items8.add(item16);
+
+        declaration8.setItems(items8);
+        declarationDir.addCustomsDeclaration(declaration8);
+
+        // 创建示例报关单9 - 草稿状态
+        CustomsDeclaration declaration9 = new CustomsDeclaration();
+        declaration9.setDeclarationId("CD202504190009");
+        declaration9.setShipmentId("SHP009");
+        declaration9.setStatus("Draft");
+
+        // 设置日期 (1天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        declaration9.setDeclarationDate(cal.getTime());
+
+        declaration9.setConsignor("Nintendo Co., Ltd.");
+        declaration9.setConsignee("Richard Martin");
+        declaration9.setCountryOfOrigin("Japan");
+        declaration9.setDestinationCountry("France");
+        declaration9.setCustomsOffice("Kyoto Customs");
+        declaration9.setNotes("Gaming consoles and games, draft declaration");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items9 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item17 = new CustomsDeclaration.CustomsLineItem();
+        item17.setDescription("Nintendo Switch OLED");
+        item17.setHsCode("9504.50.00");
+        item17.setQuantity(30);
+        item17.setUnit("PCS");
+        item17.setUnitValue(349.99);
+        item17.setGrossWeight(0.4);
+        items9.add(item17);
+
+        CustomsDeclaration.CustomsLineItem item18 = new CustomsDeclaration.CustomsLineItem();
+        item18.setDescription("Nintendo Game Cartridges");
+        item18.setHsCode("9504.50.00");
+        item18.setQuantity(100);
+        item18.setUnit("PCS");
+        item18.setUnitValue(59.99);
+        item18.setGrossWeight(0.01);
+        items9.add(item18);
+
+        declaration9.setItems(items9);
+        declarationDir.addCustomsDeclaration(declaration9);
+
+        // 创建示例报关单10 - 已批准状态
+        CustomsDeclaration declaration10 = new CustomsDeclaration();
+        declaration10.setDeclarationId("CD202503200010");
+        declaration10.setShipmentId("SHP010");
+        declaration10.setStatus("Approved");
+
+        // 设置日期 (28天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -28);
+        declaration10.setDeclarationDate(cal.getTime());
+
+        // 设置提交日期 (27天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -27);
+        declaration10.setSubmissionDate(cal.getTime());
+
+        // 设置处理日期 (25天前)
+        cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -25);
+        declaration10.setProcessingDate(cal.getTime());
+
+        declaration10.setConsignor("HP Inc.");
+        declaration10.setConsignee("Emma Davis");
+        declaration10.setCountryOfOrigin("United States");
+        declaration10.setDestinationCountry("Brazil");
+        declaration10.setCustomsOffice("Miami Customs");
+        declaration10.setNotes("Computer equipment, approved for export to Brazil");
+
+        // 添加商品项目
+        ArrayList<CustomsDeclaration.CustomsLineItem> items10 = new ArrayList<>();
+
+        CustomsDeclaration.CustomsLineItem item19 = new CustomsDeclaration.CustomsLineItem();
+        item19.setDescription("HP Spectre Laptop");
+        item19.setHsCode("8471.30.00");
+        item19.setQuantity(15);
+        item19.setUnit("PCS");
+        item19.setUnitValue(1399.99);
+        item19.setGrossWeight(1.3);
+        items10.add(item19);
+
+        CustomsDeclaration.CustomsLineItem item20 = new CustomsDeclaration.CustomsLineItem();
+        item20.setDescription("HP LaserJet Printer");
+        item20.setHsCode("8443.31.00");
+        item20.setQuantity(8);
+        item20.setUnit("PCS");
+        item20.setUnitValue(499.99);
+        item20.setGrossWeight(8.5);
+        items10.add(item20);
+
+        declaration10.setItems(items10);
+        declarationDir.addCustomsDeclaration(declaration10);
 
         System.out.println("Created " + declarationDir.getCustomsDeclarationList().size() + " sample customs declarations");
     }

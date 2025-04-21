@@ -8,6 +8,7 @@ import Business.ConfigureASystem;
 import Business.DB4OUtil.DB4OUtil;
 import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
+import Business.Logistics.CustomsDeclaration;
 import Business.Organization.LogisticsOrganization;
 import Business.UserAccount.UserAccount;
 import Business.Logistics.Shipment;
@@ -21,7 +22,10 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -54,6 +58,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javafx.application.Platform;
 import javax.swing.JComboBox;
+import javax.swing.JTextArea;
 
 /**
  *
@@ -117,11 +122,11 @@ public class ShipmentPanel extends javax.swing.JPanel {
     }
 
     private void setupDetailsCards() {
-        // 创建主要的详情容器面板
+        // 创建主容器面板，使用BorderLayout
         JPanel shipmentDetailsContainer = new JPanel(new BorderLayout());
 
         // 创建导航按钮面板
-        JPanel detailsNavigationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel detailsNavigationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         detailsNavigationPanel.add(btnBasicInfo);
         detailsNavigationPanel.add(btnCustomsInfo);
         detailsNavigationPanel.add(btnPackageInfo);
@@ -132,39 +137,82 @@ public class ShipmentPanel extends javax.swing.JPanel {
         detailsCardLayout = new CardLayout();
         detailsCardsPanel.setLayout(detailsCardLayout);
 
-        // 创建基本信息内容面板
-        JPanel shipmentBasicInfoContent = new JPanel(new GridLayout(0, 2, 10, 10));
-        shipmentBasicInfoContent.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // 创建基本信息面板，使用GridBagLayout（与PackageInfo和FinancialInfo一致）
+        JPanel shipmentBasicInfoContent = new JPanel(new GridBagLayout());
+        shipmentBasicInfoContent.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // 添加基本信息字段到内容面板
-        shipmentBasicInfoContent.add(lblTraNo);
-        shipmentBasicInfoContent.add(txtTrcNo);
-        shipmentBasicInfoContent.add(lblShippingDate);
-        shipmentBasicInfoContent.add(txtShippingDate);
-        shipmentBasicInfoContent.add(lblShippingMethod);
-        shipmentBasicInfoContent.add(txtShippingMethod);
-        shipmentBasicInfoContent.add(lblDestination);
-        shipmentBasicInfoContent.add(txtDestination);
-        shipmentBasicInfoContent.add(lblStatus);
-        shipmentBasicInfoContent.add(txtStatus);
+        // 设置约束条件
+        GridBagConstraints labelConstraints = new GridBagConstraints();
+        labelConstraints.gridx = 0;
+        labelConstraints.gridy = 0;
+        labelConstraints.anchor = GridBagConstraints.EAST;
+        labelConstraints.insets = new Insets(10, 10, 10, 10);
 
-        // 创建其他详情面板
+        GridBagConstraints fieldConstraints = new GridBagConstraints();
+        fieldConstraints.gridx = 1;
+        fieldConstraints.gridy = 0;
+        fieldConstraints.fill = GridBagConstraints.HORIZONTAL;
+        fieldConstraints.weightx = 1.0;
+        fieldConstraints.insets = new Insets(10, 0, 10, 10);
+
+        // 设置文本框的标准大小
+        Dimension textFieldSize = new Dimension(250, 30);
+        txtTrcNo.setPreferredSize(textFieldSize);
+        txtShippingDate.setPreferredSize(textFieldSize);
+        txtShippingMethod.setPreferredSize(textFieldSize);
+        txtDestination.setPreferredSize(textFieldSize);
+        txtStatus.setPreferredSize(textFieldSize);
+
+        // 添加组件到基本信息面板
+        shipmentBasicInfoContent.add(lblTraNo, labelConstraints);
+        shipmentBasicInfoContent.add(txtTrcNo, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        shipmentBasicInfoContent.add(lblShippingDate, labelConstraints);
+        shipmentBasicInfoContent.add(txtShippingDate, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        shipmentBasicInfoContent.add(lblShippingMethod, labelConstraints);
+        shipmentBasicInfoContent.add(txtShippingMethod, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        shipmentBasicInfoContent.add(lblDestination, labelConstraints);
+        shipmentBasicInfoContent.add(txtDestination, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        shipmentBasicInfoContent.add(lblStatus, labelConstraints);
+        shipmentBasicInfoContent.add(txtStatus, fieldConstraints);
+
+        // 添加填充空间，将内容推到顶部
+        GridBagConstraints fillerConstraints = new GridBagConstraints();
+        fillerConstraints.gridx = 0;
+        fillerConstraints.gridy = labelConstraints.gridy + 1;
+        fillerConstraints.weighty = 1.0;
+        fillerConstraints.fill = GridBagConstraints.BOTH;
+        fillerConstraints.gridwidth = 2;
+        shipmentBasicInfoContent.add(Box.createVerticalGlue(), fillerConstraints);
+
+        // 创建其他信息面板，使用相同的布局方法
         JPanel shipmentCustomsContent = createCustomsInfoPanel();
         JPanel shipmentPackageContent = createPackageInfoPanel();
         JPanel shipmentFinancialContent = createFinancialInfoPanel();
 
-        // 将所有内容面板添加到卡片布局
+        // 将所有面板添加到卡片布局中
         detailsCardsPanel.add(shipmentBasicInfoContent, "BasicInfo");
         detailsCardsPanel.add(shipmentCustomsContent, "CustomsInfo");
         detailsCardsPanel.add(shipmentPackageContent, "PackageInfo");
         detailsCardsPanel.add(shipmentFinancialContent, "FinancialInfo");
 
-        // 组装主容器面板
+        // 组装主容器
         shipmentDetailsContainer.add(detailsNavigationPanel, BorderLayout.NORTH);
         shipmentDetailsContainer.add(detailsCardsPanel, BorderLayout.CENTER);
 
         // 创建并添加更新按钮面板
-        JPanel actionButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel actionButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
         actionButtonPanel.add(btnUpdate);
         shipmentDetailsContainer.add(actionButtonPanel, BorderLayout.SOUTH);
 
@@ -657,6 +705,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
             String shipmentId = "SHP" + System.currentTimeMillis();
             String trackingNumber = "TRK" + System.currentTimeMillis();
 
+            // 创建新的Shipment
             Shipment shipment = new Shipment();
             shipment.setShipmentId(shipmentId);
             shipment.setTrackingNumber(trackingNumber);
@@ -664,8 +713,30 @@ public class ShipmentPanel extends javax.swing.JPanel {
             shipment.setQuantity(quantity);
             shipment.setDestination(destination);
             shipment.setShipDate(new Date());
-            shipment.setShippingMethod("To be assigned");  // 待分配运输方式
-            shipment.setShipmentStatus("Pending");  // 状态为 Pending
+            shipment.setShippingMethod("To be assigned");
+            shipment.setShipmentStatus("Pending");
+
+            // 创建并关联海关文档
+            CustomsDeclaration customs = new CustomsDeclaration();
+            customs.setDeclarationId("CD" + System.currentTimeMillis());
+            customs.setShipmentId(shipmentId);
+            customs.setCountryOfOrigin("China");
+            customs.setConsignor("Shanghai Warehouse");
+            customs.setConsignee(destination);
+            customs.setDestinationCountry(extractCountry(destination));
+            customs.setStatus("Pending");
+
+            // 创建默认物品（基于货物信息）
+            CustomsDeclaration.CustomsLineItem item = new CustomsDeclaration.CustomsLineItem();
+            item.setDescription(productName);
+            item.setQuantity(quantity);
+            item.setUnit("PCS");
+            item.setUnitValue(0.0); // 需要设置实际价值
+            item.setTotalValue(0.0); // 会在设置单价时自动计算
+            item.setGrossWeight(0.5 * quantity); // 估计重量
+            customs.addItem(item);
+
+            shipment.setCustomsDeclaration(customs);
 
             // 注意：不设置预计送达时间，让它保持为 null
             // 在实际发货时再设置
@@ -996,6 +1067,30 @@ public class ShipmentPanel extends javax.swing.JPanel {
             shipment.setDestination(destination);  // 设置目的地
             shipment.setShipmentStatus("Shipped");
 
+            // 创建海关文档
+            CustomsDeclaration customs = new CustomsDeclaration();
+            customs.setDeclarationId("CD" + System.currentTimeMillis());
+            customs.setShipmentId(shipment.getShipmentId());
+            customs.setCountryOfOrigin("China");
+            customs.setConsignor("Shanghai Warehouse");
+            customs.setConsignee(destination);
+            customs.setDestinationCountry(extractCountry(destination));
+            customs.setStatus("Pending");
+
+            // 如果有产品信息，添加默认物品
+            if (shipment.getProductName() != null && !shipment.getProductName().isEmpty()) {
+                CustomsDeclaration.CustomsLineItem item = new CustomsDeclaration.CustomsLineItem();
+                item.setDescription(shipment.getProductName());
+                item.setQuantity(shipment.getQuantity());
+                item.setUnit("PCS");
+                item.setUnitValue(0.0); // 需要设置实际价值
+                item.setTotalValue(0.0);
+                item.setGrossWeight(0.5 * shipment.getQuantity()); // 估计重量
+                customs.addItem(item);
+            }
+
+            shipment.setCustomsDeclaration(customs);
+
             // 4. 计算预计送达时间
             Calendar cal = Calendar.getInstance();
             cal.setTime(new Date());
@@ -1082,6 +1177,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
 
     private void btnCustomsInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCustomsInfoActionPerformed
         // TODO add your handling code here:
+        // 显示海关信息面板
         detailsCardLayout.show(detailsCardsPanel, "CustomsInfo");
     }//GEN-LAST:event_btnCustomsInfoActionPerformed
 
@@ -1775,88 +1871,543 @@ public class ShipmentPanel extends javax.swing.JPanel {
     }
 
     private JPanel createCustomsInfoPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4, 2, 10, 10));
+        JPanel customsPanel = new JPanel(new BorderLayout());
 
-        // Add customs information fields
-        JLabel lblDeclarationNo = new JLabel("Declaration No:");
-        JTextField txtDeclarationNo = new JTextField();
+        // 创建主内容面板，使用 GridBagLayout
+        JPanel contentPanel = new JPanel(new GridBagLayout());
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel lblDeclarationStatus = new JLabel("Declaration Status:");
-        JTextField txtDeclarationStatus = new JTextField();
+        // 设置约束条件
+        GridBagConstraints labelConstraints = new GridBagConstraints();
+        labelConstraints.gridx = 0;
+        labelConstraints.gridy = 0;
+        labelConstraints.anchor = GridBagConstraints.EAST;
+        labelConstraints.insets = new Insets(10, 10, 10, 10);
 
-        JLabel lblImportDuty = new JLabel("Import Duty:");
-        JTextField txtImportDuty = new JTextField();
+        GridBagConstraints fieldConstraints = new GridBagConstraints();
+        fieldConstraints.gridx = 1;
+        fieldConstraints.gridy = 0;
+        fieldConstraints.fill = GridBagConstraints.HORIZONTAL;
+        fieldConstraints.weightx = 1.0;
+        fieldConstraints.insets = new Insets(10, 0, 10, 10);
 
-        JLabel lblInspectionRequired = new JLabel("Inspection Required:");
-        JTextField txtInspectionRequired = new JTextField();
+        // 设置文本框的标准大小
+        Dimension textFieldSize = new Dimension(250, 30);
 
-        panel.add(lblDeclarationNo);
-        panel.add(txtDeclarationNo);
-        panel.add(lblDeclarationStatus);
-        panel.add(txtDeclarationStatus);
-        panel.add(lblImportDuty);
-        panel.add(txtImportDuty);
-        panel.add(lblInspectionRequired);
-        panel.add(txtInspectionRequired);
+        // 只保留重要信息
+        JLabel lblDeclarationId = new JLabel("Declaration ID:");
+        JTextField txtDeclarationId = new JTextField(20);
+        txtDeclarationId.setName("txtDeclarationId");
+        txtDeclarationId.setEditable(false);
+        txtDeclarationId.setPreferredSize(textFieldSize);
 
-        return panel;
+        JLabel lblConsignor = new JLabel("Consignor:");
+        JTextField txtConsignor = new JTextField(20);
+        txtConsignor.setName("txtConsignor");
+        txtConsignor.setPreferredSize(textFieldSize);
+
+        JLabel lblConsignee = new JLabel("Consignee:");
+        JTextField txtConsignee = new JTextField(20);
+        txtConsignee.setName("txtConsignee");
+        txtConsignee.setPreferredSize(textFieldSize);
+
+        JLabel lblCountryOfOrigin = new JLabel("Country of Origin:");
+        JTextField txtCountryOfOrigin = new JTextField(20);
+        txtCountryOfOrigin.setName("txtCountryOfOrigin");
+        txtCountryOfOrigin.setPreferredSize(textFieldSize);
+
+        JLabel lblDestinationCountry = new JLabel("Destination Country:");
+        JTextField txtDestinationCountry = new JTextField(20);
+        txtDestinationCountry.setName("txtDestinationCountry");
+        txtDestinationCountry.setPreferredSize(textFieldSize);
+
+        JLabel lblStatus = new JLabel("Status:");
+        String[] statuses = {"Pending", "Submitted", "Approved", "Rejected"};
+        JComboBox<String> cmbStatus = new JComboBox<>(statuses);
+        cmbStatus.setName("cmbStatus");
+        cmbStatus.setPreferredSize(textFieldSize);
+
+        // 添加组件到内容面板
+        contentPanel.add(lblDeclarationId, labelConstraints);
+        contentPanel.add(txtDeclarationId, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblConsignor, labelConstraints);
+        contentPanel.add(txtConsignor, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblConsignee, labelConstraints);
+        contentPanel.add(txtConsignee, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblCountryOfOrigin, labelConstraints);
+        contentPanel.add(txtCountryOfOrigin, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblDestinationCountry, labelConstraints);
+        contentPanel.add(txtDestinationCountry, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblStatus, labelConstraints);
+        contentPanel.add(cmbStatus, fieldConstraints);
+
+        // 添加填充空间，将内容推到顶部
+        GridBagConstraints fillerConstraints = new GridBagConstraints();
+        fillerConstraints.gridx = 0;
+        fillerConstraints.gridy = labelConstraints.gridy + 1;
+        fillerConstraints.weighty = 1.0;
+        fillerConstraints.fill = GridBagConstraints.BOTH;
+        fillerConstraints.gridwidth = 2;
+        contentPanel.add(Box.createVerticalGlue(), fillerConstraints);
+
+        // 创建简化版物品表格（只保留一个简单的表格）
+        JPanel itemsPanel = new JPanel(new BorderLayout());
+        itemsPanel.setBorder(BorderFactory.createTitledBorder("Declaration Items"));
+
+        // 创建表格模型（简化列）
+        DefaultTableModel itemsTableModel = new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"Description", "Quantity", "Unit Value"}
+        );
+
+        JTable itemsTable = new JTable(itemsTableModel);
+        JScrollPane itemsScrollPane = new JScrollPane(itemsTable);
+        itemsScrollPane.setPreferredSize(new Dimension(0, 150));
+
+        itemsPanel.add(itemsScrollPane, BorderLayout.CENTER);
+
+        // 创建主面板布局
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.add(contentPanel, BorderLayout.NORTH);
+        mainPanel.add(itemsPanel, BorderLayout.CENTER);
+
+        // 创建按钮面板
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnSaveCustoms = new JButton("Save");
+        buttonPanel.add(btnSaveCustoms);
+
+        // 组装主面板
+        customsPanel.add(mainPanel, BorderLayout.CENTER);
+        customsPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // 设置面板引用（保持与原有方法兼容）
+        final JTextField[] fieldsRef = {txtDeclarationId, null, null,
+            txtConsignor, txtConsignee, txtCountryOfOrigin,
+            txtDestinationCountry, null};
+        final JComboBox[] combosRef = {null, cmbStatus};
+        final JTextArea[] textAreasRef = {null};
+        final JTable[] tablesRef = {itemsTable};
+
+        // 加载数据
+        int selectedRow = tblShipment.getSelectedRow();
+        if (selectedRow >= 0) {
+            String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
+            Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+            if (shipment != null) {
+                loadCustomsInfo(shipment, fieldsRef, combosRef, textAreasRef, tablesRef[0]);
+            }
+        }
+
+        // 保存按钮事件
+        btnSaveCustoms.addActionListener(e -> {
+            saveCustomsInfo(customsPanel, fieldsRef, combosRef, textAreasRef, tablesRef[0]);
+        });
+
+        return customsPanel;
+    }
+
+    // 添加海关明细项
+    private void addCustomsLineItem(JTable itemsTable) {
+        // 创建对话框
+        JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JLabel lblDescription = new JLabel("Description:");
+        JTextField txtDescription = new JTextField(20);
+
+        JLabel lblHsCode = new JLabel("HS Code:");
+        JTextField txtHsCode = new JTextField(20);
+
+        JLabel lblQuantity = new JLabel("Quantity:");
+        JTextField txtQuantity = new JTextField(20);
+
+        JLabel lblUnit = new JLabel("Unit:");
+        JTextField txtUnit = new JTextField(20);
+        txtUnit.setText("PCS");
+
+        JLabel lblUnitValue = new JLabel("Unit Value:");
+        JTextField txtUnitValue = new JTextField(20);
+
+        JLabel lblGrossWeight = new JLabel("Gross Weight:");
+        JTextField txtGrossWeight = new JTextField(20);
+
+        panel.add(lblDescription);
+        panel.add(txtDescription);
+        panel.add(lblHsCode);
+        panel.add(txtHsCode);
+        panel.add(lblQuantity);
+        panel.add(txtQuantity);
+        panel.add(lblUnit);
+        panel.add(txtUnit);
+        panel.add(lblUnitValue);
+        panel.add(txtUnitValue);
+        panel.add(lblGrossWeight);
+        panel.add(txtGrossWeight);
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "Add Declaration Item",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            try {
+                String description = txtDescription.getText();
+                String hsCode = txtHsCode.getText();
+                int quantity = Integer.parseInt(txtQuantity.getText());
+                String unit = txtUnit.getText();
+                double unitValue = Double.parseDouble(txtUnitValue.getText());
+                double grossWeight = Double.parseDouble(txtGrossWeight.getText());
+
+                double totalValue = quantity * unitValue;
+
+                DefaultTableModel model = (DefaultTableModel) itemsTable.getModel();
+                model.addRow(new Object[]{
+                    description, hsCode, quantity, unit, unitValue, totalValue, grossWeight
+                });
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null, "Please enter valid numbers for quantity, unit value, and gross weight.",
+                        "Invalid Input", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+// 移除海关明细项
+    private void removeCustomsLineItem(JTable itemsTable) {
+        int selectedRow = itemsTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            DefaultTableModel model = (DefaultTableModel) itemsTable.getModel();
+            model.removeRow(selectedRow);
+        } else {
+            JOptionPane.showMessageDialog(null, "Please select an item to remove.",
+                    "No Selection", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+// 加载海关信息到表单
+    private void loadCustomsInfo(Shipment shipment, JTextField[] fields, JComboBox[] combos,
+            JTextArea[] textAreas, JTable itemsTable) {
+        CustomsDeclaration customs = shipment.getCustomsDeclaration();
+
+        // 如果没有海关信息，创建一个新的
+        if (customs == null) {
+            customs = new CustomsDeclaration();
+            customs.setDeclarationId("CD" + System.currentTimeMillis());
+            customs.setShipmentId(shipment.getShipmentId());
+
+            // 设置默认值
+            customs.setCountryOfOrigin("China");
+            customs.setConsignor("Shanghai Warehouse");
+            customs.setConsignee(shipment.getDestination());
+            customs.setDestinationCountry(extractCountry(shipment.getDestination()));
+
+            shipment.setCustomsDeclaration(customs);
+
+            // 保存到系统
+            EcoSystem system = EcoSystem.getInstance();
+            DB4OUtil.getInstance().storeSystem(system);
+        }
+
+        // 填充基本信息字段
+        fields[0].setText(customs.getDeclarationId());
+        fields[1].setText(customs.getDeclarationNumber() != null ? customs.getDeclarationNumber() : "");
+        fields[2].setText(customs.getHsCode() != null ? customs.getHsCode() : "");
+        fields[3].setText(customs.getConsignor() != null ? customs.getConsignor() : "");
+        fields[4].setText(customs.getConsignee() != null ? customs.getConsignee() : "");
+        fields[5].setText(customs.getCountryOfOrigin() != null ? customs.getCountryOfOrigin() : "");
+        fields[6].setText(customs.getDestinationCountry() != null ? customs.getDestinationCountry() : "");
+        fields[7].setText(customs.getCustomsOffice() != null ? customs.getCustomsOffice() : "");
+
+        // 设置下拉框
+        if (customs.getDeclarationType() != null) {
+            for (int i = 0; i < combos[0].getItemCount(); i++) {
+                if (combos[0].getItemAt(i).equals(customs.getDeclarationType())) {
+                    combos[0].setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+
+        if (customs.getStatus() != null) {
+            for (int i = 0; i < combos[1].getItemCount(); i++) {
+                if (combos[1].getItemAt(i).equals(customs.getStatus())) {
+                    combos[1].setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+
+        // 设置文本区域
+        textAreas[0].setText(customs.getNotes() != null ? customs.getNotes() : "");
+
+        // 加载物品表格
+        DefaultTableModel model = (DefaultTableModel) itemsTable.getModel();
+        model.setRowCount(0);
+
+        if (customs.getItems() != null) {
+            for (CustomsDeclaration.CustomsLineItem item : customs.getItems()) {
+                model.addRow(new Object[]{
+                    item.getDescription(),
+                    item.getHsCode(),
+                    item.getQuantity(),
+                    item.getUnit(),
+                    item.getUnitValue(),
+                    item.getTotalValue(),
+                    item.getGrossWeight()
+                });
+            }
+        }
+    }
+
+// 保存海关信息
+    private void saveCustomsInfo(JPanel panel, JTextField[] fields, JComboBox[] combos,
+            JTextArea[] textAreas, JTable itemsTable) {
+        int selectedRow = tblShipment.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(panel, "Please select a shipment first",
+                    "No Shipment Selected", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
+        Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+
+        if (shipment != null) {
+            CustomsDeclaration customs = shipment.getCustomsDeclaration();
+            if (customs == null) {
+                customs = new CustomsDeclaration();
+                customs.setDeclarationId("CD" + System.currentTimeMillis());
+                customs.setShipmentId(shipment.getShipmentId());
+                shipment.setCustomsDeclaration(customs);
+            }
+
+            // 设置字段值
+            customs.setDeclarationNumber(fields[1].getText());
+            customs.setDeclarationType(combos[0].getSelectedItem().toString());
+            customs.setHsCode(fields[2].getText());
+            customs.setConsignor(fields[3].getText());
+            customs.setConsignee(fields[4].getText());
+            customs.setCountryOfOrigin(fields[5].getText());
+            customs.setDestinationCountry(fields[6].getText());
+            customs.setCustomsOffice(fields[7].getText());
+            customs.setStatus(combos[1].getSelectedItem().toString());
+            customs.setNotes(textAreas[0].getText());
+
+            // 处理物品
+            ArrayList<CustomsDeclaration.CustomsLineItem> items = new ArrayList<>();
+            DefaultTableModel model = (DefaultTableModel) itemsTable.getModel();
+            for (int i = 0; i < model.getRowCount(); i++) {
+                CustomsDeclaration.CustomsLineItem item = new CustomsDeclaration.CustomsLineItem();
+                item.setDescription((String) model.getValueAt(i, 0));
+                item.setHsCode((String) model.getValueAt(i, 1));
+                item.setQuantity((int) model.getValueAt(i, 2));
+                item.setUnit((String) model.getValueAt(i, 3));
+                item.setUnitValue((double) model.getValueAt(i, 4));
+                item.setTotalValue((double) model.getValueAt(i, 5));
+                item.setGrossWeight((double) model.getValueAt(i, 6));
+                items.add(item);
+            }
+            customs.setItems(items);
+
+            // 保存到系统
+            EcoSystem system = EcoSystem.getInstance();
+            DB4OUtil.getInstance().storeSystem(system);
+
+            JOptionPane.showMessageDialog(panel, "Customs information saved successfully",
+                    "Save Successful", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+// 提取国家名称（简单方法）
+    private String extractCountry(String destination) {
+        if (destination == null || destination.isEmpty()) {
+            return "";
+        }
+
+        // 假设目的地的最后一个词是国家
+        String[] parts = destination.split(",");
+        if (parts.length > 0) {
+            String lastPart = parts[parts.length - 1].trim();
+
+            // 如果是具体地址，可能需要查表或更复杂的逻辑
+            // 这里简单处理几个常见国家
+            if (lastPart.contains("China") || lastPart.contains("Beijing")
+                    || lastPart.contains("Shanghai") || lastPart.contains("Guangzhou")) {
+                return "China";
+            } else if (lastPart.contains("USA") || lastPart.contains("US")
+                    || lastPart.contains("United States") || lastPart.contains("New York")
+                    || lastPart.contains("Los Angeles") || lastPart.contains("Boston")) {
+                return "United States";
+            } else if (lastPart.contains("UK") || lastPart.contains("London")
+                    || lastPart.contains("England") || lastPart.contains("United Kingdom")) {
+                return "United Kingdom";
+            } else if (lastPart.contains("Japan") || lastPart.contains("Tokyo")) {
+                return "Japan";
+            } else {
+                return lastPart;  // 返回最后一部分作为国家
+            }
+        }
+
+        return "";
     }
 
     private JPanel createPackageInfoPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4, 2, 10, 10));
+        JPanel panel = new JPanel(new BorderLayout());
 
-        // Add package information fields
+        // 创建主内容面板，使用 GridBagLayout
+        JPanel contentPanel = new JPanel(new GridBagLayout());
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // 设置约束条件
+        GridBagConstraints labelConstraints = new GridBagConstraints();
+        labelConstraints.gridx = 0;
+        labelConstraints.gridy = 0;
+        labelConstraints.anchor = GridBagConstraints.EAST;
+        labelConstraints.insets = new Insets(10, 10, 10, 10);
+
+        GridBagConstraints fieldConstraints = new GridBagConstraints();
+        fieldConstraints.gridx = 1;
+        fieldConstraints.gridy = 0;
+        fieldConstraints.fill = GridBagConstraints.HORIZONTAL;
+        fieldConstraints.weightx = 1.0;
+        fieldConstraints.insets = new Insets(10, 0, 10, 10);
+
+        // 设置文本框的标准大小
+        Dimension textFieldSize = new Dimension(250, 30);
+
+        // 添加包裹信息字段
         JLabel lblWeight = new JLabel("Weight (kg):");
         JTextField txtWeight = new JTextField();
+        txtWeight.setPreferredSize(textFieldSize);
 
         JLabel lblDimensions = new JLabel("Dimensions (cm):");
         JTextField txtDimensions = new JTextField();
+        txtDimensions.setPreferredSize(textFieldSize);
 
         JLabel lblPackageType = new JLabel("Package Type:");
         JTextField txtPackageType = new JTextField();
+        txtPackageType.setPreferredSize(textFieldSize);
 
         JLabel lblSpecialHandling = new JLabel("Special Handling:");
         JTextField txtSpecialHandling = new JTextField();
+        txtSpecialHandling.setPreferredSize(textFieldSize);
 
-        panel.add(lblWeight);
-        panel.add(txtWeight);
-        panel.add(lblDimensions);
-        panel.add(txtDimensions);
-        panel.add(lblPackageType);
-        panel.add(txtPackageType);
-        panel.add(lblSpecialHandling);
-        panel.add(txtSpecialHandling);
+        contentPanel.add(lblWeight, labelConstraints);
+        contentPanel.add(txtWeight, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblDimensions, labelConstraints);
+        contentPanel.add(txtDimensions, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblPackageType, labelConstraints);
+        contentPanel.add(txtPackageType, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblSpecialHandling, labelConstraints);
+        contentPanel.add(txtSpecialHandling, fieldConstraints);
+
+        // 添加填充空间，将内容推到顶部
+        GridBagConstraints fillerConstraints = new GridBagConstraints();
+        fillerConstraints.gridx = 0;
+        fillerConstraints.gridy = labelConstraints.gridy + 1;
+        fillerConstraints.weighty = 1.0;
+        fillerConstraints.fill = GridBagConstraints.BOTH;
+        fillerConstraints.gridwidth = 2;
+        contentPanel.add(Box.createVerticalGlue(), fillerConstraints);
+
+        // 将内容面板添加到主面板
+        panel.add(contentPanel, BorderLayout.NORTH);
 
         return panel;
     }
 
     private JPanel createFinancialInfoPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4, 2, 10, 10));
+        JPanel panel = new JPanel(new BorderLayout());
 
-        // Add financial information fields
+        // 创建主内容面板，使用 GridBagLayout
+        JPanel contentPanel = new JPanel(new GridBagLayout());
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // 设置约束条件
+        GridBagConstraints labelConstraints = new GridBagConstraints();
+        labelConstraints.gridx = 0;
+        labelConstraints.gridy = 0;
+        labelConstraints.anchor = GridBagConstraints.EAST;
+        labelConstraints.insets = new Insets(10, 10, 10, 10);
+
+        GridBagConstraints fieldConstraints = new GridBagConstraints();
+        fieldConstraints.gridx = 1;
+        fieldConstraints.gridy = 0;
+        fieldConstraints.fill = GridBagConstraints.HORIZONTAL;
+        fieldConstraints.weightx = 1.0;
+        fieldConstraints.insets = new Insets(10, 0, 10, 10);
+
+        // 设置文本框的标准大小
+        Dimension textFieldSize = new Dimension(250, 30);
+
+        // 添加财务信息字段
         JLabel lblShippingCost = new JLabel("Shipping Cost:");
         JTextField txtShippingCost = new JTextField();
+        txtShippingCost.setPreferredSize(textFieldSize);
 
         JLabel lblInsuranceCost = new JLabel("Insurance Cost:");
         JTextField txtInsuranceCost = new JTextField();
+        txtInsuranceCost.setPreferredSize(textFieldSize);
 
         JLabel lblTaxes = new JLabel("Taxes:");
         JTextField txtTaxes = new JTextField();
+        txtTaxes.setPreferredSize(textFieldSize);
 
         JLabel lblTotalCost = new JLabel("Total Cost:");
         JTextField txtTotalCost = new JTextField();
+        txtTotalCost.setPreferredSize(textFieldSize);
 
-        panel.add(lblShippingCost);
-        panel.add(txtShippingCost);
-        panel.add(lblInsuranceCost);
-        panel.add(txtInsuranceCost);
-        panel.add(lblTaxes);
-        panel.add(txtTaxes);
-        panel.add(lblTotalCost);
-        panel.add(txtTotalCost);
+        contentPanel.add(lblShippingCost, labelConstraints);
+        contentPanel.add(txtShippingCost, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblInsuranceCost, labelConstraints);
+        contentPanel.add(txtInsuranceCost, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblTaxes, labelConstraints);
+        contentPanel.add(txtTaxes, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblTotalCost, labelConstraints);
+        contentPanel.add(txtTotalCost, fieldConstraints);
+
+        // 添加填充空间，将内容推到顶部
+        GridBagConstraints fillerConstraints = new GridBagConstraints();
+        fillerConstraints.gridx = 0;
+        fillerConstraints.gridy = labelConstraints.gridy + 1;
+        fillerConstraints.weighty = 1.0;
+        fillerConstraints.fill = GridBagConstraints.BOTH;
+        fillerConstraints.gridwidth = 2;
+        contentPanel.add(Box.createVerticalGlue(), fillerConstraints);
+
+        // 将内容面板添加到主面板
+        panel.add(contentPanel, BorderLayout.NORTH);
 
         return panel;
     }

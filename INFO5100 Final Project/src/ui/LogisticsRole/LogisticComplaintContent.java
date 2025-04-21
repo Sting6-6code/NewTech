@@ -127,30 +127,38 @@ public class LogisticComplaintContent extends javax.swing.JPanel {
         // 获取所有投诉
         ArrayList<CustomerComplaint> allComplaints = complaintDirectory.getComplaints();
         
-        // 仅显示转发给仓库部门的投诉
-        ArrayList<CustomerComplaint> warehouseComplaints = new ArrayList<>();
+        // 仅显示转发给物流部门的投诉
+        ArrayList<CustomerComplaint> logisticsComplaints = new ArrayList<>();
         for (CustomerComplaint complaint : allComplaints) {
-            // 根据投诉描述或状态判断是否是转发给仓库的投诉
-            if (complaint.getDescription().contains("Logistic") || 
-                complaint.getDescription().contains("Logistic") ||
-                complaint.getDescription().toLowerCase().contains("inventory") ||
-                complaint.getDescription().toLowerCase().contains("stock") ||
-                complaint.getStatus().equals("Forwarded to Logistic")) {
-                warehouseComplaints.add(complaint);
+            // 根据投诉描述或状态判断是否是转发给物流的投诉
+            if (complaint.getDescription().contains("[Logistics]") || 
+                complaint.getStatus().equals("Forwarded to Logistics") ||
+                (complaint.getDescription().contains("logistics") && complaint.getStatus().contains("Forwarded")) ||
+                (complaint.getDescription().contains("Logistics") && complaint.getStatus().contains("Forwarded")) ||
+                complaint.getDescription().toLowerCase().contains("[logistics]")) {
+                logisticsComplaints.add(complaint);
+                System.out.println("Found logistics complaint: " + complaint.getComplaintId() + 
+                                  ", Status: " + complaint.getStatus() + 
+                                  ", Description: " + complaint.getDescription());
             }
         }
         
         // 填充表格
-        if (warehouseComplaints.isEmpty()) {
-            System.out.println("No complaints found for Logistic department");
+        if (logisticsComplaints.isEmpty()) {
+            System.out.println("No complaints found for Logistics department");
+            // 如果没有真实的物流投诉数据，添加示例数据以便测试
+            if (model.getRowCount() == 0) {
+                addSampleComplaints();
+            }
         } else {
-            for (CustomerComplaint complaint : warehouseComplaints) {
+            for (CustomerComplaint complaint : logisticsComplaints) {
                 try {
                     Object[] row = new Object[3];
                     row[0] = complaint.getComplaintId();
                     row[1] = complaint.getCustomerId();
-                    row[2] = "Logistic Issue";  // 投诉类型
+                    row[2] = "Logistics Issue";  // 投诉类型
                     model.addRow(row);
+                    System.out.println("Added row for complaint: " + complaint.getComplaintId());
                 } catch (Exception e) {
                     System.out.println("Error adding row: " + e.getMessage());
                 }
@@ -163,27 +171,118 @@ public class LogisticComplaintContent extends javax.swing.JPanel {
         populateTable();
     }
     
-    // 添加示例投诉数据（仅在找不到投诉目录时使用）
+    // 添加示例投诉数据（仅在找不到投诉目录或没有物流相关投诉时使用）
     private void addSampleComplaints() {
         System.out.println("Creating sample complaints for testing");
         
-        this.complaintDirectory = new ComplaintDirectory();
+        // 如果还没有创建，则创建投诉目录
+        if (this.complaintDirectory == null) {
+            this.complaintDirectory = new ComplaintDirectory();
+        }
         
+        // 添加几个示例投诉
+        CustomerComplaint complaint1 = complaintDirectory.createComplaint(
+                "L001", "CUST001", "[Logistics] Package delayed in transit, need update on delivery");
+        complaint1.setStatus("Forwarded to Logistics");
         
+        CustomerComplaint complaint2 = complaintDirectory.createComplaint(
+                "L002", "CUST002", "[Logistics] Wrong delivery address, package sent to incorrect location");
+        complaint2.setStatus("Forwarded to Logistics");
+        
+        CustomerComplaint complaint3 = complaintDirectory.createComplaint(
+                "L003", "CUST003", "[Logistics] Package tracking not updating for 3 days");
+        complaint3.setStatus("Forwarded to Logistics");
         
         // 填充表格
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0); // 清空表格
         for (CustomerComplaint complaint : complaintDirectory.getComplaints()) {
             Object[] row = new Object[3];
             row[0] = complaint.getComplaintId();
             row[1] = complaint.getCustomerId();
-            row[2] = "Logistic Issue";
+            row[2] = "Logistics Issue";
             model.addRow(row);
         }
         
         System.out.println("Added " + complaintDirectory.getComplaintCount() + " sample complaints");
     }
+    
+    // 辅助方法：检查投诉是否与物流相关
+    private boolean isLogisticsComplaint(CustomerComplaint complaint) {
+        return complaint.getDescription().contains("[Logistics]") || 
+               complaint.getStatus().equals("Forwarded to Logistics") ||
+               (complaint.getDescription().contains("logistics") && complaint.getStatus().contains("Forwarded")) ||
+               (complaint.getDescription().contains("Logistics") && complaint.getStatus().contains("Forwarded")) ||
+               complaint.getDescription().toLowerCase().contains("[logistics]");
+    }
+    
+    private void txtSearchComplaintIDActionPerformed(java.awt.event.ActionEvent evt) {
+        // Direct call to search button event handler
+        btnSearchActionPerformed(evt);
+    }
 
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {
+        String searchQuery = txtSearchComplaintID.getText().trim();
+        if (searchQuery.isEmpty() || searchQuery.equals("Saerch Complaint ID...")) {
+            populateTable();
+            return;
+        }
+        
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0); // Clear table
+        
+        if (complaintDirectory == null) {
+            System.out.println("Complaint directory is null, cannot search");
+            JOptionPane.showMessageDialog(this, "Unable to search: Complaint directory is not available", 
+                                          "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Direct search by ID
+        CustomerComplaint foundComplaint = complaintDirectory.findComplaintById(searchQuery);
+        if (foundComplaint != null && isLogisticsComplaint(foundComplaint)) {
+            // If found matching ID and is logistics complaint, add to table
+            Object[] row = new Object[3];
+            row[0] = foundComplaint.getComplaintId();
+            row[1] = foundComplaint.getCustomerId();
+            row[2] = "Logistics Issue";
+            model.addRow(row);
+            System.out.println("Found complaint by ID: " + foundComplaint.getComplaintId());
+            return;
+        }
+        
+        // If no matching ID, try searching other fields
+        ArrayList<CustomerComplaint> allComplaints = complaintDirectory.getComplaints();
+        boolean found = false;
+        
+        for (CustomerComplaint complaint : allComplaints) {
+            // Only process logistics-related complaints
+            if (!isLogisticsComplaint(complaint)) {
+                continue;
+            }
+            
+            // Search customer ID, description or status
+            if (complaint.getCustomerId().toLowerCase().contains(searchQuery.toLowerCase()) ||
+                complaint.getDescription().toLowerCase().contains(searchQuery.toLowerCase()) ||
+                complaint.getStatus().toLowerCase().contains(searchQuery.toLowerCase())) {
+                
+                Object[] row = new Object[3];
+                row[0] = complaint.getComplaintId();
+                row[1] = complaint.getCustomerId();
+                row[2] = "Logistics Issue";
+                model.addRow(row);
+                found = true;
+                System.out.println("Found complaint matching query: " + complaint.getComplaintId());
+            }
+        }
+        
+        if (!found) {
+            JOptionPane.showMessageDialog(this, "No logistics complaints found matching: " + searchQuery,
+                                          "Information", JOptionPane.INFORMATION_MESSAGE);
+            populateTable(); // If not found, restore display of all logistics complaints
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -263,6 +362,7 @@ public class LogisticComplaintContent extends javax.swing.JPanel {
             }
         });
 
+        jTable1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null},
@@ -432,14 +532,6 @@ public class LogisticComplaintContent extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtSearchComplaintIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchComplaintIDActionPerformed
-        refreshRequestTable();
-    }//GEN-LAST:event_txtSearchComplaintIDActionPerformed
-
-    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-        refreshRequestTable();
-    }//GEN-LAST:event_btnSearchActionPerformed
-
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
         userProcessContainer.remove(this);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
@@ -464,9 +556,8 @@ public class LogisticComplaintContent extends javax.swing.JPanel {
 
     private void btnDetailedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDetailedActionPerformed
         // TODO add your handling code here:
-        int selectedRow = jTable1.getSelectedRow();
+        int selectedRow = getSelectedRow();
         if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Please select a complaint record");
             return;
         }
         
@@ -486,33 +577,17 @@ public class LogisticComplaintContent extends javax.swing.JPanel {
             txtComplaintType.setEditable(false);
             txtContent.setEditable(false);
         }
-        
-        
-        
-        
-        
-        
-        
     }//GEN-LAST:event_btnDetailedActionPerformed
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    private int getSelectedRow() {
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a complaint first.");
+            return -1;
+        }
+        return selectedRow;
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBack;
     private javax.swing.JButton btnDetailed;
