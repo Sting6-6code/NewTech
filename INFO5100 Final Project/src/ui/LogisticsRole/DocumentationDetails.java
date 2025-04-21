@@ -1281,62 +1281,57 @@ public class DocumentationDetails extends javax.swing.JPanel {
     }
 
     private void sendCustomsWorkRequest(CustomsDeclaration declaration) {
-        // Get a list of all customs organizations within the enterprise's network
-        Enterprise customsEnterprise = null;
-        for (Network network : EcoSystem.getInstance().getNetworkList()) {
-            for (Enterprise ent : network.getEnterpriseDirectory().getEnterpriseList()) {
-                if (ent instanceof LogisticsGroupEnterprise) {
-                    customsEnterprise = ent;
+        try {
+            // 创建物流工作请求
+            LogisticsWorkRequest request = new LogisticsWorkRequest();
+
+            // 设置报关单信息
+            request.setDeclarationId(declaration.getDeclarationId());
+            request.setShipmentId(declaration.getShipmentId());
+            request.setDeclarationType(declaration.getDeclarationType());
+            request.setConsignor(declaration.getConsignor());
+            request.setConsignee(declaration.getConsignee());
+            request.setCountryOfOrigin(declaration.getCountryOfOrigin());
+            request.setDestinationCountry(declaration.getDestinationCountry());
+            request.setNotes(declaration.getNotes());
+
+            // 设置发送者和接收者
+            request.setSender(userAccount);
+
+            // 查找海关组织
+            Organization customsOrg = null;
+            for (Network network : EcoSystem.getInstance().getNetworkList()) {
+                for (Enterprise e : network.getEnterpriseDirectory().getEnterpriseList()) {
+                    if (e instanceof LogisticsGroupEnterprise) {
+                        for (Organization org : e.getOrganizationDirectory().getOrganizationList()) {
+                            if (org instanceof CustomsLiaisonOrganization) {
+                                customsOrg = org;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (customsOrg != null) {
                     break;
                 }
             }
-            if (customsEnterprise != null) {
-                break;
+
+            // 将请求添加到海关组织的工作队列
+            if (customsOrg != null) {
+                customsOrg.getWorkQueue().getWorkRequestList().add(request);
+                System.out.println("Logistics work request sent to customs: " + request.getDeclarationId());
+            } else {
+                throw new Exception("No customs organization found");
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error sending customs request: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
-
-        if (customsEnterprise == null) {
-            JOptionPane.showMessageDialog(this, "No customs organization found in the system!",
-                    "Submission Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // Get the customs organization
-        Organization customsOrg = null;
-        for (Organization org : customsEnterprise.getOrganizationDirectory().getOrganizationList()) {
-            if (org instanceof CustomsLiaisonOrganization) {
-                customsOrg = org;
-                break;
-            }
-        }
-
-        if (customsOrg == null) {
-            JOptionPane.showMessageDialog(this, "No customs department found in customs enterprise!",
-                    "Submission Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // Create a new LogisticsWorkRequest
-        LogisticsWorkRequest request = new LogisticsWorkRequest();
-        request.setShipmentId(currentDeclaration.getShipmentId());
-        request.setDeclarationId(currentDeclaration.getDeclarationId());
-        request.setMessage("Customs declaration submitted for review");
-        request.setSender(userAccount);
-        request.setStatus("Submitted");
-        request.setRequestDate(new Date());
-
-        // Send the request to customs organization
-        customsOrg.getWorkQueue().getWorkRequestList().add(request);
-        userAccount.getWorkQueue().getWorkRequestList().add(request);
-
-        System.out.println("LogisticsWorkRequest sent to Customs Office. Shipment ID: " + 
-                currentDeclaration.getShipmentId() + ", Declaration ID: " + 
-                currentDeclaration.getDeclarationId());
     }
 
-    /**
-     * Apply consistent UI theme to all components
-     */
     private void setupTheme() {
         // Set panel background color
         this.setBackground(new java.awt.Color(240, 245, 255));
@@ -1508,5 +1503,70 @@ public class DocumentationDetails extends javax.swing.JPanel {
                 return c;
             }
         });
+    }
+
+
+    // 查找海关组织的辅助方法
+    private Organization findCustomsOrganization() {
+        System.out.println("Finding customs organization...");
+
+        // 使用系统中已有的 logisticsOrg
+        if (ConfigureASystem.logisticsOrg != null) {
+            System.out.println("Found global logistics organization");
+
+            // 获取物流组织所属的企业
+            Enterprise logisticsEnterprise = ConfigureASystem.findEnterpriseForOrganization(ConfigureASystem.logisticsOrg);
+
+            if (logisticsEnterprise != null) {
+                System.out.println("Found logistics enterprise: " + logisticsEnterprise.getName());
+
+                // 检查企业的组织目录中是否已有海关组织
+                for (Organization org : logisticsEnterprise.getOrganizationDirectory().getOrganizationList()) {
+                    if (org instanceof CustomsLiaisonOrganization) {
+                        System.out.println("Found existing CustomsLiaisonOrganization");
+                        return org;
+                    }
+                }
+
+                // 如果没有海关组织，创建一个并添加到物流企业中
+                CustomsLiaisonOrganization customsOrg = new CustomsLiaisonOrganization();
+                logisticsEnterprise.getOrganizationDirectory().getOrganizationList().add(customsOrg);
+
+                System.out.println("Created new CustomsLiaisonOrganization in the logistics enterprise");
+
+                // 保存到数据库
+                DB4OUtil.getInstance().storeSystem(EcoSystem.getInstance());
+
+                return customsOrg;
+            } else {
+                System.out.println("Could not find enterprise for logistics organization");
+            }
+        }
+
+        // 如果全局物流组织为空或找不到其所属企业，尝试从系统中查找
+        for (Network network : EcoSystem.getInstance().getNetworkList()) {
+            for (Enterprise e : network.getEnterpriseDirectory().getEnterpriseList()) {
+                if (e instanceof LogisticsGroupEnterprise) {
+                    for (Organization org : e.getOrganizationDirectory().getOrganizationList()) {
+                        if (org instanceof CustomsLiaisonOrganization) {
+                            return org;
+                        }
+                    }
+
+                    // 如果找到物流企业但没有海关组织，创建一个
+                    CustomsLiaisonOrganization customsOrg = new CustomsLiaisonOrganization();
+                    e.getOrganizationDirectory().getOrganizationList().add(customsOrg);
+
+                    // 保存到数据库
+                    DB4OUtil.getInstance().storeSystem(EcoSystem.getInstance());
+
+                    return customsOrg;
+                }
+            }
+        }
+
+        System.out.println("No LogisticsGroupEnterprise found in the system");
+        return null;
+
     }
 }

@@ -52,29 +52,26 @@ public class DocumentReview extends javax.swing.JPanel {
                 ? (JPanel) userProcessContainer.getParent() : null;
 
         // 如果传入的组织为空，尝试使用物流组织的数据
-        if (organization == null) {
-            System.out.println("Warning: Null organization passed to DocumentReview");
-
-            if (ConfigureASystem.logisticsOrg != null
-                    && ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
-
-                // 创建新的海关组织实例
+        if (ConfigureASystem.logisticsOrg != null && 
+            ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
+            
+            // 如果传入的组织为空，创建一个新的
+            if (organization == null) {
                 this.organization = new CustomsLiaisonOrganization();
-                // 使用物流组织的报关数据
-                this.organization.setCustomsDeclarationDirectory(
-                        ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory());
-
-                System.out.println("Using customs declarations from logistics organization");
             } else {
-                System.out.println("Warning: No logistics organization data available");
-                JOptionPane.showMessageDialog(this,
-                        "Error: Could not load customs organization data.",
-                        "Organization Error",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
+                this.organization = organization;
             }
-        } else {
+            
+            // 重要：使用 ConfigureASystem 中的同一数据源
+            this.organization.setCustomsDeclarationDirectory(
+                ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory());
+            
+            System.out.println("DocumentReview using customs declarations from ConfigureASystem");
+        } else if (organization != null) {
             this.organization = organization;
+        } else {
+            System.out.println("Warning: No data source available for DocumentReview");
+            this.organization = new CustomsLiaisonOrganization();
         }
 
         // 添加调试信息
@@ -311,26 +308,22 @@ public class DocumentReview extends javax.swing.JPanel {
         String[] columns = {"Declaration ID", "Type", "Status", "Submission Date"};
         model.setColumnIdentifiers(columns);
 
-        if (organization != null && organization.getWorkQueue() != null) {
+        // 直接从 CustomsDeclarationDirectory 获取数据
+        if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-            for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
-                if (request instanceof LogisticsWorkRequest) {
-                    LogisticsWorkRequest customsRequest = (LogisticsWorkRequest) request;
+            for (CustomsDeclaration declaration : organization.getCustomsDeclarationDirectory().getCustomsDeclarationList()) {
+                Object[] row = new Object[4];
+                row[0] = declaration.getDeclarationId();
+                row[1] = declaration.getDeclarationType() != null 
+                       ? declaration.getDeclarationType() : "Standard";
+                row[2] = declaration.getStatus() != null 
+                       ? declaration.getStatus() : "Pending";
+                row[3] = declaration.getSubmissionDate() != null 
+                       ? dateFormat.format(declaration.getSubmissionDate()) 
+                       : dateFormat.format(declaration.getDeclarationDate());
 
-                    // 对于状态为"Submitted"的请求，显示为"Pending"
-                    String displayStatus = "Submitted".equals(customsRequest.getStatus())
-                            ? "Pending" : customsRequest.getStatus();
-
-                    Object[] row = new Object[4];
-                    row[0] = customsRequest.getDeclarationId();
-                    row[1] = customsRequest.getDeclarationType() != null
-                            ? customsRequest.getDeclarationType() : "Standard";
-                    row[2] = displayStatus;
-                    row[3] = dateFormat.format(customsRequest.getRequestDate());
-
-                    model.addRow(row);
-                }
+                model.addRow(row);
             }
         }
 
@@ -339,6 +332,7 @@ public class DocumentReview extends javax.swing.JPanel {
             Object[] row = {"No declarations found", "", "", ""};
             model.addRow(row);
         }
+    
     }
 
     private void displayDeclarationDetails(String declarationId) {
@@ -652,7 +646,7 @@ public class DocumentReview extends javax.swing.JPanel {
                         .addComponent(lblSubmissionDate, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(36, 36, 36)
                         .addComponent(txtSubmissionDate, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
                 .addGroup(docInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(docInfoJPanelLayout.createSequentialGroup()
                         .addComponent(lblDocType, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -779,7 +773,7 @@ public class DocumentReview extends javax.swing.JPanel {
                                 .addComponent(declarDetailsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 580, Short.MAX_VALUE)
                                 .addComponent(lblSearchID, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(txtSearchBox, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -934,25 +928,56 @@ public class DocumentReview extends javax.swing.JPanel {
     }
 
     private void displayRequestDetails(LogisticsWorkRequest request) {
-        // 在docInfoJPanel中显示基本信息
+        // Display basic info in docInfoJPanel
         txtDocID.setText(request.getDeclarationId());
         txtDocType.setText(request.getDeclarationType() != null
                 ? request.getDeclarationType() : "Standard");
-        txtDocName.setText("Customs Declaration");
-        txtSubmissionDate.setText(new SimpleDateFormat("yyyy-MM-dd").format(request.getRequestDate()));
+        txtDocName.setText("Customs Declaration - " + request.getDeclarationId());
+
+        // Format date properly
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        txtSubmissionDate.setText(dateFormat.format(request.getRequestDate()));
+
+        // Show sender information
         txtSubBy.setText(request.getSender() != null
                 ? request.getSender().getUsername() : "Unknown");
 
-        // 在docContenJPanel中显示详细内容
+        // Enable/disable buttons based on status
+        boolean isPending = "Submitted".equals(request.getStatus());
+        btnApprove.setEnabled(isPending);
+        btnReject.setEnabled(isPending);
+        btnRequestInfo.setEnabled(isPending);
+
+        // Display detailed content in docContenJPanel
         StringBuilder content = new StringBuilder();
         content.append("Declaration ID: ").append(request.getDeclarationId()).append("\n");
         content.append("Shipment ID: ").append(request.getShipmentId()).append("\n\n");
+
         content.append("Consignor: ").append(request.getConsignor()).append("\n");
         content.append("Consignee: ").append(request.getConsignee()).append("\n");
         content.append("Country of Origin: ").append(request.getCountryOfOrigin()).append("\n");
         content.append("Destination Country: ").append(request.getDestinationCountry()).append("\n\n");
+
+        // Current status and dates
+        content.append("Current Status: ").append(request.getStatus()).append("\n");
+        content.append("Submission Date: ").append(dateFormat.format(request.getRequestDate())).append("\n");
+
+        // Show processing date if available
+        if (request.getResolveDate() != null) {
+            content.append("Processing Date: ").append(dateFormat.format(request.getResolveDate())).append("\n");
+        }
+
+        // Remove this section as getResolver() method doesn't exist
+        // if (request.getResolver() != null) {
+        //     content.append("Processed By: ").append(request.getResolver().getUsername()).append("\n");
+        // }
+        // Show notes if available
+        if (request.getMessage() != null && !request.getMessage().isEmpty()) {
+            content.append("\nReview Notes: ").append(request.getMessage()).append("\n");
+        }
+
         if (request.getNotes() != null && !request.getNotes().isEmpty()) {
-            content.append("Notes: ").append(request.getNotes()).append("\n");
+            content.append("\nDeclaration Notes: ").append(request.getNotes()).append("\n");
         }
 
         txtDocPreview.setText(content.toString());
@@ -970,62 +995,118 @@ public class DocumentReview extends javax.swing.JPanel {
             return;
         }
 
-        // 更新请求状态
+        // Update request status
+        boolean updated = false;
+
         for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
             if (request instanceof LogisticsWorkRequest) {
                 LogisticsWorkRequest customsRequest = (LogisticsWorkRequest) request;
                 if (customsRequest.getDeclarationId().equals(declarationId)) {
+                    // Set new status
                     customsRequest.setStatus(newStatus);
+
+                    // Important: Set resolve date to track when it was processed
                     customsRequest.setResolveDate(new Date());
 
+                    // Remove this line as the method doesn't exist
+//                 customsRequest.setResolver(userAccount);
+                    // Add review notes if provided
                     if (txtReviewNotes.getText() != null && !txtReviewNotes.getText().isEmpty()) {
                         customsRequest.setMessage(txtReviewNotes.getText());
                     }
 
-                    // 同时更新原始报关单的状态
+                    // Also update the original declaration in logistics org
                     updateOriginalDeclaration(customsRequest.getDeclarationId(), newStatus);
 
-                    JOptionPane.showMessageDialog(this, "Declaration status updated to: " + newStatus);
-
-                    // 刷新表格
-                    populateTable();
-
-                    // 通知Dashboard页面刷新
-                    if (parentPanel != null && parentPanel instanceof CustomsLiaisonOfficeHP) {
-                        try {
-                            ((CustomsLiaisonOfficeHP) parentPanel).refreshData();
-                        } catch (Exception e) {
-                            System.out.println("Error refreshing dashboard: " + e.getMessage());
-                        }
-                    }
-
-                    clearFields();
+                    updated = true;
                     break;
                 }
             }
+        }
+
+        if (updated) {
+            JOptionPane.showMessageDialog(this, "Declaration status updated to: " + newStatus);
+
+            // Refresh tables
+            populateTable();
+            clearFields();
+
+            // Notify parent panel to refresh (if possible)
+            if (parentPanel != null && parentPanel instanceof CustomsLiaisonOfficeHP) {
+                try {
+                    // This will refresh both pending and recent activities tables
+                    ((CustomsLiaisonOfficeHP) parentPanel).refreshData();
+                    System.out.println("Parent panel refreshed");
+                } catch (Exception e) {
+                    System.out.println("Error refreshing parent panel: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Could not find the selected declaration");
         }
     }
 
     private void updateOriginalDeclaration(String declarationId, String newStatus) {
         // 查找并更新物流组织中的原始报关单
-        LogisticsOrganization logisticsOrg = findLogisticsOrganization();
-        if (logisticsOrg != null && logisticsOrg.getCustomsDeclarationDirectory() != null) {
-            CustomsDeclaration declaration
-                    = logisticsOrg.getCustomsDeclarationDirectory().findDeclarationById(declarationId);
-            if (declaration != null) {
-                declaration.setStatus(newStatus);
-                declaration.setProcessingDate(new Date());
+        try {
+            // Find the logistics organization
+            LogisticsOrganization logisticsOrg = findLogisticsOrganization();
+
+            if (logisticsOrg != null && logisticsOrg.getCustomsDeclarationDirectory() != null) {
+                // Find the original declaration
+                CustomsDeclaration declaration
+                        = logisticsOrg.getCustomsDeclarationDirectory().findDeclarationById(declarationId);
+
+                if (declaration != null) {
+                    // Update the status
+                    declaration.setStatus(newStatus);
+                    declaration.setProcessingDate(new Date());
+
+                    // Update notes if we have them
+                    if (txtReviewNotes.getText() != null && !txtReviewNotes.getText().isEmpty()) {
+                        String existingNotes = declaration.getNotes();
+                        String reviewNotes = txtReviewNotes.getText();
+
+                        // Append review notes to existing notes
+                        if (existingNotes != null && !existingNotes.isEmpty()) {
+                            declaration.setNotes(existingNotes + "\n\nReview notes: " + reviewNotes);
+                        } else {
+                            declaration.setNotes("Review notes: " + reviewNotes);
+                        }
+                    }
+
+                    System.out.println("Updated original declaration status to: " + newStatus);
+                } else {
+                    System.out.println("WARNING: Original declaration not found with ID: " + declarationId);
+                }
+            } else {
+                System.out.println("WARNING: Logistics organization or its declaration directory is null");
             }
+        } catch (Exception e) {
+            System.out.println("Error updating original declaration: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     private LogisticsOrganization findLogisticsOrganization() {
-        for (Network network : EcoSystem.getInstance().getNetworkList()) {
-            for (Enterprise e : network.getEnterpriseDirectory().getEnterpriseList()) {
-                if (e instanceof LogisticsGroupEnterprise) {
-                    for (Organization org : e.getOrganizationDirectory().getOrganizationList()) {
-                        if (org instanceof LogisticsOrganization) {
-                            return (LogisticsOrganization) org;
+        if (ConfigureASystem.logisticsOrg != null) {
+            return ConfigureASystem.logisticsOrg;
+        }
+
+        // Fallback: search through the system
+        EcoSystem system = EcoSystem.getInstance();
+        if (system != null && system.getNetworkList() != null) {
+            for (Network network : system.getNetworkList()) {
+                if (network.getEnterpriseDirectory() != null) {
+                    for (Enterprise enterprise : network.getEnterpriseDirectory().getEnterpriseList()) {
+                        if (enterprise instanceof LogisticsGroupEnterprise
+                                && enterprise.getOrganizationDirectory() != null) {
+                            for (Organization org : enterprise.getOrganizationDirectory().getOrganizationList()) {
+                                if (org instanceof LogisticsOrganization) {
+                                    return (LogisticsOrganization) org;
+                                }
+                            }
                         }
                     }
                 }

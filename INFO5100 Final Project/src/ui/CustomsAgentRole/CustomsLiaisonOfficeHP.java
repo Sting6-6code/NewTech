@@ -13,14 +13,21 @@ import Business.UserAccount.UserAccount;
 import Business.WorkQueue.LogisticsWorkRequest;
 import Business.WorkQueue.WorkRequest;
 import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Date;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-
+import javax.swing.JTable;
+import javax.swing.table.TableColumn;
 
 /**
  *
@@ -32,6 +39,7 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
     private UserAccount userAccount;
     private Enterprise enterprise;
     private CustomsLiaisonOrganization organization;
+    private JLabel deltaLabel;
 
     /**
      * Creates new form CustomsLiaisionOfficeHP
@@ -42,10 +50,10 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         this.setPreferredSize(new java.awt.Dimension(1450, 800));
 
         // 设置默认值或展示静态内容，不依赖于 organization 或 userAccount
-        lblPendingReviews.setText("Pending Reviews: 0");
-        lblApprovedDocs.setText("Approved Documents: 0");
-        lblRejectedDocs.setText("Rejected Documents: 0");
-        lblTaxReturns.setText("Tax Returns: 0");
+        setupStatisticsPanel(pendingRevsJPanel, "Pending Reviews", "0", "+0% from last week", new Color(51, 51, 255));
+        setupStatisticsPanel(ApprovedDocumentsJPanel, "Approved Documents", "0", "+0% from last week", new Color(46, 204, 113));
+        setupStatisticsPanel(RejectedDocsJPanel, "Rejected Documents", "0", "+0% from last week", new Color(231, 76, 60));
+        setupStatisticsPanel(TaxReturnsJPanel, "Tax Returns", "0", "+0% from last week", new Color(255, 165, 0));
     }
 
     public CustomsLiaisonOfficeHP(JPanel userProcessContainer, UserAccount account,
@@ -56,33 +64,77 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.enterprise = enterprise;
-        this.organization = organization;
 
-        // 如果传入的组织为空，尝试使用物流组织的数据
+        // 使用 ConfigureASystem 中的数据
         if (organization == null) {
-            System.out.println("Warning: Null organization passed to CustomsLiaisonOfficeHP");
+            this.organization = new CustomsLiaisonOrganization();
 
+            // 使用全局数据
             if (ConfigureASystem.logisticsOrg != null
                     && ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
-
-                // 创建新的海关组织实例
-                this.organization = new CustomsLiaisonOrganization();
-                // 使用物流组织的报关数据
                 this.organization.setCustomsDeclarationDirectory(
                         ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory());
-
-                System.out.println("Using customs declarations from logistics organization");
-            } else {
-                System.out.println("Warning: No logistics organization data available");
-//                lblAlerts.setText("Error: Customs organization data not available");
-                return;
+                System.out.println("CustomsLiaisonOfficeHP using declarations from ConfigureASystem");
             }
         } else {
             this.organization = organization;
         }
+
+        this.setPreferredSize(new java.awt.Dimension(1450, 800));
+
+        // 设置表格模型
+        setupTableModels();
+
+        // 初始化统计面板
+        setupStatisticsPanels();
+
+        // 初始化界面
+        populateDashboard();
+
         
         setupTheme();
         populateDashboard();
+    }
+
+    private void setupStatisticsPanels() {
+        int pendingCount = countDeclarationsByStatus("Pending", "Submitted");
+        int approvedCount = countDeclarationsByStatus("Approved");
+        int rejectedCount = countDeclarationsByStatus("Rejected");
+        int taxReturnsCount = countTaxReturns();
+
+        setupStatisticsPanel(pendingRevsJPanel, "Pending Reviews", String.valueOf(pendingCount),
+                "+5% from last week", new Color(51, 51, 255));
+
+        setupStatisticsPanel(ApprovedDocumentsJPanel, "Approved Documents", String.valueOf(approvedCount),
+                "+8% from last month", new Color(46, 204, 113));
+
+        setupStatisticsPanel(RejectedDocsJPanel, "Rejected Documents", String.valueOf(rejectedCount),
+                "-12% from last week", new Color(231, 76, 60));
+
+        setupStatisticsPanel(TaxReturnsJPanel, "Tax Returns", String.valueOf(taxReturnsCount),
+                "+3% from last week", new Color(255, 165, 0));
+    }
+
+    private void setupTableModels() {
+        // 设置待处理文档表格
+        DefaultTableModel pendingModel = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // 使表格不可编辑
+            }
+        };
+        pendingModel.setColumnIdentifiers(new String[]{"Declaration ID", "Submission Date", "Origin", "Consignor"});
+        tblPendingDocs.setModel(pendingModel);
+
+        // 设置最近活动表格
+        DefaultTableModel recentModel = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // 使表格不可编辑
+            }
+        };
+        recentModel.setColumnIdentifiers(new String[]{"Declaration ID", "Processing Date", "Status", "Consignor"});
+        tblRecentActivities.setModel(recentModel);
     }
 
     private void populateDashboard() {
@@ -125,67 +177,98 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
     }
 
     private void populatePendingDocsTable() {
-        // Check if organization is null
         DefaultTableModel model = (DefaultTableModel) tblPendingDocs.getModel();
         model.setRowCount(0);
 
-        // 设置列标题
-        String[] columns = {"Declaration ID", "Type", "Status", "Submission Date"};
-        model.setColumnIdentifiers(columns);
+        System.out.println("Populating pending docs table...");
 
-        if (organization != null && organization.getWorkQueue() != null) {
+        // 直接从 CustomsDeclarationDirectory 获取数据
+        if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            int count = 0;
 
-            for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
-                if (request instanceof LogisticsWorkRequest) {
-                    LogisticsWorkRequest customsRequest = (LogisticsWorkRequest) request;
+            for (CustomsDeclaration declaration : organization.getCustomsDeclarationDirectory().getCustomsDeclarationList()) {
+                // 只显示状态为"Pending"或"Submitted"的申报单
+                if ("Pending".equals(declaration.getStatus())
+                        || "Submitted".equals(declaration.getStatus())
+                        || declaration.getStatus() == null) {
 
-                    // 只显示提交状态为"Submitted"的请求，但显示为"Pending"
-                    if ("Submitted".equals(customsRequest.getStatus())) {
-                        Object[] row = new Object[4];
-                        row[0] = customsRequest.getDeclarationId();
-                        row[1] = customsRequest.getDeclarationType() != null
-                                ? customsRequest.getDeclarationType() : "Standard";
-                        row[2] = "Pending"; // 显示为Pending
-                        row[3] = dateFormat.format(customsRequest.getRequestDate());
+                    Object[] row = new Object[4];
+                    row[0] = declaration.getDeclarationId();
+                    row[1] = declaration.getSubmissionDate() != null
+                            ? dateFormat.format(declaration.getSubmissionDate())
+                            : dateFormat.format(declaration.getDeclarationDate());
+                    row[2] = declaration.getCountryOfOrigin();
+                    row[3] = declaration.getConsignor();
 
-                        model.addRow(row);
-                    }
+                    model.addRow(row);
+                    count++;
                 }
             }
+
+            System.out.println("Found " + count + " pending declarations");
+        } else {
+            System.out.println("CustomsDeclarationDirectory is null");
         }
     }
 
     private void populateRecentActivitiesTable() {
+
         DefaultTableModel model = (DefaultTableModel) tblRecentActivities.getModel();
         model.setRowCount(0);
 
-        if (organization != null && organization.getWorkQueue() != null) {
+        if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            int approvedCount = 0;
+            int rejectedCount = 0;
+            int infoNeededCount = 0;
 
-            for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
-                if (request instanceof LogisticsWorkRequest) {
-                    LogisticsWorkRequest customsRequest = (LogisticsWorkRequest) request;
-
-                    // 只显示已处理的请求(状态为Approved、Rejected或Information Needed)
-                    if ("Approved".equals(customsRequest.getStatus())
-                            || "Rejected".equals(customsRequest.getStatus())
-                            || "Information Needed".equals(customsRequest.getStatus())) {
-
-                        Object[] row = new Object[4];
-                        row[0] = customsRequest.getDeclarationId();
-                        row[1] = customsRequest.getDeclarationType() != null
-                                ? customsRequest.getDeclarationType() : "Standard";
-                        row[2] = customsRequest.getStatus();
-                        row[3] = customsRequest.getResolveDate() != null
-                                ? dateFormat.format(customsRequest.getResolveDate())
-                                : dateFormat.format(new Date());
-
-                        model.addRow(row);
-                    }
+            for (CustomsDeclaration declaration : organization.getCustomsDeclarationDirectory().getCustomsDeclarationList()) {
+                // 只显示已处理的申报单
+                if ("Approved".equals(declaration.getStatus())) {
+                    approvedCount++;
+                    addRecentActivityRow(model, declaration, dateFormat);
+                } else if ("Rejected".equals(declaration.getStatus())) {
+                    rejectedCount++;
+                    addRecentActivityRow(model, declaration, dateFormat);
+                } else if ("Information Needed".equals(declaration.getStatus())) {
+                    infoNeededCount++;
+                    addRecentActivityRow(model, declaration, dateFormat);
                 }
             }
+
+            System.out.println("Recent activities table populated with: "
+                    + approvedCount + " approved, "
+                    + rejectedCount + " rejected, "
+                    + infoNeededCount + " info needed");
         }
+
+    }
+
+    private void addRecentActivityRow(DefaultTableModel model, CustomsDeclaration declaration,
+            SimpleDateFormat dateFormat) {
+        Object[] row = new Object[4];
+        row[0] = declaration.getDeclarationId();
+        row[1] = declaration.getProcessingDate() != null
+                ? dateFormat.format(declaration.getProcessingDate())
+                : "";
+        row[2] = declaration.getStatus();
+        row[3] = declaration.getConsignor();
+
+        model.addRow(row);
+    }
+
+    private void addToRecentActivitiesTable(DefaultTableModel model, LogisticsWorkRequest request, SimpleDateFormat dateFormat) {
+        Object[] row = new Object[4];
+        row[0] = request.getDeclarationId();
+        row[1] = request.getDeclarationType() != null
+                ? request.getDeclarationType() : "Standard";
+        row[2] = request.getStatus();
+        row[3] = request.getResolveDate() != null
+                ? dateFormat.format(request.getResolveDate())
+                : dateFormat.format(new Date());
+
+        model.addRow(row);
     }
 
     /**
@@ -441,11 +524,11 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
                     .addComponent(RejectedDocsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(TaxReturnsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(pendingRevsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(54, 54, 54)
+                .addGap(52, 52, 52)
                 .addComponent(pendingDocsJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(recentActivitiesJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
 
         jSplitPane.setRightComponent(cusHPWorkspaceJPanel);
@@ -653,19 +736,22 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
 
     private void btnViewDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewDetailsActionPerformed
         // TODO add your handling code here:
-        // 获取Pending Documents表格中选中的行
+        // Get selected row
         int selectedRow = tblPendingDocs.getSelectedRow();
         if (selectedRow < 0) {
             JOptionPane.showMessageDialog(this, "Please select a document to view");
             return;
         }
 
-        // 获取选中的申报单ID
+        // Get selected declaration ID
         String declarationId = tblPendingDocs.getValueAt(selectedRow, 0).toString();
 
-        // 跳转到DocumentReview页面
+        // Create DocumentReview instance
         DocumentReview documentReview = new DocumentReview(userProcessContainer, userAccount, organization);
-        documentReview.setSelectedDeclarationId(declarationId); // 设置选中的申报单ID，便于在目标页面加载
+        documentReview.setSelectedDeclarationId(declarationId);
+        documentReview.setParentPanel(this); // Pass this as the parent panel
+
+        // Show DocumentReview panel
         userProcessContainer.add("DocumentReview", documentReview);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.next(userProcessContainer);
@@ -707,49 +793,8 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
      */
     public void refreshData() {
         System.out.println("Refreshing data in CustomsLiaisonOfficeHP");
+        populateDashboard();
 
-        // 刷新待处理文档表格
-        populatePendingDocumentsTable();
-
-        // 刷新最近活动表格
-        populateRecentActivitiesTable();
-
-        // 刷新其他可能需要更新的UI组件
-        refreshStatistics();
-
-        // 重绘面板
-        this.repaint();
-        this.revalidate();
-    }
-
-    /**
-     * 刷新待处理文档表格
-     */
-    private void populatePendingDocumentsTable() {
-        DefaultTableModel model = (DefaultTableModel) tblPendingDocs.getModel();
-        model.setRowCount(0);
-
-        if (organization != null && organization.getWorkQueue() != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-            for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
-                if (request instanceof LogisticsWorkRequest) {
-                    LogisticsWorkRequest customsRequest = (LogisticsWorkRequest) request;
-
-                    // 只显示提交状态为"Submitted"的请求，显示为"Pending"
-                    if ("Submitted".equals(customsRequest.getStatus())) {
-                        Object[] row = new Object[4];
-                        row[0] = customsRequest.getDeclarationId();
-                        row[1] = customsRequest.getDeclarationType() != null
-                                ? customsRequest.getDeclarationType() : "Standard";
-                        row[2] = "Pending"; // 显示为Pending
-                        row[3] = dateFormat.format(customsRequest.getRequestDate());
-
-                        model.addRow(row);
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -790,6 +835,120 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
          */
         // 如果您使用图表，请在此更新图表数据
     }
+
+    private void adjustColumnWidth(JTable table, int column, int minWidth, int maxWidth) {
+        TableColumn tableColumn = table.getColumnModel().getColumn(column);
+        if (minWidth > 0) {
+            tableColumn.setMinWidth(minWidth);
+        }
+        if (maxWidth > 0) {
+            tableColumn.setMaxWidth(maxWidth);
+        }
+    }
+
+    private String formatDate(Date date) {
+        if (date == null) {
+            return "";
+        }
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return dateFormat.format(date);
+
+    }
+
+    private void setupStatisticsPanel(JPanel panel, String title, String value, String deltaText, Color valueColor) {
+        // 清空面板
+        panel.removeAll();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        // 设置固定尺寸 - 与 LogisticsCoordinatorHP 一致
+        panel.setPreferredSize(new java.awt.Dimension(200, 120));
+        panel.setMinimumSize(new java.awt.Dimension(200, 120));
+        panel.setMaximumSize(new java.awt.Dimension(300, 120));
+
+        // 设置边距和边框
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
+                BorderFactory.createEmptyBorder(10, 15, 10, 15)
+        ));
+
+        // 创建标题标签
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setForeground(Color.DARK_GRAY);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        titleLabel.setAlignmentX(LEFT_ALIGNMENT);
+
+        // 创建值标签
+        JLabel valueLabel = new JLabel(value);
+        valueLabel.setForeground(valueColor);
+        valueLabel.setFont(new Font("Arial", Font.BOLD, 28));
+        valueLabel.setAlignmentX(LEFT_ALIGNMENT);
+
+        // 创建变化标签
+        JLabel deltaLabel = new JLabel(deltaText);
+        deltaLabel.setForeground(new Color(100, 100, 100));
+        deltaLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        deltaLabel.setAlignmentX(LEFT_ALIGNMENT);
+
+        // 添加到面板
+        panel.add(titleLabel);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(valueLabel);
+        panel.add(Box.createVerticalStrut(3));
+        panel.add(deltaLabel);
+
+        // 背景色设为白色，匹配 LogisticsCoordinatorHP
+        panel.setBackground(Color.WHITE);
+
+        panel.revalidate();
+        panel.repaint();
+    }
+
+    private int countDeclarationsByStatus(String... statuses) {
+        if (organization == null || organization.getCustomsDeclarationDirectory() == null) {
+            return 0;
+        }
+
+        int count = 0;
+        for (CustomsDeclaration declaration : organization.getCustomsDeclarationDirectory().getCustomsDeclarationList()) {
+            if (declaration.getStatus() != null) {
+                for (String status : statuses) {
+                    if (declaration.getStatus().equals(status)) {
+                        count++;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return count;
+    }
+
+    private int countTaxReturns() {
+        if (organization == null || organization.getCustomsDeclarationDirectory() == null) {
+            return 0;
+        }
+
+        // 计算需要交税的申报单数量 - 这里的逻辑可以根据具体业务需求调整
+        int count = 0;
+        for (CustomsDeclaration declaration : organization.getCustomsDeclarationDirectory().getCustomsDeclarationList()) {
+            if (declaration.getStatus() != null && declaration.getStatus().equals("Approved")) {
+                // 假设所有已批准的申报单都需要税务申报
+                if (declaration.getItems() != null && !declaration.getItems().isEmpty()) {
+                    double totalValue = 0;
+                    for (CustomsDeclaration.CustomsLineItem item : declaration.getItems()) {
+                        totalValue += item.getTotalValue();
+                    }
+                    // 假设超过1000美元的申报单需要税务申报
+                    if (totalValue > 1000) {
+                        count++;
+                    }
+                }
+            }
+        }
+
+        return count;
+    }
+
 
     /**
      * Apply consistent UI theme to all components
