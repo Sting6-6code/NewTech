@@ -39,7 +39,6 @@ import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 import Business.Product.SalesRecord;
-import Business.Role.FintechRole;
 import Business.WorkQueue.LogisticsWorkRequest;
 
 /**
@@ -76,7 +75,6 @@ public class ConfigureASystem {
         UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("l", "****", employee5, new CustomsAgentRole());
         UserAccount logistics = system.getUserAccountDirectory().createUserAccount("t", "****", employee6, new LogisticsCoordinatorRole());
         UserAccount warehouse = system.getUserAccountDirectory().createUserAccount("w", "****", employee7, new WarehouseManagerRole());
-        UserAccount fintech = system.getUserAccountDirectory().createUserAccount("pay", "pay", employee8, new FintechRole());
 
         // 初始化仓库和商品
         initializeWarehouse();
