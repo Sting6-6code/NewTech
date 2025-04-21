@@ -31,6 +31,8 @@ public class CustomerServiceHP extends javax.swing.JPanel {
         initComponents();
         // Set CardLayout for ComplaintWorkAreajPanel
         ComplaintWorkAreajPanel.setLayout(new CardLayout());
+        setupTheme();
+        adjustPanelSize();
     }
     
     // Constructor with username
@@ -39,6 +41,116 @@ public class CustomerServiceHP extends javax.swing.JPanel {
         this.username = username;
         // Set CardLayout for ComplaintWorkAreajPanel
         ComplaintWorkAreajPanel.setLayout(new CardLayout());
+        setupTheme();
+        adjustPanelSize();
+    }
+    
+    /**
+     * Adjust panel size to be more compact
+     */
+    private void adjustPanelSize() {
+        // Set main panel preferred size
+        this.setPreferredSize(new java.awt.Dimension(1000, 700));
+        
+        // Set right panel preferred size
+        ComplaintWorkAreajPanel.setPreferredSize(new java.awt.Dimension(800, 700));
+        
+        // Set proper divider location
+        jSplitPane1.setDividerLocation(180);
+    }
+    
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set background colors
+        this.setBackground(new java.awt.Color(240, 245, 255));
+        ComplaintPanel.setBackground(new java.awt.Color(26, 79, 156));
+        ComplaintWorkAreajPanel.setBackground(new java.awt.Color(240, 245, 255));
+        
+        // Style buttons
+        styleMenuButton(btnComplaintManagement);
+        styleMenuButton(btnProfile);
+        
+        // Style the split pane
+        jSplitPane1.setDividerSize(1);
+        jSplitPane1.setDividerLocation(180);
+        jSplitPane1.setBorder(null);
+        
+        // Add title to left panel
+        javax.swing.JLabel titleLabel = new javax.swing.JLabel("Customer Service");
+        titleLabel.setFont(new java.awt.Font("SansSerif", 1, 18));
+        titleLabel.setForeground(java.awt.Color.WHITE);
+        titleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        
+        // Recreate the layout for ComplaintPanel
+        javax.swing.GroupLayout ComplaintPanelLayout = new javax.swing.GroupLayout(ComplaintPanel);
+        ComplaintPanel.setLayout(ComplaintPanelLayout);
+        ComplaintPanelLayout.setHorizontalGroup(
+            ComplaintPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ComplaintPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(ComplaintPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(titleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE)
+                    .addComponent(btnComplaintManagement, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnProfile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        ComplaintPanelLayout.setVerticalGroup(
+            ComplaintPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ComplaintPanelLayout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addComponent(titleLabel)
+                .addGap(40, 40, 40)
+                .addComponent(btnComplaintManagement, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(15, 15, 15)
+                .addComponent(btnProfile, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        
+        // Update main layout to handle the proper size
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1000, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
+        );
+    }
+    
+    /**
+     * Style menu buttons with consistent formatting and hover effects
+     */
+    private void styleMenuButton(javax.swing.JButton button) {
+        button.setBackground(new java.awt.Color(51, 102, 153));
+        button.setForeground(java.awt.Color.WHITE);
+        button.setFont(new java.awt.Font("SansSerif", 1, 14));
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        button.setIconTextGap(15);
+        button.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 15, 10, 10));
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (button.isEnabled()) {
+                    button.setBackground(new java.awt.Color(0, 153, 204));
+                }
+            }
+            
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if (button.isEnabled()) {
+                    button.setBackground(new java.awt.Color(51, 102, 153));
+                }
+            }
+        });
     }
     
     public void setSupplier(Supplier supplier) {

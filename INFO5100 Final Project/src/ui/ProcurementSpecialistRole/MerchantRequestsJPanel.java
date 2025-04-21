@@ -7,6 +7,7 @@ package ui.ProcurementSpecialistRole;
 import Business.Enterprise.Enterprise;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import java.awt.CardLayout;
 import Business.Order.Order;
 import Business.Order.OrderDirectory;
@@ -19,6 +20,10 @@ import Business.Product.Product;
 import Business.UserAccount.UserAccount;
 import Business.WorkQueue.ProcurementWorkRequest;
 import java.util.Date;
+import java.awt.Color;
+import java.awt.Component;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  *
@@ -47,6 +52,9 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
 
         // 加载所有商家请求
         loadMerchantRequests();
+        
+        // Apply UI theme
+        setupTheme();
     }
 
     private void setupCartTable() {
@@ -826,5 +834,152 @@ public class MerchantRequestsJPanel extends javax.swing.JPanel {
         // If unable to get actual price, log warning and return default price
         System.out.println("Warning: Unable to get price for product '" + productName + "', using default price 100.0");
         return 100.0; // Default price, only as a fallback
+    }
+    
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        jPanel1.setBackground(new Color(240, 245, 255));
+        
+        // Style all buttons
+        styleButton(btnBack);
+        styleButton(btnRefresh);
+        styleButton(btnSearch);
+        styleButton(btnProcessOrder);
+        styleButton(btnreject);
+        styleButton(btnRemoveOrderItem);
+        styleButton(btnModifyQuantity);
+        styleButton(btnCheckOut);
+        
+        // Style all text fields
+        styleTextField(txtSearchRequestID);
+        styleTextField(txtNewQuantity);
+        
+        // Style all labels
+        styleTitleLabel(lblTitle);
+        styleTitleLabel(lblTitle1);
+        styleLabel(jLabel1);
+        
+        // Style tables
+        styleTable(RequestTable1);
+        styleTable(tblCart);
+        
+        // Style combo box
+        styleComboBox(StatusjComboBox);
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Use simple EmptyBorder instead of BorderFactory
+        button.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(35, 100, 190)); // Lighter blue on hover
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(26, 79, 156)); // Back to normal
+            }
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(13, 60, 130)); // Darker when pressed
+            }
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(35, 100, 190)); // Back to hover
+            }
+        });
+    }
+    
+    /**
+     * Apply consistent styling to a text field
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51));    // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156));   // Medium blue cursor
+        textField.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+    }
+    
+    /**
+     * Apply title label styling
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 18));
+        label.setForeground(new Color(13, 25, 51)); // Dark blue text
+        label.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 5, 10, 5));
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        label.setForeground(new Color(13, 25, 51)); // Dark blue text
+        label.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 2, 5, 2));
+    }
+    
+    /**
+     * Apply consistent styling to a combo box
+     * @param comboBox ComboBox to style
+     */
+    private void styleComboBox(JComboBox comboBox) {
+        comboBox.setBackground(Color.WHITE);
+        comboBox.setForeground(new Color(13, 25, 51));
+        comboBox.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        comboBox.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+    }
+    
+    /**
+     * Style the table with consistent formatting
+     * @param table Table to style
+     */
+    private void styleTable(JTable table) {
+        // Style the header
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(new Color(26, 79, 156)); // Medium blue
+        header.setForeground(Color.WHITE);
+        header.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+        header.setBorder(new LineBorder(new Color(13, 60, 130), 1));
+        
+        // Style the table
+        table.setBackground(Color.WHITE);
+        table.setForeground(new Color(13, 25, 51)); // Dark blue text
+        table.setGridColor(new Color(230, 230, 230));
+        table.setRowHeight(25);
+        table.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        table.setSelectionBackground(new Color(232, 242, 254)); // Very light blue
+        table.setSelectionForeground(new Color(13, 25, 51)); // Keep text dark
+        
+        // Add custom cell renderer for alternating row colors
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 245, 250));
+                }
+                
+                return c;
+            }
+        });
     }
 }

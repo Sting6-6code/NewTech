@@ -91,6 +91,9 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         // 初始化界面
         populateDashboard();
 
+        
+        setupTheme();
+        populateDashboard();
     }
 
     private void setupStatisticsPanels() {
@@ -631,7 +634,7 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
 
     private void btnSubmitDocsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitDocsActionPerformed
         // TODO add your handling code here:
-        // 检查 userProcessContainer 和 organization 是否为 null
+        // Check if userProcessContainer is null
         if (userProcessContainer == null) {
             System.out.println("Warning: userProcessContainer is null");
             JOptionPane.showMessageDialog(this,
@@ -641,11 +644,20 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
             return;
         }
 
-        // 创建并显示提交文档面板
+        // Show a message that this feature is not yet implemented
+        JOptionPane.showMessageDialog(this,
+                "The Submit Documents feature is not yet implemented.",
+                "Feature Not Available",
+                JOptionPane.INFORMATION_MESSAGE);
+        
+        // Code below is commented out until the SubmitDoc class is implemented
+        /*
+        // Create and display submit documents panel
         SubmitDoc submitPanel = new SubmitDoc(userProcessContainer, userAccount, organization);
         userProcessContainer.add("SubmitDocuments", submitPanel);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.show(userProcessContainer, "SubmitDocuments");
+        */
     }//GEN-LAST:event_btnSubmitDocsActionPerformed
 
     private void btnDashBoardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDashBoardActionPerformed
@@ -746,7 +758,6 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         // Create DocumentReview instance
         DocumentReview documentReview = new DocumentReview(userProcessContainer, userAccount, organization);
         documentReview.setSelectedDeclarationId(declarationId);
-        documentReview.setParentPanel(this); // Pass this as the parent panel
 
         // Show DocumentReview panel
         userProcessContainer.add("DocumentReview", documentReview);
@@ -946,4 +957,159 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         return count;
     }
 
+
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background colors
+        this.setBackground(new java.awt.Color(240, 245, 255));
+        cusHPWorkspaceJPanel.setBackground(new java.awt.Color(240, 245, 255));
+        cusHPControlJPanel.setBackground(new java.awt.Color(26, 79, 156));
+        
+        pendingRevsJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        ApprovedDocumentsJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        RejectedDocsJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        TaxReturnsJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        pendingDocsJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        recentActivitiesJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        
+        // Apply shadow borders to panels
+        pendingRevsJPanel.setBorder(createShadowBorder());
+        ApprovedDocumentsJPanel.setBorder(createShadowBorder());
+        RejectedDocsJPanel.setBorder(createShadowBorder());
+        TaxReturnsJPanel.setBorder(createShadowBorder());
+        pendingDocsJPanel.setBorder(createShadowBorder());
+        recentActivitiesJPanel.setBorder(createShadowBorder());
+        
+        // Style navigation buttons
+        styleNavigationButton(btnDashBoard);
+        styleNavigationButton(btnDocReview);
+        styleNavigationButton(btnSubmitDocs);
+        styleNavigationButton(btnReturnTax);
+        styleNavigationButton(btnCusComplaint);
+        styleNavigationButton(btnProfile);
+        styleNavigationButton(btnLogout);
+        
+        // Style action buttons
+        styleActionButton(btnViewDetails);
+        
+        // Style tables
+        styleTable(tblPendingDocs);
+        styleTable(tblRecentActivities);
+        
+        // Style statistic labels
+        styleStatisticLabel(lblPendingReviews);
+        styleStatisticLabel(lblApprovedDocs);
+        styleStatisticLabel(lblRejectedDocs);
+        styleStatisticLabel(lblTaxReturns);
+        
+        // Style section headers
+        styleSectionHeader(lblPendingDocs);
+        styleSectionHeader(lblRecentActivities);
+    }
+    
+    /**
+     * Create a shadow border for panels
+     */
+    private javax.swing.border.Border createShadowBorder() {
+        return javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(230, 235, 245), 1),
+                javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    }
+    
+    /**
+     * Style navigation buttons in the sidebar
+     */
+    private void styleNavigationButton(javax.swing.JButton button) {
+        button.setBackground(new java.awt.Color(26, 79, 156));
+        button.setForeground(java.awt.Color.WHITE);
+        button.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        button.setIconTextGap(10);
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new java.awt.Color(35, 100, 190));
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new java.awt.Color(26, 79, 156));
+            }
+        });
+    }
+    
+    /**
+     * Style action buttons in the main content area
+     */
+    private void styleActionButton(javax.swing.JButton button) {
+        button.setBackground(new java.awt.Color(26, 79, 156));
+        button.setForeground(java.awt.Color.WHITE);
+        button.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new java.awt.Color(35, 100, 190));
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new java.awt.Color(26, 79, 156));
+            }
+        });
+    }
+    
+    /**
+     * Style tables with consistent formatting
+     */
+    private void styleTable(javax.swing.JTable table) {
+        // Style the header
+        table.getTableHeader().setBackground(new java.awt.Color(26, 79, 156));
+        table.getTableHeader().setForeground(java.awt.Color.WHITE);
+        table.getTableHeader().setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+        
+        // Style the table
+        table.setRowHeight(25);
+        table.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        table.setGridColor(new java.awt.Color(230, 230, 230));
+        table.setSelectionBackground(new java.awt.Color(232, 242, 254));
+        table.setSelectionForeground(new java.awt.Color(13, 25, 51));
+        
+        // Add zebra striping
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                java.awt.Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? java.awt.Color.WHITE : new java.awt.Color(245, 245, 250));
+                }
+                
+                return c;
+            }
+        });
+    }
+    
+    /**
+     * Style statistic labels for dashboard metrics
+     */
+    private void styleStatisticLabel(javax.swing.JLabel label) {
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 16));
+        label.setForeground(new java.awt.Color(13, 25, 51));
+    }
+    
+    /**
+     * Style section headers
+     */
+    private void styleSectionHeader(javax.swing.JLabel label) {
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 18));
+        label.setForeground(new java.awt.Color(13, 25, 51));
+    }
 }

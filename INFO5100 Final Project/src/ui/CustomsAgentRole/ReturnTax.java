@@ -39,6 +39,7 @@ public class ReturnTax extends javax.swing.JPanel {
         // Initialize
         setupTable();
         populateTable();
+        setupTheme();
 
     }
 
@@ -550,6 +551,120 @@ public class ReturnTax extends javax.swing.JPanel {
                 JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnSubmitActionPerformed
 
+    /**
+     * Sets up the UI theme with consistent styling across the application
+     */
+    private void setupTheme() {
+        // Set main panel background color
+        this.setBackground(new java.awt.Color(240, 240, 250));
+        
+        // Style the title
+        lblTitle.setFont(new java.awt.Font("SansSerif", 1, 24));
+        lblTitle.setForeground(new java.awt.Color(0, 102, 153));
+        
+        // Apply shadow border to panels
+        javax.swing.border.Border shadowBorder = javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 1),
+                javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        );
+        
+        returnTaxJPanel.setBorder(shadowBorder);
+        taxReturnAppJPanel.setBorder(shadowBorder);
+        taxReturnJPanel.setBorder(shadowBorder);
+        guideJPanel.setBorder(shadowBorder);
+        
+        // Style sub-panels with white background
+        returnTaxJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        taxReturnAppJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        taxReturnJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        guideJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        
+        // Style section headers
+        lblTaxReturnApplication.setFont(new java.awt.Font("SansSerif", 1, 16));
+        lblReturnApp.setFont(new java.awt.Font("SansSerif", 1, 16));
+        lblGuide.setFont(new java.awt.Font("SansSerif", 1, 16));
+        
+        // Style buttons
+        styleButton(btnBack);
+        styleButton(btnReset);
+        styleButton(btnSubmit);
+        
+        // Style table
+        tblReturnApp.setRowHeight(25);
+        tblReturnApp.setSelectionBackground(new java.awt.Color(0, 102, 153));
+        tblReturnApp.setSelectionForeground(new java.awt.Color(255, 255, 255));
+        tblReturnApp.setGridColor(new java.awt.Color(230, 230, 230));
+        tblReturnApp.getTableHeader().setBackground(new java.awt.Color(240, 240, 250));
+        tblReturnApp.getTableHeader().setFont(new java.awt.Font("SansSerif", 1, 12));
+        
+        // Style text areas
+        jTextArea1.setBackground(new java.awt.Color(248, 248, 255));
+        jTextArea2.setBackground(new java.awt.Color(248, 248, 255));
+        jTextArea3.setBackground(new java.awt.Color(248, 248, 255));
+        
+        // Style labels and form fields
+        styleFormLabels();
+        styleTextFields();
+    }
+
+    /**
+     * Applies consistent styling to all form labels
+     */
+    private void styleFormLabels() {
+        java.awt.Font labelFont = new java.awt.Font("SansSerif", 0, 14);
+        java.awt.Color labelColor = new java.awt.Color(51, 51, 51);
+        
+        lblAppType.setFont(labelFont);
+        lblAppType.setForeground(labelColor);
+        lblRelatedDeclaration.setFont(labelFont);
+        lblRelatedDeclaration.setForeground(labelColor);
+        lblOriginalTaxAmount.setFont(labelFont);
+        lblOriginalTaxAmount.setForeground(labelColor);
+        lbTaxID.setFont(labelFont);
+        lbTaxID.setForeground(labelColor);
+        lblReturnAmount.setFont(labelFont);
+        lblReturnAmount.setForeground(labelColor);
+        lblBankInfo.setFont(labelFont);
+        lblBankInfo.setForeground(labelColor);
+        lblReturnReason.setFont(labelFont);
+        lblReturnReason.setForeground(labelColor);
+        lblNotes.setFont(labelFont);
+        lblNotes.setForeground(labelColor);
+    }
+
+    /**
+     * Applies consistent styling to all text fields
+     */
+    private void styleTextFields() {
+        javax.swing.border.Border textFieldBorder = javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 1),
+                javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        );
+        
+        txtRelatedDeclaration.setBorder(textFieldBorder);
+        txtTaxID.setBorder(textFieldBorder);
+        txtBankInfo.setBorder(textFieldBorder);
+        txtOriginalTaxAmount.setBorder(textFieldBorder);
+        txtReturnAmount.setBorder(textFieldBorder);
+        txtReturnReason.setBorder(textFieldBorder);
+        txtNotes.setBorder(textFieldBorder);
+        
+        comBoAppType.setBorder(textFieldBorder);
+    }
+
+    /**
+     * Applies consistent styling to a button
+     * @param button The button to style
+     */
+    private void styleButton(javax.swing.JButton button) {
+        button.setBackground(new java.awt.Color(0, 102, 153));
+        button.setForeground(new java.awt.Color(255, 255, 255));
+        button.setFont(new java.awt.Font("SansSerif", 1, 14));
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        button.setMargin(new java.awt.Insets(8, 16, 8, 16));
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBack;

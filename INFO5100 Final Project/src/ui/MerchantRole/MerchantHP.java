@@ -9,6 +9,15 @@ import Business.Supplier.Supplier;
 import Business.UserAccount.UserAccount;
 import java.awt.CardLayout;
 import javax.swing.JPanel;
+import java.awt.Color;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JTextField;
+import javax.swing.ImageIcon;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Component;
+import java.awt.Font;
 
 /**
  *
@@ -28,6 +37,7 @@ public class MerchantHP extends javax.swing.JPanel {
         initComponents();
         // Set CardLayout for jPanel
         MerchantWorkAreajPanel.setLayout(new CardLayout());
+        setupTheme();
     }
     
     // Constructor with username parameter
@@ -37,6 +47,7 @@ public class MerchantHP extends javax.swing.JPanel {
         
         // Set CardLayout for panel
         MerchantWorkAreajPanel.setLayout(new CardLayout());
+        setupTheme();
     }
     
     // Constructor with userProcessContainer and username parameters
@@ -47,6 +58,7 @@ public class MerchantHP extends javax.swing.JPanel {
         
         // Set CardLayout for panel
         MerchantWorkAreajPanel.setLayout(new CardLayout());
+        setupTheme();
     }
     
     public void setSupplier(Supplier supplier) {
@@ -288,6 +300,91 @@ public class MerchantHP extends javax.swing.JPanel {
         MerchantWorkAreajPanel.add("MerchantTrackingJPanel", merchantTrackingJPanel);
         CardLayout layout = (CardLayout) MerchantWorkAreajPanel.getLayout();
         layout.next(MerchantWorkAreajPanel);
+    }
+
+    /**
+     * Setup the theme for the merchant panel
+     * Applies consistent styling to all components
+     */
+    private void setupTheme() {
+        // Set the left panel background color
+        MerchantjPanel.setBackground(new Color(12, 45, 107, 220)); // 深蓝色带透明度
+        
+        // Style all buttons in the panel
+        styleButton(btnProductCatalog);
+        styleButton(btnReports);
+        styleButton(btnProfile);
+        styleButton(btnViewMerchantRequest);
+        styleButton(btnTracking);
+        
+        // Add background to the work area panel if needed
+        setupWorkAreaBackground();
+    }
+    
+    /**
+     * Apply consistent style to buttons
+     * @param button The button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // 中蓝色
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+    }
+    
+    /**
+     * Add a background image to the work area panel
+     */
+    private void setupWorkAreaBackground() {
+        try {
+            // Create a custom JPanel with the background image
+            JPanel backgroundPanel = new JPanel() {
+                private Image backgroundImage;
+                {
+                    try {
+                        backgroundImage = new ImageIcon("src/NewTechLogo.png").getImage();
+                    } catch (Exception e) {
+                        System.out.println("Failed to load background image: " + e.getMessage());
+                    }
+                }
+                
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    // Draw the background image if available
+                    if (backgroundImage != null) {
+                        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                    }
+                }
+            };
+            
+            // Set the layout for the background panel to be the same as MerchantWorkAreajPanel's current layout
+            backgroundPanel.setLayout(new CardLayout());
+            
+            // Only setup background if there are no components yet
+            if (MerchantWorkAreajPanel.getComponentCount() == 0) {
+                MerchantWorkAreajPanel.setBackground(new Color(240, 245, 255));
+            }
+        } catch (Exception e) {
+            System.out.println("Error setting up background: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Style a text field to match the theme
+     * @param textField The text field to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // 浅灰白色背景
+        textField.setForeground(new Color(13, 25, 51)); // 深蓝色文字
+        textField.setCaretColor(new Color(26, 79, 156)); // 中蓝色光标
+        textField.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

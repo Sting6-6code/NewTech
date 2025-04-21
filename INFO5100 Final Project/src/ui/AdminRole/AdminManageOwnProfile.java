@@ -7,6 +7,13 @@ package ui.AdminRole;
 import Business.UserAccount.UserAccount;
 import java.awt.CardLayout;
 import javax.swing.JPanel;
+import java.awt.Color;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import java.awt.Font;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -16,6 +23,7 @@ public class AdminManageOwnProfile extends javax.swing.JPanel {
 
     JPanel workArea;
     UserAccount ua;
+    private javax.swing.JLabel titleLabel;
     
     
     /**
@@ -25,8 +33,94 @@ public class AdminManageOwnProfile extends javax.swing.JPanel {
         initComponents();
         this.workArea = jp;
         this.ua = ua;
-        txtUN.setText(ua.getUsername());
-        txtPW.setText(ua.getPassword());
+        
+        // Add title label
+        titleLabel = new javax.swing.JLabel("My Profile");
+        titleLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
+        titleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        titleLabel.setBounds(0, 10, this.getWidth(), 30);
+        this.add(titleLabel);
+        
+        // Initialize user information
+        populateUserInfo();
+        
+        // Initially disable fields
+        setFieldsEditable(false);
+        btnSave.setEnabled(false);
+        
+        // Apply UI theme
+        setupTheme();
+    }
+    
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        
+        // Style buttons
+        styleButton(btnBack);
+        styleButton(btnUpdate);
+        styleButton(btnSave);
+        
+        // Style text fields
+        styleTextField(txtUN);
+        styleTextField(txtPW);
+        
+        // Style labels
+        styleLabel(lblUN);
+        styleLabel(lblPW);
+        if (titleLabel != null) {
+            styleTitleLabel(titleLabel);
+        }
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+    }
+    
+    /**
+     * Apply consistent styling to a text field
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51)); // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156)); // Medium blue cursor
+        textField.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+    }
+    
+    /**
+     * Apply title label styling
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
     }
 
     /**
@@ -58,8 +152,18 @@ public class AdminManageOwnProfile extends javax.swing.JPanel {
         lblPW.setText("Password:");
 
         btnUpdate.setText("Update");
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
 
         btnSave.setText("Save");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -118,6 +222,41 @@ public class AdminManageOwnProfile extends javax.swing.JPanel {
         l.previous(workArea);
     }//GEN-LAST:event_btnBackActionPerformed
 
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {
+        // Enable fields for editing
+        setFieldsEditable(true);
+        btnUpdate.setEnabled(false);
+        btnSave.setEnabled(true);
+    }
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {
+        String username = txtUN.getText().trim();
+        String password = txtPW.getText().trim();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter username and password",
+                    "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (password.length() < 4) {
+            JOptionPane.showMessageDialog(this, "Password must be at least 4 characters",
+                    "Input Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Update user account
+        ua.setUsername(username);
+        ua.setPassword(password);
+
+        // Disable editing and update button states
+        setFieldsEditable(false);
+        btnUpdate.setEnabled(true);
+        btnSave.setEnabled(false);
+
+        JOptionPane.showMessageDialog(this, "Profile updated successfully",
+                "Success", JOptionPane.INFORMATION_MESSAGE);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBack;
@@ -128,4 +267,29 @@ public class AdminManageOwnProfile extends javax.swing.JPanel {
     private javax.swing.JTextField txtPW;
     private javax.swing.JTextField txtUN;
     // End of variables declaration//GEN-END:variables
+
+    private void populateUserInfo() {
+        if (ua != null) {
+            try {
+                txtUN.setText(ua.getUsername());
+                txtPW.setText(ua.getPassword());
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, 
+                    "Error loading profile data: " + e.getMessage(), 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "User account information is not available", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void setFieldsEditable(boolean editable) {
+        txtUN.setEditable(editable);
+        txtPW.setEditable(editable);
+    }
 }

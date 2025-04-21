@@ -23,6 +23,17 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Component;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 /**
  *
  * @author wangsiting
@@ -52,6 +63,9 @@ public class WarehouseCustomerComplaintContent extends javax.swing.JPanel {
         this.complaintDirectory = findComplaintDirectory();
         populateTable();
         System.out.println("Initialized WarehouseCustomerComplaintContent with warehouse instance");
+        
+        // Apply UI theme
+        setupTheme();
     }
     
     // 查找投诉目录
@@ -584,6 +598,143 @@ public class WarehouseCustomerComplaintContent extends javax.swing.JPanel {
                (complaint.getDescription().contains("warehouse") && complaint.getStatus().contains("Forwarded")) ||
                (complaint.getDescription().contains("Warehouse") && complaint.getStatus().contains("Forwarded")) ||
                complaint.getDescription().toLowerCase().contains("[warehouse]");
+    }
+
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        jPanel1.setBackground(new Color(240, 245, 255));
+        jPanel2.setBackground(new Color(240, 245, 255));
+        jPanel3.setBackground(new Color(240, 245, 255));
+        handlePanel.setBackground(new Color(240, 245, 255));
+        
+        // Style all buttons
+        styleButton(btnBack);
+        styleButton(btnSearch);
+        styleButton(btnDetailed);
+        
+        // Style all text fields
+        styleTextField(txtSearchComplaintID);
+        styleTextField(txtCompaintID);
+        styleTextField(txtCustomertName);
+        styleTextField(txtComplaintType);
+        styleTextField(txtContent);
+        
+        // Style all labels
+        styleTitleLabel(lblTitle);
+        styleTitleLabel(lblTitle1);
+        styleLabel(lblCompaintID);
+        styleLabel(lblPN);
+        styleLabel(lblPrice1);
+        styleLabel(lblPrice2);
+        
+        // Style table
+        styleTable(jTable1);
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(46, 109, 196)); // Lighter blue on hover
+            }
+            
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(26, 79, 156)); // Return to original color
+            }
+            
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(13, 60, 130)); // Darker blue when pressed
+            }
+            
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(46, 109, 196)); // Return to hover color if still hovering
+            }
+        });
+    }
+    
+    /**
+     * Apply consistent styling to a text field
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51));    // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156));   // Medium blue cursor
+        textField.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+    }
+    
+    /**
+     * Apply title label styling
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+    }
+    
+    /**
+     * Apply consistent styling to a table
+     * @param table JTable to style
+     */
+    private void styleTable(JTable table) {
+        // Style table header
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(new Color(26, 79, 156));
+        header.setForeground(Color.WHITE);
+        header.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        
+        // Style table
+        table.setRowHeight(25);
+        table.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        table.setGridColor(new Color(220, 220, 235));
+        table.setSelectionBackground(new Color(232, 242, 254));
+        table.setSelectionForeground(new Color(26, 79, 156));
+        
+        // Add zebra striping renderer
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? new Color(240, 245, 255) : Color.WHITE);
+                    c.setForeground(new Color(50, 50, 50));
+                }
+                setBorder(BorderFactory.createCompoundBorder(
+                    new LineBorder(new Color(220, 220, 235), 1),
+                    BorderFactory.createEmptyBorder(2, 5, 2, 5)
+                ));
+                return c;
+            }
+        });
     }
 
     

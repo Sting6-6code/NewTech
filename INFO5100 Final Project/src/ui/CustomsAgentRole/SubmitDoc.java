@@ -47,6 +47,9 @@ public class SubmitDoc extends javax.swing.JPanel {
         // Initialize date format
         dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+        // Apply consistent UI theme
+        setupTheme();
+        
         // Set current date as default
         txtDocDate.setText(dateFormat.format(new Date()));
 
@@ -577,6 +580,188 @@ public class SubmitDoc extends javax.swing.JPanel {
 
     }//GEN-LAST:event_btnSubmitActionPerformed
 
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background colors
+        this.setBackground(new java.awt.Color(240, 245, 255));
+        submitDocJPanel.setBackground(new java.awt.Color(240, 245, 255));
+        
+        // Style main content panels with a white background and shadow border
+        docSubFormJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        recentSubDocJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        guideJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        
+        // Apply shadow borders to panels
+        docSubFormJPanel.setBorder(createShadowBorder());
+        recentSubDocJPanel.setBorder(createShadowBorder());
+        guideJPanel.setBorder(createShadowBorder());
+        
+        // Style all form text fields
+        styleTextField(txtDocID);
+        styleTextField(txtDocDate);
+        styleTextField(txtExpiryDate);
+        styleTextField(txtRelatedShipment);
+        styleTextField(txtIssuAuth);
+        styleTextField(txtNotes);
+        styleTextField(txtUploadDoc);
+        
+        // Style combo box
+        styleComboBox(comBoDocType);
+        
+        // Style table
+        styleTable(tblRecSubDoc);
+        
+        // Style text areas
+        styleTextArea(jTextArea1);
+        styleTextArea(jTextArea2);
+        styleTextArea(jTextArea3);
+        
+        // Style buttons
+        styleActionButton(btnSubmit);
+        styleActionButton(btnReset);
+        styleActionButton(btnBack);
+        
+        // Make the submit button stand out
+        btnSubmit.setBackground(new java.awt.Color(0, 128, 0)); // Green color for submit
+        
+        // Style title and section header labels
+        styleTitleLabel(lblTitle);
+        styleTitleLabel(lblDocSubForm);
+        styleTitleLabel(lblRecSubDoc);
+        styleTitleLabel(lblGuide);
+        
+        // Style form labels
+        styleLabel(lblDocType);
+        styleLabel(lblDocID);
+        styleLabel(lblDocDate);
+        styleLabel(lblExpiryDate);
+        styleLabel(lblRelatedShipment);
+        styleLabel(lblIssuAuth);
+        styleLabel(lblNotes);
+        styleLabel(lblUploadDoc);
+    }
+    
+    /**
+     * Create a shadow border for panels
+     */
+    private javax.swing.border.Border createShadowBorder() {
+        return javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(230, 235, 245), 1),
+                javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    }
+    
+    /**
+     * Style text fields with consistent formatting
+     */
+    private void styleTextField(javax.swing.JTextField textField) {
+        textField.setBackground(new java.awt.Color(245, 245, 250));
+        textField.setForeground(new java.awt.Color(13, 25, 51));
+        textField.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        textField.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(90, 141, 224), 1));
+    }
+    
+    /**
+     * Style combo boxes with consistent formatting
+     */
+    private void styleComboBox(javax.swing.JComboBox comboBox) {
+        comboBox.setBackground(java.awt.Color.WHITE);
+        comboBox.setForeground(new java.awt.Color(13, 25, 51));
+        comboBox.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        comboBox.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(90, 141, 224), 1));
+    }
+    
+    /**
+     * Style tables with consistent formatting
+     */
+    private void styleTable(javax.swing.JTable table) {
+        // Style the header
+        table.getTableHeader().setBackground(new java.awt.Color(26, 79, 156));
+        table.getTableHeader().setForeground(java.awt.Color.WHITE);
+        table.getTableHeader().setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+        
+        // Style the table
+        table.setRowHeight(25);
+        table.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        table.setGridColor(new java.awt.Color(230, 230, 230));
+        table.setSelectionBackground(new java.awt.Color(232, 242, 254));
+        table.setSelectionForeground(new java.awt.Color(13, 25, 51));
+        
+        // Add zebra striping
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                java.awt.Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? java.awt.Color.WHITE : new java.awt.Color(245, 245, 250));
+                }
+                
+                return c;
+            }
+        });
+    }
+    
+    /**
+     * Style text areas with consistent formatting
+     */
+    private void styleTextArea(javax.swing.JTextArea textArea) {
+        textArea.setBackground(new java.awt.Color(245, 245, 250));
+        textArea.setForeground(new java.awt.Color(13, 25, 51));
+        textArea.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        textArea.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(230, 235, 245), 1));
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+    }
+    
+    /**
+     * Style action buttons with consistent formatting and hover effects
+     */
+    private void styleActionButton(javax.swing.JButton button) {
+        button.setBackground(new java.awt.Color(26, 79, 156));
+        button.setForeground(java.awt.Color.WHITE);
+        button.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (button.isEnabled()) {
+                    java.awt.Color originalColor = button.getBackground();
+                    button.setBackground(originalColor.brighter());
+                }
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if (button.isEnabled()) {
+                    if (button == btnSubmit) {
+                        button.setBackground(new java.awt.Color(0, 128, 0));
+                    } else {
+                        button.setBackground(new java.awt.Color(26, 79, 156));
+                    }
+                }
+            }
+        });
+    }
+    
+    /**
+     * Style title labels
+     */
+    private void styleTitleLabel(javax.swing.JLabel label) {
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 18));
+        label.setForeground(new java.awt.Color(13, 25, 51));
+    }
+    
+    /**
+     * Style regular labels
+     */
+    private void styleLabel(javax.swing.JLabel label) {
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        label.setForeground(new java.awt.Color(13, 25, 51));
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBack;

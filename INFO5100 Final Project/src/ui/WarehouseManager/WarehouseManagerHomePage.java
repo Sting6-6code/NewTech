@@ -21,13 +21,28 @@ import Business.Warehouse.Stock;
 import Business.Warehouse.Warehouse;
 import Business.WorkQueue.WarehouseWorkRequest;
 import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import java.lang.Integer;
-import java.util.Calendar;
-import java.util.Date;
+import javax.swing.table.JTableHeader;
+import java.text.SimpleDateFormat;
 
 /**
  *
@@ -63,6 +78,9 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
         // Initialize the table
         setupShipCartTable();
         populateTable();
+        
+        // Apply UI theme to match merchant panels
+        setupTheme();
     }
 
     private void setupShipCartTable() {
@@ -706,10 +724,10 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
                     methods[0]);
 
             if (shippingMethod == null) {
-                shippingMethod = "Ground"; // 默认选择陆运
+                shippingMethod = "Ground"; // Default selection: Ground transportation
             }
 
-            // 5. 创建WarehouseWorkRequest
+            // 5. Create WarehouseWorkRequest
             WarehouseWorkRequest request = new WarehouseWorkRequest();
             request.setShipmentId(shipmentId);
             request.setTrackingNumber(trackingNumber);
@@ -718,24 +736,24 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
             request.setDestination(destination);
             request.setShippingMethod(shippingMethod);
 
-            // 设置预计送达日期（例如：7天后）
+            // Set estimated delivery date (e.g., 7 days later)
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.DAY_OF_MONTH, 7);
             request.setEstimatedDeliveryDate(calendar.getTime());
 
-            // 设置请求状态
+            // Set request status
             request.setStatus("Pending");
             request.setRequestDate(new Date());
 
-            // 设置发送者和接收者
+            // Set sender and receiver
             request.setSender(userAccount);
 
-            // 找到物流组织并添加工作请求
+            // Find logistics organization and add work request
             LogisticsOrganization logisticsOrg = null;
             for (Network network : EcoSystem.getInstance().getNetworkList()) {
-                for (Enterprise e : network.getEnterpriseDirectory().getEnterpriseList()) {
-                    if (e instanceof LogisticsGroupEnterprise) {
-                        for (Organization org : e.getOrganizationDirectory().getOrganizationList()) {
+                for (Enterprise enterprise : network.getEnterpriseDirectory().getEnterpriseList()) {
+                    if (enterprise instanceof LogisticsGroupEnterprise) {
+                        for (Organization org : enterprise.getOrganizationDirectory().getOrganizationList()) {
                             if (org instanceof LogisticsOrganization) {
                                 logisticsOrg = (LogisticsOrganization) org;
                                 break;
@@ -752,7 +770,7 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
                 throw new Exception("No logistics organization found");
             }
 
-            // 将请求添加到物流组织的工作队列
+            // Add request to logistics organization's work queue
             logisticsOrg.getWorkQueue().getWorkRequestList().add(request);
 
             System.out.println("Work request sent to logistics: " + request.getTrackingNumber());
@@ -767,61 +785,58 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
     }
 
     private String getDestinationFromOrder(Order order) {
-        // 实际项目中，这里应该从Order对象中获取目的地信息
-        // 如果Order类中没有目的地字段，可以返回null或空字符串
+        // In a real project, this should retrieve destination information from the Order object
+        // If the Order class does not have a destination field, return null or empty string
         return null;
     }
 
     /**
-     * 计算预计送达日期
+     * Calculate estimated delivery date
      */
     private Date calculateEstimatedDeliveryDate(String destination, String shippingMethod) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date()); // 从今天开始计算
+        cal.setTime(new Date()); // Calculate from today
 
-        int daysToAdd = 5; // 默认时间
+        int daysToAdd = 5; // Default time
 
-        // 根据运输方式调整时间
-        if ("Air Freight".equals(shippingMethod) || "航空运输".equals(shippingMethod)) {
-            daysToAdd = 3; // 空运最快
-        } else if ("Sea Freight".equals(shippingMethod) || "海运".equals(shippingMethod)) {
-            daysToAdd = 30; // 海运最慢
-        } else if ("Express".equals(shippingMethod) || "快递".equals(shippingMethod)) {
-            daysToAdd = 2; // 特快
-        } else if ("Ground".equals(shippingMethod) || "陆运".equals(shippingMethod)) {
-            daysToAdd = 10; // 陆运
+        // Adjust time based on shipping method
+        if ("Air Freight".equals(shippingMethod)) {
+            daysToAdd = 3; // Air freight is fastest
+        } else if ("Sea Freight".equals(shippingMethod)) {
+            daysToAdd = 30; // Sea freight is slowest
+        } else if ("Express".equals(shippingMethod)) {
+            daysToAdd = 2; // Express
+        } else if ("Ground".equals(shippingMethod)) {
+            daysToAdd = 10; // Ground transportation
         }
 
-        // 根据目的地调整时间
-        if (destination.contains("Boston") || destination.contains("波士顿")
-                || destination.contains("New York") || destination.contains("纽约")) {
-            daysToAdd += 10; // 美国东海岸
-        } else if (destination.contains("LA") || destination.contains("Los Angeles")
-                || destination.contains("洛杉矶")) {
-            daysToAdd += 12; // 美国西海岸
-        } else if (destination.contains("Cancun") || destination.contains("坎昆")
-                || destination.contains("Guanajuato")) {
-            daysToAdd += 15; // 墨西哥
-        } else if (destination.contains("上海") || destination.contains("Beijing")
-                || destination.contains("北京") || destination.contains("广州")
-                || destination.contains("深圳") || destination.contains("杭州")) {
-            daysToAdd = 1; // 国内城市
+        // Adjust time based on destination
+        if (destination.contains("Boston") || destination.contains("New York")) {
+            daysToAdd += 10; // US East Coast
+        } else if (destination.contains("LA") || destination.contains("Los Angeles")) {
+            daysToAdd += 12; // US West Coast
+        } else if (destination.contains("Cancun") || destination.contains("Guanajuato")) {
+            daysToAdd += 15; // Mexico
+        } else if (destination.contains("Shanghai") || destination.contains("Beijing") 
+                || destination.contains("Guangzhou") || destination.contains("Shenzhen") 
+                || destination.contains("Hangzhou")) {
+            daysToAdd = 1; // Domestic cities
         }
 
         cal.add(Calendar.DAY_OF_MONTH, daysToAdd);
         return cal.getTime();
     }
 
-// 辅助方法：查找物流组织
+// Helper method: Find logistics organization
     private LogisticsOrganization findLogisticsOrganization() {
         try {
-            // 1. 首先尝试使用全局实例
+            // 1. First try using global instance
             if (ConfigureASystem.logisticsOrg != null) {
                 System.out.println("Using global LogisticsOrganization instance");
                 return ConfigureASystem.logisticsOrg;
             }
 
-            // 2. 如果全局实例不可用，从系统中查找
+            // 2. If global instance not available, search in the system
             EcoSystem system = EcoSystem.getInstance();
             if (system == null) {
                 throw new Exception("System instance is null");
@@ -851,7 +866,7 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
                             }
                         }
 
-                        // 如果找到企业但没有物流组织，创建一个
+                        // If enterprise found but no logistics organization, create one
                         System.out.println("Creating new LogisticsOrganization in existing enterprise");
                         LogisticsOrganization newOrg = (LogisticsOrganization) enterprise.getOrganizationDirectory()
                                 .createOrganization(Organization.Type.Logistics);
@@ -870,7 +885,7 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
         }
     }
 
-// 辅助方法：创建Shipment对象
+// Helper method: Create Shipment object
     private Shipment createShipment(WarehouseWorkRequest request) {
         Shipment shipment = new Shipment();
         shipment.setShipmentId(request.getShipmentId());
@@ -885,7 +900,7 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
         shipment.setShipDate(new Date());
         shipment.setEstimatedDeliveryDate(request.getEstimatedDeliveryDate());
 
-        // 添加初始跟踪记录
+        // Add initial tracking record
         TrackingInfo trackingInfo = new TrackingInfo();
         trackingInfo.setShipmentId(shipment.getShipmentId());
         trackingInfo.setTimestamp(new Date());
@@ -897,5 +912,164 @@ public class WarehouseManagerHomePage extends javax.swing.JPanel {
         shipment.addTrackingInfo(trackingInfo);
 
         return shipment;
+    }
+
+    /**
+     * Refresh order table data based on filter settings
+     */
+    private void refreshOrderTable() {
+        System.out.println("Order table refresh method not implemented in this version");
+    }
+    
+    /**
+     * Refresh shipment table data based on filter settings
+     */
+    private void refreshShipmentTable() {
+        System.out.println("Shipment table refresh method not implemented in this version");
+    }
+
+    private void notifyWarehouse() {
+        // Implementation for warehouse notification
+    }
+
+    // Order processing methods
+    private void processSelectedOrder() {
+        System.out.println("Process selected order method not implemented in this version");
+    }
+    
+    private boolean updateInventoryForOrder(Order order) {
+        return true;
+    }
+    
+    private Product findProductById(String productId) {
+        return null;
+    }
+
+    /**
+     * Order shipment integration with logistics system
+     */
+    private void createShipmentForOrder() {
+        System.out.println("Create shipment for order method not implemented in this version");
+    }
+    
+    // Helper method (to be implemented when needed)
+    private void createLogisticsRequest(Order order) {
+        // Implementation will be added when the required components are available
+    }
+
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        ViewProductDetails.setBackground(new Color(240, 245, 255));
+        jPanel1.setBackground(new Color(240, 245, 255));
+        
+        // Style all buttons
+        styleButton(btnBack);
+        styleButton(btnRefresh);
+        styleButton(btnRemoveOrderItem);
+        styleButton(btnSearch1);
+        styleButton(btnShip);
+        styleButton(btnShipQuantity);
+        
+        // Style all text fields
+        styleTextField(txtSearchProductID);
+        styleTextField(txtshipQuantity);
+        
+        // Style all labels
+        styleTitleLabel(lblTitle);
+        styleTitleLabel(lblTitle1);
+        styleTitleLabel(lblTitle2);
+        styleLabel(lblProductId1);
+        
+        // Style tables
+        styleTable(tblProductCatalog);
+        styleTable(tblshipCart);
+    }
+    
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(35, 100, 190)); // Lighter blue on hover
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(26, 79, 156)); // Back to normal
+            }
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(13, 60, 130)); // Darker when pressed
+            }
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(35, 100, 190)); // Back to hover
+            }
+        });
+    }
+    
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51));    // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156));   // Medium blue cursor
+        textField.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+    }
+    
+    private void styleTitleLabel(JLabel label) {
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 18));
+        label.setForeground(new Color(13, 25, 51)); // Dark blue text
+        label.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
+    }
+    
+    private void styleLabel(JLabel label) {
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        label.setForeground(new Color(13, 25, 51)); // Dark blue text
+        label.setBorder(BorderFactory.createEmptyBorder(5, 2, 5, 2));
+    }
+    
+    private void styleTable(JTable table) {
+        // Style the header
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(new Color(26, 79, 156)); // Medium blue
+        header.setForeground(Color.WHITE);
+        header.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+        header.setBorder(new LineBorder(new Color(13, 60, 130), 1));
+        
+        // Style the table
+        table.setBackground(Color.WHITE);
+        table.setForeground(new Color(13, 25, 51)); // Dark blue text
+        table.setGridColor(new Color(230, 230, 230));
+        table.setRowHeight(25);
+        table.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        table.setSelectionBackground(new Color(232, 242, 254)); // Very light blue
+        table.setSelectionForeground(new Color(13, 25, 51)); // Keep text dark
+        
+        // Add custom cell renderer for alternating row colors
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 245, 250));
+                }
+                
+                return c;
+            }
+        });
     }
 }

@@ -15,6 +15,11 @@ import Business.WorkQueue.MerchantWorkRequest;
 import Business.WorkQueue.WorkRequest;
 import java.util.List;
 import java.util.ArrayList;
+import java.awt.Color;
+import javax.swing.BorderFactory;
+import javax.swing.border.LineBorder;
+import javax.swing.table.JTableHeader;
+import java.awt.Component;
 
 /**
  *
@@ -38,8 +43,148 @@ public class ViewMerchantRequestsJPanel extends javax.swing.JPanel {
         //warehouse = Warehouse.getInstance();
         setupListeners();
         
-        // 加载所有merchant采购请求
+        // Load all merchant purchase requests
         loadMerchantRequests();
+        
+        // Apply UI theme
+        setupTheme();
+    }
+
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        jPanel1.setBackground(new Color(240, 245, 255));
+        
+        // Style buttons
+        styleButton(btnSearch);
+        styleButton(btnRefresh);
+        styleButton(btnBack);
+        
+        // Style text fields
+        styleTextField(txtSearchRequestID);
+        
+        // Style combo box
+        styleComboBox(StatusjComboBox);
+        
+        // Style labels
+        styleTitleLabel(lblTitle);
+        styleLabel(jLabel1);
+        
+        // Style table
+        styleTable(RequestTable1);
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+    }
+    
+    /**
+     * Apply consistent styling to a text field
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51)); // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156)); // Medium blue cursor
+        textField.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+    }
+    
+    /**
+     * Style a combo box to match the theme
+     * @param comboBox ComboBox to style
+     */
+    private void styleComboBox(JComboBox comboBox) {
+        comboBox.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        comboBox.setForeground(new Color(13, 25, 51)); // Dark blue text
+        comboBox.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        comboBox.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        
+        // Style the UI if possible
+        try {
+            comboBox.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
+                @Override
+                protected JButton createArrowButton() {
+                    JButton button = super.createArrowButton();
+                    button.setBackground(new Color(26, 79, 156));
+                    button.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224)));
+                    return button;
+                }
+            });
+        } catch (Exception e) {
+            System.out.println("Could not fully style combo box: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Apply title label styling
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 20));
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+    }
+    
+    /**
+     * Style table with consistent theme
+     * @param table Table to style
+     */
+    private void styleTable(JTable table) {
+        // Style table header
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(new Color(26, 79, 156));
+        header.setForeground(Color.WHITE);
+        header.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+        header.setBorder(new LineBorder(new Color(13, 60, 130)));
+        
+        // Style table - using darker colors for better visibility
+        table.setBackground(new Color(240, 240, 250)); // Slightly darker background
+        table.setForeground(new Color(0, 0, 0)); // Black text for maximum contrast
+        table.setGridColor(new Color(180, 195, 235)); // Darker grid lines
+        table.setSelectionBackground(new Color(90, 141, 224));
+        table.setSelectionForeground(Color.WHITE);
+        table.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14)); // Bold font for better visibility
+        table.setRowHeight(30); // Slightly increase row height for better readability
+        
+        // Set alternating row colors with more contrast
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? new Color(240, 240, 250) : new Color(220, 220, 235));
+                    c.setForeground(new Color(0, 0, 0)); // Ensure text is always black for maximum contrast
+                }
+                return c;
+            }
+        });
+        
+        // Style scroll pane
+        jScrollPane1.setBorder(new LineBorder(new Color(26, 79, 156)));
     }
 
     private void setupCartTable() {
@@ -55,50 +200,50 @@ public class ViewMerchantRequestsJPanel extends javax.swing.JPanel {
     }
     
     private void loadMerchantRequests() {
-        // 清空表格
+        // Clear the table
         DefaultTableModel model = (DefaultTableModel) RequestTable1.getModel();
         model.setRowCount(0);
         
-        // 打印调试信息
-        System.out.println("开始加载商家请求表格...");
+        // Print debug information
+        System.out.println("Starting to load merchant request table...");
         
-        // 从EcoSystem获取商家请求
+        // Get merchant requests from EcoSystem
         List<WorkRequest> requests = new ArrayList<>();
         Business.EcoSystem system = Business.EcoSystem.getInstance();
         if (system.getWorkQueue() != null) {
-            System.out.println("系统工作队列存在，请求总数: " + system.getWorkQueue().getWorkRequestList().size());
+            System.out.println("System work queue exists, total requests: " + system.getWorkQueue().getWorkRequestList().size());
             for (WorkRequest req : system.getWorkQueue().getWorkRequestList()) {
                 if (req instanceof MerchantWorkRequest) {
                     MerchantWorkRequest merchantReq = (MerchantWorkRequest) req;
-                    // 确保至少有产品ID才添加请求
+                    // Ensure request has at least a product ID before adding
                     if (merchantReq.getProductId() != null && !merchantReq.getProductId().trim().isEmpty()) {
                         requests.add(req);
-                        System.out.println("找到有效商家请求: 产品=" + merchantReq.getProductName() + 
+                        System.out.println("Found valid merchant request: Product=" + merchantReq.getProductName() + 
                                          ", ID=" + merchantReq.getProductId() + 
-                                         ", 状态=" + merchantReq.getStatus());
+                                         ", Status=" + merchantReq.getStatus());
                     } else {
-                        System.out.println("跳过无效请求: 产品ID为空");
+                        System.out.println("Skipping invalid request: Product ID is empty");
                     }
                 }
             }
         } else {
-            System.err.println("错误: 系统工作队列为空");
+            System.err.println("Error: System work queue is empty");
         }
         
         if (requests.isEmpty()) {
-            System.out.println("未找到有效商家请求，显示表格为空!");
+            System.out.println("No valid merchant requests found, table will be empty!");
             return;
         }
         
-        System.out.println("共找到 " + requests.size() + " 个有效商家请求");
+        System.out.println("Found " + requests.size() + " valid merchant requests");
         
-        // 过滤请求（根据下拉框状态）
+        // Filter requests (based on dropdown status)
         String selectedStatus = StatusjComboBox.getSelectedItem().toString();
         String searchId = txtSearchRequestID.getText().trim();
         
-        System.out.println("筛选条件 - 状态: " + selectedStatus + ", 搜索文本: " + searchId);
+        System.out.println("Filter criteria - Status: " + selectedStatus + ", Search text: " + searchId);
         
-        // 如果搜索框包含默认提示文本，则视为空搜索
+        // If search box contains default hint text, treat as empty search
         if ("Saerch Request ID...".equals(searchId)) {
             searchId = "";
         }
@@ -107,47 +252,47 @@ public class ViewMerchantRequestsJPanel extends javax.swing.JPanel {
         for (WorkRequest request : requests) {
             MerchantWorkRequest merchantRequest = (MerchantWorkRequest) request;
             
-            // 创建请求ID：REQ-产品ID
+            // Create request ID: REQ-ProductID
             String requestId = "REQ-" + merchantRequest.getProductId();
             
-            // 根据状态筛选
+            // Filter by status
             boolean statusMatch = "All".equals(selectedStatus) || selectedStatus.isEmpty() || 
                            merchantRequest.getStatus() == null || merchantRequest.getStatus().equals(selectedStatus);
             
-            // 根据ID或产品名称筛选
+            // Filter by ID or product name
             boolean searchMatch = searchId.isEmpty() || 
                            requestId.toLowerCase().contains(searchId.toLowerCase()) || 
                            (merchantRequest.getProductName() != null && 
                             merchantRequest.getProductName().toLowerCase().contains(searchId.toLowerCase()));
             
-            System.out.println("检查请求 " + requestId + " - 状态匹配: " + statusMatch + ", 搜索匹配: " + searchMatch);
+            System.out.println("Checking request " + requestId + " - Status match: " + statusMatch + ", Search match: " + searchMatch);
             
             if (statusMatch && searchMatch) {
-                // 防止空值引起的错误
+                // Prevent errors from null values
                 String displayProductName = merchantRequest.getProductName() != null ? 
-                                          merchantRequest.getProductName() : "未命名产品";
+                                          merchantRequest.getProductName() : "Unnamed Product";
                 String displayStatus = merchantRequest.getStatus() != null ? 
                                      merchantRequest.getStatus() : "Pending";
                 
-                // 创建表格行
+                // Create table row
                 Object[] row = new Object[5];
-                // 表格列: Request ID, Product Name, Quantity, Update Date, Status
-                row[0] = requestId;                        // 请求ID
-                row[1] = displayProductName;               // 产品名称
-                row[2] = merchantRequest.getRequestedAmount(); // 请求数量
-                row[3] = merchantRequest.getRequestDate(); // 更新日期
-                row[4] = displayStatus;                    // 状态
+                // Table columns: Request ID, Product Name, Quantity, Update Date, Status
+                row[0] = requestId;                        // Request ID
+                row[1] = displayProductName;               // Product Name
+                row[2] = merchantRequest.getRequestedAmount(); // Requested Amount
+                row[3] = merchantRequest.getRequestDate(); // Update Date
+                row[4] = displayStatus;                    // Status
                 
                 model.addRow(row);
                 addedRows++;
                 
-                System.out.println("添加到表格: " + displayProductName + 
-                                 ", 状态: " + displayStatus +
-                                 ", 请求数量: " + merchantRequest.getRequestedAmount());
+                System.out.println("Added to table: " + displayProductName + 
+                                 ", Status: " + displayStatus +
+                                 ", Requested amount: " + merchantRequest.getRequestedAmount());
             }
         }
         
-        System.out.println("表格加载完成，共添加了 " + addedRows + " 行数据");
+        System.out.println("Table loading complete, added " + addedRows + " rows of data");
     }
     
     private void refreshRequestTable() {
@@ -361,58 +506,58 @@ public class ViewMerchantRequestsJPanel extends javax.swing.JPanel {
     // End of variables declaration//GEN-END:variables
 
     
-    // 添加构造函数后的初始化代码，确保组件监听器正确注册
+    // Setup code after constructor to ensure component listeners are correctly registered
     private void setupListeners() {
-        System.out.println("设置监听器...");
+        System.out.println("Setting up listeners...");
         
-        // 为状态下拉框添加动作监听器
-        // 先移除所有现有监听器，避免重复注册
+        // Add action listener for status dropdown
+        // First remove all existing listeners to avoid duplicate registration
         for (java.awt.event.ActionListener al : StatusjComboBox.getActionListeners()) {
             StatusjComboBox.removeActionListener(al);
         }
         
         StatusjComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                System.out.println("状态下拉框选择变更: " + StatusjComboBox.getSelectedItem());
+                System.out.println("Status dropdown selection changed: " + StatusjComboBox.getSelectedItem());
                 StatusjComboBoxActionPerformed(evt);
             }
         });
         
-        System.out.println("状态下拉框监听器已添加");
+        System.out.println("Status dropdown listener added");
         
-        // 为请求表添加鼠标点击监听器，以便显示详细信息
+        // Add mouse click listener to request table for displaying details
         RequestTable1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                if (evt.getClickCount() == 2) { // 双击
+                if (evt.getClickCount() == 2) { // Double click
                     int selectedRow = RequestTable1.getSelectedRow();
                     if (selectedRow >= 0) {
-                        System.out.println("表格行双击: " + selectedRow);
+                        System.out.println("Table row double-clicked: " + selectedRow);
                         displayRequestDetails(selectedRow);
                     }
                 }
             }
         });
         
-        System.out.println("表格鼠标监听器已添加");
+        System.out.println("Table mouse listener added");
         
-        // 为搜索按钮添加额外的调试输出
+        // Add extra debug output for search button
         btnSearch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                System.out.println("搜索按钮点击, 搜索内容: " + txtSearchRequestID.getText());
+                System.out.println("Search button clicked, search content: " + txtSearchRequestID.getText());
                 loadMerchantRequests();
             }
         });
         
-        // 为刷新按钮添加额外的调试输出
+        // Add extra debug output for refresh button
         btnRefresh.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                System.out.println("刷新按钮点击");
+                System.out.println("Refresh button clicked");
                 loadMerchantRequests();
             }
         });
     }
     
-    // 显示请求详细信息
+    // Display request details
     private void displayRequestDetails(int selectedRow) {
         try {
             String requestId = RequestTable1.getValueAt(selectedRow, 0).toString();
@@ -421,45 +566,45 @@ public class ViewMerchantRequestsJPanel extends javax.swing.JPanel {
             String status = RequestTable1.getValueAt(selectedRow, 4).toString();
             
             StringBuilder details = new StringBuilder();
-            details.append("请求详情:\n\n");
-            details.append("请求ID: ").append(requestId).append("\n");
-            details.append("产品名称: ").append(productName).append("\n");
-            details.append("请求数量: ").append(quantity).append("\n");
-            details.append("状态: ").append(status).append("\n");
+            details.append("Request Details:\n\n");
+            details.append("Request ID: ").append(requestId).append("\n");
+            details.append("Product Name: ").append(productName).append("\n");
+            details.append("Requested Quantity: ").append(quantity).append("\n");
+            details.append("Status: ").append(status).append("\n");
             
-            // 查找请求对象获取更多信息
+            // Find request object to get more information
             MerchantWorkRequest foundRequest = findRequestById(requestId);
             if (foundRequest != null) {
-                details.append("价格: $").append(foundRequest.getPrice()).append("\n");
-                details.append("总金额: $").append(foundRequest.getPrice() * foundRequest.getRequestedAmount()).append("\n");
+                details.append("Price: $").append(foundRequest.getPrice()).append("\n");
+                details.append("Total Amount: $").append(foundRequest.getPrice() * foundRequest.getRequestedAmount()).append("\n");
                 
                 if (foundRequest.getSender() != null) {
-                    details.append("请求者: ").append(foundRequest.getSender().getUsername()).append("\n");
+                    details.append("Requester: ").append(foundRequest.getSender().getUsername()).append("\n");
                 }
                 
                 if (foundRequest.getReceiver() != null) {
-                    details.append("处理者: ").append(foundRequest.getReceiver().getUsername()).append("\n");
+                    details.append("Processor: ").append(foundRequest.getReceiver().getUsername()).append("\n");
                 }
                 
                 if (foundRequest.getResolveDate() != null) {
-                    details.append("完成日期: ").append(foundRequest.getResolveDate()).append("\n");
+                    details.append("Completion Date: ").append(foundRequest.getResolveDate()).append("\n");
                 }
             }
             
             JOptionPane.showMessageDialog(this, 
                     details.toString(), 
-                    "请求详情", 
+                    "Request Details", 
                     JOptionPane.INFORMATION_MESSAGE);
             
         } catch (Exception e) {
-            System.err.println("显示请求详情时出错: " + e.getMessage());
+            System.err.println("Error displaying request details: " + e.getMessage());
             e.printStackTrace();
         }
     }
     
-    // 根据ID查找请求
+    // Find request by ID
     private MerchantWorkRequest findRequestById(String requestId) {
-        // 移除前缀
+        // Remove prefix
         String productId = requestId.replace("REQ-", "");
         
         Business.EcoSystem system = Business.EcoSystem.getInstance();
