@@ -634,7 +634,7 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
 
     private void btnSubmitDocsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitDocsActionPerformed
         // TODO add your handling code here:
-        // 检查 userProcessContainer 和 organization 是否为 null
+        // Check if userProcessContainer is null
         if (userProcessContainer == null) {
             System.out.println("Warning: userProcessContainer is null");
             JOptionPane.showMessageDialog(this,
@@ -644,11 +644,20 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
             return;
         }
 
-        // 创建并显示提交文档面板
+        // Show a message that this feature is not yet implemented
+        JOptionPane.showMessageDialog(this,
+                "The Submit Documents feature is not yet implemented.",
+                "Feature Not Available",
+                JOptionPane.INFORMATION_MESSAGE);
+        
+        // Code below is commented out until the SubmitDoc class is implemented
+        /*
+        // Create and display submit documents panel
         SubmitDoc submitPanel = new SubmitDoc(userProcessContainer, userAccount, organization);
         userProcessContainer.add("SubmitDocuments", submitPanel);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.show(userProcessContainer, "SubmitDocuments");
+        */
     }//GEN-LAST:event_btnSubmitDocsActionPerformed
 
     private void btnDashBoardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDashBoardActionPerformed
@@ -749,7 +758,6 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         // Create DocumentReview instance
         DocumentReview documentReview = new DocumentReview(userProcessContainer, userAccount, organization);
         documentReview.setSelectedDeclarationId(declarationId);
-        documentReview.setParentPanel(this); // Pass this as the parent panel
 
         // Show DocumentReview panel
         userProcessContainer.add("DocumentReview", documentReview);
