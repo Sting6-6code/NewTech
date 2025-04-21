@@ -8,6 +8,7 @@ import Business.Customs.TaxReturnDirectory;
 import Business.Logistics.CustomsDeclarationDirectory;
 import Business.Role.CustomsAgentRole;
 import Business.Role.Role;
+import Business.WorkQueue.WorkQueue;
 import java.util.ArrayList;
 
 /**
@@ -22,6 +23,10 @@ public class CustomsLiaisonOrganization extends Organization {
         super(Organization.Type.CustomsAgent.getValue());
         taxReturnDirectory = new TaxReturnDirectory();
         customsDeclarationDirectory = new CustomsDeclarationDirectory();
+        
+        if (this.getWorkQueue() == null) {
+           this.setWorkQueue(new WorkQueue());
+       }
     }
     
     public TaxReturnDirectory getTaxReturnDirectory() {

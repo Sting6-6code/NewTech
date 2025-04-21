@@ -40,6 +40,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import Business.Product.SalesRecord;
 import Business.Role.FintechRole;
+import Business.WorkQueue.LogisticsWorkRequest;
 
 /**
  *
@@ -75,7 +76,7 @@ public class ConfigureASystem {
         UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("l", "****", employee5, new CustomsAgentRole());
         UserAccount logistics = system.getUserAccountDirectory().createUserAccount("t", "****", employee6, new LogisticsCoordinatorRole());
         UserAccount warehouse = system.getUserAccountDirectory().createUserAccount("w", "****", employee7, new WarehouseManagerRole());
-        UserAccount fintech = system.getUserAccountDirectory().createUserAccount("pay", "****", employee8, new FintechRole());
+        UserAccount fintech = system.getUserAccountDirectory().createUserAccount("pay", "pay", employee8, new FintechRole());
 
         // 初始化仓库和商品
         initializeWarehouse();
@@ -267,6 +268,8 @@ public class ConfigureASystem {
                         if (logisticsOrg != null && logisticsOrg.getCustomsDeclarationDirectory() != null) {
                             customsLiaisonOrg.setCustomsDeclarationDirectory(logisticsOrg.getCustomsDeclarationDirectory());
                             System.out.println("Shared customs declarations with customs liaison organization");
+                            
+                            createWorkRequestsForCustomsDeclarations(customsLiaisonOrg);
                         }
                     } else {
                         System.out.println("ERROR: Created organization is not CustomsLiaisonOrganization");
@@ -707,7 +710,7 @@ public class ConfigureASystem {
             System.out.println("Error: Cannot create sample customs declarations - logistics organization is null");
             return;
         }
-
+        
         // 确保报关单目录存在
         CustomsDeclarationDirectory declarationDir;
         if (logistics.getCustomsDeclarationDirectory() == null) {
@@ -904,7 +907,7 @@ public class ConfigureASystem {
         CustomsDeclaration declaration5 = new CustomsDeclaration();
         declaration5.setDeclarationId("CD202504030005");
         declaration5.setShipmentId("TRK005");  // 对应TRK005
-        declaration5.setStatus("Approved");
+        declaration5.setStatus("Information Needed");
 
         // 设置日期 (20天前)
         cal = Calendar.getInstance();
@@ -1658,6 +1661,105 @@ public class ConfigureASystem {
         declaration10.setItems(items10);
         declarationDir.addCustomsDeclaration(declaration10);
 
+        
         System.out.println("Created " + declarationDir.getCustomsDeclarationList().size() + " sample customs declarations");
     }
+
+    // Add this to ConfigureASystem.java
+    public static Enterprise findEnterpriseForOrganization(Organization organization) {
+        try {
+            // If the organization is null, return null
+            if (organization == null) {
+                System.out.println("Cannot find enterprise for null organization");
+                return null;
+            }
+
+            // Get the EcoSystem
+            EcoSystem system = EcoSystem.getInstance();
+            if (system == null || system.getNetworkList() == null) {
+                System.out.println("System or network list is null");
+                return null;
+            }
+
+            // For logisticsOrg, we know it's created in the LogisticsGroupEnterprise
+            if (organization instanceof LogisticsOrganization && organization == logisticsOrg) {
+                // Find the LogisticsGroupEnterprise first
+                for (Network network : system.getNetworkList()) {
+                    if (network.getEnterpriseDirectory() == null) {
+                        continue;
+                    }
+
+                    for (Enterprise enterprise : network.getEnterpriseDirectory().getEnterpriseList()) {
+                        if (enterprise instanceof LogisticsGroupEnterprise) {
+                            if (enterprise.getOrganizationDirectory().getOrganizationList().contains(organization)) {
+                                return enterprise;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // General case: search for any organization in any enterprise
+            for (Network network : system.getNetworkList()) {
+                if (network.getEnterpriseDirectory() == null) {
+                    continue;
+                }
+
+                for (Enterprise enterprise : network.getEnterpriseDirectory().getEnterpriseList()) {
+                    if (enterprise.getOrganizationDirectory() == null) {
+                        continue;
+                    }
+
+                    for (Organization org : enterprise.getOrganizationDirectory().getOrganizationList()) {
+                        if (org == organization) {
+                            return enterprise;
+                        }
+                    }
+                }
+            }
+
+            System.out.println("Could not find parent enterprise for organization: " + organization.getName());
+            return null;
+        } catch (Exception e) {
+            System.out.println("Error in findEnterpriseForOrganization: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    private static void createWorkRequestsForCustomsDeclarations(CustomsLiaisonOrganization customsOrg) {
+       if (customsOrg == null || customsOrg.getCustomsDeclarationDirectory() == null) {
+           System.out.println("Cannot create work requests: organization or declaration directory is null");
+           return;
+       }
+       
+       int count = 0;
+       for (CustomsDeclaration declaration : customsOrg.getCustomsDeclarationDirectory().getCustomsDeclarationList()) {
+           // 创建工作请求
+           LogisticsWorkRequest request = new LogisticsWorkRequest();
+           
+           // 设置基本信息
+           request.setDeclarationId(declaration.getDeclarationId());
+           request.setShipmentId(declaration.getShipmentId());
+           request.setDeclarationType(declaration.getDeclarationType());
+           request.setConsignor(declaration.getConsignor());
+           request.setConsignee(declaration.getConsignee());
+           request.setCountryOfOrigin(declaration.getCountryOfOrigin());
+           request.setDestinationCountry(declaration.getDestinationCountry());
+           request.setNotes(declaration.getNotes());
+           
+           // 设置状态和日期
+           request.setStatus("Submitted");
+           request.setRequestDate(declaration.getDeclarationDate() != null ? 
+                                  declaration.getDeclarationDate() : new Date());
+           
+           // 添加到工作队列
+           customsOrg.getWorkQueue().getWorkRequestList().add(request);
+           count++;
+       }
+       
+       System.out.println("Created " + count + " work requests for customs declarations");
+   }
+    
+    
 }

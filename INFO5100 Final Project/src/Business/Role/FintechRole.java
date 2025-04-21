@@ -9,7 +9,6 @@ import Business.Enterprise.Enterprise;
 import Business.Organization.Organization;
 import Business.UserAccount.UserAccount;
 import javax.swing.JPanel;
-import ui.AdminRole.AdminHP;
 import ui.fintech.FintechHomepage;
 
 /**
@@ -23,7 +22,7 @@ public class FintechRole extends Role {
     
     @Override
     public JPanel createWorkArea(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-//        if (organization == null || !(organization instanceof Organization)) {
+//        if (organization == null || !(organization instanceof AdminOrganization)) {
 //            AdminOrganization ao = new AdminOrganization();
 //            return new ui.AdminRole.AdminHP(userProcessContainer, account, enterprise, ao, business);
 //        }
