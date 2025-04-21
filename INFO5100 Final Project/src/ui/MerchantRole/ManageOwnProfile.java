@@ -10,6 +10,12 @@ import java.awt.CardLayout;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import ui.AdminRole.*;
+import java.awt.Color;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import java.awt.Font;
 
 /**
  *
@@ -33,12 +39,22 @@ public class ManageOwnProfile extends javax.swing.JPanel {
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
 
-        // 初始化用户信息
+        // Initialize user information
         populateUserInfo();
         
-        // 初始禁用字段
+        // Initially disable fields
         setFieldsEditable(false);
         btnSave.setEnabled(false);
+        
+        // Add title label
+        titleLabel = new javax.swing.JLabel("My Profile");
+        titleLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
+        titleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        titleLabel.setBounds(0, 10, this.getWidth(), 30);
+        this.add(titleLabel);
+        
+        // Apply UI theme
+        setupTheme();
     }
 
     /**
@@ -223,6 +239,77 @@ public class ManageOwnProfile extends javax.swing.JPanel {
     private void setFieldsEditable(boolean editable) {
         txtUN.setEditable(editable);
         txtPW.setEditable(editable);
+    }
+
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        
+        // Style buttons
+        styleButton(btnBack);
+        styleButton(btnUpdate);
+        styleButton(btnSave);
+        
+        // Style text fields
+        styleTextField(txtUN);
+        styleTextField(txtPW);
+        
+        // Style labels
+        styleLabel(lblUN);
+        styleLabel(lblPW);
+        if (titleLabel != null) {
+            styleTitleLabel(titleLabel);
+        }
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+    }
+    
+    /**
+     * Apply consistent styling to a text field
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51)); // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156)); // Medium blue cursor
+        textField.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+    }
+    
+    /**
+     * Apply title label styling
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
     }
 
 }

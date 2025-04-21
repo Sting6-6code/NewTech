@@ -32,6 +32,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
 import javax.swing.table.DefaultTableModel;
+import java.awt.Color;
+import javax.swing.JTextField;
+import javax.swing.JTable;
+import javax.swing.border.LineBorder;
+import javax.swing.table.JTableHeader;
 
 /**
  *
@@ -70,7 +75,158 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         this.parentPanel = parentPanel;
 
         populateTable();
-
+        
+        // Apply unified UI style
+        setupTheme();
+    }
+    
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background colors
+        this.setBackground(new Color(240, 245, 255));
+        jPanel1.setBackground(new Color(240, 245, 255));
+        basicInfoJPanel.setBackground(new Color(240, 245, 255));
+        
+        // Style buttons
+        styleAllButtons();
+        
+        // Style text fields
+        styleAllTextFields();
+        
+        // Style labels
+        styleAllLabels();
+        
+        // Style table
+        styleTable(tblShipment);
+    }
+    
+    /**
+     * Apply consistent styling to all buttons
+     */
+    private void styleAllButtons() {
+        styleButton(btnBack);
+        styleButton(btnRefresh);
+        styleButton(btnSearch);
+        styleButton(btnViewDetails);
+        styleButton(btnBasicInfo);
+        styleButton(btnUpdate);
+        styleButton(btnSave3);
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // 中蓝色
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+    }
+    
+    /**
+     * Apply consistent styling to all text fields
+     */
+    private void styleAllTextFields() {
+        styleTextField(txtSearchBox);
+        styleTextField(txtTrcNo);
+        styleTextField(txtShippingDate);
+        styleTextField(txtShippingMethod);
+        styleTextField(txtDestination);
+        styleTextField(txtStatus);
+    }
+    
+    /**
+     * Apply consistent styling to a text field
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // 浅灰白色背景
+        textField.setForeground(new Color(13, 25, 51)); // 深蓝色文字
+        textField.setCaretColor(new Color(26, 79, 156)); // 中蓝色光标
+        textField.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+    }
+    
+    /**
+     * Apply consistent styling to all labels
+     */
+    private void styleAllLabels() {
+        // Style title labels
+        styleTitleLabel(lblLogisticsTracking);
+        styleTitleLabel(lblTrackDetails);
+        
+        // Style regular labels
+        styleLabel(lblTrackingNo);
+        styleLabel(lblTraNo);
+        styleLabel(lblShippingDate);
+        styleLabel(lblShippingMethod);
+        styleLabel(lblDestination);
+        styleLabel(lblStatus);
+    }
+    
+    /**
+     * Apply title label styling
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+    }
+    
+    /**
+     * Style table with consistent theme
+     * @param table Table to style
+     */
+    private void styleTable(JTable table) {
+        // Style table header
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(new Color(26, 79, 156));
+        header.setForeground(Color.WHITE);
+        header.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        header.setBorder(new LineBorder(new Color(13, 60, 130)));
+        
+        // Style table - using darker colors for better visibility
+        table.setBackground(new Color(240, 240, 250)); // Slightly darker background
+        table.setForeground(new Color(0, 0, 0)); // Black text for maximum contrast
+        table.setGridColor(new Color(180, 195, 235)); // Darker grid lines
+        table.setSelectionBackground(new Color(90, 141, 224));
+        table.setSelectionForeground(Color.WHITE);
+        table.setFont(new Font("Helvetica Neue", Font.BOLD, 14)); // Bold font for better visibility
+        table.setRowHeight(30); // Increase row height for better readability
+        
+        // Set alternating row colors with more contrast
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? new Color(240, 240, 250) : new Color(220, 220, 235));
+                    c.setForeground(new Color(0, 0, 0)); // Ensure text is always black for maximum contrast
+                }
+                return c;
+            }
+        });
+        
+        // Style scroll pane
+        jScrollPane1.setBorder(new LineBorder(new Color(26, 79, 156)));
     }
 
     private void setupDetailsCards() {

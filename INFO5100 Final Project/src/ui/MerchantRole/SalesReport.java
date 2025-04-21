@@ -20,6 +20,14 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.CardLayout;
 import javax.swing.JPanel;
 import java.util.Calendar;
+import java.awt.Color;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import javax.swing.border.LineBorder;
+import java.awt.Font;
+import javax.swing.JTextArea;
 
 /**
  *
@@ -39,6 +47,99 @@ public class SalesReport extends javax.swing.JPanel {
         this.userProcessContainer = userProcessContainer;
         this.salesRecordDirectory = new SalesRecordDirectory();
         this.reportModel = new SalesReportModel();
+        
+        // Apply unified UI theme
+        setupTheme();
+    }
+    
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        chartPanel.setBackground(new Color(240, 245, 255));
+        
+        // Style all buttons
+        styleAllButtons();
+        
+        // Style all labels
+        styleAllLabels();
+        
+        // Style text area
+        styleTextArea(jTextArea1);
+    }
+    
+    /**
+     * Apply consistent styling to all buttons
+     */
+    private void styleAllButtons() {
+        styleButton(btnBack);
+        styleButton(btnGenerate);
+        styleButton(btnExport);
+        styleButton(btnPrint);
+        styleButton(btnSwitchChart);
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+    }
+    
+    /**
+     * Apply consistent styling to all labels
+     */
+    private void styleAllLabels() {
+        // Style title labels
+        styleTitleLabel(lblTitle);
+        styleTitleLabel(lblTitle1);
+        styleTitleLabel(lblTitle2);
+        
+        // Style regular labels
+        styleLabel(lblFrom);
+        styleLabel(lblTo);
+    }
+    
+    /**
+     * Apply title label styling
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+    }
+    
+    /**
+     * Style text area with consistent theme
+     * @param textArea TextArea to style
+     */
+    private void styleTextArea(JTextArea textArea) {
+        textArea.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textArea.setForeground(new Color(13, 25, 51)); // Dark blue text
+        textArea.setCaretColor(new Color(26, 79, 156)); // Medium blue cursor
+        textArea.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textArea.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
     }
 
     /**
@@ -234,21 +335,21 @@ public class SalesReport extends javax.swing.JPanel {
         String start = sdf.format(startDateChooser.getDate());
         String end = sdf.format(endDateChooser.getDate());
         
-        // 生成示例数据
+        // Generate sample data
         generateSampleData();
         
-        // 创建报表模型
+        // Create report model
         List<SalesRecord> salesRecords = salesRecordDirectory.getSalesRecordList();
         reportModel = new SalesReportModel(salesRecords, startDateChooser.getDate(), endDateChooser.getDate());
         
-        // 生成报表文本
+        // Generate report text
         StringBuilder report = new StringBuilder();
         report.append("Sales Report from ").append(start).append(" to ").append(end).append("\n\n");
         
-        // 添加总销售额
+        // Add total sales
         report.append("Total Sales: $").append(String.format("%.2f", reportModel.getTotalSales())).append("\n\n");
         
-        // 添加每日销售数据
+        // Add daily sales data
         report.append("Daily Sales:\n");
         Map<Date, Double> dailySales = reportModel.getDailySales();
         for (Map.Entry<Date, Double> entry : dailySales.entrySet()) {
@@ -258,7 +359,7 @@ public class SalesReport extends javax.swing.JPanel {
                  .append("\n");
         }
         
-        // 添加产品销售数据
+        // Add product sales data
         report.append("\nSales by Product:\n");
         Map<String, Double> productSales = reportModel.getSalesByProduct();
         for (Map.Entry<String, Double> entry : productSales.entrySet()) {
@@ -278,7 +379,7 @@ public class SalesReport extends javax.swing.JPanel {
         
         jTextArea1.setText(report.toString());
         
-        // 更新图表
+        // Update chart
         chartPanelBean1.updateChart(reportModel);
     }//GEN-LAST:event_btnGenerateActionPerformed
 
@@ -331,7 +432,7 @@ public class SalesReport extends javax.swing.JPanel {
             try (FileWriter writer = new FileWriter(filePath)) {
                 String[] lines = jTextArea1.getText().split("\n");
                 for (String line : lines) {
-                    // 移除货币符号和其他特殊字符
+                    // Remove currency symbols and other special characters
                     line = line.replace("$", "")
                              .replace(":", ",")
                              .replace(" ", ",")

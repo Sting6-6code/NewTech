@@ -13,6 +13,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import Business.WorkQueue.MerchantWorkRequest;
+import java.awt.Color;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.border.LineBorder;
+import javax.swing.table.JTableHeader;
+import java.awt.Component;
 
 /**
  * Merchant Product Catalog Management Panel
@@ -73,6 +82,183 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         
         // Refresh table
         refreshTable();
+        
+        // Apply UI theme
+        setupTheme();
+    }
+    
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        ViewProductDetails.setBackground(new Color(240, 245, 255));
+        RequestProducts.setBackground(new Color(240, 245, 255));
+        jPanel1.setBackground(new Color(240, 245, 255));
+        jPanel3.setBackground(new Color(240, 245, 255));
+        
+        // Style all buttons
+        styleAllButtons();
+        
+        // Style all text fields
+        styleAllTextFields();
+        
+        // Style all labels
+        styleAllLabels();
+        
+        // Style table
+        styleTable(tblProductCatalog);
+    }
+    
+    /**
+     * Apply consistent styling to all buttons
+     */
+    private void styleAllButtons() {
+        // Style action buttons
+        styleButton(btnView);
+        styleButton(btnBack);
+        styleButton(btnDelete);
+        styleButton(btnRefresh);
+        styleButton(btnSearch1);
+        styleButton(btnRequestProducts);
+        
+        // Style detail panel buttons
+        styleButton(btnUpdate2);
+        styleButton(btnSave2);
+        styleButton(btnAdd2);
+        styleButton(btnUpdate3);
+        styleButton(btnSave3);
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+    }
+    
+    /**
+     * Apply consistent styling to all text fields
+     */
+    private void styleAllTextFields() {
+        // Style search fields
+        styleTextField(txtId1);
+        
+        // Style product details fields
+        styleTextField(txtIdView2);
+        styleTextField(txtIdView3);
+        styleTextField(txtProductNameView2);
+        styleTextField(txtProductNameView3);
+        styleTextField(txtProductNameView4);
+        styleTextField(txtPriceView2);
+        styleTextField(txtPriceView3);
+        styleTextField(txtPriceView4);
+        styleTextField(txtProductId);
+        styleTextField(txtRequestQuantity);
+    }
+    
+    /**
+     * Apply consistent styling to a text field
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51));    // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156));   // Medium blue cursor
+        textField.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+    }
+    
+    /**
+     * Apply consistent styling to all labels
+     */
+    private void styleAllLabels() {
+        // Style title labels
+        styleTitleLabel(lblTitle);
+        styleTitleLabel(lblTitle1);
+        styleTitleLabel(lblTitle3);
+        styleTitleLabel(lblTitle4);
+        styleTitleLabel(lblTitle5);
+        
+        // Style regular labels
+        styleLabel(lblProductId1);
+        styleLabel(lblProductName2);
+        styleLabel(lblProductName3);
+        styleLabel(lblProductId3);
+        styleLabel(lblProductId4);
+        styleLabel(lblProductPrice2);
+        styleLabel(lblProductPrice3);
+        styleLabel(lblPID2);
+        styleLabel(lblPrice2);
+        styleLabel(lblPN2);
+        styleLabel(lblAvaila2);
+        
+    }
+    
+    /**
+     * Apply title label styling
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 20));
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+    }
+    
+    /**
+     * Style table with consistent theme
+     * @param table Table to style
+     */
+    private void styleTable(JTable table) {
+        // Style table header
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(new Color(26, 79, 156));
+        header.setForeground(Color.WHITE);
+        header.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+        header.setBorder(new LineBorder(new Color(13, 60, 130)));
+        
+        // Style table - using darker colors for better visibility
+        table.setBackground(new Color(240, 240, 250)); // Slightly darker background
+        table.setForeground(new Color(0, 0, 0)); // Black text for maximum contrast
+        table.setGridColor(new Color(180, 195, 235)); // Darker grid lines
+        table.setSelectionBackground(new Color(90, 141, 224));
+        table.setSelectionForeground(Color.WHITE);
+        table.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14)); // Bold font for better visibility
+        table.setRowHeight(30); // Increase row height for better readability
+        
+        // Set alternating row colors with more contrast
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? new Color(240, 240, 250) : new Color(220, 220, 235));
+                    c.setForeground(new Color(0, 0, 0)); // Ensure text is always black for maximum contrast
+                }
+                return c;
+            }
+        });
+        
+        // Style scroll pane
+        jScrollPane1.setBorder(new LineBorder(new Color(26, 79, 156)));
     }
 
     /**
@@ -151,7 +337,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         lblPN2 = new javax.swing.JLabel();
         lblAvaila2 = new javax.swing.JLabel();
         txtRequestQuantity = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
+        lblTitle5 = new javax.swing.JLabel();
         lblTitle3 = new javax.swing.JLabel();
         txtProductNameView4 = new javax.swing.JTextField();
         txtPriceView4 = new javax.swing.JTextField();
@@ -380,9 +566,9 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         jPanel3.add(lblAvaila2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 170, -1, 30));
         jPanel3.add(txtRequestQuantity, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 180, 220, -1));
 
-        jLabel3.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
-        jLabel3.setText("Request Products");
-        jPanel3.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 20, 220, -1));
+        lblTitle5.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
+        lblTitle5.setText("Request Products");
+        jPanel3.add(lblTitle5, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 20, 220, -1));
 
         lblTitle3.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         lblTitle3.setText("View Product Details");
@@ -585,19 +771,19 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_txtPriceView2ActionPerformed
 
     private void btnUpdate2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdate2ActionPerformed
-        // 无操作
+        // No operation
     }//GEN-LAST:event_btnUpdate2ActionPerformed
 
     private void btnSave2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSave2ActionPerformed
-        // 无操作
+        // No operation
     }//GEN-LAST:event_btnSave2ActionPerformed
 
     private void btnAdd2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd2ActionPerformed
-        // 处理请求按钮点击事件
+        // Handle request button click event
         try {
             System.out.println("Processing product request...");
             
-            // 检查请求数量是否有效
+            // Check if request quantity is valid
             if (txtRequestQuantity.getText().trim().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Please enter the request quantity", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -615,11 +801,11 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
                 return;
             }
             
-            // 从界面获取产品信息
+            // Get product information from the UI
             String productId = txtIdView2.getText();
             String productName = txtProductNameView2.getText();
             
-            // 检查产品信息是否为空
+            // Check if product information is empty
             if (productId == null || productId.trim().isEmpty()) {
                 System.out.println("Product ID is empty, trying to get from hidden field");
                 productId = txtProductId.getText();
@@ -630,7 +816,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
                 productName = txtProductNameView4.getText();
             }
             
-            // 再次检查产品信息
+            // Check product information again
             if (productId == null || productId.trim().isEmpty() || productName == null || productName.trim().isEmpty()) {
                     JOptionPane.showMessageDialog(null, "Unable to identify product information, please select a product again", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -638,7 +824,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             
                 System.out.println( "Product information - Product ID: " + productId + ", Product Name: " + productName + ", Quantity: " + requestedAmount);
             
-            // 检查价格字段是否为空
+            // Check if price field is empty
             if (txtPriceView2.getText() == null || txtPriceView2.getText().trim().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Price cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -647,19 +833,19 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             double price = Double.parseDouble(txtPriceView2.getText().trim());
             System.out.println("Product price: " + price);
             
-            // 创建工作请求
+            // Create work request
             MerchantWorkRequest request = new MerchantWorkRequest();
             request.setProductId(productId);
             request.setProductName(productName);
             request.setPrice(price);
             request.setRequestedAmount(requestedAmount);
             request.setMessage("Merchant requests product: " + productName + " (ID: " + productId + ")");
-            request.setStatus("Pending"); // 设置初始状态为Pending
-            request.setRequestDate(new Date()); // 设置请求日期
+            request.setStatus("Pending"); // Set initial status to Pending
+            request.setRequestDate(new Date()); // Set request date
             
             System.out.println("Request created: " + request.getMessage() + ", Status: " + request.getStatus());
             
-            // 设置发送者，如果有用户账户的话
+            // Set sender if user account exists
             if (Business.EcoSystem.getInstance().getUserAccountDirectory() != null &&
                 !Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList().isEmpty()) {
                 request.setSender(Business.EcoSystem.getInstance().getUserAccountDirectory().getUserAccountList().get(0));
@@ -668,7 +854,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
                 System.out.println("Warning: Unable to set request sender - User account is empty");
             }
             
-            // 获取系统工作队列并添加请求
+            // Get system work queue and add request
             Business.EcoSystem system = Business.EcoSystem.getInstance();
             if (system.getWorkQueue() == null) {
                 System.out.println("System work queue is empty, creating new queue");
@@ -677,7 +863,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             system.getWorkQueue().getWorkRequestList().add(request);
             System.out.println("Request added to system work queue, current queue size: " + system.getWorkQueue().getWorkRequestList().size());
             
-            // 更新产品状态为"已请求"
+            // Update product status to "Requested"
             boolean productFound = false;
             for (Product p : supplier.getProductCatalog()) {
                 if (p.getProductId().equals(productId)) {
@@ -693,16 +879,16 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
                 System.out.println("Warning: Unable to find product in product catalog with ID: " + productId);
             }
             
-            // 刷新表格显示更新后的状态
+            // Refresh table to display updated status
             refreshTable();
             
-            // 显示成功消息
+            // Display success message
             JOptionPane.showMessageDialog(null,
                 "Successfully submitted a purchase request for " + requestedAmount + " " + productName,
                 "Request submitted",
                 JOptionPane.INFORMATION_MESSAGE);
             
-            // 清空请求面板
+            // Clear request panel
             txtRequestQuantity.setText("");
             System.out.println("Product request processing completed");
             
@@ -714,22 +900,22 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnAdd2ActionPerformed
 
     private void txtProductNameView3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtProductNameView3ActionPerformed
-        // 无操作
+        // No operation
     }//GEN-LAST:event_txtProductNameView3ActionPerformed
 
     private void txtPriceView3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPriceView3ActionPerformed
-        // 无操作
+        // No operation
     }//GEN-LAST:event_txtPriceView3ActionPerformed
 
     private void btnUpdate3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdate3ActionPerformed
-        // 允许编辑产品名称和价格
+        // Allow editing of product name and price
         txtProductNameView3.setEditable(true);
         txtPriceView3.setEditable(true);
         btnSave3.setEnabled(true);
     }//GEN-LAST:event_btnUpdate3ActionPerformed
 
     private void btnSave3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSave3ActionPerformed
-        // 保存修改后的产品信息
+        // Save modified product information
         int selectedRowIndex = tblProductCatalog.getSelectedRow();
         if (selectedRowIndex < 0) {
             JOptionPane.showMessageDialog(null, "Please select a row from the table first", "Warning", JOptionPane.WARNING_MESSAGE);
@@ -745,10 +931,10 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             return;
         }
         
-        // 更新时间戳
+        // Update timestamp
         p.setLastUpdated(new Date());
         
-        // 保存后禁止编辑
+        // Disable editing after saving
         txtProductNameView3.setEditable(false);
         txtPriceView3.setEditable(false);
         btnSave3.setEnabled(false);
@@ -758,16 +944,16 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnSave3ActionPerformed
 
     private void btnRequestProductsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRequestProductsActionPerformed
-        // 获取选中的产品行
+        // Get selected product row
         int selectedRowIndex = tblProductCatalog.getSelectedRow();
         
-        // 检查是否有选中的行，以及supplier是否有产品目录
+        // Check if a row is selected and if supplier has a product catalog
         if (selectedRowIndex < 0) {
             JOptionPane.showMessageDialog(null, "Please select a product to request", "Info", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         
-        // 检查商家的产品目录是否为空
+        // Check if merchant's product catalog is empty
         if (supplier == null || supplier.getProductCatalog() == null || supplier.getProductCatalog().isEmpty()) {
             JOptionPane.showMessageDialog(null, "Product catalog is empty, please add products first", "Info", JOptionPane.WARNING_MESSAGE);
             return;
@@ -776,7 +962,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         try {
             System.out.println("Preparing to request product, selected row index: " + selectedRowIndex);
             
-            // 获取产品信息
+            // Get product information
             Product p = supplier.getProductCatalog().get(selectedRowIndex);
             String productId = p.getProductId();
             String productName = p.getProductName();
@@ -784,34 +970,34 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
             
             System.out.println("Got product information - ID: " + productId + ", Name: " + productName + ", Price: " + price);
             
-            // 在请求面板中显示产品信息
+            // Display product information in the request panel
             txtProductNameView2.setText(productName);
             txtIdView2.setText(productId);
             txtPriceView2.setText(String.valueOf(price));
             
-            // 确保价格字段不为空
+            // Ensure price field is not empty
             if (txtPriceView2.getText() == null || txtPriceView2.getText().trim().isEmpty()) {
-                txtPriceView2.setText("0.0"); // 设置默认价格，防止空值异常
+                txtPriceView2.setText("0.0"); // Set default price to prevent null exception
                 System.out.println("Product price is empty, default value 0.0 set");
             }
             
-            // 保存产品名称和ID到隐藏字段，以备后续使用
+            // Save product name and ID to hidden fields for later use
             txtProductNameView4.setText(productName);
             txtProductId.setText(productId);
             
-            // 切换到请求卡片视图
+            // Switch to request card view
             CardLayout layout = (CardLayout) RequestProducts.getLayout();
             layout.show(RequestProducts, "card2");
             
-            // 可选：如果产品库存低，建议请求数量
+            // Optional: If product stock is low, suggest request quantity
             if ("Low".equals(p.getStockStatus())) {
-                txtRequestQuantity.setText("20"); // 建议订购量
+                txtRequestQuantity.setText("20"); // Suggested order quantity
                 JOptionPane.showMessageDialog(null, 
                     "The product is low in stock, please replenish the stock.", 
                     "Stock status", 
                     JOptionPane.INFORMATION_MESSAGE);
             } else {
-                txtRequestQuantity.setText(""); // 清空请求数量
+                txtRequestQuantity.setText(""); // Clear request quantity
             }
             
         } catch (IndexOutOfBoundsException ex) {
@@ -832,11 +1018,11 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnRequestProductsActionPerformed
 
     private void txtProductNameView4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtProductNameView4ActionPerformed
-        // 无操作
+        // No operation
     }//GEN-LAST:event_txtProductNameView4ActionPerformed
 
     private void txtPriceView4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPriceView4ActionPerformed
-        // 无操作
+        // No operation
     }//GEN-LAST:event_txtPriceView4ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -853,7 +1039,6 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
     private javax.swing.JButton btnUpdate2;
     private javax.swing.JButton btnUpdate3;
     private javax.swing.JButton btnView;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
@@ -872,6 +1057,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
     private javax.swing.JLabel lblTitle1;
     private javax.swing.JLabel lblTitle3;
     private javax.swing.JLabel lblTitle4;
+    private javax.swing.JLabel lblTitle5;
     private javax.swing.JTable tblProductCatalog;
     private javax.swing.JTextField txtId1;
     private javax.swing.JTextField txtIdView2;
@@ -887,7 +1073,7 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
     // End of variables declaration//GEN-END:variables
 
     /**
-     * 创建和添加示例产品到商家目录
+     * Create and add sample products to merchant catalog
      */
     private void createAndAddSampleProducts() {
         if (supplier == null) {
@@ -897,21 +1083,21 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         
         System.out.println("Starting to create sample products...");
         
-        // 创建示例产品 - 使用与仓库完全相同的产品ID和名称
+        // Create sample products - using the same product IDs and names as the warehouse
         Product p1 = new Product("SP-001", "Apple iPhone 15 Pro", 799.99, 50, 20);
         Product p2 = new Product("SP-002", "Samsung Galaxy S23", 999.99, 40, 15);
         Product p3 = new Product("LP-001", "MacBook Pro 14\"", 1299.99, 30, 10);
         Product p4 = new Product("HP-001", "Apple AirPods Pro", 199.99, 70, 25);
         Product p5 = new Product("TB-001", "iPad Pro 12.9\"", 499.99, 40, 15);
         
-        // 设置所有产品为上架状态
+        // Set all products to active (upShelf) status
         p1.upShelf();
         p2.upShelf();
         p3.upShelf();
         p4.upShelf();
         p5.upShelf();
         
-        // 设置最后更新时间
+        // Set last updated time
         Date now = new Date();
         p1.setLastUpdated(now);
         p2.setLastUpdated(now);
@@ -919,14 +1105,14 @@ public class ManageProductCatalogJPanel extends javax.swing.JPanel {
         p4.setLastUpdated(now);
         p5.setLastUpdated(now);
         
-        // 添加到商家目录
+        // Add to merchant catalog
         supplier.addProduct(p1);
         supplier.addProduct(p2);
         supplier.addProduct(p3);
         supplier.addProduct(p4);
         supplier.addProduct(p5);
         
-        // 添加一个低库存产品作为示例 - 使用与仓库完全相同的ID
+        // Add a low stock product as an example - using the same ID as the warehouse
         Product lowStockProduct = new Product("SP-003", "Google Pixel 7", 599.99, 5, 15);
         lowStockProduct.upShelf();
         lowStockProduct.setStockStatus("Low");

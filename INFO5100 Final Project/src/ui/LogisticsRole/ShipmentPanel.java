@@ -59,6 +59,7 @@ import javax.swing.table.DefaultTableModel;
 import javafx.application.Platform;
 import javax.swing.JComboBox;
 import javax.swing.JTextArea;
+import java.awt.Color;
 
 /**
  *
@@ -98,7 +99,9 @@ public class ShipmentPanel extends javax.swing.JPanel {
         this.parentPanel = parentPanel;
 
         populateTable();
-
+        
+        // Apply UI theme
+        setupTheme();
     }
 
     private void initializeMapComponents() {
@@ -3128,5 +3131,172 @@ public class ShipmentPanel extends javax.swing.JPanel {
         trackPathJPanel.add(errorLabel, BorderLayout.CENTER);
         trackPathJPanel.revalidate();
         trackPathJPanel.repaint();
+    }
+
+    // Add this method near other UI-related methods
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        
+        // Style all buttons
+        styleAllButtons();
+        
+        // Style table
+        styleTable(tblShipment);
+        
+        // Style text fields
+        styleAllTextFields();
+        
+        // Style labels
+        styleAllLabels();
+    }
+    
+    /**
+     * Style all buttons in the panel
+     */
+    private void styleAllButtons() {
+        styleButton(btnBack);
+        styleButton(btnRefresh);
+        styleButton(btnSearch);
+        styleButton(btnViewDetails);
+        styleButton(btnAddNewShip);
+        styleButton(btnUpdateStatus);
+        styleButton(btnUpdate);
+        styleButton(btnShip);
+        styleButton(btnDelete);
+        styleButton(btnBasicInfo);
+        styleButton(btnCustomsInfo);
+        styleButton(btnPackageInfo);
+        styleButton(btnFinancialInfo);
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(35, 100, 190)); // Lighter blue on hover
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(26, 79, 156)); // Back to normal
+            }
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(13, 60, 130)); // Darker when pressed
+            }
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(35, 100, 190)); // Back to hover
+            }
+        });
+    }
+    
+    /**
+     * Style all text fields in the panel
+     */
+    private void styleAllTextFields() {
+        styleTextField(txtSearchBox);
+        styleTextField(txtTrcNo);
+        styleTextField(txtShippingDate);
+        styleTextField(txtShippingMethod);
+        styleTextField(txtDestination);
+        styleTextField(txtStatus);
+    }
+    
+    /**
+     * Apply consistent styling to a text field
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51));    // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156));   // Medium blue cursor
+        textField.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+    }
+    
+    /**
+     * Style all labels in the panel
+     */
+    private void styleAllLabels() {
+        styleTitleLabel(lblLogisticsTracking);
+        styleTitleLabel(lblTrackPath);
+        styleTitleLabel(lblTrackDetails);
+        styleLabel(lblTraNo);
+        styleLabel(lblShippingDate);
+        styleLabel(lblShippingMethod);
+        styleLabel(lblDestination);
+        styleLabel(lblStatus);
+        styleLabel(lblTrackingNo);
+    }
+    
+    /**
+     * Apply title label styling
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 18));
+        label.setForeground(new Color(13, 25, 51)); // Dark blue text
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        label.setForeground(new Color(13, 25, 51)); // Dark blue text
+    }
+    
+    /**
+     * Style the table with consistent formatting
+     * @param table Table to style
+     */
+    private void styleTable(JTable table) {
+        // Style the header
+        if (table.getTableHeader() != null) {
+            table.getTableHeader().setBackground(new Color(26, 79, 156)); // Medium blue
+            table.getTableHeader().setForeground(Color.WHITE);
+            table.getTableHeader().setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        }
+        
+        // Style the table
+        table.setBackground(Color.WHITE);
+        table.setForeground(new Color(13, 25, 51)); // Dark blue text
+        table.setGridColor(new Color(230, 230, 230));
+        table.setRowHeight(25);
+        table.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        table.setSelectionBackground(new Color(232, 242, 254)); // Very light blue
+        table.setSelectionForeground(new Color(13, 25, 51)); // Keep text dark
+        
+        // Add custom cell renderer for alternating row colors
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 245, 250));
+                }
+                
+                return c;
+            }
+        });
     }
 }
