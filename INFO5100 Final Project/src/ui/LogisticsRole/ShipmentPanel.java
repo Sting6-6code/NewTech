@@ -10,6 +10,7 @@ import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
 import Business.Logistics.CustomsDeclaration;
 import Business.Logistics.CustomsDeclarationDirectory;
+import Business.Logistics.Goods;
 import Business.Organization.LogisticsOrganization;
 import Business.UserAccount.UserAccount;
 import Business.Logistics.Shipment;
@@ -1164,10 +1165,12 @@ public class ShipmentPanel extends javax.swing.JPanel {
             shipment.setShippingMethod(shippingMethod);
             shipment.setDestination(destination);  // 设置目的地
             shipment.setShipmentStatus("Shipped");
+            shipment.setShipmentId(shipmentId);
+            shipment.setTrackingNumber(trackingNumber);
 
             // 创建海关文档
             CustomsDeclaration customs = new CustomsDeclaration();
-            customs.setDeclarationId("CD" + System.currentTimeMillis());
+            customs.setDeclarationId("CD" + System.currentTimeMillis());       
             customs.setShipmentId(shipment.getShipmentId());
             customs.setCountryOfOrigin("China");
             customs.setConsignor("Shanghai Warehouse");
@@ -1178,27 +1181,63 @@ public class ShipmentPanel extends javax.swing.JPanel {
 
             // 如果有产品信息，添加默认物品
             if (shipment.getProductName() != null && !shipment.getProductName().isEmpty()) {
+                // Create goods entry for the shipment
+                Goods goods = new Goods();
+                goods.setDescription(shipment.getProductName());
+                goods.setQuantity(shipment.getQuantity());
+                goods.setUnit("PCS"); // Default unit
+                goods.setWeight(0.5); // Default weight per item
+
+                // Initialize goods list if needed
+                if (shipment.getGoodsList() == null) {
+                    shipment.setGoodsList(new ArrayList<>());
+                }
+
+                // Add to shipment's goods list
+                shipment.getGoodsList().add(goods);
+
+                // Also add as a customs line item
                 CustomsDeclaration.CustomsLineItem item = new CustomsDeclaration.CustomsLineItem();
                 item.setDescription(shipment.getProductName());
                 item.setQuantity(shipment.getQuantity());
                 item.setUnit("PCS");
-                item.setUnitValue(0.0); // 需要设置实际价值
-                item.setTotalValue(0.0);
-                item.setGrossWeight(0.5 * shipment.getQuantity()); // 估计重量
-                customs.addItem(item);
+                item.setUnitValue(100.0); // Default unit value
+                item.setTotalValue(item.getQuantity() * item.getUnitValue());
+                item.setGrossWeight(item.getQuantity() * 0.5); // Estimated weight
+
+                // Initialize items list if needed
+                if (customs.getItems() == null) {
+                    customs.setItems(new ArrayList<>());
+                }
+
+                // Add to customs declaration
+                customs.getItems().add(item);
+
+                System.out.println("Added product to goods list and customs items: "
+                        + shipment.getProductName() + ", Qty: " + shipment.getQuantity());
             }
 
-            shipment.setCustomsDeclaration(customs);
-            
-            if (ConfigureASystem.logisticsOrg != null && 
-            ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
-            
-            System.out.println("Adding customs declaration " + customs.getDeclarationId() + 
-                " to global declaration directory");
-            
-            // Add to global directory
-            ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory()
-                .addCustomsDeclaration(customs);
+// Make sure the customs declaration is in the directory
+            if (ConfigureASystem.logisticsOrg != null
+                    && ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
+
+                System.out.println("Adding customs declaration " + customs.getDeclarationId()
+                        + " to global declaration directory");
+
+                // Add to global directory
+                ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory()
+                        .addCustomsDeclaration(customs);
+            }
+
+            if (ConfigureASystem.logisticsOrg != null
+                    && ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
+
+                System.out.println("Adding customs declaration " + customs.getDeclarationId()
+                        + " to global declaration directory");
+
+                // Add to global directory
+                ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory()
+                        .addCustomsDeclaration(customs);
             }
 
             // 4. 计算预计送达时间
@@ -1276,12 +1315,12 @@ public class ShipmentPanel extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this,
                     "Shipment processed successfully!\nTracking Number: " + trackingNumber
                     + "\nDestination: " + destination);
-            
+
             // After saving the system, add this debug output
-            System.out.println("System saved. Customs declarations in directory: " + 
-                (ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null ? 
-                ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory()
-                    .getCustomsDeclarationList().size() : 0));
+            System.out.println("System saved. Customs declarations in directory: "
+                    + (ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null
+                    ? ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory()
+                            .getCustomsDeclarationList().size() : 0));
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
@@ -2937,6 +2976,31 @@ public class ShipmentPanel extends javax.swing.JPanel {
                 int itemCount = Integer.parseInt(txtItemCount.getText().trim());
                 shipment.getPackageInfo().setItemCount(itemCount);
             }
+
+            // Update goods information based on package info
+            if (shipment.getGoodsList() == null) {
+                shipment.setGoodsList(new ArrayList<>());
+            }
+
+            // Clear existing goods and add new item based on package info
+            shipment.getGoodsList().clear();
+
+            // Create goods entry from package info
+            Goods goods = new Goods();
+            goods.setDescription(shipment.getProductName() != null
+                    ? shipment.getProductName() : "Package Contents");
+            goods.setQuantity(shipment.getPackageInfo().getItemCount());
+            goods.setUnit("PCS"); // Default unit
+
+            // Try to extract weight per item
+            if (shipment.getPackageInfo().getWeight() > 0 && shipment.getPackageInfo().getItemCount() > 0) {
+                goods.setWeight(shipment.getPackageInfo().getWeight() / shipment.getPackageInfo().getItemCount());
+            } else {
+                goods.setWeight(0.5); // Default weight per item
+            }
+
+            // Add to shipment's goods list
+            shipment.getGoodsList().add(goods);
 
             // Set special handling instructions
             shipment.getPackageInfo().setSpecialHandling(txtSpecialHandling.getText().trim());
