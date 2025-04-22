@@ -5,10 +5,12 @@
 package ui.CustomsAgentRole;
 
 import Business.ConfigureASystem;
+import Business.DB4OUtil.DB4OUtil;
 import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
 import Business.Enterprise.LogisticsGroupEnterprise;
 import Business.Logistics.CustomsDeclaration;
+import Business.Logistics.CustomsDeclarationDirectory;
 import Business.Network.Network;
 import Business.Organization.CustomsLiaisonOrganization;
 import Business.Organization.LogisticsOrganization;
@@ -50,48 +52,77 @@ public class DocumentReview extends javax.swing.JPanel {
             CustomsLiaisonOrganization organization) {
         initComponents();
 
+        try {
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
+        this.organization = organization;
 
-        // 初始化父面板引用（为了后续通知刷新）
-        this.parentPanel = userProcessContainer.getParent() instanceof JPanel
-                ? (JPanel) userProcessContainer.getParent() : null;
+        // Initialize parent panel reference
+        if (userProcessContainer.getParent() instanceof JPanel) {
+            this.parentPanel = (JPanel) userProcessContainer.getParent();
+        }
 
-        // 如果传入的组织为空，尝试使用物流组织的数据
-        if (ConfigureASystem.logisticsOrg != null
-                && ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
-
-            // 如果传入的组织为空，创建一个新的
-            if (organization == null) {
-                this.organization = new CustomsLiaisonOrganization();
-            } else {
-                this.organization = organization;
+        // Ensure organization reference is valid
+        if (this.organization == null) {
+            System.out.println("Warning: No customs organization provided");
+            
+            // Try to find customs organization in the system
+            if (ConfigureASystem.logisticsOrg != null) {
+                Enterprise logisticsEnterprise = ConfigureASystem.findEnterpriseForOrganization(ConfigureASystem.logisticsOrg);
+                
+                if (logisticsEnterprise != null) {
+                    for (Organization org : logisticsEnterprise.getOrganizationDirectory().getOrganizationList()) {
+                        if (org instanceof CustomsLiaisonOrganization) {
+                            this.organization = (CustomsLiaisonOrganization) org;
+                            System.out.println("Found existing CustomsLiaisonOrganization");
+                            break;
+                        }
+                    }
+                }
             }
+            
+            // If still null, create a new one
+            if (this.organization == null) {
+                System.out.println("Creating new CustomsLiaisonOrganization");
+                this.organization = new CustomsLiaisonOrganization();
+            }
+        }
 
-            // 重要：使用 ConfigureASystem 中的同一数据源
+        // Ensure organizations share the same customs declaration directory
+        if (ConfigureASystem.logisticsOrg != null && 
+            ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
+            System.out.println("Using customs declarations from global logistics organization");
             this.organization.setCustomsDeclarationDirectory(
-                    ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory());
-
-            System.out.println("DocumentReview using customs declarations from ConfigureASystem");
-        } else if (organization != null) {
-            this.organization = organization;
-        } else {
-            System.out.println("Warning: No data source available for DocumentReview");
-            this.organization = new CustomsLiaisonOrganization();
+                ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory());
         }
 
-        // 添加调试信息
-        System.out.println("DocumentReview initialized with organization: " + this.organization);
-        if (this.organization != null && this.organization.getCustomsDeclarationDirectory() != null) {
-            System.out.println("Number of declarations: "
-                    + this.organization.getCustomsDeclarationDirectory().getCustomsDeclarationList().size());
+        // Display debug info
+        if (this.organization.getCustomsDeclarationDirectory() != null) {
+            System.out.println("DocumentReview initialized with organization: " + this.organization);
+            System.out.println("Number of declarations: " + 
+                this.organization.getCustomsDeclarationDirectory().getCustomsDeclarationList().size());
         }
 
-        // Initialize the UI
+        // Count work requests for debugging
+        if (this.organization.getWorkQueue() != null) {
+            int workRequestCount = 0;
+            for (WorkRequest req : this.organization.getWorkQueue().getWorkRequestList()) {
+                if (req instanceof LogisticsWorkRequest) {
+                    workRequestCount++;
+                }
+            }
+            System.out.println("Current work queue has " + workRequestCount + " logistics work requests");
+        }
+
+        // Initialize UI components
         setupTable();
         populateTable();
         clearFields();
-        setupTheme();
+        
+    } catch (Exception e) {
+        System.out.println("Error initializing DocumentReview: " + e.getMessage());
+        e.printStackTrace();
+    }
     }
 
     public void setParentPanel(JPanel panel) {
@@ -822,6 +853,7 @@ public class DocumentReview extends javax.swing.JPanel {
     }
 
     private void updateRequestStatus(String newStatus) {
+        try {
         int selectedRow = tblList.getSelectedRow();
         if (selectedRow < 0) {
             JOptionPane.showMessageDialog(this, "Please select a declaration first");
@@ -829,60 +861,121 @@ public class DocumentReview extends javax.swing.JPanel {
         }
 
         String declarationId = tblList.getValueAt(selectedRow, 0).toString();
-        if (declarationId.equals("No declarations found")) {
+        if (declarationId == null || declarationId.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Invalid declaration ID");
             return;
         }
 
-        // Update request status
-        boolean updated = false;
+        System.out.println("Attempting to update declaration ID: " + declarationId + " to status: " + newStatus);
 
+        // First look in the current organization's declaration directory
+        CustomsDeclaration declaration = null;
+        if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
+            declaration = organization.getCustomsDeclarationDirectory().findDeclarationById(declarationId);
+        }
+
+        // If not found, try in global logistics organization
+        if (declaration == null && ConfigureASystem.logisticsOrg != null && 
+            ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
+            declaration = ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory()
+                .findDeclarationById(declarationId);
+            
+            // If found in logistics org but not in customs org, establish the link
+            if (declaration != null && organization != null) {
+                // Ensure customs org uses the same declaration directory
+                organization.setCustomsDeclarationDirectory(
+                    ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory());
+                System.out.println("Connected customs organization to logistics declaration directory");
+            }
+        }
+
+        if (declaration == null) {
+            System.out.println("Declaration not found: " + declarationId);
+            JOptionPane.showMessageDialog(this, "Could not find the selected declaration");
+            return;
+        }
+
+        // Update declaration status
+        declaration.setStatus(newStatus);
+        declaration.setProcessingDate(new Date());
+        
+        // Add review notes if provided
+        if (txtReviewNotes.getText() != null && !txtReviewNotes.getText().isEmpty()) {
+            String existingNotes = declaration.getNotes();
+            String reviewNotes = txtReviewNotes.getText();
+            
+            if (existingNotes != null && !existingNotes.isEmpty()) {
+                declaration.setNotes(existingNotes + "\n\nReview notes: " + reviewNotes);
+            } else {
+                declaration.setNotes("Review notes: " + reviewNotes);
+            }
+        }
+
+        // Update work request in queue if found
+        boolean workRequestUpdated = false;
         for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
             if (request instanceof LogisticsWorkRequest) {
                 LogisticsWorkRequest customsRequest = (LogisticsWorkRequest) request;
                 if (customsRequest.getDeclarationId().equals(declarationId)) {
-                    // Set new status
                     customsRequest.setStatus(newStatus);
-
-                    // Important: Set resolve date to track when it was processed
                     customsRequest.setResolveDate(new Date());
-
-                    // Remove this line as the method doesn't exist
-//                 customsRequest.setResolver(userAccount);
-                    // Add review notes if provided
+                    
                     if (txtReviewNotes.getText() != null && !txtReviewNotes.getText().isEmpty()) {
                         customsRequest.setMessage(txtReviewNotes.getText());
                     }
-
-                    // Also update the original declaration in logistics org
-                    updateOriginalDeclaration(customsRequest.getDeclarationId(), newStatus);
-
-                    updated = true;
+                    
+                    workRequestUpdated = true;
                     break;
                 }
             }
         }
-
-        if (updated) {
-            JOptionPane.showMessageDialog(this, "Declaration status updated to: " + newStatus);
-
-            // Refresh tables
-            populateTable();
-            clearFields();
-
-            // Notify parent panel to refresh (if possible)
-            if (parentPanel != null && parentPanel instanceof CustomsLiaisonOfficeHP) {
-                try {
-                    // This will refresh both pending and recent activities tables
-                    ((CustomsLiaisonOfficeHP) parentPanel).refreshData();
-                    System.out.println("Parent panel refreshed");
-                } catch (Exception e) {
-                    System.out.println("Error refreshing parent panel: " + e.getMessage());
-                    e.printStackTrace();
-                }
+        
+        // If no work request was found, create one to maintain consistency
+        if (!workRequestUpdated) {
+            System.out.println("No work request found for declaration " + declarationId + ", creating one");
+            LogisticsWorkRequest newRequest = new LogisticsWorkRequest();
+            newRequest.setDeclarationId(declarationId);
+            newRequest.setShipmentId(declaration.getShipmentId());
+            newRequest.setStatus(newStatus);
+            newRequest.setConsignor(declaration.getConsignor());
+            newRequest.setConsignee(declaration.getConsignee());
+            newRequest.setCountryOfOrigin(declaration.getCountryOfOrigin());
+            newRequest.setDestinationCountry(declaration.getDestinationCountry());
+            newRequest.setNotes(declaration.getNotes());
+            newRequest.setRequestDate(declaration.getDeclarationDate());
+            newRequest.setResolveDate(new Date());
+            
+            if (txtReviewNotes.getText() != null && !txtReviewNotes.getText().isEmpty()) {
+                newRequest.setMessage(txtReviewNotes.getText());
             }
-        } else {
-            JOptionPane.showMessageDialog(this, "Could not find the selected declaration");
+            
+            organization.getWorkQueue().getWorkRequestList().add(newRequest);
+            workRequestUpdated = true;
         }
+        
+        System.out.println("Declaration status updated: " + newStatus + 
+                ", Work request updated: " + (workRequestUpdated ? "Yes" : "No"));
+
+        // Save changes to database
+        try {
+            DB4OUtil.getInstance().storeSystem(EcoSystem.getInstance());
+            System.out.println("Changes saved to database");
+        } catch (Exception e) {
+            System.out.println("Error saving changes: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        JOptionPane.showMessageDialog(this, "Declaration status updated to: " + newStatus);
+        
+        // Refresh UI
+        populateTable();
+        clearFields();
+        
+    } catch (Exception e) {
+        System.out.println("Error in updateRequestStatus: " + e.getMessage());
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error updating status: " + e.getMessage());
+    }
     }
 
     private void updateOriginalDeclaration(String declarationId, String newStatus) {
