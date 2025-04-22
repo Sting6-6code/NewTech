@@ -6,6 +6,7 @@ package Business.Logistics;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -32,6 +33,7 @@ public class Shipment {
     private int quantity;
     private PackageInfo packageInfo;
     private FinancialInfo financialInfo;
+    private List<Goods> goodsList;
 
     // define shipmentStatus
     public static final String STATUS_PENDING = "Pending";           // 订单已创建，等待仓库处理
@@ -372,6 +374,14 @@ public class Shipment {
             // Calculate total
             this.financialInfo.calculateTotal();
         }
+    }
+
+    public List<Goods> getGoodsList() {
+        return goodsList;
+    }
+
+    public void setGoodsList(List<Goods> goodsList) {
+        this.goodsList = goodsList;
     }
 
     @Override

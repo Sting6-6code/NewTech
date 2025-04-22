@@ -12,6 +12,7 @@ import Business.Enterprise.LogisticsGroupEnterprise;
 import Business.Logistics.CustomsDeclaration;
 import Business.Logistics.CustomsDeclaration.CustomsLineItem;
 import Business.Logistics.CustomsDeclarationDirectory;
+import Business.Logistics.Goods;
 import Business.Logistics.Shipment;
 import Business.Network.Network;
 import Business.Organization.CustomsLiaisonOrganization;
@@ -27,7 +28,9 @@ import java.awt.GridLayout;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -130,25 +133,26 @@ public class DocumentationDetails extends javax.swing.JPanel {
         initComponents();
         populateFields();
         setupTheme();
+        updateButtonStates();
     }
-    
+
     public void refreshDeclarationsList() {
-    setupDeclarationListTable();
+        setupDeclarationListTable();
     }
-    
+
     public void refreshOnReturn() {
-    // Re-get the declaration directory from the global reference
-    if (ConfigureASystem.logisticsOrg != null) {
-        this.declarationDirectory = ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory();
-        System.out.println("从全局组织重新加载了 " + 
-            (this.declarationDirectory != null ? 
-            this.declarationDirectory.getCustomsDeclarationList().size() : 0) + 
-            " 个报关单");
+        // Re-get the declaration directory from the global reference
+        if (ConfigureASystem.logisticsOrg != null) {
+            this.declarationDirectory = ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory();
+            System.out.println("从全局组织重新加载了 "
+                    + (this.declarationDirectory != null
+                            ? this.declarationDirectory.getCustomsDeclarationList().size() : 0)
+                    + " 个报关单");
+        }
+
+        // Refresh the table
+        refreshDeclarationList();
     }
-    
-    // Refresh the table
-    refreshDeclarationList();
-}
 
     private void populateFields() {
         if (currentDeclaration != null) {
@@ -158,7 +162,41 @@ public class DocumentationDetails extends javax.swing.JPanel {
             txtDeclarationId.setText(currentDeclaration.getDeclarationId());
             txtDeclarationNumber.setText(currentDeclaration.getDeclarationNumber() != null
                     ? currentDeclaration.getDeclarationNumber() : "");
-            txtShipmentId.setText(currentDeclaration.getShipmentId());
+
+            // Correctly set the shipment number - START FIX
+            if (currentShipment != null && currentShipment.getTrackingNumber() != null) {
+                // Use the tracking number from the shipment
+                txtShipmentNumber.setText(currentShipment.getTrackingNumber());
+                System.out.println("Setting shipment number from currentShipment: " + currentShipment.getTrackingNumber());
+            } else if (currentDeclaration.getShipmentId() != null && !currentDeclaration.getShipmentId().isEmpty()) {
+                // Try to find the actual shipment to get the tracking number
+                if (ConfigureASystem.logisticsOrg != null
+                        && ConfigureASystem.logisticsOrg.getShipmentDirectory() != null) {
+
+                    Shipment foundShipment = ConfigureASystem.logisticsOrg.getShipmentDirectory()
+                            .findShipment(currentDeclaration.getShipmentId());
+
+                    if (foundShipment != null && foundShipment.getTrackingNumber() != null) {
+                        txtShipmentNumber.setText(foundShipment.getTrackingNumber());
+                        System.out.println("Updated shipment number to tracking number: "
+                                + foundShipment.getTrackingNumber());
+
+                        // Update the currentShipment reference
+                        currentShipment = foundShipment;
+                    } else {
+                        // Just use the shipmentId as fallback
+                        txtShipmentNumber.setText(currentDeclaration.getShipmentId());
+                        System.out.println("Using declaration's shipmentId: " + currentDeclaration.getShipmentId());
+                    }
+                } else {
+                    // Use the shipmentId from the declaration as fallback
+                    txtShipmentNumber.setText(currentDeclaration.getShipmentId());
+                    System.out.println("Using declaration's shipmentId: " + currentDeclaration.getShipmentId());
+                }
+            } else {
+                txtShipmentNumber.setText("");
+                System.out.println("No shipment number found to display");
+            }
 
             if (currentDeclaration.getDeclarationType() != null) {
                 for (int i = 0; i < cmbDeclarationType.getItemCount(); i++) {
@@ -256,30 +294,219 @@ public class DocumentationDetails extends javax.swing.JPanel {
         tblGoodsInfo.setModel(model);
     }
 
+    private void populateGoodsTable(Shipment shipment) {
+        DefaultTableModel model = (DefaultTableModel) tblGoodsInfo.getModel();
+        model.setRowCount(0);
+
+        // First check if we have customs items
+        if (currentDeclaration != null && currentDeclaration.getItems() != null
+                && !currentDeclaration.getItems().isEmpty()) {
+
+            for (CustomsDeclaration.CustomsLineItem item : currentDeclaration.getItems()) {
+                Object[] row = new Object[7];
+                row[0] = item.getDescription();
+                row[1] = item.getHsCode();
+                row[2] = item.getQuantity();
+                row[3] = item.getUnit();
+                row[4] = item.getUnitValue();
+                row[5] = item.getTotalValue();
+                row[6] = item.getGrossWeight();
+                model.addRow(row);
+            }
+
+            System.out.println("Populated goods table from customs items: "
+                    + currentDeclaration.getItems().size() + " items");
+        } // If no customs items, try shipment goods list
+        else if (shipment != null && shipment.getGoodsList() != null && !shipment.getGoodsList().isEmpty()) {
+            for (Goods goods : shipment.getGoodsList()) {
+                Object[] row = new Object[7];
+                row[0] = goods.getDescription();
+                row[1] = ""; // No HS code in Goods
+                row[2] = goods.getQuantity();
+                row[3] = goods.getUnit();
+                row[4] = 100.0; // Default unit value
+                row[5] = goods.getQuantity() * 100.0; // Total value
+                row[6] = goods.getWeight() * goods.getQuantity(); // Total weight
+                model.addRow(row);
+            }
+
+            System.out.println("Populated goods table from shipment goods: "
+                    + shipment.getGoodsList().size() + " items");
+
+            // Convert goods to customs items to ensure they're saved
+            if (currentDeclaration != null) {
+                if (currentDeclaration.getItems() == null) {
+                    currentDeclaration.setItems(new ArrayList<>());
+                }
+
+                // Only convert if customs items is empty (to avoid duplicates)
+                if (currentDeclaration.getItems().isEmpty()) {
+                    for (Goods goods : shipment.getGoodsList()) {
+                        CustomsDeclaration.CustomsLineItem item = new CustomsDeclaration.CustomsLineItem();
+                        item.setDescription(goods.getDescription());
+                        item.setQuantity(goods.getQuantity());
+                        item.setUnit(goods.getUnit());
+                        item.setUnitValue(100.0); // Default
+                        item.setTotalValue(goods.getQuantity() * 100.0);
+                        item.setGrossWeight(goods.getWeight() * goods.getQuantity());
+
+                        currentDeclaration.getItems().add(item);
+                    }
+
+                    // Save to system
+                    EcoSystem system = EcoSystem.getInstance();
+                    DB4OUtil.getInstance().storeSystem(system);
+
+                    System.out.println("Converted goods to customs items");
+                }
+            }
+        } // If no data in either place, use package info
+        else if (shipment != null && shipment.getPackageInfo() != null) {
+            Object[] row = new Object[7];
+            row[0] = shipment.getProductName() != null
+                    ? shipment.getProductName() : "Package Contents";
+            row[1] = ""; // No HS code
+            row[2] = shipment.getPackageInfo().getItemCount();
+            row[3] = "PCS"; // Default unit
+
+            // Calculate per-item weight
+            double itemWeight = 0.5; // Default
+            if (shipment.getPackageInfo().getWeight() > 0 && shipment.getPackageInfo().getItemCount() > 0) {
+                itemWeight = shipment.getPackageInfo().getWeight() / shipment.getPackageInfo().getItemCount();
+            }
+
+            double unitValue = 100.0; // Default value
+            row[4] = unitValue;
+            row[5] = shipment.getPackageInfo().getItemCount() * unitValue;
+            row[6] = shipment.getPackageInfo().getWeight() > 0
+                    ? shipment.getPackageInfo().getWeight()
+                    : (shipment.getPackageInfo().getItemCount() * itemWeight);
+
+            model.addRow(row);
+
+            System.out.println("Populated goods table from package info");
+
+            // Create a customs item from package info if none exists
+            if (currentDeclaration != null) {
+                if (currentDeclaration.getItems() == null) {
+                    currentDeclaration.setItems(new ArrayList<>());
+                }
+
+                // Only add if list is empty
+                if (currentDeclaration.getItems().isEmpty()) {
+                    CustomsDeclaration.CustomsLineItem item = new CustomsDeclaration.CustomsLineItem();
+                    item.setDescription(row[0].toString());
+                    item.setQuantity((int) row[2]);
+                    item.setUnit(row[3].toString());
+                    item.setUnitValue((double) row[4]);
+                    item.setTotalValue((double) row[5]);
+                    item.setGrossWeight((double) row[6]);
+
+                    currentDeclaration.getItems().add(item);
+
+                    // Save to system
+                    EcoSystem system = EcoSystem.getInstance();
+                    DB4OUtil.getInstance().storeSystem(system);
+
+                    System.out.println("Created customs item from package info");
+                }
+            }
+        }
+    }
+
     // 刷新报关单列表
     private void refreshDeclarationList() {
         DefaultTableModel model = (DefaultTableModel) tblList.getModel();
         model.setRowCount(0);
 
-        if (declarationDirectory != null) {
-            for (CustomsDeclaration declaration : declarationDirectory.getCustomsDeclarationList()) {
-                Object[] row = {
-                    declaration.getDeclarationId(),
-                    declaration.getStatus(),
-                    new SimpleDateFormat("yyyy-MM-dd").format(declaration.getDeclarationDate())
-                };
-                model.addRow(row);
+        // Set to track already displayed declaration IDs to prevent duplicates
+    Set<String> addedDeclarationIds = new HashSet<>();
+
+    if (declarationDirectory != null) {
+        for (CustomsDeclaration declaration : declarationDirectory.getCustomsDeclarationList()) {
+            // Skip if we've already added this declaration ID
+            if (addedDeclarationIds.contains(declaration.getDeclarationId())) {
+                System.out.println("Skipping duplicate declaration: " + declaration.getDeclarationId());
+                continue;
             }
+            
+            Object[] row = {
+                declaration.getDeclarationId(),
+                declaration.getStatus(),
+                new SimpleDateFormat("yyyy-MM-dd").format(declaration.getDeclarationDate())
+            };
+            model.addRow(row);
+            
+            // Add to our tracking set
+            addedDeclarationIds.add(declaration.getDeclarationId());
         }
+    }
     }
 
     // 显示报关单详情
     private void displayDeclarationDetails(String declarationId) {
         currentDeclaration = declarationDirectory.findDeclarationById(declarationId);
         if (currentDeclaration != null) {
+            // Find the associated shipment if it exists
+            if (currentDeclaration.getShipmentId() != null
+                    && ConfigureASystem.logisticsOrg != null
+                    && ConfigureASystem.logisticsOrg.getShipmentDirectory() != null) {
+
+                currentShipment = ConfigureASystem.logisticsOrg.getShipmentDirectory()
+                        .findShipment(currentDeclaration.getShipmentId());
+
+                if (currentShipment != null) {
+                    System.out.println("Found shipment for declaration: TrackingNumber="
+                            + currentShipment.getTrackingNumber());
+                    
+                    // If there are no items in the declaration but we have shipment info, create items
+                if ((currentDeclaration.getItems() == null || currentDeclaration.getItems().isEmpty()) &&
+                    currentShipment.getProductName() != null) {
+                    
+                    // Initialize items list if needed
+                    if (currentDeclaration.getItems() == null) {
+                        currentDeclaration.setItems(new ArrayList<>());
+                    }
+                    
+                    // Create item from shipment info
+                    CustomsDeclaration.CustomsLineItem item = new CustomsDeclaration.CustomsLineItem();
+                    item.setDescription(currentShipment.getProductName());
+                    item.setQuantity(currentShipment.getQuantity());
+                    item.setUnit("PCS");
+                    item.setUnitValue(100.0); // Default unit value
+                    item.setTotalValue(item.getQuantity() * item.getUnitValue());
+                    
+                    // Get weight from package info if available
+                    if (currentShipment.getPackageInfo() != null && 
+                        currentShipment.getPackageInfo().getWeight() > 0) {
+                        
+                        item.setGrossWeight(currentShipment.getPackageInfo().getWeight());
+                    } else {
+                        // Default weight estimate
+                        item.setGrossWeight(item.getQuantity() * 0.5);
+                    }
+                     // Add item to declaration
+                    currentDeclaration.getItems().add(item);
+                    
+                    // Save changes to system
+                    EcoSystem system = EcoSystem.getInstance();
+                    DB4OUtil.getInstance().storeSystem(system);
+                    
+                    System.out.println("Created goods item from shipment: " + 
+                        currentShipment.getProductName() + ", Qty: " + currentShipment.getQuantity());
+                }
+                }
+            }
             // 填充基本信息
             txtDeclarID.setText(currentDeclaration.getDeclarationId());
-            txtShipmentNumber.setText(currentDeclaration.getShipmentId());
+
+            // Set the shipment number (tracking number if available)
+            if (currentShipment != null && currentShipment.getTrackingNumber() != null) {
+                txtShipmentNumber.setText(currentShipment.getTrackingNumber());
+            } else {
+                txtShipmentNumber.setText(currentDeclaration.getShipmentId());
+            }
+
             txtConsignor.setText(currentDeclaration.getConsignor());
             txtConsignee.setText(currentDeclaration.getConsignee());
             txtOrigin.setText(currentDeclaration.getCountryOfOrigin());
@@ -306,22 +533,27 @@ public class DocumentationDetails extends javax.swing.JPanel {
 
     private void refreshGoodsInfoTable() {
         DefaultTableModel model = (DefaultTableModel) tblGoodsInfo.getModel();
-        model.setRowCount(0);
+    model.setRowCount(0);
 
-        if (currentDeclaration != null && currentDeclaration.getItems() != null) {
-            for (CustomsDeclaration.CustomsLineItem item : currentDeclaration.getItems()) {
-                Object[] row = {
-                    item.getDescription(),
-                    item.getHsCode(),
-                    item.getQuantity(),
-                    item.getUnit(),
-                    item.getUnitValue(),
-                    item.getTotalValue(),
-                    item.getGrossWeight()
-                };
-                model.addRow(row);
-            }
+    if (currentDeclaration != null && currentDeclaration.getItems() != null) {
+        for (CustomsDeclaration.CustomsLineItem item : currentDeclaration.getItems()) {
+            Object[] row = new Object[7]; // Adjust based on your column count
+            row[0] = item.getDescription();
+            row[1] = item.getHsCode() != null ? item.getHsCode() : "";
+            row[2] = item.getQuantity();
+            row[3] = item.getUnit() != null ? item.getUnit() : "PCS";
+            row[4] = item.getUnitValue();
+            row[5] = item.getTotalValue();
+            row[6] = item.getGrossWeight();
+            model.addRow(row);
         }
+        
+        if (model.getRowCount() > 0) {
+            System.out.println("Populated goods table with " + model.getRowCount() + " items");
+        } else {
+            System.out.println("No items to display in goods table");
+        }
+    }
     }
 
     // 更新当前报关单的商品信息
@@ -348,13 +580,31 @@ public class DocumentationDetails extends javax.swing.JPanel {
 
 // 更新按钮状态
     private void updateButtonStates() {
-        boolean isDraft = currentDeclaration != null
-                && "Draft".equals(currentDeclaration.getStatus());
-        btnSave.setEnabled(isDraft);
-        btnSubmit.setEnabled(isDraft);
-        btnDelete.setEnabled(currentDeclaration != null);
-        btnPrint.setEnabled(currentDeclaration != null);
-        btnAddItem.setEnabled(isDraft);
+        // Get the current status
+    String currentStatus = "";
+    if (currentDeclaration != null) {
+        currentStatus = currentDeclaration.getStatus();
+        System.out.println("Current declaration status: " + currentStatus);
+    }
+
+    // Enable Save and Submit buttons for Draft or Pending status
+    boolean isEditable = currentDeclaration != null && 
+                       ("Draft".equals(currentStatus) || "Pending".equals(currentStatus));
+    
+    // Debug output
+    System.out.println("Setting buttons enabled: " + isEditable);
+    
+    btnSave.setEnabled(isEditable);
+    btnSubmit.setEnabled(isEditable);
+    
+    // Delete button enabled if declaration exists and is Draft or Pending
+    btnDelete.setEnabled(isEditable);
+    
+    // Print button always enabled if we have a declaration
+    btnPrint.setEnabled(currentDeclaration != null);
+    
+    // Add Item button enabled only if declaration is editable
+    btnAddItem.setEnabled(isEditable);
     }
 
     /**
@@ -1305,68 +1555,68 @@ public class DocumentationDetails extends javax.swing.JPanel {
 
     private void sendCustomsWorkRequest(CustomsDeclaration declaration) {
         try {
-        System.out.println("Creating LogisticsWorkRequest for declaration: " + declaration.getDeclarationId());
+            System.out.println("Creating LogisticsWorkRequest for declaration: " + declaration.getDeclarationId());
 
-        // Create logistics work request
-        LogisticsWorkRequest request = new LogisticsWorkRequest();
+            // Create logistics work request
+            LogisticsWorkRequest request = new LogisticsWorkRequest();
 
-        // Set request attributes from declaration
-        request.setDeclarationId(declaration.getDeclarationId());
-        request.setShipmentId(declaration.getShipmentId());
-        request.setDeclarationType(declaration.getDeclarationType());
-        request.setConsignor(declaration.getConsignor());
-        request.setConsignee(declaration.getConsignee());
-        request.setCountryOfOrigin(declaration.getCountryOfOrigin());
-        request.setDestinationCountry(declaration.getDestinationCountry());
-        request.setNotes(declaration.getNotes());
-        request.setStatus("Submitted");
-        request.setRequestDate(new Date());
-        request.setSender(userAccount);
+            // Set request attributes from declaration
+            request.setDeclarationId(declaration.getDeclarationId());
+            request.setShipmentId(declaration.getShipmentId());
+            request.setDeclarationType(declaration.getDeclarationType());
+            request.setConsignor(declaration.getConsignor());
+            request.setConsignee(declaration.getConsignee());
+            request.setCountryOfOrigin(declaration.getCountryOfOrigin());
+            request.setDestinationCountry(declaration.getDestinationCountry());
+            request.setNotes(declaration.getNotes());
+            request.setStatus("Submitted");
+            request.setRequestDate(new Date());
+            request.setSender(userAccount);
 
-        // Find customs organization
-        Organization customsOrg = findCustomsOrganization();
+            // Find customs organization
+            Organization customsOrg = findCustomsOrganization();
 
-        if (customsOrg != null) {
-            // Ensure work queue exists
-            if (customsOrg.getWorkQueue() == null) {
-                customsOrg.setWorkQueue(new WorkQueue());
+            if (customsOrg != null) {
+                // Ensure work queue exists
+                if (customsOrg.getWorkQueue() == null) {
+                    customsOrg.setWorkQueue(new WorkQueue());
+                }
+
+                // Add request to customs organization's work queue
+                customsOrg.getWorkQueue().getWorkRequestList().add(request);
+                System.out.println("Added declaration to customs work queue: " + request.getDeclarationId());
+
+                // Make sure customs organization has the same declaration directory
+                if (customsOrg instanceof CustomsLiaisonOrganization
+                        && organization != null
+                        && organization.getCustomsDeclarationDirectory() != null) {
+
+                    ((CustomsLiaisonOrganization) customsOrg).setCustomsDeclarationDirectory(
+                            organization.getCustomsDeclarationDirectory());
+                    System.out.println("Synchronized declaration directory between organizations");
+                }
+
+                // Update declaration status
+                declaration.setStatus("Submitted");
+                declaration.setSubmissionDate(new Date());
+
+                // Save to system
+                EcoSystem system = EcoSystem.getInstance();
+                DB4OUtil.getInstance().storeSystem(system);
+
+                JOptionPane.showMessageDialog(this,
+                        "Declaration " + declaration.getDeclarationId() + " successfully submitted to customs");
+            } else {
+                throw new Exception("No customs organization found");
             }
-            
-            // Add request to customs organization's work queue
-            customsOrg.getWorkQueue().getWorkRequestList().add(request);
-            System.out.println("Added declaration to customs work queue: " + request.getDeclarationId());
-            
-            // Make sure customs organization has the same declaration directory
-            if (customsOrg instanceof CustomsLiaisonOrganization && 
-                organization != null && 
-                organization.getCustomsDeclarationDirectory() != null) {
-                
-                ((CustomsLiaisonOrganization)customsOrg).setCustomsDeclarationDirectory(
-                    organization.getCustomsDeclarationDirectory());
-                System.out.println("Synchronized declaration directory between organizations");
-            }
-            
-            // Update declaration status
-            declaration.setStatus("Submitted");
-            declaration.setSubmissionDate(new Date());
-            
-            // Save to system
-            EcoSystem system = EcoSystem.getInstance();
-            DB4OUtil.getInstance().storeSystem(system);
-            
-            JOptionPane.showMessageDialog(this, 
-                "Declaration " + declaration.getDeclarationId() + " successfully submitted to customs");
-        } else {
-            throw new Exception("No customs organization found");
+        } catch (Exception e) {
+            System.out.println("Exception in sendCustomsWorkRequest: " + e.getMessage());
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error sending customs request: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
-    } catch (Exception e) {
-        System.out.println("Exception in sendCustomsWorkRequest: " + e.getMessage());
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this,
-                "Error sending customs request: " + e.getMessage(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
-    }
     }
 
     // 查找海关组织的辅助方法
@@ -1432,210 +1682,215 @@ public class DocumentationDetails extends javax.swing.JPanel {
         return null;
 
     }
-    
+
     /**
- * Apply consistent UI theme to all components
- */
-private void setupTheme() {
-    // Set panel background color
-    this.setBackground(new Color(240, 245, 255));
-    
-    // Style all panels with the same background color
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+
+        // Style all panels with the same background color
 //    jPanel1.setBackground(new Color(240, 245, 255));
-    DeclaListJPanel.setBackground(new Color(240, 245, 255));
-    declarDetailsJPanel.setBackground(new Color(240, 245, 255));
-    basicInfoJPanel.setBackground(new Color(240, 245, 255));
-    goodsInfoJPanel.setBackground(new Color(240, 245, 255));
-    processingInfoJPanel.setBackground(new Color(240, 245, 255));
-    
-    // Style all buttons
-    styleButton(btnBack);
-    styleButton(btnSearch);
-    styleButton(btnCreateNew);
-    styleButton(btnSave);
-    styleButton(btnSubmit);
-    styleButton(btnPrint);
-    styleButton(btnDelete);
-    styleButton(btnAddItem);
-    
-    // Style all labels
-    styleTitleLabel(lblTitle);
-    styleTitleLabel(lblDetailsTitle);
-    styleTitleLabel(lblListTitle);
-    
-    styleLabel(lblBasicInfo);
-    styleLabel(lblGoodsInfo);
-    styleLabel(lblProcessingInfo);
-    styleLabel(lblSearchID);
-    
-    styleLabel(lblDeclarID);
-    styleLabel(lblShipNo);
-    styleLabel(lblConsignor);
-    styleLabel(lblOrigin);
-    styleLabel(lblStatus);
-    styleLabel(lblDeclarDate);
-    styleLabel(lblConsignee);
-    styleLabel(lblDestination);
-    styleLabel(lblCustomsOffice);
-    styleLabel(lblProcessingDate);
-    styleLabel(lblComments);
-    
-    // Style all text fields
-    styleTextField(txtSearchBox);
-    styleTextField(txtDeclarID);
-    styleTextField(txtShipmentNumber);
-    styleTextField(txtConsignor);
-    styleTextField(txtOrigin);
-    styleTextField(txtStatus);
-    styleTextField(txtDeclarDate);
-    styleTextField(txtConsignee);
-    styleTextField(txtDestination);
-    styleTextField(txtCustomsOffice);
-    styleTextField(txtProcessingDate);
-    styleTextField(txtComments);
-    
-    // Style tables
-    styleTable(tblList);
-    styleTable(tblGoodsInfo);
-}
+        DeclaListJPanel.setBackground(new Color(240, 245, 255));
+        declarDetailsJPanel.setBackground(new Color(240, 245, 255));
+        basicInfoJPanel.setBackground(new Color(240, 245, 255));
+        goodsInfoJPanel.setBackground(new Color(240, 245, 255));
+        processingInfoJPanel.setBackground(new Color(240, 245, 255));
 
-/**
- * Apply consistent styling to a button
- * @param button Button to style
- */
-private void styleButton(JButton button) {
-    // Check if it's a special button (like Delete or Submit)
-    if (button == btnDelete) {
-        // Delete button keeps its red background
-        button.setBackground(new Color(255, 0, 0));
-    } else if (button == btnSubmit || button == btnCreateNew) {
-        // Submit and Create New buttons keep their green background
-        button.setBackground(new Color(102, 204, 0));
-    } else {
-        // Standard buttons get the blue theme
-        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        // Style all buttons
+        styleButton(btnBack);
+        styleButton(btnSearch);
+        styleButton(btnCreateNew);
+        styleButton(btnSave);
+        styleButton(btnSubmit);
+        styleButton(btnPrint);
+        styleButton(btnDelete);
+        styleButton(btnAddItem);
+
+        // Style all labels
+        styleTitleLabel(lblTitle);
+        styleTitleLabel(lblDetailsTitle);
+        styleTitleLabel(lblListTitle);
+
+        styleLabel(lblBasicInfo);
+        styleLabel(lblGoodsInfo);
+        styleLabel(lblProcessingInfo);
+        styleLabel(lblSearchID);
+
+        styleLabel(lblDeclarID);
+        styleLabel(lblShipNo);
+        styleLabel(lblConsignor);
+        styleLabel(lblOrigin);
+        styleLabel(lblStatus);
+        styleLabel(lblDeclarDate);
+        styleLabel(lblConsignee);
+        styleLabel(lblDestination);
+        styleLabel(lblCustomsOffice);
+        styleLabel(lblProcessingDate);
+        styleLabel(lblComments);
+
+        // Style all text fields
+        styleTextField(txtSearchBox);
+        styleTextField(txtDeclarID);
+        styleTextField(txtShipmentNumber);
+        styleTextField(txtConsignor);
+        styleTextField(txtOrigin);
+        styleTextField(txtStatus);
+        styleTextField(txtDeclarDate);
+        styleTextField(txtConsignee);
+        styleTextField(txtDestination);
+        styleTextField(txtCustomsOffice);
+        styleTextField(txtProcessingDate);
+        styleTextField(txtComments);
+
+        // Style tables
+        styleTable(tblList);
+        styleTable(tblGoodsInfo);
     }
-    
-    button.setForeground(Color.WHITE);
-    button.setFocusPainted(false);
-    
-    // Add a subtle border with rounded corners
-    button.setBorder(javax.swing.BorderFactory.createCompoundBorder(
-        javax.swing.BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
-        javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10)
-    ));
-    
-    button.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
-    
-    // Add hover effect
-    button.addMouseListener(new java.awt.event.MouseAdapter() {
-        @Override
-        public void mouseEntered(java.awt.event.MouseEvent evt) {
-            if (button == btnDelete) {
-                button.setBackground(new Color(255, 51, 51)); // Lighter red on hover
-            } else if (button == btnSubmit || button == btnCreateNew) {
-                button.setBackground(new Color(115, 230, 0)); // Lighter green on hover
-            } else {
-                button.setBackground(new Color(35, 100, 190)); // Lighter blue on hover
+
+    /**
+     * Apply consistent styling to a button
+     *
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        // Check if it's a special button (like Delete or Submit)
+        if (button == btnDelete) {
+            // Delete button keeps its red background
+            button.setBackground(new Color(255, 0, 0));
+        } else if (button == btnSubmit || button == btnCreateNew) {
+            // Submit and Create New buttons keep their green background
+            button.setBackground(new Color(102, 204, 0));
+        } else {
+            // Standard buttons get the blue theme
+            button.setBackground(new Color(26, 79, 156)); // Medium blue
+        }
+
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+
+        // Add a subtle border with rounded corners
+        button.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+                javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+
+        button.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (button == btnDelete) {
+                    button.setBackground(new Color(255, 51, 51)); // Lighter red on hover
+                } else if (button == btnSubmit || button == btnCreateNew) {
+                    button.setBackground(new Color(115, 230, 0)); // Lighter green on hover
+                } else {
+                    button.setBackground(new Color(35, 100, 190)); // Lighter blue on hover
+                }
             }
-        }
-        
-        @Override
-        public void mouseExited(java.awt.event.MouseEvent evt) {
-            if (button == btnDelete) {
-                button.setBackground(new Color(255, 0, 0)); // Back to normal red
-            } else if (button == btnSubmit || button == btnCreateNew) {
-                button.setBackground(new Color(102, 204, 0)); // Back to normal green
-            } else {
-                button.setBackground(new Color(26, 79, 156)); // Back to normal blue
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if (button == btnDelete) {
+                    button.setBackground(new Color(255, 0, 0)); // Back to normal red
+                } else if (button == btnSubmit || button == btnCreateNew) {
+                    button.setBackground(new Color(102, 204, 0)); // Back to normal green
+                } else {
+                    button.setBackground(new Color(26, 79, 156)); // Back to normal blue
+                }
             }
-        }
-        
-        @Override
-        public void mousePressed(java.awt.event.MouseEvent evt) {
-            if (button == btnDelete) {
-                button.setBackground(new Color(204, 0, 0)); // Darker when pressed
-            } else if (button == btnSubmit || button == btnCreateNew) {
-                button.setBackground(new Color(85, 170, 0)); // Darker green when pressed
-            } else {
-                button.setBackground(new Color(13, 60, 130)); // Darker blue when pressed
+
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                if (button == btnDelete) {
+                    button.setBackground(new Color(204, 0, 0)); // Darker when pressed
+                } else if (button == btnSubmit || button == btnCreateNew) {
+                    button.setBackground(new Color(85, 170, 0)); // Darker green when pressed
+                } else {
+                    button.setBackground(new Color(13, 60, 130)); // Darker blue when pressed
+                }
             }
-        }
-        
-        @Override
-        public void mouseReleased(java.awt.event.MouseEvent evt) {
-            // Return to hover state
-            mouseEntered(evt);
-        }
-    });
-}
 
-/**
- * Apply consistent styling to a text field
- * @param textField TextField to style
- */
-private void styleTextField(JTextField textField) {
-    textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
-    textField.setForeground(new Color(13, 25, 51));    // Dark blue text
-    textField.setCaretColor(new Color(26, 79, 156));   // Medium blue cursor
-    textField.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
-    textField.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
-}
-
-/**
- * Apply title label styling
- * @param label Label to style
- */
-private void styleTitleLabel(JLabel label) {
-    label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 18));
-    label.setForeground(new Color(13, 25, 51)); // Dark blue text
-    label.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 5, 10, 5));
-}
-
-/**
- * Apply regular label styling
- * @param label Label to style
- */
-private void styleLabel(JLabel label) {
-    label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
-    label.setForeground(new Color(13, 25, 51)); // Dark blue text
-    label.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 2, 5, 2));
-}
-
-/**
- * Style the table with consistent formatting
- * @param table Table to style
- */
-private void styleTable(JTable table) {
-    // Style the header
-    if (table.getTableHeader() != null) {
-        table.getTableHeader().setBackground(new Color(26, 79, 156)); // Medium blue
-        table.getTableHeader().setForeground(Color.WHITE);
-        table.getTableHeader().setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
-        table.getTableHeader().setBorder(javax.swing.BorderFactory.createLineBorder(new Color(13, 60, 130), 1));
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                // Return to hover state
+                mouseEntered(evt);
+            }
+        });
     }
-    
-    // Style the table
-    table.setBackground(Color.WHITE);
-    table.setForeground(new Color(13, 25, 51)); // Dark blue text
-    table.setGridColor(new Color(230, 230, 230));
-    table.setRowHeight(25);
-    table.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
-    table.setSelectionBackground(new Color(232, 242, 254)); // Very light blue
-    table.setSelectionForeground(new Color(13, 25, 51)); // Keep text dark
-    
-    // Add custom cell renderer for alternating row colors
-    table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            
-            if (!isSelected) {
-                c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 245, 250));
-            }
-            
-            return c;
+
+    /**
+     * Apply consistent styling to a text field
+     *
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51));    // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156));   // Medium blue cursor
+        textField.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+    }
+
+    /**
+     * Apply title label styling
+     *
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 18));
+        label.setForeground(new Color(13, 25, 51)); // Dark blue text
+        label.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 5, 10, 5));
+    }
+
+    /**
+     * Apply regular label styling
+     *
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        label.setForeground(new Color(13, 25, 51)); // Dark blue text
+        label.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 2, 5, 2));
+    }
+
+    /**
+     * Style the table with consistent formatting
+     *
+     * @param table Table to style
+     */
+    private void styleTable(JTable table) {
+        // Style the header
+        if (table.getTableHeader() != null) {
+            table.getTableHeader().setBackground(new Color(26, 79, 156)); // Medium blue
+            table.getTableHeader().setForeground(Color.WHITE);
+            table.getTableHeader().setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+            table.getTableHeader().setBorder(javax.swing.BorderFactory.createLineBorder(new Color(13, 60, 130), 1));
         }
-    });
-}
+
+        // Style the table
+        table.setBackground(Color.WHITE);
+        table.setForeground(new Color(13, 25, 51)); // Dark blue text
+        table.setGridColor(new Color(230, 230, 230));
+        table.setRowHeight(25);
+        table.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        table.setSelectionBackground(new Color(232, 242, 254)); // Very light blue
+        table.setSelectionForeground(new Color(13, 25, 51)); // Keep text dark
+
+        // Add custom cell renderer for alternating row colors
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 245, 250));
+                }
+
+                return c;
+            }
+        });
+    }
 }
