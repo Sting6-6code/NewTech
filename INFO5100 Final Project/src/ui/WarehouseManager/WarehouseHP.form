@@ -53,16 +53,16 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="1" attributes="0">
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                              <Component id="btnProfile1" min="-2" pref="156" max="-2" attributes="0"/>
+                              <Component id="btnProfile1" linkSize="1" min="-2" pref="156" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
-                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                  <Component id="btnWarehouseManagement" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="btnProcurementRequest" alignment="0" max="32767" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="btnWarehouseManagement" linkSize="1" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="btnProcurementRequest" linkSize="1" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="btnComplaintBox" linkSize="1" alignment="0" min="-2" pref="156" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           </Group>
-                          <Component id="btnComplaintBox" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -72,14 +72,14 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="272" max="-2" attributes="0"/>
-                      <Component id="btnProcurementRequest" min="-2" pref="52" max="-2" attributes="0"/>
+                      <Component id="btnProcurementRequest" linkSize="2" min="-2" pref="52" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
-                      <Component id="btnWarehouseManagement" min="-2" pref="52" max="-2" attributes="0"/>
+                      <Component id="btnWarehouseManagement" linkSize="2" min="-2" pref="52" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
-                      <Component id="btnComplaintBox" min="-2" pref="51" max="-2" attributes="0"/>
+                      <Component id="btnComplaintBox" linkSize="2" min="-2" pref="51" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="42" max="-2" attributes="0"/>
-                      <Component id="btnProfile1" min="-2" pref="52" max="-2" attributes="0"/>
-                      <EmptySpace pref="2304" max="32767" attributes="0"/>
+                      <Component id="btnProfile1" linkSize="2" min="-2" pref="52" max="-2" attributes="0"/>
+                      <EmptySpace pref="2303" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>

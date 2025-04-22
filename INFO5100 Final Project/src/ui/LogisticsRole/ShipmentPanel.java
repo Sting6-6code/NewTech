@@ -1174,6 +1174,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
             customs.setConsignee(destination);
             customs.setDestinationCountry(extractCountry(destination));
             customs.setStatus("Pending");
+            customs.setDeclarationDate(new Date());
 
             // 如果有产品信息，添加默认物品
             if (shipment.getProductName() != null && !shipment.getProductName().isEmpty()) {
@@ -1188,6 +1189,17 @@ public class ShipmentPanel extends javax.swing.JPanel {
             }
 
             shipment.setCustomsDeclaration(customs);
+            
+            if (ConfigureASystem.logisticsOrg != null && 
+            ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
+            
+            System.out.println("Adding customs declaration " + customs.getDeclarationId() + 
+                " to global declaration directory");
+            
+            // Add to global directory
+            ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory()
+                .addCustomsDeclaration(customs);
+            }
 
             // 4. 计算预计送达时间
             Calendar cal = Calendar.getInstance();
@@ -1264,6 +1276,12 @@ public class ShipmentPanel extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this,
                     "Shipment processed successfully!\nTracking Number: " + trackingNumber
                     + "\nDestination: " + destination);
+            
+            // After saving the system, add this debug output
+            System.out.println("System saved. Customs declarations in directory: " + 
+                (ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null ? 
+                ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory()
+                    .getCustomsDeclarationList().size() : 0));
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,

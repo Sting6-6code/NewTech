@@ -19,6 +19,7 @@ import Business.Organization.LogisticsOrganization;
 import Business.Organization.Organization;
 import Business.UserAccount.UserAccount;
 import Business.WorkQueue.LogisticsWorkRequest;
+import Business.WorkQueue.WorkQueue;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -125,10 +126,29 @@ public class DocumentationDetails extends javax.swing.JPanel {
             }
         }
 
+        setupDeclarationListTable();
         initComponents();
         populateFields();
         setupTheme();
     }
+    
+    public void refreshDeclarationsList() {
+    setupDeclarationListTable();
+    }
+    
+    public void refreshOnReturn() {
+    // Re-get the declaration directory from the global reference
+    if (ConfigureASystem.logisticsOrg != null) {
+        this.declarationDirectory = ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory();
+        System.out.println("从全局组织重新加载了 " + 
+            (this.declarationDirectory != null ? 
+            this.declarationDirectory.getCustomsDeclarationList().size() : 0) + 
+            " 个报关单");
+    }
+    
+    // Refresh the table
+    refreshDeclarationList();
+}
 
     private void populateFields() {
         if (currentDeclaration != null) {
@@ -809,7 +829,7 @@ public class DocumentationDetails extends javax.swing.JPanel {
                         .addComponent(declarDetailsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 347, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(lblSearchID, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
@@ -1299,8 +1319,6 @@ public class DocumentationDetails extends javax.swing.JPanel {
         request.setCountryOfOrigin(declaration.getCountryOfOrigin());
         request.setDestinationCountry(declaration.getDestinationCountry());
         request.setNotes(declaration.getNotes());
-
-        // Important: Set initial status to "Submitted" (not "Pending")
         request.setStatus("Submitted");
         request.setRequestDate(new Date());
         request.setSender(userAccount);
@@ -1309,13 +1327,32 @@ public class DocumentationDetails extends javax.swing.JPanel {
         Organization customsOrg = findCustomsOrganization();
 
         if (customsOrg != null) {
+            // Ensure work queue exists
+            if (customsOrg.getWorkQueue() == null) {
+                customsOrg.setWorkQueue(new WorkQueue());
+            }
+            
             // Add request to customs organization's work queue
             customsOrg.getWorkQueue().getWorkRequestList().add(request);
             System.out.println("Added declaration to customs work queue: " + request.getDeclarationId());
             
-            // Also update original declaration status to "Submitted"
+            // Make sure customs organization has the same declaration directory
+            if (customsOrg instanceof CustomsLiaisonOrganization && 
+                organization != null && 
+                organization.getCustomsDeclarationDirectory() != null) {
+                
+                ((CustomsLiaisonOrganization)customsOrg).setCustomsDeclarationDirectory(
+                    organization.getCustomsDeclarationDirectory());
+                System.out.println("Synchronized declaration directory between organizations");
+            }
+            
+            // Update declaration status
             declaration.setStatus("Submitted");
             declaration.setSubmissionDate(new Date());
+            
+            // Save to system
+            EcoSystem system = EcoSystem.getInstance();
+            DB4OUtil.getInstance().storeSystem(system);
             
             JOptionPane.showMessageDialog(this, 
                 "Declaration " + declaration.getDeclarationId() + " successfully submitted to customs");
