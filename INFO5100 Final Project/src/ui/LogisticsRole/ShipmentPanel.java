@@ -477,7 +477,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
                     .addComponent(btnCustomsInfo)
                     .addComponent(btnPackageInfo)
                     .addComponent(btnFinancialInfo))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
                 .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtTrcNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblTraNo, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -513,14 +513,14 @@ public class ShipmentPanel extends javax.swing.JPanel {
             .addGroup(trackPathJPanelLayout.createSequentialGroup()
                 .addGap(149, 149, 149)
                 .addComponent(lblTrackPath, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(181, Short.MAX_VALUE))
+                .addContainerGap(185, Short.MAX_VALUE))
         );
         trackPathJPanelLayout.setVerticalGroup(
             trackPathJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(trackPathJPanelLayout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addComponent(lblTrackPath, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(317, Short.MAX_VALUE))
+                .addContainerGap(340, Short.MAX_VALUE))
         );
 
         btnShip.setText("Ship");
@@ -545,17 +545,17 @@ public class ShipmentPanel extends javax.swing.JPanel {
                 .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lblLogisticsTracking)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnRefresh)
-                        .addGap(78, 78, 78)
-                        .addComponent(lblTrackingNo)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtSearchBox, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(12, 12, 12)
-                        .addComponent(btnSearch))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lblLogisticsTracking)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnRefresh)
+                                .addGap(78, 78, 78)
+                                .addComponent(lblTrackingNo)
+                                .addGap(18, 18, 18)
+                                .addComponent(txtSearchBox, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(12, 12, 12)
+                                .addComponent(btnSearch))
                             .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(6, 6, 6)
@@ -572,7 +572,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
                         .addComponent(btnUpdateStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(btnShip, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(186, 186, 186))))
         );
@@ -608,11 +608,11 @@ public class ShipmentPanel extends javax.swing.JPanel {
                         .addComponent(btnUpdateStatus)
                         .addComponent(btnShip)
                         .addComponent(btnDelete)))
-                .addGap(61, 61, 61)
+                .addGap(47, 47, 47)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(basicInfoJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(trackPathJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 31, Short.MAX_VALUE))
+                .addGap(0, 22, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1490,6 +1490,34 @@ public class ShipmentPanel extends javax.swing.JPanel {
     }
 
     private Shipment findShipmentByTrackingNumber(String trackingNumber) {
+        // Special handling for pending shipments
+    if (trackingNumber != null && trackingNumber.startsWith("Pending-")) {
+        String shipmentId = trackingNumber.replace("Pending-", "");
+        
+        // Search for work request with this shipment ID
+        if (organization != null && organization.getWorkQueue() != null) {
+            for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
+                if (request instanceof WarehouseWorkRequest) {
+                    WarehouseWorkRequest warehouseRequest = (WarehouseWorkRequest) request;
+                    if (shipmentId.equals(warehouseRequest.getShipmentId())) {
+                        // Create a temporary shipment object with the request data
+                        Shipment tempShipment = new Shipment();
+                        tempShipment.setShipmentId(warehouseRequest.getShipmentId());
+                        tempShipment.setProductName(warehouseRequest.getProductName());
+                        tempShipment.setQuantity(warehouseRequest.getQuantity());
+                        tempShipment.setDestination(warehouseRequest.getDestination());
+                        tempShipment.setShipmentStatus(warehouseRequest.getStatus());
+                        // Use setShipDate instead of non-existent setRequestDate
+                        tempShipment.setShipDate(warehouseRequest.getRequestDate());
+                        return tempShipment;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    
+    // Regular shipment lookup
         if (organization != null && organization.getShipmentDirectory() != null) {
             return organization.getShipmentDirectory().findShipmentByTrackingNumber(trackingNumber);
         }

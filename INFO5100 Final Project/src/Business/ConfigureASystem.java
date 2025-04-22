@@ -479,121 +479,259 @@ public class ConfigureASystem {
     }
 
     // 从仓库的库存中创建订单
+//    public static void createSampleShipments(LogisticsOrganization logistics) {
+//        try {
+//            // 1. 验证物流组织
+//            if (logistics == null || logistics.getShipmentDirectory() == null) {
+//                System.out.println("Error: Invalid logistics organization or shipment directory");
+//                return;
+//            }
+//            ShipmentDirectory shipmentDir = logistics.getShipmentDirectory();
+//
+//            // 2. 获取仓库实例并验证
+//            Warehouse warehouse = Warehouse.getInstance();
+//            if (warehouse == null) {
+//                System.out.println("Error: Warehouse instance is null");
+//                return;
+//            }
+//            System.out.println("Warehouse instance obtained successfully");
+//
+//            // 3. 获取可用产品并验证
+//            List<Product> availableProducts = warehouse.getAvailableProducts();
+//            System.out.println("Available products in warehouse: "
+//                    + (availableProducts != null ? availableProducts.size() : 0));
+//
+//            if (availableProducts == null || availableProducts.isEmpty()) {
+//                System.out.println("Error: No available products in warehouse");
+//                return;
+//            }
+//
+//            // 4. 配送信息
+//            String[] destinations = {"New York", "Los Angeles", "Chicago", "Houston", "Phoenix"};
+//            String[] methods = {"Air Freight", "Sea Freight", "Ground"};
+//            String[] statuses = {
+//                Shipment.STATUS_PENDING,
+//                Shipment.STATUS_PROCESSING,
+//                Shipment.STATUS_SHIPPED,
+//                Shipment.STATUS_IN_TRANSIT,
+//                Shipment.STATUS_DELIVERING
+//            };
+//
+//            // 5. 创建货件
+//            int successfulShipments = 0;
+//            for (int i = 0; i < Math.min(10, availableProducts.size()); i++) {
+//                try {
+//                    // 获取产品信息
+//                    Product product = availableProducts.get(i % availableProducts.size());
+//                    String productId = product.getProductId();
+//
+//                    // 检查库存
+//                    int requestQuantity = 5; // 每个货件请求5个单位
+//                    int currentStock = warehouse.getProductAmount(productId);
+//                    System.out.println("Checking stock for " + product.getProductName()
+//                            + " (ID: " + productId + ") - Available: " + currentStock);
+//
+//                    if (currentStock < requestQuantity) {
+//                        System.out.println("Insufficient stock for " + product.getProductName()
+//                                + " (Required: " + requestQuantity + ", Available: " + currentStock + ")");
+//                        continue;
+//                    }
+//
+//                    // 创建货件
+//                    String shipmentId = "SHP" + String.format("%03d", i + 1);
+//                    String trackingNumber = "TRK" + String.format("%03d", i + 1);
+//                    Shipment shipment = shipmentDir.createShipment(shipmentId, trackingNumber);
+//
+//                    // 设置基本信息
+//                    shipment.setShipDate(new Date());
+//                    shipment.setShippingMethod(methods[i % methods.length]);
+//                    shipment.setOrigin("Shanghai Warehouse");
+//                    shipment.setDestination(destinations[i % destinations.length]);
+//                    shipment.setShipmentStatus(statuses[i % statuses.length]);
+//                    shipment.setCurrentLocation("Shanghai Warehouse");
+//
+//                    // 设置订单相关信息
+//                    shipment.setOrderId("ORD" + String.format("%03d", i + 1));
+//                    shipment.setProductName(product.getProductName());
+//                    shipment.setQuantity(requestQuantity);
+//
+//                    // 从仓库减少库存
+//                    boolean stockUpdated = warehouse.decreaseStock(productId, requestQuantity);
+//                    if (!stockUpdated) {
+//                        System.out.println("Failed to update stock for " + product.getProductName());
+//                        continue;
+//                    }
+//
+//                    // 添加跟踪记录
+//                    TrackingInfo trackInfo = new TrackingInfo();
+//                    trackInfo.setShipmentId(shipmentId);
+//                    trackInfo.setTimestamp(new Date());
+//                    trackInfo.setLocation("Shanghai Warehouse");
+//                    trackInfo.setDescription("Shipment created and inventory deducted");
+//                    trackInfo.setStatus("Completed");
+//                    shipment.addTrackingInfo(trackInfo);
+//
+//                    successfulShipments++;
+//                    System.out.println("Successfully created shipment: " + shipmentId
+//                            + " for product: " + product.getProductName()
+//                            + " (Quantity: " + requestQuantity + ")");
+//
+//                } catch (Exception e) {
+//                    System.out.println("Error creating shipment: " + e.getMessage());
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            // 6. 最终统计
+//            System.out.println("Shipment creation completed:");
+//            System.out.println("- Total successful shipments: " + successfulShipments);
+//            System.out.println("- Total shipments in directory: "
+//                    + shipmentDir.getShipments().size());
+//
+//        } catch (Exception e) {
+//            System.out.println("Fatal error in createSampleShipments: " + e.getMessage());
+//            e.printStackTrace();
+//        }
+//    }
+
     public static void createSampleShipments(LogisticsOrganization logistics) {
-        try {
-            // 1. 验证物流组织
-            if (logistics == null || logistics.getShipmentDirectory() == null) {
-                System.out.println("Error: Invalid logistics organization or shipment directory");
-                return;
-            }
-            ShipmentDirectory shipmentDir = logistics.getShipmentDirectory();
-
-            // 2. 获取仓库实例并验证
-            Warehouse warehouse = Warehouse.getInstance();
-            if (warehouse == null) {
-                System.out.println("Error: Warehouse instance is null");
-                return;
-            }
-            System.out.println("Warehouse instance obtained successfully");
-
-            // 3. 获取可用产品并验证
-            List<Product> availableProducts = warehouse.getAvailableProducts();
-            System.out.println("Available products in warehouse: "
-                    + (availableProducts != null ? availableProducts.size() : 0));
-
-            if (availableProducts == null || availableProducts.isEmpty()) {
-                System.out.println("Error: No available products in warehouse");
-                return;
-            }
-
-            // 4. 配送信息
-            String[] destinations = {"New York", "Los Angeles", "Chicago", "Houston", "Phoenix"};
-            String[] methods = {"Air Freight", "Sea Freight", "Ground"};
-            String[] statuses = {
-                Shipment.STATUS_PENDING,
-                Shipment.STATUS_PROCESSING,
-                Shipment.STATUS_SHIPPED,
-                Shipment.STATUS_IN_TRANSIT,
-                Shipment.STATUS_DELIVERING
-            };
-
-            // 5. 创建货件
-            int successfulShipments = 0;
-            for (int i = 0; i < Math.min(10, availableProducts.size()); i++) {
-                try {
-                    // 获取产品信息
-                    Product product = availableProducts.get(i % availableProducts.size());
-                    String productId = product.getProductId();
-
-                    // 检查库存
-                    int requestQuantity = 5; // 每个货件请求5个单位
-                    int currentStock = warehouse.getProductAmount(productId);
-                    System.out.println("Checking stock for " + product.getProductName()
-                            + " (ID: " + productId + ") - Available: " + currentStock);
-
-                    if (currentStock < requestQuantity) {
-                        System.out.println("Insufficient stock for " + product.getProductName()
-                                + " (Required: " + requestQuantity + ", Available: " + currentStock + ")");
-                        continue;
-                    }
-
-                    // 创建货件
-                    String shipmentId = "SHP" + String.format("%03d", i + 1);
-                    String trackingNumber = "TRK" + String.format("%03d", i + 1);
-                    Shipment shipment = shipmentDir.createShipment(shipmentId, trackingNumber);
-
-                    // 设置基本信息
-                    shipment.setShipDate(new Date());
-                    shipment.setShippingMethod(methods[i % methods.length]);
-                    shipment.setOrigin("Shanghai Warehouse");
-                    shipment.setDestination(destinations[i % destinations.length]);
-                    shipment.setShipmentStatus(statuses[i % statuses.length]);
-                    shipment.setCurrentLocation("Shanghai Warehouse");
-
-                    // 设置订单相关信息
-                    shipment.setOrderId("ORD" + String.format("%03d", i + 1));
-                    shipment.setProductName(product.getProductName());
-                    shipment.setQuantity(requestQuantity);
-
-                    // 从仓库减少库存
-                    boolean stockUpdated = warehouse.decreaseStock(productId, requestQuantity);
-                    if (!stockUpdated) {
-                        System.out.println("Failed to update stock for " + product.getProductName());
-                        continue;
-                    }
-
-                    // 添加跟踪记录
-                    TrackingInfo trackInfo = new TrackingInfo();
-                    trackInfo.setShipmentId(shipmentId);
-                    trackInfo.setTimestamp(new Date());
-                    trackInfo.setLocation("Shanghai Warehouse");
-                    trackInfo.setDescription("Shipment created and inventory deducted");
-                    trackInfo.setStatus("Completed");
-                    shipment.addTrackingInfo(trackInfo);
-
-                    successfulShipments++;
-                    System.out.println("Successfully created shipment: " + shipmentId
-                            + " for product: " + product.getProductName()
-                            + " (Quantity: " + requestQuantity + ")");
-
-                } catch (Exception e) {
-                    System.out.println("Error creating shipment: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-
-            // 6. 最终统计
-            System.out.println("Shipment creation completed:");
-            System.out.println("- Total successful shipments: " + successfulShipments);
-            System.out.println("- Total shipments in directory: "
-                    + shipmentDir.getShipments().size());
-
-        } catch (Exception e) {
-            System.out.println("Fatal error in createSampleShipments: " + e.getMessage());
-            e.printStackTrace();
+    try {
+        // 1. 验证物流组织
+        if (logistics == null || logistics.getShipmentDirectory() == null) {
+            System.out.println("Error: Invalid logistics organization or shipment directory");
+            return;
         }
-    }
+        ShipmentDirectory shipmentDir = logistics.getShipmentDirectory();
 
+        // 2. 获取仓库实例并验证
+        Warehouse warehouse = Warehouse.getInstance();
+        if (warehouse == null) {
+            System.out.println("Error: Warehouse instance is null");
+            return;
+        }
+        System.out.println("Warehouse instance obtained successfully");
+
+        // 3. 获取可用产品并验证
+        List<Product> availableProducts = warehouse.getAvailableProducts();
+        System.out.println("Available products in warehouse: "
+                + (availableProducts != null ? availableProducts.size() : 0));
+
+        if (availableProducts == null || availableProducts.isEmpty()) {
+            System.out.println("Error: No available products in warehouse");
+            return;
+        }
+
+        // 4. 配送信息
+        String[] destinations = {"New York", "Los Angeles", "Chicago", "Houston", "Phoenix"};
+        String[] methods = {"Air Freight", "Sea Freight", "Ground", "Express"};
+        String[] statuses = {
+            Shipment.STATUS_PENDING,
+            Shipment.STATUS_PROCESSING,
+            Shipment.STATUS_SHIPPED,
+            Shipment.STATUS_IN_TRANSIT,
+            Shipment.STATUS_DELIVERING
+        };
+
+        // 5. 创建货件
+        int successfulShipments = 0;
+        for (int i = 0; i < Math.min(10, availableProducts.size()); i++) {
+            try {
+                // 获取产品信息
+                Product product = availableProducts.get(i % availableProducts.size());
+                String productId = product.getProductId();
+
+                // 检查库存
+                int requestQuantity = 5; // 每个货件请求5个单位
+                int currentStock = warehouse.getProductAmount(productId);
+                System.out.println("Checking stock for " + product.getProductName()
+                        + " (ID: " + productId + ") - Available: " + currentStock);
+
+                if (currentStock < requestQuantity) {
+                    System.out.println("Insufficient stock for " + product.getProductName()
+                            + " (Required: " + requestQuantity + ", Available: " + currentStock + ")");
+                    continue;
+                }
+
+                // 创建货件
+                String shipmentId = "SHP" + String.format("%03d", i + 1);
+                String trackingNumber = "TRK" + String.format("%03d", i + 1);
+                Shipment shipment = shipmentDir.createShipment(shipmentId, trackingNumber);
+
+                // 设置基本信息
+                shipment.setShipDate(new Date());
+                // 选择发货方式
+                String shippingMethod = methods[i % methods.length];
+                shipment.setShippingMethod(shippingMethod);
+                
+                shipment.setOrigin("Shanghai Warehouse");
+                shipment.setDestination(destinations[i % destinations.length]);
+                shipment.setShipmentStatus(statuses[i % statuses.length]);
+                shipment.setCurrentLocation("Shanghai Warehouse");
+
+                // 设置订单相关信息
+                shipment.setOrderId("ORD" + String.format("%03d", i + 1));
+                shipment.setProductName(product.getProductName());
+                shipment.setQuantity(requestQuantity);
+                
+                // 设置预计送达时间
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(shipment.getShipDate());
+                switch (shippingMethod) {
+                    case "Express":
+                        cal.add(Calendar.DAY_OF_MONTH, 3);  // Express is 3 days
+                        break;
+                    case "Air Freight":
+                        cal.add(Calendar.DAY_OF_MONTH, 7);  // Air Freight is 7 days
+                        break;
+                    case "Sea Freight":
+                        cal.add(Calendar.DAY_OF_MONTH, 30); // Sea Freight is 30 days
+                        break;
+                    case "Ground":
+                        cal.add(Calendar.DAY_OF_MONTH, 15); // Ground is 15 days
+                        break;
+                }
+                shipment.setEstimatedDeliveryDate(cal.getTime());
+
+                // 从仓库减少库存
+                boolean stockUpdated = warehouse.decreaseStock(productId, requestQuantity);
+                if (!stockUpdated) {
+                    System.out.println("Failed to update stock for " + product.getProductName());
+                    continue;
+                }
+
+                // 添加跟踪记录
+                TrackingInfo trackInfo = new TrackingInfo();
+                trackInfo.setShipmentId(shipmentId);
+                trackInfo.setTimestamp(new Date());
+                trackInfo.setLocation("Shanghai Warehouse");
+                trackInfo.setDescription("Shipment created and inventory deducted");
+                trackInfo.setStatus("Completed");
+                shipment.addTrackingInfo(trackInfo);
+
+                successfulShipments++;
+                System.out.println("Successfully created shipment: " + shipmentId
+                        + " for product: " + product.getProductName()
+                        + " (Quantity: " + requestQuantity + ")"
+                        + " with estimated delivery on: " + new SimpleDateFormat("yyyy-MM-dd").format(shipment.getEstimatedDeliveryDate()));
+
+            } catch (Exception e) {
+                System.out.println("Error creating shipment: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        // 6. 最终统计
+        System.out.println("Shipment creation completed:");
+        System.out.println("- Total successful shipments: " + successfulShipments);
+        System.out.println("- Total shipments in directory: "
+                + shipmentDir.getShipments().size());
+
+    } catch (Exception e) {
+        System.out.println("Fatal error in createSampleShipments: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+    
     public static void setupDeliveredShipment(Shipment shipment) {
         try {
             // Set basic info
@@ -608,6 +746,14 @@ public class ConfigureASystem {
             shipment.setSender("Apple Store Shanghai");
             shipment.setReceiver("John Smith");
             shipment.setWeight(0.5);
+            
+            // Calculate estimated delivery date based on shipping method and shipDate
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(shipment.getShipDate());
+        
+            // For Express shipping, add 3 days
+            cal.add(Calendar.DAY_OF_MONTH, 3);
+            shipment.setEstimatedDeliveryDate(cal.getTime());
 
             // Add tracking records
             addTrackingInfo(shipment, -7, "Shanghai Warehouse", 31.2304, 121.4737,
@@ -629,6 +775,7 @@ public class ConfigureASystem {
                     "Package delivered", Shipment.STATUS_DELIVERED);
 
             System.out.println("Successfully set up delivered shipment with all information");
+            System.out.println("Estimated Delivery Date: " + new SimpleDateFormat("yyyy-MM-dd").format(shipment.getEstimatedDeliveryDate()));
         } catch (Exception e) {
             System.out.println("Error occurred while setting up delivered shipment: " + e.getMessage());
             e.printStackTrace();
@@ -652,6 +799,16 @@ public class ConfigureASystem {
         shipment.setSender("Apple Store Shanghai");
         shipment.setReceiver("Jane Doe");
         shipment.setWeight(2.5);
+        
+        // Calculate estimated delivery date based on shipping method and shipDate
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(shipment.getShipDate());
+    
+    // For Express shipping, add 3 days
+    cal.add(Calendar.DAY_OF_MONTH, 3);
+    shipment.setEstimatedDeliveryDate(cal.getTime());
+    System.out.println("In-Transit Shipment: Estimated Delivery Date: " 
+            + new SimpleDateFormat("yyyy-MM-dd").format(shipment.getEstimatedDeliveryDate()));
 
         // Add tracking records
         addTrackingInfo(shipment, -3, "Shanghai Warehouse", 31.2304, 121.4737,
@@ -677,6 +834,17 @@ public class ConfigureASystem {
         shipment.setSender("Apple Store Shanghai");
         shipment.setReceiver("Bob Wilson");
         shipment.setWeight(1.0);
+        
+        // Calculate estimated delivery date based on shipping method and shipDate
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(shipment.getShipDate());
+    
+    // For Standard (Ground) shipping, add 15 days
+    cal.add(Calendar.DAY_OF_MONTH, 15);
+    shipment.setEstimatedDeliveryDate(cal.getTime());
+    
+    System.out.println("Newly Shipped: Estimated Delivery Date: " 
+            + new SimpleDateFormat("yyyy-MM-dd").format(shipment.getEstimatedDeliveryDate()));
 
         // Add tracking records
         addTrackingInfo(shipment, 0, "Shanghai Warehouse", 31.2304, 121.4737,
@@ -758,7 +926,7 @@ public class ConfigureASystem {
         // 创建示例报关单2 - 已提交状态
         CustomsDeclaration declaration2 = new CustomsDeclaration();
         declaration2.setDeclarationId("CD202504150002");
-        declaration2.setShipmentId("TRK002");  // 对应TRK002
+        declaration2.setShipmentId("SHP002");  // 对应TRK002
         declaration2.setStatus("Submitted");
 
         // 设置日期 (5天前)
@@ -805,7 +973,7 @@ public class ConfigureASystem {
         // 创建示例报关单3 - 已批准状态
         CustomsDeclaration declaration3 = new CustomsDeclaration();
         declaration3.setDeclarationId("CD202504010003");
-        declaration3.setShipmentId("TRK003");  // 对应TRK003
+        declaration3.setShipmentId("SHP003");  // 对应TRK003
         declaration3.setStatus("Approved");
 
         // 设置日期 (15天前)
@@ -857,7 +1025,7 @@ public class ConfigureASystem {
         // 创建示例报关单4 - 已提交状态
         CustomsDeclaration declaration4 = new CustomsDeclaration();
         declaration4.setDeclarationId("CD202504020004");
-        declaration4.setShipmentId("TRK004");  // 对应TRK004
+        declaration4.setShipmentId("SHP004");  // 对应TRK004
         declaration4.setStatus("Submitted");
 
         // 设置日期 (10天前)
@@ -904,7 +1072,7 @@ public class ConfigureASystem {
         // 创建示例报关单5 - 已批准状态
         CustomsDeclaration declaration5 = new CustomsDeclaration();
         declaration5.setDeclarationId("CD202504030005");
-        declaration5.setShipmentId("TRK005");  // 对应TRK005
+        declaration5.setShipmentId("SHP005");  // 对应TRK005
         declaration5.setStatus("Information Needed");
 
         // 设置日期 (20天前)
@@ -956,7 +1124,7 @@ public class ConfigureASystem {
         // 创建示例报关单6 - 草稿状态
         CustomsDeclaration declaration6 = new CustomsDeclaration();
         declaration6.setDeclarationId("CD202504100006");
-        declaration6.setShipmentId("TRK006");  // 对应TRK006
+        declaration6.setShipmentId("SHP006");  // 对应TRK006
         declaration6.setStatus("Draft");
         declaration6.setDeclarationDate(new Date());
         declaration6.setConsignor("Microsoft Corporation");
@@ -993,7 +1161,7 @@ public class ConfigureASystem {
         // 创建示例报关单7 - 已提交状态
         CustomsDeclaration declaration7 = new CustomsDeclaration();
         declaration7.setDeclarationId("CD202504050007");
-        declaration7.setShipmentId("TRK007");  // 对应TRK007
+        declaration7.setShipmentId("SHP007");  // 对应TRK007
         declaration7.setStatus("Submitted");
 
         // 设置日期 (8天前)
@@ -1040,7 +1208,7 @@ public class ConfigureASystem {
         // 创建示例报关单8 - 已批准状态
         CustomsDeclaration declaration8 = new CustomsDeclaration();
         declaration8.setDeclarationId("CD202504010008");
-        declaration8.setShipmentId("TRK008");  // 对应TRK008
+        declaration8.setShipmentId("SHP008");  // 对应TRK008
         declaration8.setStatus("Approved");
 
         // 设置日期 (25天前)
@@ -1092,7 +1260,7 @@ public class ConfigureASystem {
         // 创建示例报关单9 - 已提交状态
         CustomsDeclaration declaration9 = new CustomsDeclaration();
         declaration9.setDeclarationId("CD202504060009");
-        declaration9.setShipmentId("TRK009");  // 对应TRK009
+        declaration9.setShipmentId("SHP009");  // 对应TRK009
         declaration9.setStatus("Submitted");
 
         // 设置日期 (7天前)
@@ -1139,7 +1307,7 @@ public class ConfigureASystem {
         // 创建示例报关单10 - 草稿状态
         CustomsDeclaration declaration10 = new CustomsDeclaration();
         declaration10.setDeclarationId("CD202504110010");
-        declaration10.setShipmentId("TRK010");  // 对应TRK010
+        declaration10.setShipmentId("SHP010");  // 对应TRK010
         declaration10.setStatus("Draft");
         declaration10.setDeclarationDate(new Date());
         declaration10.setConsignor("HP Inc.");
