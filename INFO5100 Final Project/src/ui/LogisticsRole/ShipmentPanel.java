@@ -2714,11 +2714,11 @@ public class ShipmentPanel extends javax.swing.JPanel {
     private JPanel createPackageInfoPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        // 创建主内容面板，使用 GridBagLayout
+        // Create main content panel using GridBagLayout
         JPanel contentPanel = new JPanel(new GridBagLayout());
         contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // 设置约束条件
+        // Setup constraints
         GridBagConstraints labelConstraints = new GridBagConstraints();
         labelConstraints.gridx = 0;
         labelConstraints.gridy = 0;
@@ -2732,26 +2732,45 @@ public class ShipmentPanel extends javax.swing.JPanel {
         fieldConstraints.weightx = 1.0;
         fieldConstraints.insets = new Insets(10, 0, 10, 10);
 
-        // 设置文本框的标准大小
+        // Standard text field size
         Dimension textFieldSize = new Dimension(250, 30);
 
-        // 添加包裹信息字段
+        // Add package info fields
         JLabel lblWeight = new JLabel("Weight (kg):");
         JTextField txtWeight = new JTextField();
+        txtWeight.setName("txtWeight");
         txtWeight.setPreferredSize(textFieldSize);
 
         JLabel lblDimensions = new JLabel("Dimensions (cm):");
         JTextField txtDimensions = new JTextField();
+        txtDimensions.setName("txtDimensions");
         txtDimensions.setPreferredSize(textFieldSize);
 
         JLabel lblPackageType = new JLabel("Package Type:");
-        JTextField txtPackageType = new JTextField();
-        txtPackageType.setPreferredSize(textFieldSize);
+        String[] packageTypes = {"Box", "Envelope", "Pallet", "Tube", "Crate", "Other"};
+        JComboBox<String> cmbPackageType = new JComboBox<>(packageTypes);
+        cmbPackageType.setName("cmbPackageType");
+        cmbPackageType.setPreferredSize(textFieldSize);
+
+        JLabel lblItemCount = new JLabel("Item Count:");
+        JTextField txtItemCount = new JTextField();
+        txtItemCount.setName("txtItemCount");
+        txtItemCount.setPreferredSize(textFieldSize);
 
         JLabel lblSpecialHandling = new JLabel("Special Handling:");
         JTextField txtSpecialHandling = new JTextField();
+        txtSpecialHandling.setName("txtSpecialHandling");
         txtSpecialHandling.setPreferredSize(textFieldSize);
 
+        JLabel lblNotes = new JLabel("Notes:");
+        JTextArea txtPackageNotes = new JTextArea(3, 20);
+        txtPackageNotes.setName("txtPackageNotes");
+        txtPackageNotes.setLineWrap(true);
+        txtPackageNotes.setWrapStyleWord(true);
+        JScrollPane scrollNotes = new JScrollPane(txtPackageNotes);
+        scrollNotes.setPreferredSize(new Dimension(250, 60));
+
+        // Add components to content panel
         contentPanel.add(lblWeight, labelConstraints);
         contentPanel.add(txtWeight, fieldConstraints);
 
@@ -2763,14 +2782,24 @@ public class ShipmentPanel extends javax.swing.JPanel {
         labelConstraints.gridy++;
         fieldConstraints.gridy++;
         contentPanel.add(lblPackageType, labelConstraints);
-        contentPanel.add(txtPackageType, fieldConstraints);
+        contentPanel.add(cmbPackageType, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblItemCount, labelConstraints);
+        contentPanel.add(txtItemCount, fieldConstraints);
 
         labelConstraints.gridy++;
         fieldConstraints.gridy++;
         contentPanel.add(lblSpecialHandling, labelConstraints);
         contentPanel.add(txtSpecialHandling, fieldConstraints);
 
-        // 添加填充空间，将内容推到顶部
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblNotes, labelConstraints);
+        contentPanel.add(scrollNotes, fieldConstraints);
+
+        // Add spacing filler to push content to top
         GridBagConstraints fillerConstraints = new GridBagConstraints();
         fillerConstraints.gridx = 0;
         fillerConstraints.gridy = labelConstraints.gridy + 1;
@@ -2779,20 +2808,148 @@ public class ShipmentPanel extends javax.swing.JPanel {
         fillerConstraints.gridwidth = 2;
         contentPanel.add(Box.createVerticalGlue(), fillerConstraints);
 
-        // 将内容面板添加到主面板
-        panel.add(contentPanel, BorderLayout.NORTH);
+        // Load package data if a shipment is selected
+        int selectedRow = tblShipment.getSelectedRow();
+        if (selectedRow >= 0) {
+            String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
+            Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+            if (shipment != null) {
+                loadPackageInfo(shipment, txtWeight, txtDimensions, cmbPackageType,
+                        txtItemCount, txtSpecialHandling, txtPackageNotes);
+            }
+        }
+
+        // Add save button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnSavePackage = new JButton("Save");
+        styleButton(btnSavePackage);
+        buttonPanel.add(btnSavePackage);
+
+        // Add save action
+        btnSavePackage.addActionListener(e -> {
+            savePackageInfo(txtWeight, txtDimensions, cmbPackageType,
+                    txtItemCount, txtSpecialHandling, txtPackageNotes);
+        });
+
+        // Add components to main panel
+        panel.add(contentPanel, BorderLayout.CENTER);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
 
         return panel;
+    }
+
+    private void loadPackageInfo(Shipment shipment, JTextField txtWeight, JTextField txtDimensions,
+            JComboBox<String> cmbPackageType, JTextField txtItemCount,
+            JTextField txtSpecialHandling, JTextArea txtNotes) {
+        // Ensure the shipment has package info
+        if (shipment.getPackageInfo() == null) {
+            shipment.initializePackageInfo();
+        }
+
+        // Load existing values
+        if (shipment.getPackageInfo().getWeight() > 0) {
+            txtWeight.setText(String.format("%.2f", shipment.getPackageInfo().getWeight()));
+        } else {
+            txtWeight.setText("");
+        }
+
+        txtDimensions.setText(shipment.getPackageInfo().getDimensions() != null
+                ? shipment.getPackageInfo().getDimensions() : "");
+
+        // Set package type in combo box
+        String packageType = shipment.getPackageInfo().getPackageType();
+        if (packageType != null && !packageType.isEmpty()) {
+            for (int i = 0; i < cmbPackageType.getItemCount(); i++) {
+                if (cmbPackageType.getItemAt(i).equals(packageType)) {
+                    cmbPackageType.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+
+        txtItemCount.setText(shipment.getPackageInfo().getItemCount() > 0
+                ? String.valueOf(shipment.getPackageInfo().getItemCount()) : "");
+        txtSpecialHandling.setText(shipment.getPackageInfo().getSpecialHandling() != null
+                ? shipment.getPackageInfo().getSpecialHandling() : "");
+        txtNotes.setText(shipment.getPackageInfo().getNotes() != null
+                ? shipment.getPackageInfo().getNotes() : "");
+    }
+
+    private void savePackageInfo(JTextField txtWeight, JTextField txtDimensions,
+            JComboBox<String> cmbPackageType, JTextField txtItemCount,
+            JTextField txtSpecialHandling, JTextArea txtNotes) {
+        int selectedRow = tblShipment.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a shipment first",
+                    "No Selection", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
+        Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+
+        if (shipment == null) {
+            JOptionPane.showMessageDialog(this, "Cannot find shipment details",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Initialize package info if needed
+        if (shipment.getPackageInfo() == null) {
+            shipment.initializePackageInfo();
+        }
+
+        try {
+            // Parse and set weight
+            if (!txtWeight.getText().trim().isEmpty()) {
+                double weight = Double.parseDouble(txtWeight.getText().trim());
+                shipment.getPackageInfo().setWeight(weight);
+                // Also update the main shipment weight
+                shipment.setWeight(weight);
+            }
+
+            // Set dimensions
+            shipment.getPackageInfo().setDimensions(txtDimensions.getText().trim());
+
+            // Set package type
+            shipment.getPackageInfo().setPackageType(cmbPackageType.getSelectedItem().toString());
+
+            // Parse and set item count
+            if (!txtItemCount.getText().trim().isEmpty()) {
+                int itemCount = Integer.parseInt(txtItemCount.getText().trim());
+                shipment.getPackageInfo().setItemCount(itemCount);
+            }
+
+            // Set special handling instructions
+            shipment.getPackageInfo().setSpecialHandling(txtSpecialHandling.getText().trim());
+
+            // Set notes
+            shipment.getPackageInfo().setNotes(txtNotes.getText().trim());
+
+            // Save to system
+            EcoSystem system = EcoSystem.getInstance();
+            DB4OUtil.getInstance().storeSystem(system);
+
+            JOptionPane.showMessageDialog(this, "Package information saved successfully",
+                    "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Please enter valid numeric values for weight and item count",
+                    "Invalid Input", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error saving package information: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 
     private JPanel createFinancialInfoPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        // 创建主内容面板，使用 GridBagLayout
+        // Create main content panel using GridBagLayout
         JPanel contentPanel = new JPanel(new GridBagLayout());
         contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // 设置约束条件
+        // Setup constraints
         GridBagConstraints labelConstraints = new GridBagConstraints();
         labelConstraints.gridx = 0;
         labelConstraints.gridy = 0;
@@ -2806,26 +2963,59 @@ public class ShipmentPanel extends javax.swing.JPanel {
         fieldConstraints.weightx = 1.0;
         fieldConstraints.insets = new Insets(10, 0, 10, 10);
 
-        // 设置文本框的标准大小
+        // Standard text field size
         Dimension textFieldSize = new Dimension(250, 30);
 
-        // 添加财务信息字段
-        JLabel lblShippingCost = new JLabel("Shipping Cost:");
+        // Add financial info fields
+        JLabel lblInvoiceNumber = new JLabel("Invoice Number:");
+        JTextField txtInvoiceNumber = new JTextField();
+        txtInvoiceNumber.setName("txtInvoiceNumber");
+        txtInvoiceNumber.setPreferredSize(textFieldSize);
+
+        JLabel lblShippingCost = new JLabel("Shipping Cost (USD):");
         JTextField txtShippingCost = new JTextField();
+        txtShippingCost.setName("txtShippingCost");
         txtShippingCost.setPreferredSize(textFieldSize);
 
-        JLabel lblInsuranceCost = new JLabel("Insurance Cost:");
+        JLabel lblInsuranceCost = new JLabel("Insurance Cost (USD):");
         JTextField txtInsuranceCost = new JTextField();
+        txtInsuranceCost.setName("txtInsuranceCost");
         txtInsuranceCost.setPreferredSize(textFieldSize);
 
-        JLabel lblTaxes = new JLabel("Taxes:");
+        JLabel lblCustomsDuties = new JLabel("Customs Duties (USD):");
+        JTextField txtCustomsDuties = new JTextField();
+        txtCustomsDuties.setName("txtCustomsDuties");
+        txtCustomsDuties.setPreferredSize(textFieldSize);
+
+        JLabel lblTaxes = new JLabel("Taxes (USD):");
         JTextField txtTaxes = new JTextField();
+        txtTaxes.setName("txtTaxes");
         txtTaxes.setPreferredSize(textFieldSize);
 
-        JLabel lblTotalCost = new JLabel("Total Cost:");
-        JTextField txtTotalCost = new JTextField();
-        txtTotalCost.setPreferredSize(textFieldSize);
+        JLabel lblOtherCharges = new JLabel("Other Charges (USD):");
+        JTextField txtOtherCharges = new JTextField();
+        txtOtherCharges.setName("txtOtherCharges");
+        txtOtherCharges.setPreferredSize(textFieldSize);
 
+        JLabel lblTotalCost = new JLabel("Total Cost (USD):");
+        JTextField txtTotalCost = new JTextField();
+        txtTotalCost.setName("txtTotalCost");
+        txtTotalCost.setPreferredSize(textFieldSize);
+        txtTotalCost.setEditable(false);
+        txtTotalCost.setBackground(new Color(240, 240, 240));
+
+        JLabel lblPaymentStatus = new JLabel("Payment Status:");
+        String[] paymentStatuses = {"Unpaid", "Partially Paid", "Paid", "Refunded"};
+        JComboBox<String> cmbPaymentStatus = new JComboBox<>(paymentStatuses);
+        cmbPaymentStatus.setName("cmbPaymentStatus");
+        cmbPaymentStatus.setPreferredSize(textFieldSize);
+
+        // Add components to content panel
+        contentPanel.add(lblInvoiceNumber, labelConstraints);
+        contentPanel.add(txtInvoiceNumber, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
         contentPanel.add(lblShippingCost, labelConstraints);
         contentPanel.add(txtShippingCost, fieldConstraints);
 
@@ -2836,27 +3026,202 @@ public class ShipmentPanel extends javax.swing.JPanel {
 
         labelConstraints.gridy++;
         fieldConstraints.gridy++;
+        contentPanel.add(lblCustomsDuties, labelConstraints);
+        contentPanel.add(txtCustomsDuties, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
         contentPanel.add(lblTaxes, labelConstraints);
         contentPanel.add(txtTaxes, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblOtherCharges, labelConstraints);
+        contentPanel.add(txtOtherCharges, fieldConstraints);
 
         labelConstraints.gridy++;
         fieldConstraints.gridy++;
         contentPanel.add(lblTotalCost, labelConstraints);
         contentPanel.add(txtTotalCost, fieldConstraints);
 
-        // 添加填充空间，将内容推到顶部
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblPaymentStatus, labelConstraints);
+        contentPanel.add(cmbPaymentStatus, fieldConstraints);
+
+        // Add calculate button
+        JButton btnCalculate = new JButton("Calculate Total");
+        styleButton(btnCalculate);
+        GridBagConstraints calcButtonConstraints = new GridBagConstraints();
+        calcButtonConstraints.gridx = 1;
+        calcButtonConstraints.gridy = labelConstraints.gridy + 1;
+        calcButtonConstraints.anchor = GridBagConstraints.EAST;
+        calcButtonConstraints.insets = new Insets(10, 0, 10, 10);
+        contentPanel.add(btnCalculate, calcButtonConstraints);
+
+        // Add calculate action
+        btnCalculate.addActionListener(e -> {
+            try {
+                double shippingCost = parseDoubleOrZero(txtShippingCost.getText());
+                double insuranceCost = parseDoubleOrZero(txtInsuranceCost.getText());
+                double customsDuties = parseDoubleOrZero(txtCustomsDuties.getText());
+                double taxes = parseDoubleOrZero(txtTaxes.getText());
+                double otherCharges = parseDoubleOrZero(txtOtherCharges.getText());
+
+                double total = shippingCost + insuranceCost + customsDuties + taxes + otherCharges;
+                txtTotalCost.setText(String.format("%.2f", total));
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(panel,
+                        "Please enter valid numeric values for all costs",
+                        "Invalid Input", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        // Add spacing filler to push content to top
         GridBagConstraints fillerConstraints = new GridBagConstraints();
         fillerConstraints.gridx = 0;
-        fillerConstraints.gridy = labelConstraints.gridy + 1;
+        fillerConstraints.gridy = labelConstraints.gridy + 2;
         fillerConstraints.weighty = 1.0;
         fillerConstraints.fill = GridBagConstraints.BOTH;
         fillerConstraints.gridwidth = 2;
         contentPanel.add(Box.createVerticalGlue(), fillerConstraints);
 
-        // 将内容面板添加到主面板
-        panel.add(contentPanel, BorderLayout.NORTH);
+        // Load financial data if a shipment is selected
+        int selectedRow = tblShipment.getSelectedRow();
+        if (selectedRow >= 0) {
+            String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
+            Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+            if (shipment != null) {
+                loadFinancialInfo(shipment, txtShippingCost, txtInsuranceCost, txtCustomsDuties,
+                        txtTaxes, txtOtherCharges, txtTotalCost, cmbPaymentStatus);
+            }
+        }
+
+        // Add save button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnSaveFinancial = new JButton("Save");
+        btnSaveFinancial.setBackground(new Color(26, 79, 156));
+        btnSaveFinancial.setForeground(Color.WHITE);
+        buttonPanel.add(btnSaveFinancial);
+
+        // Add save action
+        btnSaveFinancial.addActionListener(e -> {
+            saveFinancialInfo(txtShippingCost, txtInsuranceCost, txtCustomsDuties,
+                    txtTaxes, txtOtherCharges, txtTotalCost, cmbPaymentStatus);
+        });
+
+        // Add components to main panel
+        panel.add(contentPanel, BorderLayout.CENTER);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
 
         return panel;
+    }
+
+    private void loadFinancialInfo(Shipment shipment, JTextField txtShippingCost,
+            JTextField txtInsuranceCost, JTextField txtCustomsDuties,
+            JTextField txtTaxes, JTextField txtOtherCharges,
+            JTextField txtTotalCost, JComboBox<String> cmbPaymentStatus) {
+        // Ensure the shipment has financial info
+        if (shipment.getFinancialInfo() == null) {
+            shipment.initializeFinancialInfo();
+        }
+
+        // Load existing values
+        txtShippingCost.setText(shipment.getFinancialInfo().getShippingCost() > 0
+                ? String.format("%.2f", shipment.getFinancialInfo().getShippingCost()) : "");
+        txtInsuranceCost.setText(shipment.getFinancialInfo().getInsuranceCost() > 0
+                ? String.format("%.2f", shipment.getFinancialInfo().getInsuranceCost()) : "");
+        txtCustomsDuties.setText(shipment.getFinancialInfo().getCustomsDuties() > 0
+                ? String.format("%.2f", shipment.getFinancialInfo().getCustomsDuties()) : "");
+        txtTaxes.setText(shipment.getFinancialInfo().getTaxes() > 0
+                ? String.format("%.2f", shipment.getFinancialInfo().getTaxes()) : "");
+        txtOtherCharges.setText(shipment.getFinancialInfo().getOtherCharges() > 0
+                ? String.format("%.2f", shipment.getFinancialInfo().getOtherCharges()) : "");
+        txtTotalCost.setText(shipment.getFinancialInfo().getTotalCost() > 0
+                ? String.format("%.2f", shipment.getFinancialInfo().getTotalCost()) : "");
+
+        // Set payment status in combo box
+        String paymentStatus = shipment.getFinancialInfo().getPaymentStatus();
+        if (paymentStatus != null && !paymentStatus.isEmpty()) {
+            for (int i = 0; i < cmbPaymentStatus.getItemCount(); i++) {
+                if (cmbPaymentStatus.getItemAt(i).equals(paymentStatus)) {
+                    cmbPaymentStatus.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void saveFinancialInfo(JTextField txtShippingCost, JTextField txtInsuranceCost,
+            JTextField txtCustomsDuties, JTextField txtTaxes,
+            JTextField txtOtherCharges, JTextField txtTotalCost,
+            JComboBox<String> cmbPaymentStatus) {
+        int selectedRow = tblShipment.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a shipment first",
+                    "No Selection", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
+        Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+
+        if (shipment == null) {
+            JOptionPane.showMessageDialog(this, "Cannot find shipment details",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Initialize financial info if needed
+        if (shipment.getFinancialInfo() == null) {
+            shipment.initializeFinancialInfo();
+        }
+
+        try {
+            // Parse and set costs
+            shipment.getFinancialInfo().setShippingCost(parseDoubleOrZero(txtShippingCost.getText()));
+            shipment.getFinancialInfo().setInsuranceCost(parseDoubleOrZero(txtInsuranceCost.getText()));
+            shipment.getFinancialInfo().setCustomsDuties(parseDoubleOrZero(txtCustomsDuties.getText()));
+            shipment.getFinancialInfo().setTaxes(parseDoubleOrZero(txtTaxes.getText()));
+            shipment.getFinancialInfo().setOtherCharges(parseDoubleOrZero(txtOtherCharges.getText()));
+
+            // Calculate and set total
+            double total = shipment.getFinancialInfo().getShippingCost()
+                    + shipment.getFinancialInfo().getInsuranceCost()
+                    + shipment.getFinancialInfo().getCustomsDuties()
+                    + shipment.getFinancialInfo().getTaxes()
+                    + shipment.getFinancialInfo().getOtherCharges();
+
+            shipment.getFinancialInfo().setTotalCost(total);
+            txtTotalCost.setText(String.format("%.2f", total));
+
+            // Set payment status
+            shipment.getFinancialInfo().setPaymentStatus(cmbPaymentStatus.getSelectedItem().toString());
+
+            // Save to system
+            EcoSystem system = EcoSystem.getInstance();
+            DB4OUtil.getInstance().storeSystem(system);
+
+            JOptionPane.showMessageDialog(this, "Financial information saved successfully",
+                    "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Please enter valid numeric values for all costs",
+                    "Invalid Input", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error saving financial information: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private double parseDoubleOrZero(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return 0.0;
+        }
+        try {
+            return Double.parseDouble(value.trim());
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
     }
 
     private void processNewShipment(Shipment shipment) {
