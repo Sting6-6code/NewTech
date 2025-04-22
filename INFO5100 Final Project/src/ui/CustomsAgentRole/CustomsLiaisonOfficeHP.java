@@ -188,7 +188,7 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
             int count = 0;
 
             for (CustomsDeclaration declaration : organization.getCustomsDeclarationDirectory().getCustomsDeclarationList()) {
-                // 只显示状态为"Pending"或"Submitted"的申报单
+                // 只显示状态为"Pending"或"Submitted"的申报单                
                 if ("Pending".equals(declaration.getStatus())
                         || "Submitted".equals(declaration.getStatus())
                         || declaration.getStatus() == null) {
@@ -305,7 +305,6 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         btnSubmitDocs = new javax.swing.JButton();
         btnReturnTax = new javax.swing.JButton();
         btnProfile = new javax.swing.JButton();
-        btnLogout = new javax.swing.JButton();
         btnCusComplaint = new javax.swing.JButton();
 
         setMaximumSize(new java.awt.Dimension(1450, 800));
@@ -568,13 +567,6 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
             }
         });
 
-        btnLogout.setText("Logout");
-        btnLogout.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnLogoutActionPerformed(evt);
-            }
-        });
-
         btnCusComplaint.setText("Customer Complaint");
         btnCusComplaint.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -590,7 +582,6 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
                 .addGap(14, 14, 14)
                 .addGroup(cusHPControlJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btnDashBoard, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnLogout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnCusComplaint, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnProfile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnReturnTax, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -613,9 +604,7 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
                 .addComponent(btnProfile, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(26, 26, 26)
                 .addComponent(btnCusComplaint, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 195, Short.MAX_VALUE)
-                .addComponent(btnLogout)
-                .addGap(47, 47, 47))
+                .addContainerGap(265, Short.MAX_VALUE))
         );
 
         jSplitPane.setLeftComponent(cusHPControlJPanel);
@@ -643,21 +632,12 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-
-        // Show a message that this feature is not yet implemented
-        JOptionPane.showMessageDialog(this,
-                "The Submit Documents feature is not yet implemented.",
-                "Feature Not Available",
-                JOptionPane.INFORMATION_MESSAGE);
         
-        // Code below is commented out until the SubmitDoc class is implemented
-        /*
         // Create and display submit documents panel
         SubmitDoc submitPanel = new SubmitDoc(userProcessContainer, userAccount, organization);
         userProcessContainer.add("SubmitDocuments", submitPanel);
         CardLayout layout = (CardLayout) userProcessContainer.getLayout();
         layout.show(userProcessContainer, "SubmitDocuments");
-        */
     }//GEN-LAST:event_btnSubmitDocsActionPerformed
 
     private void btnDashBoardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDashBoardActionPerformed
@@ -721,16 +701,6 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         layout.show(userProcessContainer, "Profile");
     }//GEN-LAST:event_btnProfileActionPerformed
 
-    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
-        // TODO add your handling code here:
-        userProcessContainer.remove(this);
-        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
-        layout.previous(userProcessContainer);
-
-        JOptionPane.showMessageDialog(null, "Logged out successfully");
-
-    }//GEN-LAST:event_btnLogoutActionPerformed
-
     private void btnCusComplaintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCusComplaintActionPerformed
         // TODO add your handling code here:
 
@@ -773,7 +743,6 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
     private javax.swing.JButton btnCusComplaint;
     private javax.swing.JButton btnDashBoard;
     private javax.swing.JButton btnDocReview;
-    private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnProfile;
     private javax.swing.JButton btnReturnTax;
     private javax.swing.JButton btnSubmitDocs;
@@ -989,7 +958,6 @@ public class CustomsLiaisonOfficeHP extends javax.swing.JPanel {
         styleNavigationButton(btnReturnTax);
         styleNavigationButton(btnCusComplaint);
         styleNavigationButton(btnProfile);
-        styleNavigationButton(btnLogout);
         
         // Style action buttons
         styleActionButton(btnViewDetails);
