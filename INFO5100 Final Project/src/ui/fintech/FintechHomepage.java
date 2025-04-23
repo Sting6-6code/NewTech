@@ -17,6 +17,15 @@ import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
+import java.awt.Color;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.table.JTableHeader;
+import java.awt.Component;
+import java.awt.Font;
 
 /**
  *
@@ -42,6 +51,7 @@ public class FintechHomepage extends javax.swing.JPanel {
         setupPaymentTable();
         setupTableSelectionListener();
         setViewDetailPanelEnabled(false);
+        setupTheme();
     }
 
     public FintechHomepage(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
@@ -73,6 +83,7 @@ public class FintechHomepage extends javax.swing.JPanel {
         populatePaymentTable();
         setupTableSelectionListener();
         setViewDetailPanelEnabled(false);
+        setupTheme();
     }
 
     private void setupTableSelectionListener() {
@@ -305,6 +316,134 @@ public class FintechHomepage extends javax.swing.JPanel {
                 "No Payment Selected",
                 JOptionPane.WARNING_MESSAGE);
         }
+    }
+
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        viewDetailJP.setBackground(new Color(240, 245, 255));
+        
+        // Style all buttons
+        styleAllButtons();
+        
+        // Style table
+        styleTable(tblPayments, "viewPaymentsScrollPane");
+        
+        // Style labels
+        styleAllLabels();
+        
+        // Style text fields
+        styleTextField(txtPaymentID);
+        styleTextField(txtSingleItemPrice);
+        styleTextField(txtAmount);
+        styleTextField(txtSubTotal);
+    }
+    
+    /**
+     * Apply consistent styling to all buttons
+     */
+    private void styleAllButtons() {
+        styleButton(btnRefund);
+        styleButton(btnReport);
+        styleButton(btnRev);
+        styleButton(btnViewDetail);
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+    }
+    
+    /**
+     * Style table with consistent theme
+     * @param table Table to style
+     * @param scrollPaneName Name of the scrollpane containing the table
+     */
+    private void styleTable(JTable table, String scrollPaneName) {
+        // Style table header
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(new Color(26, 79, 156));
+        header.setForeground(Color.WHITE);
+        header.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        header.setBorder(BorderFactory.createLineBorder(new Color(13, 60, 130)));
+        
+        // Style table - using darker colors for better visibility
+        table.setBackground(new Color(240, 240, 250)); // Slightly darker background
+        table.setForeground(new Color(0, 0, 0)); // Black text for maximum contrast
+        table.setGridColor(new Color(180, 195, 235)); // Darker grid lines
+        table.setSelectionBackground(new Color(90, 141, 224));
+        table.setSelectionForeground(Color.WHITE);
+        table.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        table.setRowHeight(30); // Increase row height for better readability
+        
+        // Set alternating row colors with more contrast
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? new Color(240, 240, 250) : new Color(220, 220, 235));
+                    c.setForeground(new Color(0, 0, 0)); // Ensure text is always black for maximum contrast
+                }
+                return c;
+            }
+        });
+    }
+    
+    /**
+     * Apply consistent styling to all labels
+     */
+    private void styleAllLabels() {
+        // Style title label
+        styleTitleLabel(lblTitle);
+        
+        // Style other labels
+        styleLabel(jLabel1);
+        styleLabel(jLabel2);
+        styleLabel(jLabel3);
+        styleLabel(jLabel4);
+    }
+    
+    /**
+     * Apply title label styling
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+    }
+    
+    /**
+     * Apply consistent styling to a text field
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51)); // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156)); // Medium blue cursor
+        textField.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
     }
 
 //    public void dispose() {
