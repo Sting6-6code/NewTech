@@ -26,6 +26,7 @@ import javax.swing.table.JTableHeader;
 import java.awt.Component;
 import java.awt.Font;
 import javax.swing.JOptionPane;
+import Business.Payment.Payment;
 
 /**
  *
@@ -59,7 +60,6 @@ public class AdminHP extends javax.swing.JPanel {
         adminOrg = o;
         business = b;
         
-//         Transfer user accounts from system to AdminOrganization
         if (adminOrg != null && business != null) {
             System.out.println("Transferring user accounts from system to AdminOrganization...");
             for (UserAccount systemUA : business.getUserAccountDirectory().getUserAccountList()) {
@@ -76,6 +76,7 @@ public class AdminHP extends javax.swing.JPanel {
         
         initComponents();
         populateTable();
+        populateSuspiciousPaymentsTable();
         setupTableSelectionListener();
         setModifyPanelEnabled(false); // Disable modify panel initially
         
@@ -254,8 +255,18 @@ public class AdminHP extends javax.swing.JPanel {
         viewSusScrollPane.setViewportView(tblSus);
 
         btnAcc.setText("Accept");
+        btnAcc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAccActionPerformed(evt);
+            }
+        });
 
         btnDeny.setText("Deny");
+        btnDeny.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDenyActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout actionCornerLayout = new javax.swing.GroupLayout(actionCorner);
         actionCorner.setLayout(actionCornerLayout);
@@ -392,7 +403,8 @@ public class AdminHP extends javax.swing.JPanel {
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
         updateUAD();
         populateTable();
-        jTextField1.setText(""); // Clear search field
+        populateSuspiciousPaymentsTable();
+        jTextField1.setText("");
         JOptionPane.showMessageDialog(this, "List refreshed successfully!", "Refresh", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnRefreshActionPerformed
 
@@ -600,6 +612,21 @@ public class AdminHP extends javax.swing.JPanel {
             row[2] = ua.getRole();
             row[3] = ua.getPassword();
             m.addRow(row);
+        }
+    }
+    
+    private void populateSuspiciousPaymentsTable() {
+        DefaultTableModel model = (DefaultTableModel) tblSus.getModel();
+        model.setRowCount(0);
+        
+        if (business != null && business.getPaymentDirectory() != null) {
+            for (Payment payment : business.getPaymentDirectory().getSuspiciousPayments()) {
+                Object[] row = new Object[3];
+                row[0] = payment.getPaymentId();
+                row[1] = payment.getOrder().getOrderId();
+                row[2] = String.format("$%.2f", payment.getAmount());
+                model.addRow(row);
+            }
         }
     }
     
@@ -893,5 +920,47 @@ public class AdminHP extends javax.swing.JPanel {
                 }
             }
         });
+    }
+
+    private void btnAccActionPerformed(java.awt.event.ActionEvent evt) {
+        int selectedRow = tblSus.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a payment to accept", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String paymentId = (String) tblSus.getValueAt(selectedRow, 0);
+        Payment payment = business.getPaymentDirectory().findPaymentById(paymentId);
+        
+        if (payment != null) {
+            // Remove from suspicious payments
+            business.getPaymentDirectory().removeSuspiciousPayment(payment);
+            // Set status to "Allowed"
+            payment.setStatus("Allowed");
+            // Refresh tables
+            populateSuspiciousPaymentsTable();
+            JOptionPane.showMessageDialog(this, "Payment has been accepted and marked as Allowed", "Success", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void btnDenyActionPerformed(java.awt.event.ActionEvent evt) {
+        int selectedRow = tblSus.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a payment to deny", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String paymentId = (String) tblSus.getValueAt(selectedRow, 0);
+        Payment payment = business.getPaymentDirectory().findPaymentById(paymentId);
+        
+        if (payment != null) {
+            // Remove from suspicious payments
+            business.getPaymentDirectory().removeSuspiciousPayment(payment);
+            // Set status to "Denied"
+            payment.setStatus("Denied");
+            // Refresh tables
+            populateSuspiciousPaymentsTable();
+            JOptionPane.showMessageDialog(this, "Payment has been denied", "Success", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 }

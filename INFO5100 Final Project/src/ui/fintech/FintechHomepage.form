@@ -41,7 +41,7 @@
                       <Component id="viewDetailJP" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="134" max="32767" attributes="0"/>
+              <EmptySpace pref="117" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -61,7 +61,7 @@
               </Group>
               <EmptySpace min="-2" pref="70" max="-2" attributes="0"/>
               <Component id="viewDetailJP" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="25" max="32767" attributes="0"/>
+              <EmptySpace pref="19" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -149,11 +149,15 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="txtAmt" linkSize="1" min="-2" max="-2" attributes="0"/>
-                      <Component id="txtShipmentID" linkSize="1" min="-2" pref="184" max="-2" attributes="0"/>
+                      <Component id="txtSubTotal" linkSize="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtAmount" linkSize="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtSingleItemPrice" linkSize="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtPaymentID" linkSize="1" min="-2" pref="184" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="182" max="32767" attributes="0"/>
               </Group>
@@ -165,14 +169,24 @@
                   <EmptySpace min="-2" pref="48" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="txtShipmentID" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtPaymentID" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="txtAmt" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtSingleItemPrice" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="133" max="32767" attributes="0"/>
+                  <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtAmount" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtSubTotal" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace pref="49" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -180,17 +194,31 @@
       <SubComponents>
         <Component class="javax.swing.JLabel" name="jLabel1">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Shipment ID:"/>
+            <Property name="text" type="java.lang.String" value="Payment ID:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel2">
           <Properties>
+            <Property name="text" type="java.lang.String" value="Single Item Price:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtPaymentID">
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtSingleItemPrice">
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel3">
+          <Properties>
             <Property name="text" type="java.lang.String" value="Amount:"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JTextField" name="txtShipmentID">
+        <Component class="javax.swing.JTextField" name="txtAmount">
         </Component>
-        <Component class="javax.swing.JTextField" name="txtAmt">
+        <Component class="javax.swing.JLabel" name="jLabel4">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Subtotal:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtSubTotal">
         </Component>
       </SubComponents>
     </Container>
