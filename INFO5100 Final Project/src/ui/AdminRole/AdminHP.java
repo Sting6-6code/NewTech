@@ -24,6 +24,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.JTableHeader;
 import java.awt.Component;
 import java.awt.Font;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -141,6 +142,11 @@ public class AdminHP extends javax.swing.JPanel {
         btnModify.setText("Modify User");
 
         btnDelete.setText("Delete User");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         btnSearch.setText("Search User");
 
@@ -325,8 +331,40 @@ public class AdminHP extends javax.swing.JPanel {
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
         // TODO add your handling code here:
+        updateUAD();
         populateTable();
     }//GEN-LAST:event_btnRefreshActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        // Get the selected row
+        int selectedRow = tblUsers.getSelectedRow();
+        
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a user to delete", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Get the user account from the selected row
+        UserAccount userToDelete = (UserAccount) tblUsers.getValueAt(selectedRow, 0);
+        
+        // Confirm deletion
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "Are you sure you want to delete user: " + userToDelete.getUsername() + "?",
+            "Confirm Deletion",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE);
+            
+        if (confirm == JOptionPane.YES_OPTION) {
+            // Remove from both directories
+            adminOrg.getUserAccountDirectory().getUserAccountList().remove(userToDelete);
+            business.getUserAccountDirectory().getUserAccountList().remove(userToDelete);
+            
+            // Update the table
+            populateTable();
+            
+            JOptionPane.showMessageDialog(this, "User deleted successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -562,5 +600,9 @@ public class AdminHP extends javax.swing.JPanel {
         } catch (Exception e) {
             System.out.println("Could not find scroll pane for table: " + e.getMessage());
         }
+    }
+    
+    private void updateUAD() {
+        adminOrg.setUad(business.getUserAccountDirectory());
     }
 }
