@@ -130,13 +130,13 @@ public class AdminHP extends javax.swing.JPanel {
 
         tblUsers.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "Username", "ID", "Employee Name", "Role", "Password"
+                "Username", "Employee Name", "Role", "Password"
             }
         ));
         viewUsersScrollPane.setViewportView(tblUsers);
@@ -595,10 +595,10 @@ public class AdminHP extends javax.swing.JPanel {
             System.out.println("Processing user account: " + ua.toString());
             Object[] row = new Object[5];
             row[0] = ua;
-            row[1] = ua.getEmployee().getId();
-            row[2] = ua.getEmployee().toString();
-            row[3] = ua.getRole();
-            row[4] = ua.getPassword();
+//            row[1] = ua.getEmployee().getId();
+            row[1] = ua.getEmployee().toString();
+            row[2] = ua.getRole();
+            row[3] = ua.getPassword();
             m.addRow(row);
         }
     }
