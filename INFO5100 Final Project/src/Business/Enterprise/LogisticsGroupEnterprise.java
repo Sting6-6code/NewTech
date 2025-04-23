@@ -6,6 +6,7 @@ package Business.Enterprise;
 
 import Business.Role.CustomsAgentRole;
 import Business.Role.LogisticsCoordinatorRole;
+import Business.Role.LogisticsEnterpriseAdminRole;
 import Business.Role.Role;
 import java.util.ArrayList;
 
@@ -27,6 +28,7 @@ public class LogisticsGroupEnterprise extends Enterprise{
         ArrayList<Role> roles = new ArrayList<>();
         roles.add(new LogisticsCoordinatorRole());
         roles.add(new CustomsAgentRole());
+        roles.add(new LogisticsEnterpriseAdminRole());
         return roles;
     }
 }
