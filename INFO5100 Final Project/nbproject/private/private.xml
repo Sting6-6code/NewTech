@@ -3,13 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/Users/alanshi/Desktop/INFO5100%20Final%20Project/src/ui/fintech/FintechHomepage.java</file>
+            <file>file:/Users/alanshi/Desktop/INFO5100%20Final%20Project/src/Business/ConfigureASystem.java</file>
+            <file>file:/Users/alanshi/Desktop/INFO5100%20Final%20Project/src/Business/DB4OUtil/DB4OUtil.java</file>
+            <file>file:/Users/alanshi/Desktop/INFO5100%20Final%20Project/src/Business/Order/OrderDirectory.java</file>
+            <file>file:/Users/alanshi/Desktop/INFO5100%20Final%20Project/src/Business/Order/Order.java</file>
             <file>file:/Users/alanshi/Desktop/INFO5100%20Final%20Project/src/Business/Organization/AdminOrganization.java</file>
-            <file>file:/Users/alanshi/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/AdminManageOwnProfile.java</file>
-            <file>file:/Users/alanshi/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/AddNewUser.java</file>
-            <file>file:/Users/alanshi/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/AdminHP.java</file>
             <file>file:/Users/alanshi/Desktop/INFO5100%20Final%20Project/src/ui/MainJFrame.java</file>
-            <file>file:/Users/alanshi/Desktop/INFO5100%20Final%20Project/src/Business/UserAccount/UserAccount.java</file>
-            <file>file:/Users/alanshi/Desktop/INFO5100%20Final%20Project/src/Business/Employee/Employee.java</file>
         </group>
     </open-files>
 </project-private>
