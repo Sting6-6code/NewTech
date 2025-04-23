@@ -28,13 +28,13 @@
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="232" max="-2" attributes="0"/>
-                      <Component id="btnReceive" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="87" max="-2" attributes="0"/>
-                      <Component id="btnReport" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="85" max="-2" attributes="0"/>
                       <Component id="btnRefund" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="67" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="73" max="-2" attributes="0"/>
+                      <Component id="btnReport" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="75" max="-2" attributes="0"/>
                       <Component id="btnViewDetail" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="52" max="-2" attributes="0"/>
+                      <Component id="btnRev" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="266" max="-2" attributes="0"/>
@@ -54,10 +54,10 @@
               <Component id="viewPaymentsScrollPane" min="-2" pref="185" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="67" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="btnReceive" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="btnReport" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="btnRefund" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="btnReport" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="btnViewDetail" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="btnRev" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="70" max="-2" attributes="0"/>
               <Component id="viewDetailJP" min="-2" max="-2" attributes="0"/>
@@ -114,9 +114,9 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JButton" name="btnReceive">
+    <Component class="javax.swing.JButton" name="btnRefund">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Receive"/>
+        <Property name="text" type="java.lang.String" value="Refund"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="btnReport">
@@ -124,9 +124,9 @@
         <Property name="text" type="java.lang.String" value="Report Suspicious"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="btnRefund">
+    <Component class="javax.swing.JButton" name="btnRev">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Refund"/>
+        <Property name="text" type="java.lang.String" value="Calculate Revenue"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="btnViewDetail">
