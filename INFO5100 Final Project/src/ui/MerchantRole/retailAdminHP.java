@@ -16,6 +16,9 @@ import Business.Logistics.ShipmentDirectory;
 import Business.Organization.AdminOrganization;
 import Business.Organization.LogisticsOrganization;
 import Business.Organization.Organization;
+import Business.Product.Product;
+import Business.Product.ProductDirectory;
+import Business.Supplier.Supplier;
 import Business.UserAccount.UserAccount;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -130,8 +133,7 @@ public class RetailAdminHP extends AdminHP {
         btnSearch.addActionListener(evt -> btnSearchActionPerformed(evt));
         
         // Navigation buttons
-        btnViewShipment.addActionListener(evt -> btnViewProductsActionPerformed(evt));
-        btnViewCus.addActionListener(evt -> btnViewSalesReportsActionPerformed(evt));
+        btnCheckReport.addActionListener(evt -> btnViewSalesReportsActionPerformed(evt));
     }
     
     
@@ -150,6 +152,7 @@ public class RetailAdminHP extends AdminHP {
         btnMyPro = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
+        btnCheckReport = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         txtSearch = new javax.swing.JTextField();
         btnSearch = new javax.swing.JButton();
@@ -160,8 +163,6 @@ public class RetailAdminHP extends AdminHP {
         btnUpdate = new javax.swing.JButton();
         btnDeleteUser = new javax.swing.JButton();
         btnRefresh = new javax.swing.JButton();
-        btnViewShipment = new javax.swing.JButton();
-        btnViewCus = new javax.swing.JButton();
 
         setMaximumSize(new java.awt.Dimension(1450, 800));
         setMinimumSize(new java.awt.Dimension(1450, 800));
@@ -203,20 +204,34 @@ public class RetailAdminHP extends AdminHP {
 
         jLabel3.setText("Navigation");
 
+        btnCheckReport.setText("Check Report");
+        btnCheckReport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCheckReportActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(47, 47, 47)
-                .addComponent(jLabel3)
-                .addContainerGap(115, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(47, 47, 47)
+                        .addComponent(jLabel3))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(34, 34, 34)
+                        .addComponent(btnCheckReport)))
+                .addContainerGap(111, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(29, 29, 29)
                 .addComponent(jLabel3)
+                .addGap(39, 39, 39)
+                .addComponent(btnCheckReport)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -272,20 +287,6 @@ public class RetailAdminHP extends AdminHP {
             }
         });
 
-        btnViewShipment.setText("View Products");
-        btnViewShipment.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnViewProductsActionPerformed(evt);
-            }
-        });
-
-        btnViewCus.setText("View Sales Reports");
-        btnViewCus.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnViewSalesReportsActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -309,11 +310,7 @@ public class RetailAdminHP extends AdminHP {
                         .addGap(80, 80, 80)
                         .addComponent(btnDeleteUser)
                         .addGap(111, 111, 111)
-                        .addComponent(btnRefresh)
-                        .addGap(111, 111, 111)
-                        .addComponent(btnViewShipment)
-                        .addGap(111, 111, 111)
-                        .addComponent(btnViewCus)))
+                        .addComponent(btnRefresh)))
                 .addContainerGap(30, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -332,9 +329,7 @@ public class RetailAdminHP extends AdminHP {
                     .addComponent(btnAddUser)
                     .addComponent(btnUpdate)
                     .addComponent(btnDeleteUser)
-                    .addComponent(btnRefresh)
-                    .addComponent(btnViewShipment)
-                    .addComponent(btnViewCus))
+                    .addComponent(btnRefresh))
                 .addContainerGap(20, Short.MAX_VALUE))
         );
 
@@ -417,10 +412,10 @@ public class RetailAdminHP extends AdminHP {
         
         // 这里应该改为创建产品管理面板
         // 临时显示消息
-        javax.swing.JOptionPane.showMessageDialog(this, 
-                "Product Management feature will be implemented soon",
-                "Under Development", 
-                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+//        javax.swing.JOptionPane.showMessageDialog(this, 
+//                "Product Management feature will be implemented soon",
+//                "Under Development", 
+//                javax.swing.JOptionPane.INFORMATION_MESSAGE);
         
         // 实际实现时应该创建产品管理面板并显示:
         // ProductManagementPanel productPanel = new ProductManagementPanel(
@@ -439,10 +434,10 @@ public class RetailAdminHP extends AdminHP {
         
         // 这里应该改为创建销售报告面板
         // 临时显示消息
-        javax.swing.JOptionPane.showMessageDialog(this, 
-                "Sales Reports feature will be implemented soon",
-                "Under Development", 
-                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+//        javax.swing.JOptionPane.showMessageDialog(this, 
+//                "Sales Reports feature will be implemented soon",
+//                "Under Development", 
+//                javax.swing.JOptionPane.INFORMATION_MESSAGE);
         
         // 实际实现时应该创建销售报告面板并显示:
         // SalesReportPanel reportPanel = new SalesReportPanel(
@@ -518,16 +513,27 @@ public class RetailAdminHP extends AdminHP {
         populateTable();
     }//GEN-LAST:event_btnRefreshActionPerformed
 
+    
+    private void btnCheckReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckReportActionPerformed
+        // TODO add your handling code here:
+        JPanel container = (JPanel) getParent();
+        CardLayout layout = (CardLayout) container.getLayout();
+        
+        // 创建销售报告面板
+        SalesReport reportPanel = new SalesReport(container);
+        container.add("SalesReportPanel", reportPanel);
+        layout.show(container, "SalesReportPanel");
+    }//GEN-LAST:event_btnCheckReportActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddUser;
+    private javax.swing.JButton btnCheckReport;
     private javax.swing.JButton btnDeleteUser;
     private javax.swing.JButton btnMyPro;
     private javax.swing.JButton btnRefresh;
     private javax.swing.JButton btnSearch;
     private javax.swing.JButton btnUpdate;
-    private javax.swing.JButton btnViewShipment;
-    private javax.swing.JButton btnViewCus;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
@@ -539,7 +545,8 @@ public class RetailAdminHP extends AdminHP {
     private javax.swing.JPanel welcomeJPanel;
     // End of variables declaration//GEN-END:variables
 
-   /**
+    
+    /**
      * Apply theme to all components in RetailAdminHP
      */
     private void setupTheme() {
@@ -573,8 +580,7 @@ public class RetailAdminHP extends AdminHP {
         styleButton(btnUpdate);
         styleButton(btnDeleteUser);
         styleButton(btnRefresh);
-        styleButton(btnViewShipment);
-        styleButton(btnViewCus);
+        styleButton(btnCheckReport);
     }
     
     /**
