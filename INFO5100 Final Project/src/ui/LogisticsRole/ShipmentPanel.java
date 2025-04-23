@@ -15,7 +15,10 @@ import Business.Organization.LogisticsOrganization;
 import Business.UserAccount.UserAccount;
 import Business.Logistics.Shipment;
 import Business.Logistics.TrackingInfo;
+import Business.Network.Network;
+import Business.Organization.ECommercePlatformOrganization;
 import Business.Organization.Organization;
+import Business.WorkQueue.ReceivingWorkRequest;
 import Business.WorkQueue.WarehouseWorkRequest;
 import Business.WorkQueue.WorkRequest;
 import java.awt.BorderLayout;
@@ -1099,32 +1102,33 @@ public class ShipmentPanel extends javax.swing.JPanel {
 
     private void btnShipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipActionPerformed
         // TODO add your handling code here:
+        // Get selected row
         int selectedRow = tblShipment.getSelectedRow();
         if (selectedRow < 0) {
             JOptionPane.showMessageDialog(this, "Please select a shipment to process");
             return;
         }
 
-        // 获取选中行的信息
+        // Get selected row's tracking number/ID
         String id = tblShipment.getValueAt(selectedRow, 0).toString();
 
-        // 只处理 Pending 状态的订单
+        // Only process Pending status orders
         if (!id.startsWith("Pending-")) {
             JOptionPane.showMessageDialog(this, "Can only ship pending orders");
             return;
         }
 
-        // 获取表格中已有的目的地信息（这很关键）
+        // Get existing destination information from the table
         String existingDestination = tblShipment.getValueAt(selectedRow, 2).toString();
 
-        // 获取物流组织实例
+        // Get logistics organization instance
         LogisticsOrganization logisticsOrg = ConfigureASystem.getLogisticsOrganization();
         if (logisticsOrg == null) {
             return;
         }
 
         try {
-            // 1. 获取运输方式
+            // 1. Get shipping method
             String[] methods = {"Express", "Air Freight", "Sea Freight", "Ground"};
             String shippingMethod = (String) JOptionPane.showInputDialog(
                     this,
@@ -1137,10 +1141,10 @@ public class ShipmentPanel extends javax.swing.JPanel {
             );
 
             if (shippingMethod == null) {
-                return; // 用户取消选择
+                return; // User canceled selection
             }
 
-            // 2. 确认目的地，如果是默认值则请求用户输入
+            // 2. Confirm destination, if default value then request user input
             String destination = existingDestination;
             if (destination == null || destination.isEmpty()
                     || destination.equals("Not specified") || destination.equals("To be assigned")) {
@@ -1155,7 +1159,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
                 }
             }
 
-            // 3. 创建新的 Shipment
+            // 3. Create new Shipment
             String shipmentId = id.replace("Pending-", "");
             String trackingNumber = "TRK" + System.currentTimeMillis();
 
@@ -1163,14 +1167,14 @@ public class ShipmentPanel extends javax.swing.JPanel {
             shipment.setTrackingNumber(trackingNumber);
             shipment.setShipDate(new Date());
             shipment.setShippingMethod(shippingMethod);
-            shipment.setDestination(destination);  // 设置目的地
+            shipment.setDestination(destination);  // Set destination
             shipment.setShipmentStatus("Shipped");
             shipment.setShipmentId(shipmentId);
             shipment.setTrackingNumber(trackingNumber);
 
-            // 创建海关文档
+            // Create customs declaration
             CustomsDeclaration customs = new CustomsDeclaration();
-            customs.setDeclarationId("CD" + System.currentTimeMillis());       
+            customs.setDeclarationId("CD" + System.currentTimeMillis());
             customs.setShipmentId(shipment.getShipmentId());
             customs.setCountryOfOrigin("China");
             customs.setConsignor("Shanghai Warehouse");
@@ -1179,7 +1183,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
             customs.setStatus("Pending");
             customs.setDeclarationDate(new Date());
 
-            // 如果有产品信息，添加默认物品
+            // If there's product information, add default goods
             if (shipment.getProductName() != null && !shipment.getProductName().isEmpty()) {
                 // Create goods entry for the shipment
                 Goods goods = new Goods();
@@ -1217,49 +1221,38 @@ public class ShipmentPanel extends javax.swing.JPanel {
                         + shipment.getProductName() + ", Qty: " + shipment.getQuantity());
             }
 
-// Make sure the customs declaration is in the directory
+            // Add customs declaration to the organization directory
             if (ConfigureASystem.logisticsOrg != null
                     && ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
-
                 System.out.println("Adding customs declaration " + customs.getDeclarationId()
                         + " to global declaration directory");
-
-                // Add to global directory
                 ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory()
                         .addCustomsDeclaration(customs);
             }
 
-            if (ConfigureASystem.logisticsOrg != null
-                    && ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
+            // Associate customs declaration with shipment
+            shipment.setCustomsDeclaration(customs);
 
-                System.out.println("Adding customs declaration " + customs.getDeclarationId()
-                        + " to global declaration directory");
-
-                // Add to global directory
-                ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory()
-                        .addCustomsDeclaration(customs);
-            }
-
-            // 4. 计算预计送达时间
+            // 4. Calculate estimated delivery date
             Calendar cal = Calendar.getInstance();
             cal.setTime(new Date());
             switch (shippingMethod) {
                 case "Express":
-                    cal.add(Calendar.DAY_OF_MONTH, 3);  // Express 是 3 天
+                    cal.add(Calendar.DAY_OF_MONTH, 3);  // Express is 3 days
                     break;
                 case "Air Freight":
-                    cal.add(Calendar.DAY_OF_MONTH, 7);  // Air Freight 是 7 天
+                    cal.add(Calendar.DAY_OF_MONTH, 7);  // Air Freight is 7 days
                     break;
                 case "Sea Freight":
-                    cal.add(Calendar.DAY_OF_MONTH, 30); // Sea Freight 是 30 天
+                    cal.add(Calendar.DAY_OF_MONTH, 30); // Sea Freight is 30 days
                     break;
                 case "Ground":
-                    cal.add(Calendar.DAY_OF_MONTH, 15); // Ground 是 15 天
+                    cal.add(Calendar.DAY_OF_MONTH, 15); // Ground is 15 days
                     break;
             }
             shipment.setEstimatedDeliveryDate(cal.getTime());
 
-            // 5. 添加初始追踪信息
+            // 5. Add initial tracking info
             TrackingInfo trackInfo = new TrackingInfo();
             trackInfo.setShipmentId(shipment.getShipmentId());
             trackInfo.setTimestamp(new Date());
@@ -1268,24 +1261,23 @@ public class ShipmentPanel extends javax.swing.JPanel {
             trackInfo.setStatus("Shipped");
             shipment.addTrackingInfo(trackInfo);
 
-            // 6. 将 Shipment 添加到目录
+            // 6. Add Shipment to directory
             logisticsOrg.getShipmentDirectory().addShipment(shipment);
 
-            // 7. 更新对应的工作请求状态
+            // 7. Update corresponding work request status
             for (WorkRequest request : logisticsOrg.getWorkQueue().getWorkRequestList()) {
                 if (request instanceof WarehouseWorkRequest) {
                     WarehouseWorkRequest warehouseRequest = (WarehouseWorkRequest) request;
                     if (warehouseRequest.getShipmentId().equals(shipmentId)) {
-
-                        // 更新工作请求中的信息
+                        // Update work request info
                         warehouseRequest.setStatus("Shipped");
                         warehouseRequest.setTrackingNumber(trackingNumber);
                         warehouseRequest.setShippingMethod(shippingMethod);
-                        warehouseRequest.setDestination(destination);  // 更新目的地
+                        warehouseRequest.setDestination(destination);  // Update destination
                         warehouseRequest.setEstimatedDeliveryDate(shipment.getEstimatedDeliveryDate());
                         warehouseRequest.setResolveDate(new Date());
 
-                        // 从工作请求复制信息到 Shipment
+                        // Copy information from work request to Shipment
                         if (warehouseRequest.getProductName() != null) {
                             shipment.setProductName(warehouseRequest.getProductName());
                         }
@@ -1299,24 +1291,58 @@ public class ShipmentPanel extends javax.swing.JPanel {
                 }
             }
 
-            // 8. 保存系统更新
+            // 8. Create ReceivingWorkRequest for ecommerce platform (merchant)
+            ReceivingWorkRequest merchantRequest = new ReceivingWorkRequest();
+            merchantRequest.setShipmentId(shipment.getShipmentId());
+            merchantRequest.setTrackingNumber(trackingNumber);
+            merchantRequest.setProductName(shipment.getProductName());
+            merchantRequest.setQuantity(shipment.getQuantity());
+            merchantRequest.setShippingMethod(shippingMethod);
+            merchantRequest.setDestination(destination);
+            merchantRequest.setStatus("En Route");
+            merchantRequest.setRequestDate(new Date());
+            merchantRequest.setEstimatedDeliveryDate(shipment.getEstimatedDeliveryDate());
+            merchantRequest.setSender(userAccount);
+
+            // Find all ecommerce platform organizations in the system and send notification to each
             EcoSystem system = EcoSystem.getInstance();
+            boolean notificationSent = false;
+
+            for (Network network : system.getNetworkList()) {
+                for (Enterprise enterprise : network.getEnterpriseDirectory().getEnterpriseList()) {
+                    for (Organization org : enterprise.getOrganizationDirectory().getOrganizationList()) {
+                        if (org instanceof ECommercePlatformOrganization) {
+                            // Send notification to each ecommerce organization
+                            org.getWorkQueue().getWorkRequestList().add(merchantRequest);
+                            notificationSent = true;
+                            System.out.println("Receiving notification sent to ecommerce platform: "
+                                    + org.getName() + " for shipment: " + trackingNumber);
+                        }
+                    }
+                }
+            }
+
+            if (!notificationSent) {
+                System.out.println("No ecommerce platform organizations found to notify.");
+            }
+
+            // 9. Save system updates
             DB4OUtil.getInstance().storeSystem(system);
 
-            // 9. 刷新表格
+            // 10. Refresh table
             populateTable();
 
-            // 10. 刷新 LogisticsCoordinatorHP 的表格
+            // 11. Refresh LogisticsCoordinatorHP tables if parent panel is accessible
             if (parentPanel instanceof LogisticsCoordinatorHP) {
                 ((LogisticsCoordinatorHP) parentPanel).refreshTables();
             }
 
-            // 11. 显示成功消息
+            // 12. Show success message
             JOptionPane.showMessageDialog(this,
                     "Shipment processed successfully!\nTracking Number: " + trackingNumber
                     + "\nDestination: " + destination);
 
-            // After saving the system, add this debug output
+            // Debug output to confirm customs declarations
             System.out.println("System saved. Customs declarations in directory: "
                     + (ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null
                     ? ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory()
@@ -1327,6 +1353,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
                     "Error processing shipment: " + e.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }//GEN-LAST:event_btnShipActionPerformed
 
