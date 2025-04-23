@@ -6,7 +6,6 @@ package Business.Role;
 
 import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
-import Business.Organization.FintechOrganization;
 import Business.Organization.Organization;
 import Business.UserAccount.UserAccount;
 import javax.swing.JPanel;
@@ -27,7 +26,7 @@ public class FintechRole extends Role {
 //            AdminOrganization ao = new AdminOrganization();
 //            return new ui.AdminRole.AdminHP(userProcessContainer, account, enterprise, ao, business);
 //        }
-        FintechHomepage fhp = new FintechHomepage(userProcessContainer, account, enterprise, (FintechOrganization) organization, business);
+        FintechHomepage fhp = new FintechHomepage();
         return fhp;
     }
     

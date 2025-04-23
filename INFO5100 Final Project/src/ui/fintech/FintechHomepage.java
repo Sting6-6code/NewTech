@@ -4,38 +4,17 @@
  */
 package ui.fintech;
 
-import Business.EcoSystem;
-import Business.Enterprise.Enterprise;
-import Business.Organization.FintechOrganization;
-import Business.UserAccount.UserAccount;
-import javax.swing.JPanel;
-
 /**
  *
  * @author yushe
  */
 public class FintechHomepage extends javax.swing.JPanel {
 
-    private JPanel workArea;
-    private UserAccount userAccount;
-    private Enterprise enterprise;
-    private FintechOrganization fintechOrg;
-    private EcoSystem business;
-    
     /**
      * Creates new form FintechHomepage
      */
     public FintechHomepage() {
         initComponents();
-    }
-    
-    public FintechHomepage(JPanel jp, UserAccount ua, Enterprise e, FintechOrganization o, EcoSystem b) {
-        this.setPreferredSize(new java.awt.Dimension(1450, 800));
-        this.workArea = jp;
-        this.userAccount = ua;
-        this.enterprise = e;
-        fintechOrg = o;
-        business = b;
     }
 
     /**
