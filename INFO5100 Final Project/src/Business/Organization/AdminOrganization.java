@@ -27,6 +27,10 @@ public class AdminOrganization extends Organization{
         roles.add(new AdminRole());
         return roles;
     }
+
+    public void setUad(UserAccountDirectory uad) {
+        this.uad = uad;
+    }
     
     
      
