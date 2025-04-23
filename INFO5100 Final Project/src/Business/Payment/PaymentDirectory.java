@@ -23,4 +23,8 @@ public class PaymentDirectory {
     public void removePayment(Payment payment) {
         paymentList.remove(payment);
     }
+    
+    public void removeAll() {
+        paymentList = new ArrayList<>();
+    }
 } 

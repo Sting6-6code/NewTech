@@ -6,11 +6,13 @@
 package Business;
 
 import Business.Network.Network;
+import Business.Order.Order;
 import Business.Organization.Organization;
 import Business.Role.AdminRole;
 import Business.Role.Role;
 import Business.Product.SalesRecordDirectory;
 import Business.Order.OrderDirectory;
+import Business.Payment.Payment;
 import Business.Payment.PaymentDirectory;
 
 import java.util.ArrayList;
@@ -51,6 +53,7 @@ public class EcoSystem extends Organization{
         salesRecordDirectory = new SalesRecordDirectory();
         orderDirectory = new OrderDirectory();
         paymentDirectory = new PaymentDirectory();
+//        refreshPaymentDirectory();
     }
 
     public ArrayList<Network> getNetworkList() {
@@ -93,5 +96,13 @@ public class EcoSystem extends Organization{
             
         }
         return true;
+    }
+    
+    public void refreshPaymentDirectory() {
+//        paymentDirectory.removeAll();
+//        for (Order o : orderDirectory.getOrderList()) {
+//            Payment p = new Payment(o);
+//            paymentDirectory.getPaymentList().add(p);
+//        }
     }
 }

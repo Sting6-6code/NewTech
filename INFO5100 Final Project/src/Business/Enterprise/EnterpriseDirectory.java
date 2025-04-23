@@ -43,6 +43,10 @@ public class EnterpriseDirectory {
         enterprise = new WarehouseSupplierEnterprise(name);
         enterpriseList.add(enterprise);
         }
+        else if (type == Enterprise.EnterpriseType.Fintech) {
+            enterprise = new FintechEnterprise(name);
+            enterpriseList.add(enterprise);
+        }
         return enterprise;
     }
 }
