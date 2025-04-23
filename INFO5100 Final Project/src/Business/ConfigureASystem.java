@@ -8,6 +8,7 @@ import Business.Role.MerchantRole;
 import Business.Role.ProcurementSpecialistRole;
 import Business.Role.SystemAdminRole;
 import Business.Role.WarehouseManagerRole;
+import Business.Role.FintechRole;
 import Business.UserAccount.UserAccount;
 import Business.Supplier.Supplier;
 import Business.Network.Network;
@@ -79,6 +80,7 @@ public class ConfigureASystem {
         UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("l", "****", employee5, new CustomsAgentRole());
         UserAccount logistics = system.getUserAccountDirectory().createUserAccount("t", "****", employee6, new LogisticsCoordinatorRole());
         UserAccount warehouse = system.getUserAccountDirectory().createUserAccount("w", "****", employee7, new WarehouseManagerRole());
+        UserAccount fintech = system.getUserAccountDirectory().createUserAccount("pay", "****", employee8, new FintechRole());
         UserAccount logisticsAdmin = system.getUserAccountDirectory().createUserAccount("la", "****", employee9, new LogisticsEnterpriseAdminRole());
 
         // 初始化仓库和商品
