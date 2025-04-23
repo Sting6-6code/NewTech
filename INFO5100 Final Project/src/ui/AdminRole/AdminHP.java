@@ -57,7 +57,7 @@ public class AdminHP extends javax.swing.JPanel {
         adminOrg = o;
         business = b;
         
-        // Transfer user accounts from system to AdminOrganization
+//         Transfer user accounts from system to AdminOrganization
         if (adminOrg != null && business != null) {
             System.out.println("Transferring user accounts from system to AdminOrganization...");
             for (UserAccount systemUA : business.getUserAccountDirectory().getUserAccountList()) {
@@ -106,6 +106,7 @@ public class AdminHP extends javax.swing.JPanel {
         tblSus = new javax.swing.JTable();
         btnAcc = new javax.swing.JButton();
         btnDeny = new javax.swing.JButton();
+        btnRefresh = new javax.swing.JButton();
 
         WelcomeMsg.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         WelcomeMsg.setText("Welcome Admin!");
@@ -224,18 +225,17 @@ public class AdminHP extends javax.swing.JPanel {
                 .addContainerGap(45, Short.MAX_VALUE))
         );
 
+        btnRefresh.setText("Refresh List");
+        btnRefresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRefreshActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(107, 107, 107)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnSearch)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnAddUser)
@@ -253,9 +253,21 @@ public class AdminHP extends javax.swing.JPanel {
                         .addComponent(maintenanceCorner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(viewUsersScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 790, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(WelcomeMsg)
-                        .addGap(139, 139, 139)
-                        .addComponent(btnMngOwnProfile)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addGap(47, 47, 47)
+                                .addComponent(btnRefresh))
+                            .addComponent(WelcomeMsg))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(139, 139, 139)
+                                .addComponent(btnMngOwnProfile))
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnSearch)))))
                 .addContainerGap(407, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -278,7 +290,9 @@ public class AdminHP extends javax.swing.JPanel {
                                     .addComponent(btnSearch)))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel1)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel1)
+                                    .addComponent(btnRefresh))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(viewUsersScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(33, 33, 33)
@@ -309,6 +323,11 @@ public class AdminHP extends javax.swing.JPanel {
         l.show(workArea, "AddNewUser");
     }//GEN-LAST:event_btnAddUserActionPerformed
 
+    private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
+        // TODO add your handling code here:
+        populateTable();
+    }//GEN-LAST:event_btnRefreshActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel WelcomeMsg;
@@ -319,6 +338,7 @@ public class AdminHP extends javax.swing.JPanel {
     private javax.swing.JButton btnDeny;
     private javax.swing.JButton btnMngOwnProfile;
     private javax.swing.JButton btnModify;
+    private javax.swing.JButton btnRefresh;
     private javax.swing.JButton btnSearch;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JTextField jTextField1;
