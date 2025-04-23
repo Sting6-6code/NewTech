@@ -148,10 +148,11 @@ public class AddNewUser extends javax.swing.JPanel {
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
         // TODO add your handling code here:
         workArea.remove(this);
-        AdminHP ahp = new AdminHP(workArea, userAccount, enterprise, adminOrg, business);
-        workArea.add("AdminHP", ahp);
+//        AdminHP ahp = new AdminHP(workArea, userAccount, enterprise, adminOrg, business);
+//        workArea.add("AdminHP", ahp);
         CardLayout l = (CardLayout) workArea.getLayout();
-        l.show(workArea, "AdminHP");
+//        l.show(workArea, "AdminHP");
+        l.previous(workArea);
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
