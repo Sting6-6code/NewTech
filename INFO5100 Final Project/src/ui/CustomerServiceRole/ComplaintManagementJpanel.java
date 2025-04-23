@@ -12,10 +12,19 @@ import Business.Network.Network;
 import Business.Organization.CustomerExperienceOrganization;
 import Business.Organization.Organization;
 import java.awt.CardLayout;
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
+
+
+
+
 
 /**
  *
@@ -54,6 +63,285 @@ public class ComplaintManagementJpanel extends javax.swing.JPanel {
         StatusjComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "New", "In Progress", "Resolved" }));
         
         populateTable();
+    }
+    
+    /**
+     * Adjust panel size to make it more compact
+     */
+    private void adjustPanelSize() {
+        // 设置合适的面板尺寸
+        this.setPreferredSize(new java.awt.Dimension(1200, 700));
+        
+        // 调整表格显示
+        jScrollPane2.setPreferredSize(new java.awt.Dimension(1150, 150));
+        jTable1.setRowHeight(25);
+        
+        // 固定表头
+        jTable1.getTableHeader().setReorderingAllowed(false);
+        jTable1.getTableHeader().setResizingAllowed(true);
+        
+        // 减小处理面板的尺寸
+        handlePanel.setPreferredSize(new java.awt.Dimension(1150, 260));
+        
+        // 确保内容文本框大小适中
+        txtContent.setPreferredSize(new java.awt.Dimension(350, 60));
+        
+        // 优化表格列宽
+        if (jTable1.getColumnModel().getColumnCount() > 0) {
+            jTable1.getColumnModel().getColumn(0).setPreferredWidth(100); // ID
+            jTable1.getColumnModel().getColumn(1).setPreferredWidth(120); // Customer Name
+            jTable1.getColumnModel().getColumn(2).setPreferredWidth(120); // Status
+            jTable1.getColumnModel().getColumn(3).setPreferredWidth(300); // Description
+        }
+        
+        // 启用自动滚动以处理大内容
+        this.setAutoscrolls(true);
+        
+        // 调整标题大小
+        lblTitle.setPreferredSize(new java.awt.Dimension(1150, 35));
+        
+        // 重新验证和重绘
+        revalidate();
+        repaint();
+    }
+    
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background colors
+        this.setBackground(new java.awt.Color(240, 245, 255));
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.setBackground(new java.awt.Color(240, 245, 255));
+        handlePanel.setBackground(new java.awt.Color(255, 255, 255));
+        
+        // Style the title labels
+        styleHeaderLabel(lblTitle);
+        styleHeaderLabel(lblTitle1);
+        
+        // Apply shadow border to panels
+        jPanel1.setBorder(createShadowBorder());
+        handlePanel.setBorder(createShadowBorder());
+        
+        // Style buttons
+        styleButton(btnBack);
+        styleButton(btnSearch);
+        styleButton(btnRefresh);
+        styleButton(jButton1); // View details button
+        styleButton(btnSubmit);
+        
+        // Ensure jButton1 is properly sized and positioned
+        jButton1.setText("Process Selected");
+        
+        // Style the search and refresh buttons differently
+        btnSearch.setBackground(new java.awt.Color(30, 144, 255));
+        btnRefresh.setBackground(new java.awt.Color(70, 130, 180));
+        btnSubmit.setBackground(new java.awt.Color(0, 153, 102));
+        
+        // Process button should stand out
+        jButton1.setBackground(new java.awt.Color(0, 130, 200));
+        
+        // Style table
+        styleTable(jTable1);
+        
+        // Style form labels
+        styleFormLabel(lblCompaintID);
+        styleFormLabel(lblPN);
+        styleFormLabel(lblPrice1);
+        styleFormLabel(lblPrice2);
+        styleFormLabel(lblPrice3);
+        styleFormLabel(jLabel1);
+        
+        // Style combo boxes
+        styleComboBox(StatusjComboBox);
+        styleComboBox(jComboBoxRole);
+        
+        // Style text fields
+        styleTextField(txtSearchComplaintID);
+        styleTextField(txtCompaintID);
+        styleTextField(txtCustomertName);
+        styleTextField(txtComplaintType);
+        styleTextField(txtContent);
+        
+        // Make content text field multiline appearance
+        txtContent.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 1),
+                javax.swing.BorderFactory.createEmptyBorder(8, 8, 8, 8)));
+        
+        // 重新布局handlePanel，使其更紧凑
+        try {
+            javax.swing.GroupLayout handlePanelLayout = new javax.swing.GroupLayout(handlePanel);
+            handlePanel.setLayout(handlePanelLayout);
+            
+            // 水平布局 - 减少间距，适应屏幕宽度
+            handlePanelLayout.setHorizontalGroup(
+                handlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(lblTitle1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(handlePanelLayout.createSequentialGroup()
+                    .addGap(250, 250, 250) // 调整整体居中位置
+                    .addGroup(handlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(lblCompaintID)
+                        .addComponent(lblPN)
+                        .addComponent(lblPrice1)
+                        .addComponent(lblPrice3)
+                        .addComponent(lblPrice2))
+                    .addGap(15, 15, 15) // 减少标签和字段间距
+                    .addGroup(handlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(txtCompaintID, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtCustomertName, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtComplaintType, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jComboBoxRole, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtContent, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnSubmit, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addContainerGap(250, Short.MAX_VALUE))
+            );
+            
+            // 垂直布局 - 减少行间距
+            handlePanelLayout.setVerticalGroup(
+                handlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(handlePanelLayout.createSequentialGroup()
+                    .addComponent(lblTitle1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(15, 15, 15) // 减少间距
+                    .addGroup(handlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lblCompaintID)
+                        .addComponent(txtCompaintID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGap(10, 10, 10) // 减少间距
+                    .addGroup(handlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lblPN)
+                        .addComponent(txtCustomertName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGap(10, 10, 10) // 减少间距
+                    .addGroup(handlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lblPrice1)
+                        .addComponent(txtComplaintType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGap(10, 10, 10) // 减少间距
+                    .addGroup(handlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lblPrice3)
+                        .addComponent(jComboBoxRole, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGap(10, 10, 10) // 减少间距
+                    .addGroup(handlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(lblPrice2)
+                        .addComponent(txtContent, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGap(10, 10, 10) // 减少间距
+                    .addComponent(btnSubmit)
+                    .addContainerGap(15, Short.MAX_VALUE))
+            );
+        } catch (Exception e) {
+            System.out.println("Warning: Could not adjust handlePanel layout: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Style header labels with consistent formatting
+     */
+    private void styleHeaderLabel(javax.swing.JLabel label) {
+        label.setFont(new java.awt.Font("SansSerif", 1, 24));
+        label.setForeground(new java.awt.Color(0, 102, 153));
+    }
+    
+    /**
+     * Create a shadow border for panels
+     */
+    private javax.swing.border.Border createShadowBorder() {
+        return javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(230, 235, 245), 1),
+                javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    }
+    
+    /**
+     * Style form labels with consistent formatting
+     */
+    private void styleFormLabel(javax.swing.JLabel label) {
+        label.setFont(new java.awt.Font("SansSerif", 0, 16));
+        label.setForeground(new java.awt.Color(51, 51, 51));
+    }
+    
+    /**
+     * Style combo boxes with consistent formatting
+     */
+    private void styleComboBox(javax.swing.JComboBox comboBox) {
+        comboBox.setFont(new java.awt.Font("SansSerif", 0, 14));
+        comboBox.setBackground(new java.awt.Color(255, 255, 255));
+        comboBox.setForeground(new java.awt.Color(13, 25, 51));
+        comboBox.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(90, 141, 224), 1),
+                javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+    }
+    
+    /**
+     * Style text fields with consistent formatting
+     */
+    private void styleTextField(javax.swing.JTextField textField) {
+        textField.setFont(new java.awt.Font("SansSerif", 0, 14));
+        textField.setBackground(new java.awt.Color(245, 245, 250));
+        textField.setForeground(new java.awt.Color(13, 25, 51));
+        textField.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(90, 141, 224), 1),
+                javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+    }
+    
+    /**
+     * Style buttons with consistent formatting and hover effects
+     */
+    private void styleButton(javax.swing.JButton button) {
+        button.setBackground(new java.awt.Color(26, 79, 156));
+        button.setForeground(java.awt.Color.WHITE);
+        button.setFont(new java.awt.Font("SansSerif", 1, 14));
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (button.isEnabled()) {
+                    java.awt.Color originalColor = button.getBackground();
+                    button.setBackground(originalColor.brighter());
+                }
+            }
+            
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if (button.isEnabled()) {
+                    if (button == btnSearch) {
+                        button.setBackground(new java.awt.Color(30, 144, 255));
+                    } else if (button == btnRefresh) {
+                        button.setBackground(new java.awt.Color(70, 130, 180));
+                    } else if (button == btnSubmit) {
+                        button.setBackground(new java.awt.Color(0, 153, 102));
+                    } else if (button == jButton1) {
+                        button.setBackground(new java.awt.Color(0, 130, 200));
+                    } else {
+                        button.setBackground(new java.awt.Color(26, 79, 156));
+                    }
+                }
+            }
+        });
+    }
+    
+    /**
+     * Style table with consistent formatting
+     */
+    private void styleTable(javax.swing.JTable table) {
+        // Set row height
+        table.setRowHeight(30);
+        
+        // Set selection colors
+        table.setSelectionBackground(new java.awt.Color(173, 216, 230));
+        table.setSelectionForeground(new java.awt.Color(0, 0, 0));
+        
+        // Style header
+        table.getTableHeader().setFont(new java.awt.Font("SansSerif", 1, 14));
+        table.getTableHeader().setBackground(new java.awt.Color(26, 79, 156));
+        table.getTableHeader().setForeground(java.awt.Color.WHITE);
+        
+        // Set grid colors
+        table.setGridColor(new java.awt.Color(230, 230, 230));
+        
+        // Set font
+        table.setFont(new java.awt.Font("SansSerif", 0, 14));
     }
     
     // Find complaint directory from the system
@@ -348,20 +636,17 @@ public class ComplaintManagementJpanel extends javax.swing.JPanel {
                 .addGroup(handlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblPrice1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtComplaintType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(26, 26, 26)
-                .addGroup(handlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGap(18, 18, 18)
+                .addGroup(handlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblPrice3, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jComboBoxRole, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(handlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(handlePanelLayout.createSequentialGroup()
-                        .addComponent(lblPrice2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(100, 100, 100))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, handlePanelLayout.createSequentialGroup()
-                        .addComponent(txtContent, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnSubmit)
-                        .addGap(21, 21, 21))))
+                    .addComponent(lblPrice2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtContent, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnSubmit)
+                .addGap(49, 49, 49))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -495,7 +780,7 @@ public class ComplaintManagementJpanel extends javax.swing.JPanel {
         // No implementation needed
     }//GEN-LAST:event_txtCompaintIDActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow < 0) {
             JOptionPane.showMessageDialog(this, "Please select a complaint record");
@@ -518,7 +803,7 @@ public class ComplaintManagementJpanel extends javax.swing.JPanel {
             txtComplaintType.setEditable(false);
             txtContent.setEditable(false);
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }
 
     private void refreshRequestTable() {
         populateTable();

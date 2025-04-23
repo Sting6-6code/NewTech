@@ -5,10 +5,12 @@
 package ui.CustomsAgentRole;
 
 import Business.ConfigureASystem;
+import Business.DB4OUtil.DB4OUtil;
 import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
 import Business.Enterprise.LogisticsGroupEnterprise;
 import Business.Logistics.CustomsDeclaration;
+import Business.Logistics.CustomsDeclarationDirectory;
 import Business.Network.Network;
 import Business.Organization.CustomsLiaisonOrganization;
 import Business.Organization.LogisticsOrganization;
@@ -17,11 +19,17 @@ import Business.UserAccount.UserAccount;
 import Business.WorkQueue.LogisticsWorkRequest;
 import Business.WorkQueue.WorkRequest;
 import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -44,48 +52,77 @@ public class DocumentReview extends javax.swing.JPanel {
             CustomsLiaisonOrganization organization) {
         initComponents();
 
+        try {
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
+        this.organization = organization;
 
-        // 初始化父面板引用（为了后续通知刷新）
-        this.parentPanel = userProcessContainer.getParent() instanceof JPanel
-                ? (JPanel) userProcessContainer.getParent() : null;
+        // Initialize parent panel reference
+        if (userProcessContainer.getParent() instanceof JPanel) {
+            this.parentPanel = (JPanel) userProcessContainer.getParent();
+        }
 
-        // 如果传入的组织为空，尝试使用物流组织的数据
-        if (ConfigureASystem.logisticsOrg != null && 
-            ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
+        // Ensure organization reference is valid
+        if (this.organization == null) {
+            System.out.println("Warning: No customs organization provided");
             
-            // 如果传入的组织为空，创建一个新的
-            if (organization == null) {
-                this.organization = new CustomsLiaisonOrganization();
-            } else {
-                this.organization = organization;
+            // Try to find customs organization in the system
+            if (ConfigureASystem.logisticsOrg != null) {
+                Enterprise logisticsEnterprise = ConfigureASystem.findEnterpriseForOrganization(ConfigureASystem.logisticsOrg);
+                
+                if (logisticsEnterprise != null) {
+                    for (Organization org : logisticsEnterprise.getOrganizationDirectory().getOrganizationList()) {
+                        if (org instanceof CustomsLiaisonOrganization) {
+                            this.organization = (CustomsLiaisonOrganization) org;
+                            System.out.println("Found existing CustomsLiaisonOrganization");
+                            break;
+                        }
+                    }
+                }
             }
             
-            // 重要：使用 ConfigureASystem 中的同一数据源
+            // If still null, create a new one
+            if (this.organization == null) {
+                System.out.println("Creating new CustomsLiaisonOrganization");
+                this.organization = new CustomsLiaisonOrganization();
+            }
+        }
+
+        // Ensure organizations share the same customs declaration directory
+        if (ConfigureASystem.logisticsOrg != null && 
+            ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
+            System.out.println("Using customs declarations from global logistics organization");
             this.organization.setCustomsDeclarationDirectory(
                 ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory());
-            
-            System.out.println("DocumentReview using customs declarations from ConfigureASystem");
-        } else if (organization != null) {
-            this.organization = organization;
-        } else {
-            System.out.println("Warning: No data source available for DocumentReview");
-            this.organization = new CustomsLiaisonOrganization();
         }
 
-        // 添加调试信息
-        System.out.println("DocumentReview initialized with organization: " + this.organization);
-        if (this.organization != null && this.organization.getCustomsDeclarationDirectory() != null) {
-            System.out.println("Number of declarations: "
-                    + this.organization.getCustomsDeclarationDirectory().getCustomsDeclarationList().size());
+        // Display debug info
+        if (this.organization.getCustomsDeclarationDirectory() != null) {
+            System.out.println("DocumentReview initialized with organization: " + this.organization);
+            System.out.println("Number of declarations: " + 
+                this.organization.getCustomsDeclarationDirectory().getCustomsDeclarationList().size());
         }
 
-        // Initialize the UI
+        // Count work requests for debugging
+        if (this.organization.getWorkQueue() != null) {
+            int workRequestCount = 0;
+            for (WorkRequest req : this.organization.getWorkQueue().getWorkRequestList()) {
+                if (req instanceof LogisticsWorkRequest) {
+                    workRequestCount++;
+                }
+            }
+            System.out.println("Current work queue has " + workRequestCount + " logistics work requests");
+        }
+
+        // Initialize UI components
         setupTable();
         populateTable();
         clearFields();
-
+        
+    } catch (Exception e) {
+        System.out.println("Error initializing DocumentReview: " + e.getMessage());
+        e.printStackTrace();
+    }
     }
 
     public void setParentPanel(JPanel panel) {
@@ -125,31 +162,49 @@ public class DocumentReview extends javax.swing.JPanel {
         String[] columns = {"Declaration ID", "Type", "Status", "Submission Date"};
         model.setColumnIdentifiers(columns);
 
+        // 获取当前选择的过滤选项
+        String filterStatus = comBoFilter.getSelectedItem().toString();
+
         // 直接从 CustomsDeclarationDirectory 获取数据
         if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            int matchCount = 0;
 
             for (CustomsDeclaration declaration : organization.getCustomsDeclarationDirectory().getCustomsDeclarationList()) {
-                Object[] row = new Object[4];
-                row[0] = declaration.getDeclarationId();
-                row[1] = declaration.getDeclarationType() != null 
-                       ? declaration.getDeclarationType() : "Standard";
-                row[2] = declaration.getStatus() != null 
-                       ? declaration.getStatus() : "Pending";
-                row[3] = declaration.getSubmissionDate() != null 
-                       ? dateFormat.format(declaration.getSubmissionDate()) 
-                       : dateFormat.format(declaration.getDeclarationDate());
+                // 检查是否匹配过滤条件
+                String status = declaration.getStatus() != null ? declaration.getStatus() : "Pending";
 
+                // 跳过状态为Draft的条目
+                if ("Draft".equals(status)) {
+                    continue;
+                }
+
+                // 如果筛选条件是"All"或者状态匹配当前筛选条件
+                if ("All".equals(filterStatus) || filterStatus.equals(status)) {
+                    Object[] row = new Object[4];
+                    row[0] = declaration.getDeclarationId();
+                    row[1] = declaration.getDeclarationType() != null
+                            ? declaration.getDeclarationType() : "Standard";
+                    row[2] = status;
+                    row[3] = declaration.getSubmissionDate() != null
+                            ? dateFormat.format(declaration.getSubmissionDate())
+                            : dateFormat.format(declaration.getDeclarationDate());
+
+                    model.addRow(row);
+                    matchCount++;
+                }
+            }
+            // 如果没有匹配记录，显示提示信息
+            if (matchCount == 0) {
+                Object[] row = {"No declarations with status: " + filterStatus, "", "", ""};
                 model.addRow(row);
             }
-        }
-
-        // 如果表格为空，添加一条信息
-        if (model.getRowCount() == 0) {
+        } else {
+            // 如果表格为空，添加一条信息
             Object[] row = {"No declarations found", "", "", ""};
             model.addRow(row);
         }
-    
+
     }
 
     private void displayDeclarationDetails(String declarationId) {
@@ -185,7 +240,8 @@ public class DocumentReview extends javax.swing.JPanel {
             txtDocPreview.setText(preview.toString());
 
             // Enable/disable buttons based on status
-            boolean isPending = "Pending".equals(selectedDeclaration.getStatus());
+            boolean isPending = "Pending".equals(selectedDeclaration.getStatus())
+                    || "Submitted".equals(selectedDeclaration.getStatus());
             btnApprove.setEnabled(isPending);
             btnReject.setEnabled(isPending);
             btnRequestInfo.setEnabled(isPending);
@@ -331,7 +387,7 @@ public class DocumentReview extends javax.swing.JPanel {
         ));
         jScrollPane2.setViewportView(tblList);
 
-        comBoFilter.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pending", "Approved", "Canceled" }));
+        comBoFilter.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "Pending", "Submitted", "Approved", "Rejected", "Information Needed" }));
         comBoFilter.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comBoFilterActionPerformed(evt);
@@ -402,12 +458,13 @@ public class DocumentReview extends javax.swing.JPanel {
             docContenJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(docContenJPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lblDocContent)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, docContenJPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 874, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18))
+                .addGroup(docContenJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(docContenJPanelLayout.createSequentialGroup()
+                        .addComponent(lblDocContent)
+                        .addContainerGap(828, Short.MAX_VALUE))
+                    .addGroup(docContenJPanelLayout.createSequentialGroup()
+                        .addComponent(jScrollPane3)
+                        .addGap(18, 18, 18))))
         );
         docContenJPanelLayout.setVerticalGroup(
             docContenJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -463,7 +520,7 @@ public class DocumentReview extends javax.swing.JPanel {
                         .addComponent(lblSubmissionDate, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(36, 36, 36)
                         .addComponent(txtSubmissionDate, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
                 .addGroup(docInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(docInfoJPanelLayout.createSequentialGroup()
                         .addComponent(lblDocType, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -514,13 +571,10 @@ public class DocumentReview extends javax.swing.JPanel {
         reviewNotesJPanelLayout.setHorizontalGroup(
             reviewNotesJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(reviewNotesJPanelLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(reviewNotesJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(reviewNotesJPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel1))
-                    .addGroup(reviewNotesJPanelLayout.createSequentialGroup()
-                        .addGap(34, 34, 34)
-                        .addComponent(txtReviewNotes, javax.swing.GroupLayout.PREFERRED_SIZE, 851, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jLabel1)
+                    .addComponent(txtReviewNotes, javax.swing.GroupLayout.PREFERRED_SIZE, 879, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         reviewNotesJPanelLayout.setVerticalGroup(
@@ -590,7 +644,7 @@ public class DocumentReview extends javax.swing.JPanel {
                                 .addComponent(declarDetailsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 580, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 593, Short.MAX_VALUE)
                                 .addComponent(lblSearchID, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(txtSearchBox, javax.swing.GroupLayout.PREFERRED_SIZE, 285, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -607,12 +661,11 @@ public class DocumentReview extends javax.swing.JPanel {
                 .addGap(22, 22, 22)
                 .addComponent(btnBack)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnSearch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(txtSearchBox)
-                        .addComponent(lblSearchID, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtSearchBox)
+                    .addComponent(lblSearchID, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSearch))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(declarDetailsJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -659,6 +712,8 @@ public class DocumentReview extends javax.swing.JPanel {
 
     private void comBoFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comBoFilterActionPerformed
         // TODO add your handling code here:
+        String selectedFilter = comBoFilter.getSelectedItem().toString();
+        System.out.println("Filter selected: " + selectedFilter);
         populateTable();
     }//GEN-LAST:event_comBoFilterActionPerformed
 
@@ -760,7 +815,8 @@ public class DocumentReview extends javax.swing.JPanel {
                 ? request.getSender().getUsername() : "Unknown");
 
         // Enable/disable buttons based on status
-        boolean isPending = "Submitted".equals(request.getStatus());
+        boolean isPending = "Pending".equals(request.getStatus())
+                || "Submitted".equals(request.getStatus());
         btnApprove.setEnabled(isPending);
         btnReject.setEnabled(isPending);
         btnRequestInfo.setEnabled(isPending);
@@ -784,11 +840,6 @@ public class DocumentReview extends javax.swing.JPanel {
             content.append("Processing Date: ").append(dateFormat.format(request.getResolveDate())).append("\n");
         }
 
-        // Remove this section as getResolver() method doesn't exist
-        // if (request.getResolver() != null) {
-        //     content.append("Processed By: ").append(request.getResolver().getUsername()).append("\n");
-        // }
-        // Show notes if available
         if (request.getMessage() != null && !request.getMessage().isEmpty()) {
             content.append("\nReview Notes: ").append(request.getMessage()).append("\n");
         }
@@ -801,6 +852,7 @@ public class DocumentReview extends javax.swing.JPanel {
     }
 
     private void updateRequestStatus(String newStatus) {
+        try {
         int selectedRow = tblList.getSelectedRow();
         if (selectedRow < 0) {
             JOptionPane.showMessageDialog(this, "Please select a declaration first");
@@ -808,60 +860,121 @@ public class DocumentReview extends javax.swing.JPanel {
         }
 
         String declarationId = tblList.getValueAt(selectedRow, 0).toString();
-        if (declarationId.equals("No declarations found")) {
+        if (declarationId == null || declarationId.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Invalid declaration ID");
             return;
         }
 
-        // Update request status
-        boolean updated = false;
+        System.out.println("Attempting to update declaration ID: " + declarationId + " to status: " + newStatus);
 
+        // First look in the current organization's declaration directory
+        CustomsDeclaration declaration = null;
+        if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
+            declaration = organization.getCustomsDeclarationDirectory().findDeclarationById(declarationId);
+        }
+
+        // If not found, try in global logistics organization
+        if (declaration == null && ConfigureASystem.logisticsOrg != null && 
+            ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
+            declaration = ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory()
+                .findDeclarationById(declarationId);
+            
+            // If found in logistics org but not in customs org, establish the link
+            if (declaration != null && organization != null) {
+                // Ensure customs org uses the same declaration directory
+                organization.setCustomsDeclarationDirectory(
+                    ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory());
+                System.out.println("Connected customs organization to logistics declaration directory");
+            }
+        }
+
+        if (declaration == null) {
+            System.out.println("Declaration not found: " + declarationId);
+            JOptionPane.showMessageDialog(this, "Could not find the selected declaration");
+            return;
+        }
+
+        // Update declaration status
+        declaration.setStatus(newStatus);
+        declaration.setProcessingDate(new Date());
+        
+        // Add review notes if provided
+        if (txtReviewNotes.getText() != null && !txtReviewNotes.getText().isEmpty()) {
+            String existingNotes = declaration.getNotes();
+            String reviewNotes = txtReviewNotes.getText();
+            
+            if (existingNotes != null && !existingNotes.isEmpty()) {
+                declaration.setNotes(existingNotes + "\n\nReview notes: " + reviewNotes);
+            } else {
+                declaration.setNotes("Review notes: " + reviewNotes);
+            }
+        }
+
+        // Update work request in queue if found
+        boolean workRequestUpdated = false;
         for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
             if (request instanceof LogisticsWorkRequest) {
                 LogisticsWorkRequest customsRequest = (LogisticsWorkRequest) request;
                 if (customsRequest.getDeclarationId().equals(declarationId)) {
-                    // Set new status
                     customsRequest.setStatus(newStatus);
-
-                    // Important: Set resolve date to track when it was processed
                     customsRequest.setResolveDate(new Date());
-
-                    // Remove this line as the method doesn't exist
-//                 customsRequest.setResolver(userAccount);
-                    // Add review notes if provided
+                    
                     if (txtReviewNotes.getText() != null && !txtReviewNotes.getText().isEmpty()) {
                         customsRequest.setMessage(txtReviewNotes.getText());
                     }
-
-                    // Also update the original declaration in logistics org
-                    updateOriginalDeclaration(customsRequest.getDeclarationId(), newStatus);
-
-                    updated = true;
+                    
+                    workRequestUpdated = true;
                     break;
                 }
             }
         }
-
-        if (updated) {
-            JOptionPane.showMessageDialog(this, "Declaration status updated to: " + newStatus);
-
-            // Refresh tables
-            populateTable();
-            clearFields();
-
-            // Notify parent panel to refresh (if possible)
-            if (parentPanel != null && parentPanel instanceof CustomsLiaisonOfficeHP) {
-                try {
-                    // This will refresh both pending and recent activities tables
-                    ((CustomsLiaisonOfficeHP) parentPanel).refreshData();
-                    System.out.println("Parent panel refreshed");
-                } catch (Exception e) {
-                    System.out.println("Error refreshing parent panel: " + e.getMessage());
-                    e.printStackTrace();
-                }
+        
+        // If no work request was found, create one to maintain consistency
+        if (!workRequestUpdated) {
+            System.out.println("No work request found for declaration " + declarationId + ", creating one");
+            LogisticsWorkRequest newRequest = new LogisticsWorkRequest();
+            newRequest.setDeclarationId(declarationId);
+            newRequest.setShipmentId(declaration.getShipmentId());
+            newRequest.setStatus(newStatus);
+            newRequest.setConsignor(declaration.getConsignor());
+            newRequest.setConsignee(declaration.getConsignee());
+            newRequest.setCountryOfOrigin(declaration.getCountryOfOrigin());
+            newRequest.setDestinationCountry(declaration.getDestinationCountry());
+            newRequest.setNotes(declaration.getNotes());
+            newRequest.setRequestDate(declaration.getDeclarationDate());
+            newRequest.setResolveDate(new Date());
+            
+            if (txtReviewNotes.getText() != null && !txtReviewNotes.getText().isEmpty()) {
+                newRequest.setMessage(txtReviewNotes.getText());
             }
-        } else {
-            JOptionPane.showMessageDialog(this, "Could not find the selected declaration");
+            
+            organization.getWorkQueue().getWorkRequestList().add(newRequest);
+            workRequestUpdated = true;
         }
+        
+        System.out.println("Declaration status updated: " + newStatus + 
+                ", Work request updated: " + (workRequestUpdated ? "Yes" : "No"));
+
+        // Save changes to database
+        try {
+            DB4OUtil.getInstance().storeSystem(EcoSystem.getInstance());
+            System.out.println("Changes saved to database");
+        } catch (Exception e) {
+            System.out.println("Error saving changes: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        JOptionPane.showMessageDialog(this, "Declaration status updated to: " + newStatus);
+        
+        // Refresh UI
+        populateTable();
+        clearFields();
+        
+    } catch (Exception e) {
+        System.out.println("Error in updateRequestStatus: " + e.getMessage());
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error updating status: " + e.getMessage());
+    }
     }
 
     private void updateOriginalDeclaration(String declarationId, String newStatus) {
@@ -930,6 +1043,215 @@ public class DocumentReview extends javax.swing.JPanel {
             }
         }
         return null;
+    }
+
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+
+        // Style all panels with the same background color
+        DocQueueJPanel.setBackground(new Color(240, 245, 255));
+        declarDetailsJPanel.setBackground(new Color(240, 245, 255));
+        docInfoJPanel.setBackground(new Color(240, 245, 255));
+        docContenJPanel.setBackground(new Color(240, 245, 255));
+        reviewNotesJPanel.setBackground(new Color(240, 245, 255));
+
+        // Style all buttons
+        styleButton(btnBack);
+        styleButton(btnSearch);
+        styleButton(btnApprove);
+        styleButton(btnReject);
+        styleButton(btnRequestInfo);
+
+        // Style all labels
+        styleTitleLabel(lblTitle);
+        styleTitleLabel(lblReviewDoc);
+        styleTitleLabel(lblListTitle);
+
+        styleLabel(lblDocInfo);
+        styleLabel(lblDocContent);
+        styleLabel(jLabel1); // Review Notes label
+        styleLabel(lblSearchID);
+
+        styleLabel(lblDocID);
+        styleLabel(lblSubmissionDate);
+        styleLabel(lblDocType);
+        styleLabel(lblSubBy);
+
+        // Style all text fields
+        styleTextField(txtSearchBox);
+        styleTextField(txtDocID);
+        styleTextField(txtDocName);
+        styleTextField(txtDocType);
+        styleTextField(txtSubmissionDate);
+        styleTextField(txtSubBy);
+        styleTextField(txtReviewNotes);
+
+        // Style tables
+        styleTable(tblList);
+
+        // Style textareas
+        txtDocPreview.setBackground(new Color(245, 245, 250));
+        txtDocPreview.setForeground(new Color(13, 25, 51));
+        txtDocPreview.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        txtDocPreview.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+    }
+
+    /**
+     * Apply consistent styling to a button
+     *
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        // Check if it's a special button (like Delete or Submit)
+        if (button == btnReject) {
+            // Delete/Reject button keeps its red background
+            button.setBackground(new Color(255, 0, 0));
+        } else if (button == btnApprove) {
+            // Approve/Submit buttons keep their green background
+            button.setBackground(new Color(102, 204, 0));
+        } else if (button == btnRequestInfo) {
+            // Request Info button keeps its orange background
+            button.setBackground(new Color(255, 153, 0));
+        } else {
+            // Standard buttons get the blue theme
+            button.setBackground(new Color(26, 79, 156)); // Medium blue
+        }
+
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+
+        // Add a subtle border with rounded corners
+        button.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+                javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+
+        button.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (button == btnReject) {
+                    button.setBackground(new Color(255, 51, 51)); // Lighter red on hover
+                } else if (button == btnApprove) {
+                    button.setBackground(new Color(115, 230, 0)); // Lighter green on hover
+                } else if (button == btnRequestInfo) {
+                    button.setBackground(new Color(255, 178, 102)); // Lighter orange on hover
+                } else {
+                    button.setBackground(new Color(35, 100, 190)); // Lighter blue on hover
+                }
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if (button == btnReject) {
+                    button.setBackground(new Color(255, 0, 0)); // Back to normal red
+                } else if (button == btnApprove) {
+                    button.setBackground(new Color(102, 204, 0)); // Back to normal green
+                } else if (button == btnRequestInfo) {
+                    button.setBackground(new Color(255, 153, 0)); // Back to normal orange
+                } else {
+                    button.setBackground(new Color(26, 79, 156)); // Back to normal blue
+                }
+            }
+
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                if (button == btnReject) {
+                    button.setBackground(new Color(204, 0, 0)); // Darker when pressed
+                } else if (button == btnApprove) {
+                    button.setBackground(new Color(85, 170, 0)); // Darker green when pressed
+                } else if (button == btnRequestInfo) {
+                    button.setBackground(new Color(204, 102, 0)); // Darker orange when pressed
+                } else {
+                    button.setBackground(new Color(13, 60, 130)); // Darker blue when pressed
+                }
+            }
+
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                // Return to hover state
+                mouseEntered(evt);
+            }
+        });
+    }
+
+    /**
+     * Apply consistent styling to a text field
+     *
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51));    // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156));   // Medium blue cursor
+        textField.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+    }
+
+    /**
+     * Apply title label styling
+     *
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 18));
+        label.setForeground(new Color(13, 25, 51)); // Dark blue text
+        label.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 5, 10, 5));
+    }
+
+    /**
+     * Apply regular label styling
+     *
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        label.setForeground(new Color(13, 25, 51)); // Dark blue text
+        label.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 2, 5, 2));
+    }
+
+    /**
+     * Style the table with consistent formatting
+     *
+     * @param table Table to style
+     */
+    private void styleTable(JTable table) {
+        // Style the header
+        if (table.getTableHeader() != null) {
+            table.getTableHeader().setBackground(new Color(26, 79, 156)); // Medium blue
+            table.getTableHeader().setForeground(Color.WHITE);
+            table.getTableHeader().setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.BOLD, 14));
+            table.getTableHeader().setBorder(javax.swing.BorderFactory.createLineBorder(new Color(13, 60, 130), 1));
+        }
+
+        // Style the table
+        table.setBackground(Color.WHITE);
+        table.setForeground(new Color(13, 25, 51)); // Dark blue text
+        table.setGridColor(new Color(230, 230, 230));
+        table.setRowHeight(25);
+        table.setFont(new java.awt.Font("Helvetica Neue", java.awt.Font.PLAIN, 14));
+        table.setSelectionBackground(new Color(232, 242, 254)); // Very light blue
+        table.setSelectionForeground(new Color(13, 25, 51)); // Keep text dark
+
+        // Add custom cell renderer for alternating row colors
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 245, 250));
+                }
+
+                return c;
+            }
+        });
     }
 
 }

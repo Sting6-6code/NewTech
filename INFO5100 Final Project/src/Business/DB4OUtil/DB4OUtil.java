@@ -4,12 +4,16 @@ import Business.ConfigureASystem;
 import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
 import Business.Enterprise.LogisticsGroupEnterprise;
+import Business.Logistics.CustomsDeclaration;
+import Business.Logistics.CustomsDeclarationDirectory;
 import Business.Logistics.Shipment;
 import Business.Logistics.ShipmentDirectory;
 import Business.Logistics.TrackingInfo;
 import Business.Network.Network;
 import Business.Organization.LogisticsOrganization;
 import Business.Organization.Organization;
+import Business.WorkQueue.LogisticsWorkRequest;
+import Business.WorkQueue.WorkQueue;
 import com.db4o.Db4oEmbedded;
 import com.db4o.ObjectContainer;
 import com.db4o.ObjectSet;
@@ -20,8 +24,7 @@ import java.nio.file.Paths;
 
 /**
  *
- * @author rrheg
- * @author Lingfeng
+ *
  */
 public class DB4OUtil {
 
@@ -43,52 +46,53 @@ public class DB4OUtil {
 
     private ObjectContainer createConnection() {
         try {
-//            // 输出数据库文件路径
-//            System.out.println("数据库文件路径: " + FILENAME);
-//
-//            // 检查数据库文件是否存在
-//            File dbFile = new File(FILENAME);
-//            if (dbFile.exists()) {
-//                System.out.println("数据库文件已存在，大小: " + dbFile.length() + " 字节");
-//            } else {
-//                System.out.println("数据库文件不存在，将创建新文件");
-//            }
-
-            File file = new File(FILENAME);
-            System.out.println("Database file path: " + file.getAbsolutePath());
-            if (!file.exists()) {
-                System.out.println("Database file does not exist, will create new file");
-            } else {
-                System.out.println("Database file exists, size: " + file.length() + " bytes");
-            }
-
-            EmbeddedConfiguration config = Db4oEmbedded.newConfiguration();
-            config.common().add(new TransparentPersistenceSupport());
-            //Controls the number of objects in memory
-            config.common().activationDepth(Integer.MAX_VALUE);
-            //Controls the depth/level of updation of Object
-            config.common().updateDepth(Integer.MAX_VALUE);
-
-            //Register your top most Class here
-            config.common().objectClass(EcoSystem.class).cascadeOnUpdate(true); // Change to the object you want to save
-            config.common().objectClass(Network.class).cascadeOnUpdate(true);
-            config.common().objectClass(Enterprise.class).cascadeOnUpdate(true);
-            config.common().objectClass(Organization.class).cascadeOnUpdate(true);
-            config.common().objectClass(LogisticsOrganization.class).cascadeOnUpdate(true);
-            config.common().objectClass(ShipmentDirectory.class).cascadeOnUpdate(true);
-            config.common().objectClass(Shipment.class).cascadeOnUpdate(true);
-            config.common().objectClass(TrackingInfo.class).cascadeOnUpdate(true);
-
-            // 禁用枚举类型的序列化
-            config.common().objectClass(Enum.class).storeTransientFields(false);
-
-            ObjectContainer db = Db4oEmbedded.openFile(config, FILENAME);
-            return db;
-        } catch (Exception ex) {
-            System.out.println("数据库连接错误: " + ex.getMessage());
-            ex.printStackTrace();
+        File file = new File(FILENAME);
+        System.out.println("Database file path: " + file.getAbsolutePath());
+        if (!file.exists()) {
+            System.out.println("Database file does not exist, will create new file");
+        } else {
+            System.out.println("Database file exists, size: " + file.length() + " bytes");
         }
-        return null;
+
+        EmbeddedConfiguration config = Db4oEmbedded.newConfiguration();
+        config.common().add(new TransparentPersistenceSupport());
+        
+        // Controls the number of objects in memory
+        config.common().activationDepth(Integer.MAX_VALUE);
+        // Controls the depth/level of updation of Object
+        config.common().updateDepth(Integer.MAX_VALUE);
+
+        // Register your top most Class here
+        config.common().objectClass(EcoSystem.class).cascadeOnUpdate(true);
+        config.common().objectClass(Network.class).cascadeOnUpdate(true);
+        config.common().objectClass(Enterprise.class).cascadeOnUpdate(true);
+        config.common().objectClass(Organization.class).cascadeOnUpdate(true);
+        config.common().objectClass(LogisticsOrganization.class).cascadeOnUpdate(true);
+        config.common().objectClass(ShipmentDirectory.class).cascadeOnUpdate(true);
+        config.common().objectClass(Shipment.class).cascadeOnUpdate(true);
+        config.common().objectClass(TrackingInfo.class).cascadeOnUpdate(true);
+        
+        // Add WorkQueue and LogisticsWorkRequest to cascade
+        config.common().objectClass(WorkQueue.class).cascadeOnUpdate(true);
+        config.common().objectClass(LogisticsWorkRequest.class).cascadeOnUpdate(true);
+        
+        // Add CustomsDeclarationDirectory and CustomsDeclaration to cascade
+        config.common().objectClass(CustomsDeclarationDirectory.class).cascadeOnUpdate(true);
+        config.common().objectClass(CustomsDeclaration.class).cascadeOnUpdate(true);
+        
+        // Disable enum type serialization
+        config.common().objectClass(Enum.class).storeTransientFields(false);
+        
+        // Use file locking with recovery
+        config.file().lockDatabaseFile(false);  // Disable file locking to avoid lock issues
+        
+        ObjectContainer db = Db4oEmbedded.openFile(config, FILENAME);
+        return db;
+    } catch (Exception ex) {
+        System.out.println("Database connection error: " + ex.getMessage());
+        ex.printStackTrace();
+    }
+    return null;
     }
 
     public synchronized void storeSystem(EcoSystem system) {

@@ -39,6 +39,7 @@ import Business.Logistics.CustomsDeclarationDirectory;
 import Business.WorkQueue.WarehouseWorkRequest;
 import Business.WorkQueue.WorkRequest;
 import javax.swing.JTable;
+import javax.swing.JButton;
 
 /**
  *
@@ -108,6 +109,9 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         populateDashboard();
         populateRecentShipmentsTable();
         populatePendingTasksTable();
+        
+        // Apply UI theme
+        setupTheme();
 
         // Debug output
         System.out.println("LogisticsCoordinatorHP initialized");
@@ -133,7 +137,6 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         btnCustomsDeclar = new javax.swing.JButton();
         btnCusComplaint = new javax.swing.JButton();
         btnProfile = new javax.swing.JButton();
-        btnLogout = new javax.swing.JButton();
         btnShipmentTra = new javax.swing.JButton();
         logisticsWorkAreajPanel = new javax.swing.JPanel();
         CustomerCompJPanel = new javax.swing.JPanel();
@@ -185,13 +188,6 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             }
         });
 
-        btnLogout.setText("Logout");
-        btnLogout.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnLogoutActionPerformed(evt);
-            }
-        });
-
         btnShipmentTra.setText("Shipment Tracking");
         btnShipmentTra.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -205,17 +201,13 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
             logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(logisticsControljPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnLogout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(logisticsControljPanelLayout.createSequentialGroup()
-                        .addGroup(logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(btnCusComplaint)
-                            .addComponent(btnProfile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnDashBoard, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnShipmentTra, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnCustomsDeclar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                .addGroup(logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnCusComplaint)
+                    .addComponent(btnProfile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnDashBoard, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnShipmentTra, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnCustomsDeclar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         logisticsControljPanelLayout.setVerticalGroup(
             logisticsControljPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -230,9 +222,7 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
                 .addComponent(btnCusComplaint, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(34, 34, 34)
                 .addComponent(btnProfile)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 236, Short.MAX_VALUE)
-                .addComponent(btnLogout)
-                .addGap(47, 47, 47))
+                .addContainerGap(306, Short.MAX_VALUE))
         );
 
         logisticsControljPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnDashBoard, btnProfile, btnShipmentTra});
@@ -540,20 +530,6 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
         layout.show(userProcessContainer, "ManageProfile");
     }//GEN-LAST:event_btnProfileActionPerformed
 
-    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
-        // TODO add your handling code here:
-        // Logout operation
-        userProcessContainer.removeAll();
-
-        // Create a blank panel to return to login screen
-        JPanel blankJP = new JPanel();
-        userProcessContainer.add("blank", blankJP);
-
-        // Return to the first card (login screen)
-        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
-        layout.first(userProcessContainer);
-    }//GEN-LAST:event_btnLogoutActionPerformed
-
     private void btnShipmentTraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipmentTraActionPerformed
         // TODO add your handling code here:
         // First check if the organization reference is valid
@@ -609,7 +585,6 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     private javax.swing.JButton btnCusComplaint;
     private javax.swing.JButton btnCustomsDeclar;
     private javax.swing.JButton btnDashBoard;
-    private javax.swing.JButton btnLogout;
     private javax.swing.JButton btnProfile;
     private javax.swing.JButton btnShipmentTra;
     private javax.swing.JButton btnViewDetails;
@@ -969,6 +944,91 @@ public class LogisticsCoordinatorHP extends javax.swing.JPanel {
     public void refreshTables() {
         populatePendingTasksTable();
         populateRecentShipmentsTable();
+    }
+
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        logisticsControljPanel.setBackground(new Color(240, 245, 255));
+        logisticsWorkAreajPanel.setBackground(new Color(240, 245, 255));
+        
+        // Style all buttons
+        styleAllButtons();
+        
+        // Style tables
+        styleTable(tblRecentShipment, "jScrollPane1");
+        styleTable(tblPendingTasks, "jScrollPane2");
+    }
+    
+    /**
+     * Apply consistent styling to all buttons
+     */
+    private void styleAllButtons() {
+        styleButton(btnDashBoard);
+        styleButton(btnCustomsDeclar);
+        styleButton(btnCusComplaint);
+        styleButton(btnProfile);
+        styleButton(btnShipmentTra);
+        styleButton(btnViewDetails);
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+    }
+    
+    /**
+     * Style table with consistent theme
+     * @param table Table to style
+     * @param scrollPaneName Name of the scrollpane
+     */
+    private void styleTable(JTable table, String scrollPaneName) {
+        // Style table header
+        if (table.getTableHeader() != null) {
+            table.getTableHeader().setBackground(new Color(26, 79, 156));
+            table.getTableHeader().setForeground(Color.WHITE);
+            table.getTableHeader().setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+            if (table.getTableHeader().getBorder() != null) {
+                table.getTableHeader().setBorder(BorderFactory.createLineBorder(new Color(13, 60, 130)));
+            }
+        }
+        
+        // Style table - using darker colors for better visibility
+        table.setBackground(new Color(240, 240, 250)); // Slightly darker background
+        table.setForeground(new Color(0, 0, 0)); // Black text for maximum contrast
+        table.setGridColor(new Color(180, 195, 235)); // Darker grid lines
+        table.setSelectionBackground(new Color(90, 141, 224));
+        table.setSelectionForeground(Color.WHITE);
+        table.setFont(new Font("Helvetica Neue", Font.BOLD, 14)); // Bold font for better visibility
+        table.setRowHeight(30); // Increase row height for better readability
+        
+        // Set alternating row colors with more contrast
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? new Color(240, 240, 250) : new Color(220, 220, 235));
+                    c.setForeground(new Color(0, 0, 0)); // Ensure text is always black for maximum contrast
+                }
+                return c;
+            }
+        });
     }
 
 }

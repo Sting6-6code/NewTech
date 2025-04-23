@@ -12,6 +12,18 @@ import Business.UserAccount.UserAccount;
 import java.awt.CardLayout;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
+import java.awt.Color;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.JComboBox;
+import javax.swing.JScrollPane;
+import javax.swing.border.LineBorder;
+import javax.swing.table.JTableHeader;
+import java.awt.Component;
+import java.awt.Font;
 
 /**
  *
@@ -45,7 +57,7 @@ public class AdminHP extends javax.swing.JPanel {
         adminOrg = o;
         business = b;
         
-        // Transfer user accounts from system to AdminOrganization
+//         Transfer user accounts from system to AdminOrganization
         if (adminOrg != null && business != null) {
             System.out.println("Transferring user accounts from system to AdminOrganization...");
             for (UserAccount systemUA : business.getUserAccountDirectory().getUserAccountList()) {
@@ -62,6 +74,9 @@ public class AdminHP extends javax.swing.JPanel {
         
         initComponents();
         populateTable();
+        
+        // Apply unified UI theme
+        setupTheme();
     }
 
     /**
@@ -91,6 +106,7 @@ public class AdminHP extends javax.swing.JPanel {
         tblSus = new javax.swing.JTable();
         btnAcc = new javax.swing.JButton();
         btnDeny = new javax.swing.JButton();
+        btnRefresh = new javax.swing.JButton();
 
         WelcomeMsg.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         WelcomeMsg.setText("Welcome Admin!");
@@ -209,18 +225,17 @@ public class AdminHP extends javax.swing.JPanel {
                 .addContainerGap(45, Short.MAX_VALUE))
         );
 
+        btnRefresh.setText("Refresh List");
+        btnRefresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRefreshActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(107, 107, 107)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnSearch)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnAddUser)
@@ -238,9 +253,21 @@ public class AdminHP extends javax.swing.JPanel {
                         .addComponent(maintenanceCorner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(viewUsersScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 790, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(WelcomeMsg)
-                        .addGap(139, 139, 139)
-                        .addComponent(btnMngOwnProfile)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addGap(47, 47, 47)
+                                .addComponent(btnRefresh))
+                            .addComponent(WelcomeMsg))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(139, 139, 139)
+                                .addComponent(btnMngOwnProfile))
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnSearch)))))
                 .addContainerGap(407, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -263,7 +290,9 @@ public class AdminHP extends javax.swing.JPanel {
                                     .addComponent(btnSearch)))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel1)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel1)
+                                    .addComponent(btnRefresh))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(viewUsersScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(33, 33, 33)
@@ -294,6 +323,11 @@ public class AdminHP extends javax.swing.JPanel {
         l.show(workArea, "AddNewUser");
     }//GEN-LAST:event_btnAddUserActionPerformed
 
+    private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
+        // TODO add your handling code here:
+        populateTable();
+    }//GEN-LAST:event_btnRefreshActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel WelcomeMsg;
@@ -304,6 +338,7 @@ public class AdminHP extends javax.swing.JPanel {
     private javax.swing.JButton btnDeny;
     private javax.swing.JButton btnMngOwnProfile;
     private javax.swing.JButton btnModify;
+    private javax.swing.JButton btnRefresh;
     private javax.swing.JButton btnSearch;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JTextField jTextField1;
@@ -341,6 +376,191 @@ public class AdminHP extends javax.swing.JPanel {
             row[3] = ua.getRole();
             row[4] = ua.getPassword();
             m.addRow(row);
+        }
+    }
+    
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        
+        // Style all buttons
+        styleAllButtons();
+        
+        // Style all labels
+        styleAllLabels();
+    }
+    
+    /**
+     * Apply consistent styling to all buttons
+     */
+    private void styleAllButtons() {
+        Component[] components = this.getComponents();
+        for (Component component : components) {
+            if (component instanceof JButton) {
+                styleButton((JButton) component);
+            }
+            if (component instanceof JPanel) {
+                Component[] panelComponents = ((JPanel) component).getComponents();
+                for (Component panelComponent : panelComponents) {
+                    if (panelComponent instanceof JButton) {
+                        styleButton((JButton) panelComponent);
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+    }
+    
+    /**
+     * Apply consistent styling to all labels
+     */
+    private void styleAllLabels() {
+        Component[] components = this.getComponents();
+        for (Component component : components) {
+            if (component instanceof JLabel) {
+                if (((JLabel) component).getFont().getSize() > 15) {
+                    styleTitleLabel((JLabel) component);
+                } else {
+                    styleLabel((JLabel) component);
+                }
+            }
+            if (component instanceof JPanel) {
+                Component[] panelComponents = ((JPanel) component).getComponents();
+                for (Component panelComponent : panelComponents) {
+                    if (panelComponent instanceof JLabel) {
+                        if (((JLabel) panelComponent).getFont().getSize() > 15) {
+                            styleTitleLabel((JLabel) panelComponent);
+                        } else {
+                            styleLabel((JLabel) panelComponent);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Apply title label styling
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+    }
+    
+    /**
+     * Apply consistent styling to a text field
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51)); // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156)); // Medium blue cursor
+        textField.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+    }
+    
+    /**
+     * Style a combo box to match the theme
+     * @param comboBox ComboBox to style
+     */
+    private void styleComboBox(JComboBox comboBox) {
+        comboBox.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        comboBox.setForeground(new Color(13, 25, 51)); // Dark blue text
+        comboBox.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        comboBox.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        
+        // Style the UI if possible
+        try {
+            comboBox.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
+                @Override
+                protected JButton createArrowButton() {
+                    JButton button = super.createArrowButton();
+                    button.setBackground(new Color(26, 79, 156));
+                    button.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224)));
+                    return button;
+                }
+            });
+        } catch (Exception e) {
+            System.out.println("Could not fully style combo box: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Style table with consistent theme
+     * @param table Table to style
+     * @param scrollPaneName Name of the scrollpane containing the table
+     */
+    private void styleTable(JTable table, String scrollPaneName) {
+        // Style table header
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(new Color(26, 79, 156));
+        header.setForeground(Color.WHITE);
+        header.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        header.setBorder(new LineBorder(new Color(13, 60, 130)));
+        
+        // Style table - using darker colors for better visibility
+        table.setBackground(new Color(240, 240, 250)); // Slightly darker background
+        table.setForeground(new Color(0, 0, 0)); // Black text for maximum contrast
+        table.setGridColor(new Color(180, 195, 235)); // Darker grid lines
+        table.setSelectionBackground(new Color(90, 141, 224));
+        table.setSelectionForeground(Color.WHITE);
+        table.setFont(new Font("Helvetica Neue", Font.BOLD, 14)); // Bold font for better visibility
+        table.setRowHeight(30); // Slightly increase row height for better readability
+        
+        // Set alternating row colors with more contrast
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? new Color(240, 240, 250) : new Color(220, 220, 235));
+                    c.setForeground(new Color(0, 0, 0)); // Ensure text is always black for maximum contrast
+                }
+                return c;
+            }
+        });
+        
+        // Find and style the scroll pane if it exists
+        try {
+            Component[] components = this.getComponents();
+            for (Component component : components) {
+                if (component instanceof JScrollPane && component.getName() != null && 
+                    component.getName().equals(scrollPaneName)) {
+                    ((JScrollPane) component).setBorder(new LineBorder(new Color(26, 79, 156)));
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Could not find scroll pane for table: " + e.getMessage());
         }
     }
 }

@@ -6,13 +6,14 @@ package Business.Logistics;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
  * @author zhuchenyan
  */
 public class Shipment {
-    
+
     private String shipmentId;
     private String trackingNumber;
     private Date shipDate;
@@ -20,18 +21,20 @@ public class Shipment {
     private String origin;
     private String destination;
     private String currentLocation;
-    private String shipmentStatus; 
+    private String shipmentStatus;
     private Date estimatedDeliveryDate;
     private String sender;
     private String receiver;
     private double weight;
     private CustomsDeclaration customsDeclaration;
     private ArrayList<TrackingInfo> trackingHistory;
-    private String orderId;      
-    private String productName;   
-    private int quantity; 
-     
-    
+    private String orderId;
+    private String productName;
+    private int quantity;
+    private PackageInfo packageInfo;
+    private FinancialInfo financialInfo;
+    private List<Goods> goodsList;
+
     // define shipmentStatus
     public static final String STATUS_PENDING = "Pending";           // 订单已创建，等待仓库处理
     public static final String STATUS_PROCESSING = "Processing";     // 仓库正在处理（拣货/包装）
@@ -40,11 +43,11 @@ public class Shipment {
     public static final String STATUS_DELIVERING = "Delivering";    // 派送中
     public static final String STATUS_DELIVERED = "Delivered";      // 已送达
     public static final String STATUS_EXCEPTION = "Exception";      // 异常状态
-    
+
     public Shipment() {
         this.trackingHistory = new ArrayList<>();
     }
-    
+
     public Shipment(String shipmentId, String trackingNumber) {
         this.shipmentId = shipmentId;
         this.trackingNumber = trackingNumber;
@@ -52,7 +55,7 @@ public class Shipment {
         this.shipmentStatus = STATUS_PENDING;
         this.currentLocation = "Warehouse";
     }
-    
+
     // Getters and Setters
     public String getShipmentId() {
         return shipmentId;
@@ -77,7 +80,7 @@ public class Shipment {
     public void setShipDate(Date shipDate) {
         this.shipDate = shipDate;
     }
-    
+
     public String getShippingMethod() {
         return shippingMethod;
     }
@@ -109,7 +112,7 @@ public class Shipment {
     public void setEstimatedDeliveryDate(Date estimatedDeliveryDate) {
         this.estimatedDeliveryDate = estimatedDeliveryDate;
     }
-    
+
     public String getSender() {
         return sender;
     }
@@ -133,7 +136,7 @@ public class Shipment {
     public void setWeight(double weight) {
         this.weight = weight;
     }
-    
+
     public CustomsDeclaration getCustomsDeclaration() {
         return customsDeclaration;
     }
@@ -141,11 +144,11 @@ public class Shipment {
     public void setCustomsDeclaration(CustomsDeclaration customsDeclaration) {
         this.customsDeclaration = customsDeclaration;
     }
-    
+
     public ArrayList<TrackingInfo> getTrackingHistory() {
         return trackingHistory;
     }
-    
+
     // Method to add tracking info
     public void addTrackingInfo(TrackingInfo info) {
         if (info != null) {
@@ -184,7 +187,7 @@ public class Shipment {
     public void setShipmentStatus(String shipmentStatus) {
         this.shipmentStatus = shipmentStatus;
         // 根据状态自动更新当前位置
-        switch(shipmentStatus) {
+        switch (shipmentStatus) {
             case STATUS_PENDING:
             case STATUS_PROCESSING:
                 this.currentLocation = "Warehouse";
@@ -203,7 +206,7 @@ public class Shipment {
                 // 保持当前位置不变，需要手动更新
                 break;
         }
-        
+
         // 添加跟踪记录
         addStatusTrackingInfo(shipmentStatus);
     }
@@ -216,15 +219,14 @@ public class Shipment {
         this.currentLocation = currentLocation;
     }
 
-    
     private void addStatusTrackingInfo(String newStatus) {
         TrackingInfo tracking = new TrackingInfo();
         tracking.setShipmentId(this.shipmentId);
         tracking.setTimestamp(new Date());
         tracking.setLocation(this.currentLocation);
-        
+
         // 根据不同状态设置不同的描述
-        switch(newStatus) {
+        switch (newStatus) {
             case STATUS_PENDING:
                 tracking.setDescription("Order received, waiting for processing");
                 break;
@@ -247,14 +249,14 @@ public class Shipment {
                 tracking.setDescription("Exception occurred at " + this.currentLocation);
                 break;
         }
-        
+
         tracking.setStatus(newStatus);
         this.addTrackingInfo(tracking);
     }
-    
+
     public void updateLocation(String newLocation) {
         this.currentLocation = newLocation;
-        
+
         // 添加位置更新的跟踪记录
         TrackingInfo tracking = new TrackingInfo();
         tracking.setShipmentId(this.shipmentId);
@@ -264,11 +266,127 @@ public class Shipment {
         tracking.setStatus(this.shipmentStatus);
         this.addTrackingInfo(tracking);
     }
-    
-    
+
+    public PackageInfo getPackageInfo() {
+        return packageInfo;
+    }
+
+    public void setPackageInfo(PackageInfo packageInfo) {
+        this.packageInfo = packageInfo;
+    }
+
+    /**
+     * Initialize package info with default values based on shipment data
+     */
+    public void initializePackageInfo() {
+        if (this.packageInfo == null) {
+            this.packageInfo = new PackageInfo();
+
+            // Set default values based on existing product information
+            this.packageInfo.setWeight(this.weight); // Use existing weight if available
+
+            if (this.quantity > 0) {
+                this.packageInfo.setItemCount(this.quantity);
+                // If no weight was set, estimate based on quantity
+                if (this.packageInfo.getWeight() <= 0) {
+                    this.packageInfo.setWeight(this.quantity * 0.5); // Assume 0.5kg per item
+                }
+            }
+
+            // Set default package type based on quantity
+            if (this.quantity > 10) {
+                this.packageInfo.setPackageType("Pallet");
+            } else if (this.quantity > 3) {
+                this.packageInfo.setPackageType("Box");
+            } else {
+                this.packageInfo.setPackageType("Envelope");
+            }
+
+            // Set default dimensions based on package type
+            switch (this.packageInfo.getPackageType()) {
+                case "Pallet":
+                    this.packageInfo.setDimensions("100x100x120");
+                    break;
+                case "Box":
+                    this.packageInfo.setDimensions("30x20x15");
+                    break;
+                case "Envelope":
+                    this.packageInfo.setDimensions("35x25x2");
+                    break;
+                default:
+                    this.packageInfo.setDimensions("20x15x10");
+            }
+        }
+    }
+
+    public FinancialInfo getFinancialInfo() {
+        return financialInfo;
+    }
+
+    public void setFinancialInfo(FinancialInfo financialInfo) {
+        this.financialInfo = financialInfo;
+    }
+
+    /**
+     * Initialize financial info with default values based on shipment data
+     */
+    public void initializeFinancialInfo() {
+        if (this.financialInfo == null) {
+            this.financialInfo = new FinancialInfo();
+
+            // Generate invoice number
+            this.financialInfo.setInvoiceNumber("INV-" + System.currentTimeMillis());
+
+            // Set default shipping cost based on shipping method
+            if (this.shippingMethod != null) {
+                switch (this.shippingMethod) {
+                    case "Express":
+                        this.financialInfo.setShippingCost(75.00);
+                        this.financialInfo.setInsuranceCost(15.00);
+                        break;
+                    case "Air Freight":
+                        this.financialInfo.setShippingCost(50.00);
+                        this.financialInfo.setInsuranceCost(10.00);
+                        break;
+                    case "Sea Freight":
+                        this.financialInfo.setShippingCost(30.00);
+                        this.financialInfo.setInsuranceCost(5.00);
+                        break;
+                    case "Ground":
+                        this.financialInfo.setShippingCost(20.00);
+                        this.financialInfo.setInsuranceCost(3.00);
+                        break;
+                    default:
+                        this.financialInfo.setShippingCost(25.00);
+                }
+            }
+
+            // Estimate customs duties and taxes if international shipment
+            if (this.destination != null
+                    && !this.destination.contains("China")
+                    && !this.destination.isEmpty()) {
+
+                // Assume 10% customs duty for international shipments
+                this.financialInfo.setCustomsDuties(10.00);
+                this.financialInfo.setTaxes(5.00);
+            }
+
+            // Calculate total
+            this.financialInfo.calculateTotal();
+        }
+    }
+
+    public List<Goods> getGoodsList() {
+        return goodsList;
+    }
+
+    public void setGoodsList(List<Goods> goodsList) {
+        this.goodsList = goodsList;
+    }
+
     @Override
     public String toString() {
         return shipmentId;
     }
-    
+
 }

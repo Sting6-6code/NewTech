@@ -36,7 +36,7 @@
                           </Group>
                           <Group type="102" attributes="0">
                               <Component id="lblTitle" min="-2" pref="231" max="-2" attributes="0"/>
-                              <EmptySpace pref="580" max="32767" attributes="0"/>
+                              <EmptySpace pref="593" max="32767" attributes="0"/>
                               <Component id="lblSearchID" min="-2" pref="144" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="txtSearchBox" min="-2" pref="285" max="-2" attributes="0"/>
@@ -60,13 +60,11 @@
               <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
               <Component id="btnBack" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="btnSearch" alignment="0" max="32767" attributes="0"/>
-                  <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                      <Component id="lblTitle" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
-                      <Component id="txtSearchBox" alignment="3" max="32767" attributes="0"/>
-                      <Component id="lblSearchID" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
-                  </Group>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="lblTitle" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                  <Component id="txtSearchBox" alignment="3" max="32767" attributes="0"/>
+                  <Component id="lblSearchID" alignment="3" min="-2" pref="30" max="-2" attributes="0"/>
+                  <Component id="btnSearch" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
@@ -185,10 +183,13 @@
         <Component class="javax.swing.JComboBox" name="comBoFilter">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-              <StringArray count="3">
-                <StringItem index="0" value="Pending"/>
-                <StringItem index="1" value="Approved"/>
-                <StringItem index="2" value="Canceled"/>
+              <StringArray count="6">
+                <StringItem index="0" value="All"/>
+                <StringItem index="1" value="Pending"/>
+                <StringItem index="2" value="Submitted"/>
+                <StringItem index="3" value="Approved"/>
+                <StringItem index="4" value="Rejected"/>
+                <StringItem index="5" value="Information Needed"/>
               </StringArray>
             </Property>
           </Properties>
@@ -314,13 +315,16 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="lblDocContent" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="1" attributes="0">
-                      <EmptySpace max="32767" attributes="0"/>
-                      <Component id="jScrollPane3" min="-2" pref="874" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Component id="lblDocContent" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace pref="828" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="jScrollPane3" max="32767" attributes="0"/>
+                              <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -393,7 +397,7 @@
                               <Component id="txtSubmissionDate" min="-2" pref="262" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace pref="23" max="32767" attributes="0"/>
+                      <EmptySpace pref="36" max="32767" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="lblDocType" min="-2" pref="145" max="-2" attributes="0"/>
@@ -508,15 +512,10 @@
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
-                              <Component id="txtReviewNotes" min="-2" pref="851" max="-2" attributes="0"/>
-                          </Group>
+                          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                          <Component id="txtReviewNotes" alignment="0" min="-2" pref="879" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>

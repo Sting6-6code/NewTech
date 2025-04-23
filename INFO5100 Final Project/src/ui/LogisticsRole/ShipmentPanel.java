@@ -9,11 +9,16 @@ import Business.DB4OUtil.DB4OUtil;
 import Business.EcoSystem;
 import Business.Enterprise.Enterprise;
 import Business.Logistics.CustomsDeclaration;
+import Business.Logistics.CustomsDeclarationDirectory;
+import Business.Logistics.Goods;
 import Business.Organization.LogisticsOrganization;
 import Business.UserAccount.UserAccount;
 import Business.Logistics.Shipment;
 import Business.Logistics.TrackingInfo;
+import Business.Network.Network;
+import Business.Organization.ECommercePlatformOrganization;
 import Business.Organization.Organization;
+import Business.WorkQueue.ReceivingWorkRequest;
 import Business.WorkQueue.WarehouseWorkRequest;
 import Business.WorkQueue.WorkRequest;
 import java.awt.BorderLayout;
@@ -59,6 +64,8 @@ import javax.swing.table.DefaultTableModel;
 import javafx.application.Platform;
 import javax.swing.JComboBox;
 import javax.swing.JTextArea;
+import java.awt.Color;
+import java.awt.event.ActionListener;
 
 /**
  *
@@ -99,6 +106,8 @@ public class ShipmentPanel extends javax.swing.JPanel {
 
         populateTable();
 
+        // Apply UI theme
+        setupTheme();
     }
 
     private void initializeMapComponents() {
@@ -127,6 +136,11 @@ public class ShipmentPanel extends javax.swing.JPanel {
 
         // 创建导航按钮面板
         JPanel detailsNavigationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        styleButton(btnBasicInfo); // Apply consistent styling
+        styleButton(btnCustomsInfo);
+        styleButton(btnPackageInfo);
+        styleButton(btnFinancialInfo);
+
         detailsNavigationPanel.add(btnBasicInfo);
         detailsNavigationPanel.add(btnCustomsInfo);
         detailsNavigationPanel.add(btnPackageInfo);
@@ -138,8 +152,126 @@ public class ShipmentPanel extends javax.swing.JPanel {
         detailsCardsPanel.setLayout(detailsCardLayout);
 
         // 创建基本信息面板，使用GridBagLayout（与PackageInfo和FinancialInfo一致）
-        JPanel shipmentBasicInfoContent = new JPanel(new GridBagLayout());
-        shipmentBasicInfoContent.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel shipmentBasicInfoContent = createBasicInfoPanel();
+        JPanel shipmentCustomsContent = createCustomsInfoPanel();
+        JPanel shipmentPackageContent = createPackageInfoPanel();
+        JPanel shipmentFinancialContent = createFinancialInfoPanel();
+
+        // 将所有面板添加到卡片布局中
+        detailsCardsPanel.add(shipmentBasicInfoContent, "BasicInfo");
+        detailsCardsPanel.add(shipmentCustomsContent, "CustomsInfo");
+        detailsCardsPanel.add(shipmentPackageContent, "PackageInfo");
+        detailsCardsPanel.add(shipmentFinancialContent, "FinancialInfo");
+
+        // 组装主容器
+        shipmentDetailsContainer.add(detailsNavigationPanel, BorderLayout.NORTH);
+        shipmentDetailsContainer.add(detailsCardsPanel, BorderLayout.CENTER);
+
+        // 创建并添加更新按钮面板
+        JPanel actionButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+        styleButton(btnUpdate); // Apply consistent styling
+        actionButtonPanel.add(btnUpdate);
+        shipmentDetailsContainer.add(actionButtonPanel, BorderLayout.SOUTH);
+
+        // 清除并更新basicInfoJPanel
+        basicInfoJPanel.removeAll();
+        basicInfoJPanel.setLayout(new BorderLayout());
+        basicInfoJPanel.add(shipmentDetailsContainer);
+
+        // 显示基本信息面板
+        detailsCardLayout.show(detailsCardsPanel, "BasicInfo");
+
+        // 刷新面板
+        basicInfoJPanel.revalidate();
+        basicInfoJPanel.repaint();
+
+        // Configure button actions
+        btnBasicInfo.addActionListener(e -> detailsCardLayout.show(detailsCardsPanel, "BasicInfo"));
+
+        // Remove the existing action listener and add our custom one
+        for (ActionListener al : btnCustomsInfo.getActionListeners()) {
+            btnCustomsInfo.removeActionListener(al);
+        }
+        btnCustomsInfo.addActionListener(e -> showCustomsInfo());
+
+        btnPackageInfo.addActionListener(e -> detailsCardLayout.show(detailsCardsPanel, "PackageInfo"));
+        btnFinancialInfo.addActionListener(e -> detailsCardLayout.show(detailsCardsPanel, "FinancialInfo"));
+    }
+
+    // Method to show customs info for the currently selected shipment
+    private void showCustomsInfo() {
+        // Get the currently selected shipment
+        int selectedRow = tblShipment.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a shipment first",
+                    "No Selection", JOptionPane.INFORMATION_MESSAGE);
+            // Switch back to basic info
+            detailsCardLayout.show(detailsCardsPanel, "BasicInfo");
+            return;
+        }
+
+        String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
+        Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+
+        if (shipment == null) {
+            JOptionPane.showMessageDialog(this, "Cannot find shipment details",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            // Switch back to basic info
+            detailsCardLayout.show(detailsCardsPanel, "BasicInfo");
+            return;
+        }
+
+        // Ensure customs information exists for this shipment
+        ensureCustomsInfoExists(shipment);
+
+        try {
+            // The simplest approach: fully recreate all panels
+            // Remove all existing panels
+            detailsCardsPanel.removeAll();
+
+            // Add fresh panels
+            detailsCardsPanel.add(createBasicInfoPanel(), "BasicInfo");
+            detailsCardsPanel.add(createCustomsInfoPanel(), "CustomsInfo");
+            detailsCardsPanel.add(createPackageInfoPanel(), "PackageInfo");
+            detailsCardsPanel.add(createFinancialInfoPanel(), "FinancialInfo");
+
+            // Show the customs panel
+            detailsCardLayout.show(detailsCardsPanel, "CustomsInfo");
+
+            // Refresh UI
+            detailsCardsPanel.revalidate();
+            detailsCardsPanel.repaint();
+        } catch (Exception e) {
+            System.err.println("Error while showing customs info: " + e.getMessage());
+            e.printStackTrace();
+
+            // If we encounter an error, just show the basic info panel
+            try {
+                detailsCardLayout.show(detailsCardsPanel, "BasicInfo");
+            } catch (Exception ex) {
+                // Last resort if even that fails
+                System.err.println("Critical UI error: " + ex.getMessage());
+            }
+        }
+
+        // Debug output
+        System.out.println("Showing customs info for shipment: " + trackingNumber);
+        CustomsDeclaration customs = shipment.getCustomsDeclaration();
+        if (customs != null) {
+            System.out.println("Customs declaration loaded: " + customs.getDeclarationId());
+            System.out.println("Consignor: " + customs.getConsignor());
+            System.out.println("Consignee: " + customs.getConsignee());
+            System.out.println("Status: " + customs.getStatus());
+            System.out.println("Items: " + (customs.getItems() != null ? customs.getItems().size() : 0));
+        } else {
+            System.out.println("No customs declaration found for this shipment");
+        }
+    }
+
+    // Create the basic info panel
+    private JPanel createBasicInfoPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // 设置约束条件
         GridBagConstraints labelConstraints = new GridBagConstraints();
@@ -164,28 +296,28 @@ public class ShipmentPanel extends javax.swing.JPanel {
         txtStatus.setPreferredSize(textFieldSize);
 
         // 添加组件到基本信息面板
-        shipmentBasicInfoContent.add(lblTraNo, labelConstraints);
-        shipmentBasicInfoContent.add(txtTrcNo, fieldConstraints);
+        panel.add(lblTraNo, labelConstraints);
+        panel.add(txtTrcNo, fieldConstraints);
 
         labelConstraints.gridy++;
         fieldConstraints.gridy++;
-        shipmentBasicInfoContent.add(lblShippingDate, labelConstraints);
-        shipmentBasicInfoContent.add(txtShippingDate, fieldConstraints);
+        panel.add(lblShippingDate, labelConstraints);
+        panel.add(txtShippingDate, fieldConstraints);
 
         labelConstraints.gridy++;
         fieldConstraints.gridy++;
-        shipmentBasicInfoContent.add(lblShippingMethod, labelConstraints);
-        shipmentBasicInfoContent.add(txtShippingMethod, fieldConstraints);
+        panel.add(lblShippingMethod, labelConstraints);
+        panel.add(txtShippingMethod, fieldConstraints);
 
         labelConstraints.gridy++;
         fieldConstraints.gridy++;
-        shipmentBasicInfoContent.add(lblDestination, labelConstraints);
-        shipmentBasicInfoContent.add(txtDestination, fieldConstraints);
+        panel.add(lblDestination, labelConstraints);
+        panel.add(txtDestination, fieldConstraints);
 
         labelConstraints.gridy++;
         fieldConstraints.gridy++;
-        shipmentBasicInfoContent.add(lblStatus, labelConstraints);
-        shipmentBasicInfoContent.add(txtStatus, fieldConstraints);
+        panel.add(lblStatus, labelConstraints);
+        panel.add(txtStatus, fieldConstraints);
 
         // 添加填充空间，将内容推到顶部
         GridBagConstraints fillerConstraints = new GridBagConstraints();
@@ -194,39 +326,9 @@ public class ShipmentPanel extends javax.swing.JPanel {
         fillerConstraints.weighty = 1.0;
         fillerConstraints.fill = GridBagConstraints.BOTH;
         fillerConstraints.gridwidth = 2;
-        shipmentBasicInfoContent.add(Box.createVerticalGlue(), fillerConstraints);
+        panel.add(Box.createVerticalGlue(), fillerConstraints);
 
-        // 创建其他信息面板，使用相同的布局方法
-        JPanel shipmentCustomsContent = createCustomsInfoPanel();
-        JPanel shipmentPackageContent = createPackageInfoPanel();
-        JPanel shipmentFinancialContent = createFinancialInfoPanel();
-
-        // 将所有面板添加到卡片布局中
-        detailsCardsPanel.add(shipmentBasicInfoContent, "BasicInfo");
-        detailsCardsPanel.add(shipmentCustomsContent, "CustomsInfo");
-        detailsCardsPanel.add(shipmentPackageContent, "PackageInfo");
-        detailsCardsPanel.add(shipmentFinancialContent, "FinancialInfo");
-
-        // 组装主容器
-        shipmentDetailsContainer.add(detailsNavigationPanel, BorderLayout.NORTH);
-        shipmentDetailsContainer.add(detailsCardsPanel, BorderLayout.CENTER);
-
-        // 创建并添加更新按钮面板
-        JPanel actionButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
-        actionButtonPanel.add(btnUpdate);
-        shipmentDetailsContainer.add(actionButtonPanel, BorderLayout.SOUTH);
-
-        // 清除并更新basicInfoJPanel
-        basicInfoJPanel.removeAll();
-        basicInfoJPanel.setLayout(new BorderLayout());
-        basicInfoJPanel.add(shipmentDetailsContainer);
-
-        // 显示基本信息面板
-        detailsCardLayout.show(detailsCardsPanel, "BasicInfo");
-
-        // 刷新面板
-        basicInfoJPanel.revalidate();
-        basicInfoJPanel.repaint();
+        return panel;
     }
 
     /**
@@ -474,7 +576,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
                     .addComponent(btnCustomsInfo)
                     .addComponent(btnPackageInfo)
                     .addComponent(btnFinancialInfo))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
                 .addGroup(basicInfoJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtTrcNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblTraNo, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -510,14 +612,14 @@ public class ShipmentPanel extends javax.swing.JPanel {
             .addGroup(trackPathJPanelLayout.createSequentialGroup()
                 .addGap(149, 149, 149)
                 .addComponent(lblTrackPath, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(181, Short.MAX_VALUE))
+                .addContainerGap(185, Short.MAX_VALUE))
         );
         trackPathJPanelLayout.setVerticalGroup(
             trackPathJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(trackPathJPanelLayout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addComponent(lblTrackPath, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(317, Short.MAX_VALUE))
+                .addContainerGap(340, Short.MAX_VALUE))
         );
 
         btnShip.setText("Ship");
@@ -542,17 +644,17 @@ public class ShipmentPanel extends javax.swing.JPanel {
                 .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lblLogisticsTracking)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnRefresh)
-                        .addGap(78, 78, 78)
-                        .addComponent(lblTrackingNo)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtSearchBox, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(12, 12, 12)
-                        .addComponent(btnSearch))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lblLogisticsTracking)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnRefresh)
+                                .addGap(78, 78, 78)
+                                .addComponent(lblTrackingNo)
+                                .addGap(18, 18, 18)
+                                .addComponent(txtSearchBox, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(12, 12, 12)
+                                .addComponent(btnSearch))
                             .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(6, 6, 6)
@@ -569,7 +671,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
                         .addComponent(btnUpdateStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(btnShip, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(186, 186, 186))))
         );
@@ -605,11 +707,11 @@ public class ShipmentPanel extends javax.swing.JPanel {
                         .addComponent(btnUpdateStatus)
                         .addComponent(btnShip)
                         .addComponent(btnDelete)))
-                .addGap(61, 61, 61)
+                .addGap(47, 47, 47)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(basicInfoJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(trackPathJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 31, Short.MAX_VALUE))
+                .addGap(0, 22, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1000,32 +1102,33 @@ public class ShipmentPanel extends javax.swing.JPanel {
 
     private void btnShipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShipActionPerformed
         // TODO add your handling code here:
+        // Get selected row
         int selectedRow = tblShipment.getSelectedRow();
         if (selectedRow < 0) {
             JOptionPane.showMessageDialog(this, "Please select a shipment to process");
             return;
         }
 
-        // 获取选中行的信息
+        // Get selected row's tracking number/ID
         String id = tblShipment.getValueAt(selectedRow, 0).toString();
 
-        // 只处理 Pending 状态的订单
+        // Only process Pending status orders
         if (!id.startsWith("Pending-")) {
             JOptionPane.showMessageDialog(this, "Can only ship pending orders");
             return;
         }
 
-        // 获取表格中已有的目的地信息（这很关键）
+        // Get existing destination information from the table
         String existingDestination = tblShipment.getValueAt(selectedRow, 2).toString();
 
-        // 获取物流组织实例
+        // Get logistics organization instance
         LogisticsOrganization logisticsOrg = ConfigureASystem.getLogisticsOrganization();
         if (logisticsOrg == null) {
             return;
         }
 
         try {
-            // 1. 获取运输方式
+            // 1. Get shipping method
             String[] methods = {"Express", "Air Freight", "Sea Freight", "Ground"};
             String shippingMethod = (String) JOptionPane.showInputDialog(
                     this,
@@ -1038,10 +1141,10 @@ public class ShipmentPanel extends javax.swing.JPanel {
             );
 
             if (shippingMethod == null) {
-                return; // 用户取消选择
+                return; // User canceled selection
             }
 
-            // 2. 确认目的地，如果是默认值则请求用户输入
+            // 2. Confirm destination, if default value then request user input
             String destination = existingDestination;
             if (destination == null || destination.isEmpty()
                     || destination.equals("Not specified") || destination.equals("To be assigned")) {
@@ -1056,7 +1159,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
                 }
             }
 
-            // 3. 创建新的 Shipment
+            // 3. Create new Shipment
             String shipmentId = id.replace("Pending-", "");
             String trackingNumber = "TRK" + System.currentTimeMillis();
 
@@ -1064,10 +1167,12 @@ public class ShipmentPanel extends javax.swing.JPanel {
             shipment.setTrackingNumber(trackingNumber);
             shipment.setShipDate(new Date());
             shipment.setShippingMethod(shippingMethod);
-            shipment.setDestination(destination);  // 设置目的地
+            shipment.setDestination(destination);  // Set destination
             shipment.setShipmentStatus("Shipped");
+            shipment.setShipmentId(shipmentId);
+            shipment.setTrackingNumber(trackingNumber);
 
-            // 创建海关文档
+            // Create customs declaration
             CustomsDeclaration customs = new CustomsDeclaration();
             customs.setDeclarationId("CD" + System.currentTimeMillis());
             customs.setShipmentId(shipment.getShipmentId());
@@ -1076,41 +1181,78 @@ public class ShipmentPanel extends javax.swing.JPanel {
             customs.setConsignee(destination);
             customs.setDestinationCountry(extractCountry(destination));
             customs.setStatus("Pending");
+            customs.setDeclarationDate(new Date());
 
-            // 如果有产品信息，添加默认物品
+            // If there's product information, add default goods
             if (shipment.getProductName() != null && !shipment.getProductName().isEmpty()) {
+                // Create goods entry for the shipment
+                Goods goods = new Goods();
+                goods.setDescription(shipment.getProductName());
+                goods.setQuantity(shipment.getQuantity());
+                goods.setUnit("PCS"); // Default unit
+                goods.setWeight(0.5); // Default weight per item
+
+                // Initialize goods list if needed
+                if (shipment.getGoodsList() == null) {
+                    shipment.setGoodsList(new ArrayList<>());
+                }
+
+                // Add to shipment's goods list
+                shipment.getGoodsList().add(goods);
+
+                // Also add as a customs line item
                 CustomsDeclaration.CustomsLineItem item = new CustomsDeclaration.CustomsLineItem();
                 item.setDescription(shipment.getProductName());
                 item.setQuantity(shipment.getQuantity());
                 item.setUnit("PCS");
-                item.setUnitValue(0.0); // 需要设置实际价值
-                item.setTotalValue(0.0);
-                item.setGrossWeight(0.5 * shipment.getQuantity()); // 估计重量
-                customs.addItem(item);
+                item.setUnitValue(100.0); // Default unit value
+                item.setTotalValue(item.getQuantity() * item.getUnitValue());
+                item.setGrossWeight(item.getQuantity() * 0.5); // Estimated weight
+
+                // Initialize items list if needed
+                if (customs.getItems() == null) {
+                    customs.setItems(new ArrayList<>());
+                }
+
+                // Add to customs declaration
+                customs.getItems().add(item);
+
+                System.out.println("Added product to goods list and customs items: "
+                        + shipment.getProductName() + ", Qty: " + shipment.getQuantity());
             }
 
+            // Add customs declaration to the organization directory
+            if (ConfigureASystem.logisticsOrg != null
+                    && ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null) {
+                System.out.println("Adding customs declaration " + customs.getDeclarationId()
+                        + " to global declaration directory");
+                ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory()
+                        .addCustomsDeclaration(customs);
+            }
+
+            // Associate customs declaration with shipment
             shipment.setCustomsDeclaration(customs);
 
-            // 4. 计算预计送达时间
+            // 4. Calculate estimated delivery date
             Calendar cal = Calendar.getInstance();
             cal.setTime(new Date());
             switch (shippingMethod) {
                 case "Express":
-                    cal.add(Calendar.DAY_OF_MONTH, 3);  // Express 是 3 天
+                    cal.add(Calendar.DAY_OF_MONTH, 3);  // Express is 3 days
                     break;
                 case "Air Freight":
-                    cal.add(Calendar.DAY_OF_MONTH, 7);  // Air Freight 是 7 天
+                    cal.add(Calendar.DAY_OF_MONTH, 7);  // Air Freight is 7 days
                     break;
                 case "Sea Freight":
-                    cal.add(Calendar.DAY_OF_MONTH, 30); // Sea Freight 是 30 天
+                    cal.add(Calendar.DAY_OF_MONTH, 30); // Sea Freight is 30 days
                     break;
                 case "Ground":
-                    cal.add(Calendar.DAY_OF_MONTH, 15); // Ground 是 15 天
+                    cal.add(Calendar.DAY_OF_MONTH, 15); // Ground is 15 days
                     break;
             }
             shipment.setEstimatedDeliveryDate(cal.getTime());
 
-            // 5. 添加初始追踪信息
+            // 5. Add initial tracking info
             TrackingInfo trackInfo = new TrackingInfo();
             trackInfo.setShipmentId(shipment.getShipmentId());
             trackInfo.setTimestamp(new Date());
@@ -1119,24 +1261,23 @@ public class ShipmentPanel extends javax.swing.JPanel {
             trackInfo.setStatus("Shipped");
             shipment.addTrackingInfo(trackInfo);
 
-            // 6. 将 Shipment 添加到目录
+            // 6. Add Shipment to directory
             logisticsOrg.getShipmentDirectory().addShipment(shipment);
 
-            // 7. 更新对应的工作请求状态
+            // 7. Update corresponding work request status
             for (WorkRequest request : logisticsOrg.getWorkQueue().getWorkRequestList()) {
                 if (request instanceof WarehouseWorkRequest) {
                     WarehouseWorkRequest warehouseRequest = (WarehouseWorkRequest) request;
                     if (warehouseRequest.getShipmentId().equals(shipmentId)) {
-
-                        // 更新工作请求中的信息
+                        // Update work request info
                         warehouseRequest.setStatus("Shipped");
                         warehouseRequest.setTrackingNumber(trackingNumber);
                         warehouseRequest.setShippingMethod(shippingMethod);
-                        warehouseRequest.setDestination(destination);  // 更新目的地
+                        warehouseRequest.setDestination(destination);  // Update destination
                         warehouseRequest.setEstimatedDeliveryDate(shipment.getEstimatedDeliveryDate());
                         warehouseRequest.setResolveDate(new Date());
 
-                        // 从工作请求复制信息到 Shipment
+                        // Copy information from work request to Shipment
                         if (warehouseRequest.getProductName() != null) {
                             shipment.setProductName(warehouseRequest.getProductName());
                         }
@@ -1150,34 +1291,74 @@ public class ShipmentPanel extends javax.swing.JPanel {
                 }
             }
 
-            // 8. 保存系统更新
+            // 8. Create ReceivingWorkRequest for ecommerce platform (merchant)
+            ReceivingWorkRequest merchantRequest = new ReceivingWorkRequest();
+            merchantRequest.setShipmentId(shipment.getShipmentId());
+            merchantRequest.setTrackingNumber(trackingNumber);
+            merchantRequest.setProductName(shipment.getProductName());
+            merchantRequest.setQuantity(shipment.getQuantity());
+            merchantRequest.setShippingMethod(shippingMethod);
+            merchantRequest.setDestination(destination);
+            merchantRequest.setStatus("En Route");
+            merchantRequest.setRequestDate(new Date());
+            merchantRequest.setEstimatedDeliveryDate(shipment.getEstimatedDeliveryDate());
+            merchantRequest.setSender(userAccount);
+
+            // Find all ecommerce platform organizations in the system and send notification to each
             EcoSystem system = EcoSystem.getInstance();
+            boolean notificationSent = false;
+
+            for (Network network : system.getNetworkList()) {
+                for (Enterprise enterprise : network.getEnterpriseDirectory().getEnterpriseList()) {
+                    for (Organization org : enterprise.getOrganizationDirectory().getOrganizationList()) {
+                        if (org instanceof ECommercePlatformOrganization) {
+                            // Send notification to each ecommerce organization
+                            org.getWorkQueue().getWorkRequestList().add(merchantRequest);
+                            notificationSent = true;
+                            System.out.println("Receiving notification sent to ecommerce platform: "
+                                    + org.getName() + " for shipment: " + trackingNumber);
+                        }
+                    }
+                }
+            }
+
+            if (!notificationSent) {
+                System.out.println("No ecommerce platform organizations found to notify.");
+            }
+
+            // 9. Save system updates
             DB4OUtil.getInstance().storeSystem(system);
 
-            // 9. 刷新表格
+            // 10. Refresh table
             populateTable();
 
-            // 10. 刷新 LogisticsCoordinatorHP 的表格
+            // 11. Refresh LogisticsCoordinatorHP tables if parent panel is accessible
             if (parentPanel instanceof LogisticsCoordinatorHP) {
                 ((LogisticsCoordinatorHP) parentPanel).refreshTables();
             }
 
-            // 11. 显示成功消息
+            // 12. Show success message
             JOptionPane.showMessageDialog(this,
                     "Shipment processed successfully!\nTracking Number: " + trackingNumber
                     + "\nDestination: " + destination);
+
+            // Debug output to confirm customs declarations
+            System.out.println("System saved. Customs declarations in directory: "
+                    + (ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory() != null
+                    ? ConfigureASystem.logisticsOrg.getCustomsDeclarationDirectory()
+                            .getCustomsDeclarationList().size() : 0));
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
                     "Error processing shipment: " + e.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }//GEN-LAST:event_btnShipActionPerformed
 
     private void btnCustomsInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCustomsInfoActionPerformed
         // TODO add your handling code here:
-        // 显示海关信息面板
         detailsCardLayout.show(detailsCardsPanel, "CustomsInfo");
     }//GEN-LAST:event_btnCustomsInfoActionPerformed
 
@@ -1411,10 +1592,14 @@ public class ShipmentPanel extends javax.swing.JPanel {
         if (shipment != null) {
             // 在详情面板显示信息
             txtTrcNo.setText(shipment.getTrackingNumber());
-            txtShippingDate.setText(shipment.getShipDate() != null ? shipment.getShipDate().toString() : "");
+            txtShippingDate.setText(shipment.getShipDate() != null
+                    ? new SimpleDateFormat("yyyy-MM-dd").format(shipment.getShipDate()) : "");
             txtShippingMethod.setText(shipment.getShippingMethod());
             txtDestination.setText(shipment.getDestination());
             txtStatus.setText(shipment.getShipmentStatus());
+
+            // 确保商品有海关信息
+            ensureCustomsInfoExists(shipment);
 
             // 使用静态地图显示
             displayStaticMap(shipment);
@@ -1422,6 +1607,75 @@ public class ShipmentPanel extends javax.swing.JPanel {
             // 激活基本信息Tab
             btnBasicInfo.doClick();
         }
+    }
+
+    // 确保货件有关联的海关信息
+    private void ensureCustomsInfoExists(Shipment shipment) {
+        if (shipment == null) {
+            return;
+        }
+
+        // 如果已有关联的海关信息，无需处理
+        if (shipment.getCustomsDeclaration() != null) {
+            return;
+        }
+
+        // 尝试从海关目录中查找关联的报关单
+        if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
+            CustomsDeclarationDirectory declarationDir = organization.getCustomsDeclarationDirectory();
+            for (CustomsDeclaration declaration : declarationDir.getCustomsDeclarationList()) {
+                if (shipment.getShipmentId() != null
+                        && shipment.getShipmentId().equals(declaration.getShipmentId())) {
+                    // 找到匹配的报关单，关联到货件
+                    shipment.setCustomsDeclaration(declaration);
+                    System.out.println("已关联现有报关单到货件 " + shipment.getShipmentId());
+                    return;
+                }
+            }
+        }
+        // 如果找不到匹配的报关单，创建一个新的
+        CustomsDeclaration customs = new CustomsDeclaration();
+        customs.setDeclarationId("CD" + System.currentTimeMillis());
+        customs.setShipmentId(shipment.getShipmentId());
+        customs.setDeclarationDate(new Date());
+
+        // 设置默认值
+        customs.setCountryOfOrigin("China");
+        customs.setConsignor("Shanghai Warehouse");
+        customs.setConsignee(shipment.getDestination());
+        customs.setDestinationCountry(extractCountry(shipment.getDestination()));
+        customs.setStatus("Draft");
+        customs.setNotes("Auto-generated customs declaration");
+
+        // 添加默认物品
+        if (shipment.getProductName() != null && !shipment.getProductName().isEmpty()) {
+            ArrayList<CustomsDeclaration.CustomsLineItem> items = new ArrayList<>();
+
+            CustomsDeclaration.CustomsLineItem item = new CustomsDeclaration.CustomsLineItem();
+            item.setDescription(shipment.getProductName());
+            item.setQuantity(shipment.getQuantity());
+            item.setUnit("PCS");
+            item.setUnitValue(100.0); // 默认单价
+            item.setTotalValue(item.getQuantity() * item.getUnitValue());
+            item.setGrossWeight(item.getQuantity() * 0.5); // 估计重量
+            items.add(item);
+
+            customs.setItems(items);
+        }
+
+        // 关联到货件
+        shipment.setCustomsDeclaration(customs);
+
+        // 添加到海关目录
+        if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
+            organization.getCustomsDeclarationDirectory().addCustomsDeclaration(customs);
+        }
+
+        // 保存到系统
+        EcoSystem system = EcoSystem.getInstance();
+        DB4OUtil.getInstance().storeSystem(system);
+
+        System.out.println("已为货件 " + shipment.getShipmentId() + " 创建新报关单");
     }
 
     private void updateShipmentStatus(int selectedRow) {
@@ -1487,6 +1741,34 @@ public class ShipmentPanel extends javax.swing.JPanel {
     }
 
     private Shipment findShipmentByTrackingNumber(String trackingNumber) {
+        // Special handling for pending shipments
+        if (trackingNumber != null && trackingNumber.startsWith("Pending-")) {
+            String shipmentId = trackingNumber.replace("Pending-", "");
+
+            // Search for work request with this shipment ID
+            if (organization != null && organization.getWorkQueue() != null) {
+                for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
+                    if (request instanceof WarehouseWorkRequest) {
+                        WarehouseWorkRequest warehouseRequest = (WarehouseWorkRequest) request;
+                        if (shipmentId.equals(warehouseRequest.getShipmentId())) {
+                            // Create a temporary shipment object with the request data
+                            Shipment tempShipment = new Shipment();
+                            tempShipment.setShipmentId(warehouseRequest.getShipmentId());
+                            tempShipment.setProductName(warehouseRequest.getProductName());
+                            tempShipment.setQuantity(warehouseRequest.getQuantity());
+                            tempShipment.setDestination(warehouseRequest.getDestination());
+                            tempShipment.setShipmentStatus(warehouseRequest.getStatus());
+                            // Use setShipDate instead of non-existent setRequestDate
+                            tempShipment.setShipDate(warehouseRequest.getRequestDate());
+                            return tempShipment;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Regular shipment lookup
         if (organization != null && organization.getShipmentDirectory() != null) {
             return organization.getShipmentDirectory().findShipmentByTrackingNumber(trackingNumber);
         }
@@ -1922,10 +2204,23 @@ public class ShipmentPanel extends javax.swing.JPanel {
         txtDestinationCountry.setPreferredSize(textFieldSize);
 
         JLabel lblStatus = new JLabel("Status:");
-        String[] statuses = {"Pending", "Submitted", "Approved", "Rejected"};
+        String[] statuses = {"Draft", "Submitted", "Approved", "Rejected", "Information Needed"};
         JComboBox<String> cmbStatus = new JComboBox<>(statuses);
         cmbStatus.setName("cmbStatus");
         cmbStatus.setPreferredSize(textFieldSize);
+
+        JLabel lblCustomsOffice = new JLabel("Customs Office:");
+        JTextField txtCustomsOffice = new JTextField(20);
+        txtCustomsOffice.setName("txtCustomsOffice");
+        txtCustomsOffice.setPreferredSize(textFieldSize);
+
+        JLabel lblNotes = new JLabel("Notes:");
+        JTextArea txtNotes = new JTextArea(3, 20);
+        txtNotes.setName("txtNotes");
+        txtNotes.setLineWrap(true);
+        txtNotes.setWrapStyleWord(true);
+        JScrollPane scrollNotes = new JScrollPane(txtNotes);
+        scrollNotes.setPreferredSize(new Dimension(250, 60));
 
         // 添加组件到内容面板
         contentPanel.add(lblDeclarationId, labelConstraints);
@@ -1956,6 +2251,16 @@ public class ShipmentPanel extends javax.swing.JPanel {
         contentPanel.add(lblStatus, labelConstraints);
         contentPanel.add(cmbStatus, fieldConstraints);
 
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblCustomsOffice, labelConstraints);
+        contentPanel.add(txtCustomsOffice, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblNotes, labelConstraints);
+        contentPanel.add(scrollNotes, fieldConstraints);
+
         // 添加填充空间，将内容推到顶部
         GridBagConstraints fillerConstraints = new GridBagConstraints();
         fillerConstraints.gridx = 0;
@@ -1979,7 +2284,19 @@ public class ShipmentPanel extends javax.swing.JPanel {
         JScrollPane itemsScrollPane = new JScrollPane(itemsTable);
         itemsScrollPane.setPreferredSize(new Dimension(0, 150));
 
+        // 添加物品操作按钮
+        JPanel itemButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnAddItem = new JButton("Add Item");
+        JButton btnRemoveItem = new JButton("Remove Item");
+        itemButtonsPanel.add(btnAddItem);
+        itemButtonsPanel.add(btnRemoveItem);
+
+        // 设置按钮事件
+        btnAddItem.addActionListener(e -> addCustomsLineItem(itemsTable));
+        btnRemoveItem.addActionListener(e -> removeCustomsLineItem(itemsTable));
+
         itemsPanel.add(itemsScrollPane, BorderLayout.CENTER);
+        itemsPanel.add(itemButtonsPanel, BorderLayout.SOUTH);
 
         // 创建主面板布局
         JPanel mainPanel = new JPanel();
@@ -1990,6 +2307,8 @@ public class ShipmentPanel extends javax.swing.JPanel {
         // 创建按钮面板
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnSaveCustoms = new JButton("Save");
+        btnSaveCustoms.setBackground(new Color(26, 79, 156)); // Medium blue
+        btnSaveCustoms.setForeground(Color.WHITE);
         buttonPanel.add(btnSaveCustoms);
 
         // 组装主面板
@@ -1997,11 +2316,19 @@ public class ShipmentPanel extends javax.swing.JPanel {
         customsPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         // 设置面板引用（保持与原有方法兼容）
-        final JTextField[] fieldsRef = {txtDeclarationId, null, null,
-            txtConsignor, txtConsignee, txtCountryOfOrigin,
-            txtDestinationCountry, null};
+        final JTextField[] fieldsRef = {
+            txtDeclarationId,
+            null, // 可能是declarationNumber
+            null, // 可能是hsCode
+            txtConsignor,
+            txtConsignee,
+            txtCountryOfOrigin,
+            txtDestinationCountry,
+            txtCustomsOffice
+        };
+
         final JComboBox[] combosRef = {null, cmbStatus};
-        final JTextArea[] textAreasRef = {null};
+        final JTextArea[] textAreasRef = {txtNotes};
         final JTable[] tablesRef = {itemsTable};
 
         // 加载数据
@@ -2031,34 +2358,24 @@ public class ShipmentPanel extends javax.swing.JPanel {
         JLabel lblDescription = new JLabel("Description:");
         JTextField txtDescription = new JTextField(20);
 
-        JLabel lblHsCode = new JLabel("HS Code:");
-        JTextField txtHsCode = new JTextField(20);
-
         JLabel lblQuantity = new JLabel("Quantity:");
         JTextField txtQuantity = new JTextField(20);
 
         JLabel lblUnit = new JLabel("Unit:");
         JTextField txtUnit = new JTextField(20);
-        txtUnit.setText("PCS");
+        txtUnit.setText("PCS"); // 默认值
 
-        JLabel lblUnitValue = new JLabel("Unit Value:");
+        JLabel lblUnitValue = new JLabel("Unit Value (USD):");
         JTextField txtUnitValue = new JTextField(20);
-
-        JLabel lblGrossWeight = new JLabel("Gross Weight:");
-        JTextField txtGrossWeight = new JTextField(20);
 
         panel.add(lblDescription);
         panel.add(txtDescription);
-        panel.add(lblHsCode);
-        panel.add(txtHsCode);
         panel.add(lblQuantity);
         panel.add(txtQuantity);
         panel.add(lblUnit);
         panel.add(txtUnit);
         panel.add(lblUnitValue);
         panel.add(txtUnitValue);
-        panel.add(lblGrossWeight);
-        panel.add(txtGrossWeight);
 
         int result = JOptionPane.showConfirmDialog(null, panel, "Add Declaration Item",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
@@ -2066,20 +2383,62 @@ public class ShipmentPanel extends javax.swing.JPanel {
         if (result == JOptionPane.OK_OPTION) {
             try {
                 String description = txtDescription.getText();
-                String hsCode = txtHsCode.getText();
+                if (description == null || description.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Description cannot be empty.",
+                            "Invalid Input", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 int quantity = Integer.parseInt(txtQuantity.getText());
+                if (quantity <= 0) {
+                    JOptionPane.showMessageDialog(null, "Quantity must be greater than zero.",
+                            "Invalid Input", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 String unit = txtUnit.getText();
+                if (unit == null || unit.trim().isEmpty()) {
+                    unit = "PCS"; // Default unit
+                }
+
                 double unitValue = Double.parseDouble(txtUnitValue.getText());
-                double grossWeight = Double.parseDouble(txtGrossWeight.getText());
+                if (unitValue < 0) {
+                    JOptionPane.showMessageDialog(null, "Unit value cannot be negative.",
+                            "Invalid Input", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-                double totalValue = quantity * unitValue;
-
+                // 获取表格模型
                 DefaultTableModel model = (DefaultTableModel) itemsTable.getModel();
-                model.addRow(new Object[]{
-                    description, hsCode, quantity, unit, unitValue, totalValue, grossWeight
-                });
+
+                // 根据表格列数添加数据
+                if (model.getColumnCount() == 3) {
+                    // 简化版表格
+                    model.addRow(new Object[]{
+                        description,
+                        quantity,
+                        unitValue
+                    });
+                } else if (model.getColumnCount() >= 7) {
+                    // 完整版表格
+                    double totalValue = quantity * unitValue;
+                    double grossWeight = quantity * 0.5; // 默认每个单位0.5kg
+
+                    model.addRow(new Object[]{
+                        description,
+                        "", // HS Code (empty for now)
+                        quantity,
+                        unit,
+                        unitValue,
+                        totalValue,
+                        grossWeight
+                    });
+                }
+
+                JOptionPane.showMessageDialog(null, "Item added successfully!");
+
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(null, "Please enter valid numbers for quantity, unit value, and gross weight.",
+                JOptionPane.showMessageDialog(null, "Please enter valid numbers for quantity and unit value.",
                         "Invalid Input", JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -2089,8 +2448,17 @@ public class ShipmentPanel extends javax.swing.JPanel {
     private void removeCustomsLineItem(JTable itemsTable) {
         int selectedRow = itemsTable.getSelectedRow();
         if (selectedRow >= 0) {
-            DefaultTableModel model = (DefaultTableModel) itemsTable.getModel();
-            model.removeRow(selectedRow);
+            // 确认删除
+            int confirm = JOptionPane.showConfirmDialog(null,
+                    "Are you sure you want to remove this item?",
+                    "Confirm Removal",
+                    JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                DefaultTableModel model = (DefaultTableModel) itemsTable.getModel();
+                model.removeRow(selectedRow);
+                JOptionPane.showMessageDialog(null, "Item removed successfully!");
+            }
         } else {
             JOptionPane.showMessageDialog(null, "Please select an item to remove.",
                     "No Selection", JOptionPane.WARNING_MESSAGE);
@@ -2100,7 +2468,27 @@ public class ShipmentPanel extends javax.swing.JPanel {
 // 加载海关信息到表单
     private void loadCustomsInfo(Shipment shipment, JTextField[] fields, JComboBox[] combos,
             JTextArea[] textAreas, JTable itemsTable) {
-        CustomsDeclaration customs = shipment.getCustomsDeclaration();
+
+        // 获取海关信息
+        CustomsDeclaration customs = null;
+
+        // 直接从shipment获取海关信息
+        if (shipment != null) {
+            customs = shipment.getCustomsDeclaration();
+        }
+
+        // 如果shipment中没有，尝试从LogisticsOrganization中获取
+        if (customs == null && organization != null && organization.getCustomsDeclarationDirectory() != null) {
+            for (CustomsDeclaration declaration : organization.getCustomsDeclarationDirectory().getCustomsDeclarationList()) {
+                if (declaration.getShipmentId() != null
+                        && declaration.getShipmentId().equals(shipment.getShipmentId())) {
+                    customs = declaration;
+                    // 顺便关联到shipment
+                    shipment.setCustomsDeclaration(customs);
+                    break;
+                }
+            }
+        }
 
         // 如果没有海关信息，创建一个新的
         if (customs == null) {
@@ -2113,8 +2501,15 @@ public class ShipmentPanel extends javax.swing.JPanel {
             customs.setConsignor("Shanghai Warehouse");
             customs.setConsignee(shipment.getDestination());
             customs.setDestinationCountry(extractCountry(shipment.getDestination()));
+            customs.setStatus("Draft"); // 设置默认状态为草稿
 
+            // 关联到shipment
             shipment.setCustomsDeclaration(customs);
+
+            // 如果有目录，添加到目录中
+            if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
+                organization.getCustomsDeclarationDirectory().addCustomsDeclaration(customs);
+            }
 
             // 保存到系统
             EcoSystem system = EcoSystem.getInstance();
@@ -2122,17 +2517,33 @@ public class ShipmentPanel extends javax.swing.JPanel {
         }
 
         // 填充基本信息字段
-        fields[0].setText(customs.getDeclarationId());
-        fields[1].setText(customs.getDeclarationNumber() != null ? customs.getDeclarationNumber() : "");
-        fields[2].setText(customs.getHsCode() != null ? customs.getHsCode() : "");
-        fields[3].setText(customs.getConsignor() != null ? customs.getConsignor() : "");
-        fields[4].setText(customs.getConsignee() != null ? customs.getConsignee() : "");
-        fields[5].setText(customs.getCountryOfOrigin() != null ? customs.getCountryOfOrigin() : "");
-        fields[6].setText(customs.getDestinationCountry() != null ? customs.getDestinationCountry() : "");
-        fields[7].setText(customs.getCustomsOffice() != null ? customs.getCustomsOffice() : "");
+        if (fields.length > 0) {
+            fields[0].setText(customs.getDeclarationId() != null ? customs.getDeclarationId() : "");
+        }
+        if (fields.length > 1 && fields[1] != null) {
+            fields[1].setText(customs.getDeclarationNumber() != null ? customs.getDeclarationNumber() : "");
+        }
+        if (fields.length > 2 && fields[2] != null) {
+            fields[2].setText(customs.getHsCode() != null ? customs.getHsCode() : "");
+        }
+        if (fields.length > 3 && fields[3] != null) {
+            fields[3].setText(customs.getConsignor() != null ? customs.getConsignor() : "");
+        }
+        if (fields.length > 4 && fields[4] != null) {
+            fields[4].setText(customs.getConsignee() != null ? customs.getConsignee() : "");
+        }
+        if (fields.length > 5 && fields[5] != null) {
+            fields[5].setText(customs.getCountryOfOrigin() != null ? customs.getCountryOfOrigin() : "");
+        }
+        if (fields.length > 6 && fields[6] != null) {
+            fields[6].setText(customs.getDestinationCountry() != null ? customs.getDestinationCountry() : "");
+        }
+        if (fields.length > 7 && fields[7] != null) {
+            fields[7].setText(customs.getCustomsOffice() != null ? customs.getCustomsOffice() : "");
+        }
 
         // 设置下拉框
-        if (customs.getDeclarationType() != null) {
+        if (combos != null && combos.length > 0 && combos[0] != null && customs.getDeclarationType() != null) {
             for (int i = 0; i < combos[0].getItemCount(); i++) {
                 if (combos[0].getItemAt(i).equals(customs.getDeclarationType())) {
                     combos[0].setSelectedIndex(i);
@@ -2141,7 +2552,7 @@ public class ShipmentPanel extends javax.swing.JPanel {
             }
         }
 
-        if (customs.getStatus() != null) {
+        if (combos != null && combos.length > 1 && combos[1] != null && customs.getStatus() != null) {
             for (int i = 0; i < combos[1].getItemCount(); i++) {
                 if (combos[1].getItemAt(i).equals(customs.getStatus())) {
                     combos[1].setSelectedIndex(i);
@@ -2151,25 +2562,44 @@ public class ShipmentPanel extends javax.swing.JPanel {
         }
 
         // 设置文本区域
-        textAreas[0].setText(customs.getNotes() != null ? customs.getNotes() : "");
+        if (textAreas != null && textAreas.length > 0 && textAreas[0] != null) {
+            textAreas[0].setText(customs.getNotes() != null ? customs.getNotes() : "");
+        }
 
         // 加载物品表格
-        DefaultTableModel model = (DefaultTableModel) itemsTable.getModel();
-        model.setRowCount(0);
+        if (itemsTable != null) {
+            DefaultTableModel model = (DefaultTableModel) itemsTable.getModel();
+            model.setRowCount(0);
 
-        if (customs.getItems() != null) {
-            for (CustomsDeclaration.CustomsLineItem item : customs.getItems()) {
-                model.addRow(new Object[]{
-                    item.getDescription(),
-                    item.getHsCode(),
-                    item.getQuantity(),
-                    item.getUnit(),
-                    item.getUnitValue(),
-                    item.getTotalValue(),
-                    item.getGrossWeight()
-                });
+            if (customs.getItems() != null) {
+                for (CustomsDeclaration.CustomsLineItem item : customs.getItems()) {
+                    // 根据表格列数调整添加的数据
+                    if (model.getColumnCount() == 3) {
+                        // 简化版表格
+                        model.addRow(new Object[]{
+                            item.getDescription(),
+                            item.getQuantity(),
+                            item.getUnitValue()
+                        });
+                    } else {
+                        // 完整版表格
+                        model.addRow(new Object[]{
+                            item.getDescription(),
+                            item.getHsCode(),
+                            item.getQuantity(),
+                            item.getUnit(),
+                            item.getUnitValue(),
+                            item.getTotalValue(),
+                            item.getGrossWeight()
+                        });
+                    }
+                }
             }
         }
+
+        System.out.println("已加载海关信息 - ID: " + customs.getDeclarationId()
+                + ", Status: " + customs.getStatus()
+                + ", 物品数量: " + (customs.getItems() != null ? customs.getItems().size() : 0));
     }
 
 // 保存海关信息
@@ -2192,35 +2622,105 @@ public class ShipmentPanel extends javax.swing.JPanel {
                 customs.setDeclarationId("CD" + System.currentTimeMillis());
                 customs.setShipmentId(shipment.getShipmentId());
                 shipment.setCustomsDeclaration(customs);
+
+                // 如果有目录，添加到目录中
+                if (organization != null && organization.getCustomsDeclarationDirectory() != null) {
+                    organization.getCustomsDeclarationDirectory().addCustomsDeclaration(customs);
+                }
             }
 
             // 设置字段值
-            customs.setDeclarationNumber(fields[1].getText());
-            customs.setDeclarationType(combos[0].getSelectedItem().toString());
-            customs.setHsCode(fields[2].getText());
-            customs.setConsignor(fields[3].getText());
-            customs.setConsignee(fields[4].getText());
-            customs.setCountryOfOrigin(fields[5].getText());
-            customs.setDestinationCountry(fields[6].getText());
-            customs.setCustomsOffice(fields[7].getText());
-            customs.setStatus(combos[1].getSelectedItem().toString());
-            customs.setNotes(textAreas[0].getText());
+            if (fields.length > 0 && fields[0] != null && !fields[0].getText().isEmpty()) {
+                customs.setDeclarationId(fields[0].getText());
+            }
+
+            if (fields.length > 1 && fields[1] != null) {
+                customs.setDeclarationNumber(fields[1].getText());
+            }
+
+            if (fields.length > 2 && fields[2] != null) {
+                customs.setHsCode(fields[2].getText());
+            }
+
+            if (fields.length > 3 && fields[3] != null) {
+                customs.setConsignor(fields[3].getText());
+            }
+
+            if (fields.length > 4 && fields[4] != null) {
+                customs.setConsignee(fields[4].getText());
+            }
+
+            if (fields.length > 5 && fields[5] != null) {
+                customs.setCountryOfOrigin(fields[5].getText());
+            }
+
+            if (fields.length > 6 && fields[6] != null) {
+                customs.setDestinationCountry(fields[6].getText());
+            }
+
+            if (fields.length > 7 && fields[7] != null) {
+                customs.setCustomsOffice(fields[7].getText());
+            }
+
+            if (combos != null && combos.length > 0 && combos[0] != null) {
+                customs.setDeclarationType(combos[0].getSelectedItem().toString());
+            }
+
+            if (combos != null && combos.length > 1 && combos[1] != null) {
+                customs.setStatus(combos[1].getSelectedItem().toString());
+            }
+
+            if (textAreas != null && textAreas.length > 0 && textAreas[0] != null) {
+                customs.setNotes(textAreas[0].getText());
+            }
 
             // 处理物品
             ArrayList<CustomsDeclaration.CustomsLineItem> items = new ArrayList<>();
             DefaultTableModel model = (DefaultTableModel) itemsTable.getModel();
+
             for (int i = 0; i < model.getRowCount(); i++) {
                 CustomsDeclaration.CustomsLineItem item = new CustomsDeclaration.CustomsLineItem();
-                item.setDescription((String) model.getValueAt(i, 0));
-                item.setHsCode((String) model.getValueAt(i, 1));
-                item.setQuantity((int) model.getValueAt(i, 2));
-                item.setUnit((String) model.getValueAt(i, 3));
-                item.setUnitValue((double) model.getValueAt(i, 4));
-                item.setTotalValue((double) model.getValueAt(i, 5));
-                item.setGrossWeight((double) model.getValueAt(i, 6));
+
+                // 根据表格列数提取数据
+                if (model.getColumnCount() == 3) {
+                    // 简化版表格 (Description, Quantity, Unit Value)
+                    item.setDescription((String) model.getValueAt(i, 0));
+                    item.setQuantity(Integer.parseInt(model.getValueAt(i, 1).toString()));
+                    item.setUnit("PCS"); // 默认单位
+                    item.setUnitValue(Double.parseDouble(model.getValueAt(i, 2).toString()));
+                    item.setTotalValue(item.getQuantity() * item.getUnitValue());
+                    item.setGrossWeight(item.getQuantity() * 0.5); // 估计重量
+                    item.setHsCode(""); // 空HS代码
+                } else if (model.getColumnCount() >= 7) {
+                    // 完整版表格
+                    item.setDescription((String) model.getValueAt(i, 0));
+                    item.setHsCode((String) model.getValueAt(i, 1));
+                    item.setQuantity(Integer.parseInt(model.getValueAt(i, 2).toString()));
+                    item.setUnit((String) model.getValueAt(i, 3));
+                    item.setUnitValue(Double.parseDouble(model.getValueAt(i, 4).toString()));
+                    item.setTotalValue(Double.parseDouble(model.getValueAt(i, 5).toString()));
+                    item.setGrossWeight(Double.parseDouble(model.getValueAt(i, 6).toString()));
+                }
+
                 items.add(item);
             }
             customs.setItems(items);
+
+            // 设置申报日期（如果未设置）
+            if (customs.getDeclarationDate() == null) {
+                customs.setDeclarationDate(new Date());
+            }
+
+            // 如果状态为"Submitted"且未设置提交日期，则设置
+            if ("Submitted".equals(customs.getStatus()) && customs.getSubmissionDate() == null) {
+                customs.setSubmissionDate(new Date());
+            }
+
+            // 如果状态为"Approved"或"Rejected"且未设置处理日期，则设置
+            if (("Approved".equals(customs.getStatus()) || "Rejected".equals(customs.getStatus()))
+                    && customs.getProcessingDate() == null) {
+                customs.setProcessingDate(new Date());
+            }
 
             // 保存到系统
             EcoSystem system = EcoSystem.getInstance();
@@ -2228,6 +2728,10 @@ public class ShipmentPanel extends javax.swing.JPanel {
 
             JOptionPane.showMessageDialog(panel, "Customs information saved successfully",
                     "Save Successful", JOptionPane.INFORMATION_MESSAGE);
+
+            System.out.println("已保存海关信息 - ID: " + customs.getDeclarationId()
+                    + ", Status: " + customs.getStatus()
+                    + ", 物品数量: " + (customs.getItems() != null ? customs.getItems().size() : 0));
         }
     }
 
@@ -2242,20 +2746,47 @@ public class ShipmentPanel extends javax.swing.JPanel {
         if (parts.length > 0) {
             String lastPart = parts[parts.length - 1].trim();
 
-            // 如果是具体地址，可能需要查表或更复杂的逻辑
-            // 这里简单处理几个常见国家
+            // 处理一些常见的城市和国家
             if (lastPart.contains("China") || lastPart.contains("Beijing")
                     || lastPart.contains("Shanghai") || lastPart.contains("Guangzhou")) {
                 return "China";
             } else if (lastPart.contains("USA") || lastPart.contains("US")
                     || lastPart.contains("United States") || lastPart.contains("New York")
-                    || lastPart.contains("Los Angeles") || lastPart.contains("Boston")) {
+                    || lastPart.contains("Los Angeles") || lastPart.contains("Boston")
+                    || lastPart.contains("Chicago") || lastPart.contains("Houston")
+                    || lastPart.contains("Phoenix")) {
                 return "United States";
             } else if (lastPart.contains("UK") || lastPart.contains("London")
                     || lastPart.contains("England") || lastPart.contains("United Kingdom")) {
                 return "United Kingdom";
             } else if (lastPart.contains("Japan") || lastPart.contains("Tokyo")) {
                 return "Japan";
+            } else if (lastPart.contains("Germany") || lastPart.contains("Berlin")) {
+                return "Germany";
+            } else if (lastPart.contains("France") || lastPart.contains("Paris")) {
+                return "France";
+            } else if (lastPart.contains("Italy") || lastPart.contains("Rome")) {
+                return "Italy";
+            } else if (lastPart.contains("Canada") || lastPart.contains("Toronto")
+                    || lastPart.contains("Vancouver") || lastPart.contains("Montreal")) {
+                return "Canada";
+            } else if (lastPart.contains("Australia") || lastPart.contains("Sydney")
+                    || lastPart.contains("Melbourne")) {
+                return "Australia";
+            } else if (lastPart.contains("Brazil") || lastPart.contains("Rio")
+                    || lastPart.contains("Sao Paulo")) {
+                return "Brazil";
+            } else if (lastPart.contains("India") || lastPart.contains("Mumbai")
+                    || lastPart.contains("Delhi")) {
+                return "India";
+            } else if (lastPart.contains("Russia") || lastPart.contains("Moscow")) {
+                return "Russia";
+            } else if (lastPart.contains("Spain") || lastPart.contains("Madrid")) {
+                return "Spain";
+            } else if (lastPart.contains("Mexico") || lastPart.contains("Mexico City")) {
+                return "Mexico";
+            } else if (lastPart.contains("South Korea") || lastPart.contains("Seoul")) {
+                return "South Korea";
             } else {
                 return lastPart;  // 返回最后一部分作为国家
             }
@@ -2267,11 +2798,11 @@ public class ShipmentPanel extends javax.swing.JPanel {
     private JPanel createPackageInfoPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        // 创建主内容面板，使用 GridBagLayout
+        // Create main content panel using GridBagLayout
         JPanel contentPanel = new JPanel(new GridBagLayout());
         contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // 设置约束条件
+        // Setup constraints
         GridBagConstraints labelConstraints = new GridBagConstraints();
         labelConstraints.gridx = 0;
         labelConstraints.gridy = 0;
@@ -2285,26 +2816,45 @@ public class ShipmentPanel extends javax.swing.JPanel {
         fieldConstraints.weightx = 1.0;
         fieldConstraints.insets = new Insets(10, 0, 10, 10);
 
-        // 设置文本框的标准大小
+        // Standard text field size
         Dimension textFieldSize = new Dimension(250, 30);
 
-        // 添加包裹信息字段
+        // Add package info fields
         JLabel lblWeight = new JLabel("Weight (kg):");
         JTextField txtWeight = new JTextField();
+        txtWeight.setName("txtWeight");
         txtWeight.setPreferredSize(textFieldSize);
 
         JLabel lblDimensions = new JLabel("Dimensions (cm):");
         JTextField txtDimensions = new JTextField();
+        txtDimensions.setName("txtDimensions");
         txtDimensions.setPreferredSize(textFieldSize);
 
         JLabel lblPackageType = new JLabel("Package Type:");
-        JTextField txtPackageType = new JTextField();
-        txtPackageType.setPreferredSize(textFieldSize);
+        String[] packageTypes = {"Box", "Envelope", "Pallet", "Tube", "Crate", "Other"};
+        JComboBox<String> cmbPackageType = new JComboBox<>(packageTypes);
+        cmbPackageType.setName("cmbPackageType");
+        cmbPackageType.setPreferredSize(textFieldSize);
+
+        JLabel lblItemCount = new JLabel("Item Count:");
+        JTextField txtItemCount = new JTextField();
+        txtItemCount.setName("txtItemCount");
+        txtItemCount.setPreferredSize(textFieldSize);
 
         JLabel lblSpecialHandling = new JLabel("Special Handling:");
         JTextField txtSpecialHandling = new JTextField();
+        txtSpecialHandling.setName("txtSpecialHandling");
         txtSpecialHandling.setPreferredSize(textFieldSize);
 
+        JLabel lblNotes = new JLabel("Notes:");
+        JTextArea txtPackageNotes = new JTextArea(3, 20);
+        txtPackageNotes.setName("txtPackageNotes");
+        txtPackageNotes.setLineWrap(true);
+        txtPackageNotes.setWrapStyleWord(true);
+        JScrollPane scrollNotes = new JScrollPane(txtPackageNotes);
+        scrollNotes.setPreferredSize(new Dimension(250, 60));
+
+        // Add components to content panel
         contentPanel.add(lblWeight, labelConstraints);
         contentPanel.add(txtWeight, fieldConstraints);
 
@@ -2316,14 +2866,24 @@ public class ShipmentPanel extends javax.swing.JPanel {
         labelConstraints.gridy++;
         fieldConstraints.gridy++;
         contentPanel.add(lblPackageType, labelConstraints);
-        contentPanel.add(txtPackageType, fieldConstraints);
+        contentPanel.add(cmbPackageType, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblItemCount, labelConstraints);
+        contentPanel.add(txtItemCount, fieldConstraints);
 
         labelConstraints.gridy++;
         fieldConstraints.gridy++;
         contentPanel.add(lblSpecialHandling, labelConstraints);
         contentPanel.add(txtSpecialHandling, fieldConstraints);
 
-        // 添加填充空间，将内容推到顶部
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblNotes, labelConstraints);
+        contentPanel.add(scrollNotes, fieldConstraints);
+
+        // Add spacing filler to push content to top
         GridBagConstraints fillerConstraints = new GridBagConstraints();
         fillerConstraints.gridx = 0;
         fillerConstraints.gridy = labelConstraints.gridy + 1;
@@ -2332,20 +2892,173 @@ public class ShipmentPanel extends javax.swing.JPanel {
         fillerConstraints.gridwidth = 2;
         contentPanel.add(Box.createVerticalGlue(), fillerConstraints);
 
-        // 将内容面板添加到主面板
-        panel.add(contentPanel, BorderLayout.NORTH);
+        // Load package data if a shipment is selected
+        int selectedRow = tblShipment.getSelectedRow();
+        if (selectedRow >= 0) {
+            String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
+            Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+            if (shipment != null) {
+                loadPackageInfo(shipment, txtWeight, txtDimensions, cmbPackageType,
+                        txtItemCount, txtSpecialHandling, txtPackageNotes);
+            }
+        }
+
+        // Add save button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnSavePackage = new JButton("Save");
+        styleButton(btnSavePackage);
+        buttonPanel.add(btnSavePackage);
+
+        // Add save action
+        btnSavePackage.addActionListener(e -> {
+            savePackageInfo(txtWeight, txtDimensions, cmbPackageType,
+                    txtItemCount, txtSpecialHandling, txtPackageNotes);
+        });
+
+        // Add components to main panel
+        panel.add(contentPanel, BorderLayout.CENTER);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
 
         return panel;
+    }
+
+    private void loadPackageInfo(Shipment shipment, JTextField txtWeight, JTextField txtDimensions,
+            JComboBox<String> cmbPackageType, JTextField txtItemCount,
+            JTextField txtSpecialHandling, JTextArea txtNotes) {
+        // Ensure the shipment has package info
+        if (shipment.getPackageInfo() == null) {
+            shipment.initializePackageInfo();
+        }
+
+        // Load existing values
+        if (shipment.getPackageInfo().getWeight() > 0) {
+            txtWeight.setText(String.format("%.2f", shipment.getPackageInfo().getWeight()));
+        } else {
+            txtWeight.setText("");
+        }
+
+        txtDimensions.setText(shipment.getPackageInfo().getDimensions() != null
+                ? shipment.getPackageInfo().getDimensions() : "");
+
+        // Set package type in combo box
+        String packageType = shipment.getPackageInfo().getPackageType();
+        if (packageType != null && !packageType.isEmpty()) {
+            for (int i = 0; i < cmbPackageType.getItemCount(); i++) {
+                if (cmbPackageType.getItemAt(i).equals(packageType)) {
+                    cmbPackageType.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+
+        txtItemCount.setText(shipment.getPackageInfo().getItemCount() > 0
+                ? String.valueOf(shipment.getPackageInfo().getItemCount()) : "");
+        txtSpecialHandling.setText(shipment.getPackageInfo().getSpecialHandling() != null
+                ? shipment.getPackageInfo().getSpecialHandling() : "");
+        txtNotes.setText(shipment.getPackageInfo().getNotes() != null
+                ? shipment.getPackageInfo().getNotes() : "");
+    }
+
+    private void savePackageInfo(JTextField txtWeight, JTextField txtDimensions,
+            JComboBox<String> cmbPackageType, JTextField txtItemCount,
+            JTextField txtSpecialHandling, JTextArea txtNotes) {
+        int selectedRow = tblShipment.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a shipment first",
+                    "No Selection", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
+        Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+
+        if (shipment == null) {
+            JOptionPane.showMessageDialog(this, "Cannot find shipment details",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Initialize package info if needed
+        if (shipment.getPackageInfo() == null) {
+            shipment.initializePackageInfo();
+        }
+
+        try {
+            // Parse and set weight
+            if (!txtWeight.getText().trim().isEmpty()) {
+                double weight = Double.parseDouble(txtWeight.getText().trim());
+                shipment.getPackageInfo().setWeight(weight);
+                // Also update the main shipment weight
+                shipment.setWeight(weight);
+            }
+
+            // Set dimensions
+            shipment.getPackageInfo().setDimensions(txtDimensions.getText().trim());
+
+            // Set package type
+            shipment.getPackageInfo().setPackageType(cmbPackageType.getSelectedItem().toString());
+
+            // Parse and set item count
+            if (!txtItemCount.getText().trim().isEmpty()) {
+                int itemCount = Integer.parseInt(txtItemCount.getText().trim());
+                shipment.getPackageInfo().setItemCount(itemCount);
+            }
+
+            // Update goods information based on package info
+            if (shipment.getGoodsList() == null) {
+                shipment.setGoodsList(new ArrayList<>());
+            }
+
+            // Clear existing goods and add new item based on package info
+            shipment.getGoodsList().clear();
+
+            // Create goods entry from package info
+            Goods goods = new Goods();
+            goods.setDescription(shipment.getProductName() != null
+                    ? shipment.getProductName() : "Package Contents");
+            goods.setQuantity(shipment.getPackageInfo().getItemCount());
+            goods.setUnit("PCS"); // Default unit
+
+            // Try to extract weight per item
+            if (shipment.getPackageInfo().getWeight() > 0 && shipment.getPackageInfo().getItemCount() > 0) {
+                goods.setWeight(shipment.getPackageInfo().getWeight() / shipment.getPackageInfo().getItemCount());
+            } else {
+                goods.setWeight(0.5); // Default weight per item
+            }
+
+            // Add to shipment's goods list
+            shipment.getGoodsList().add(goods);
+
+            // Set special handling instructions
+            shipment.getPackageInfo().setSpecialHandling(txtSpecialHandling.getText().trim());
+
+            // Set notes
+            shipment.getPackageInfo().setNotes(txtNotes.getText().trim());
+
+            // Save to system
+            EcoSystem system = EcoSystem.getInstance();
+            DB4OUtil.getInstance().storeSystem(system);
+
+            JOptionPane.showMessageDialog(this, "Package information saved successfully",
+                    "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Please enter valid numeric values for weight and item count",
+                    "Invalid Input", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error saving package information: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 
     private JPanel createFinancialInfoPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        // 创建主内容面板，使用 GridBagLayout
+        // Create main content panel using GridBagLayout
         JPanel contentPanel = new JPanel(new GridBagLayout());
         contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // 设置约束条件
+        // Setup constraints
         GridBagConstraints labelConstraints = new GridBagConstraints();
         labelConstraints.gridx = 0;
         labelConstraints.gridy = 0;
@@ -2359,26 +3072,59 @@ public class ShipmentPanel extends javax.swing.JPanel {
         fieldConstraints.weightx = 1.0;
         fieldConstraints.insets = new Insets(10, 0, 10, 10);
 
-        // 设置文本框的标准大小
+        // Standard text field size
         Dimension textFieldSize = new Dimension(250, 30);
 
-        // 添加财务信息字段
-        JLabel lblShippingCost = new JLabel("Shipping Cost:");
+        // Add financial info fields
+        JLabel lblInvoiceNumber = new JLabel("Invoice Number:");
+        JTextField txtInvoiceNumber = new JTextField();
+        txtInvoiceNumber.setName("txtInvoiceNumber");
+        txtInvoiceNumber.setPreferredSize(textFieldSize);
+
+        JLabel lblShippingCost = new JLabel("Shipping Cost (USD):");
         JTextField txtShippingCost = new JTextField();
+        txtShippingCost.setName("txtShippingCost");
         txtShippingCost.setPreferredSize(textFieldSize);
 
-        JLabel lblInsuranceCost = new JLabel("Insurance Cost:");
+        JLabel lblInsuranceCost = new JLabel("Insurance Cost (USD):");
         JTextField txtInsuranceCost = new JTextField();
+        txtInsuranceCost.setName("txtInsuranceCost");
         txtInsuranceCost.setPreferredSize(textFieldSize);
 
-        JLabel lblTaxes = new JLabel("Taxes:");
+        JLabel lblCustomsDuties = new JLabel("Customs Duties (USD):");
+        JTextField txtCustomsDuties = new JTextField();
+        txtCustomsDuties.setName("txtCustomsDuties");
+        txtCustomsDuties.setPreferredSize(textFieldSize);
+
+        JLabel lblTaxes = new JLabel("Taxes (USD):");
         JTextField txtTaxes = new JTextField();
+        txtTaxes.setName("txtTaxes");
         txtTaxes.setPreferredSize(textFieldSize);
 
-        JLabel lblTotalCost = new JLabel("Total Cost:");
-        JTextField txtTotalCost = new JTextField();
-        txtTotalCost.setPreferredSize(textFieldSize);
+        JLabel lblOtherCharges = new JLabel("Other Charges (USD):");
+        JTextField txtOtherCharges = new JTextField();
+        txtOtherCharges.setName("txtOtherCharges");
+        txtOtherCharges.setPreferredSize(textFieldSize);
 
+        JLabel lblTotalCost = new JLabel("Total Cost (USD):");
+        JTextField txtTotalCost = new JTextField();
+        txtTotalCost.setName("txtTotalCost");
+        txtTotalCost.setPreferredSize(textFieldSize);
+        txtTotalCost.setEditable(false);
+        txtTotalCost.setBackground(new Color(240, 240, 240));
+
+        JLabel lblPaymentStatus = new JLabel("Payment Status:");
+        String[] paymentStatuses = {"Unpaid", "Partially Paid", "Paid", "Refunded"};
+        JComboBox<String> cmbPaymentStatus = new JComboBox<>(paymentStatuses);
+        cmbPaymentStatus.setName("cmbPaymentStatus");
+        cmbPaymentStatus.setPreferredSize(textFieldSize);
+
+        // Add components to content panel
+        contentPanel.add(lblInvoiceNumber, labelConstraints);
+        contentPanel.add(txtInvoiceNumber, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
         contentPanel.add(lblShippingCost, labelConstraints);
         contentPanel.add(txtShippingCost, fieldConstraints);
 
@@ -2389,27 +3135,202 @@ public class ShipmentPanel extends javax.swing.JPanel {
 
         labelConstraints.gridy++;
         fieldConstraints.gridy++;
+        contentPanel.add(lblCustomsDuties, labelConstraints);
+        contentPanel.add(txtCustomsDuties, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
         contentPanel.add(lblTaxes, labelConstraints);
         contentPanel.add(txtTaxes, fieldConstraints);
+
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblOtherCharges, labelConstraints);
+        contentPanel.add(txtOtherCharges, fieldConstraints);
 
         labelConstraints.gridy++;
         fieldConstraints.gridy++;
         contentPanel.add(lblTotalCost, labelConstraints);
         contentPanel.add(txtTotalCost, fieldConstraints);
 
-        // 添加填充空间，将内容推到顶部
+        labelConstraints.gridy++;
+        fieldConstraints.gridy++;
+        contentPanel.add(lblPaymentStatus, labelConstraints);
+        contentPanel.add(cmbPaymentStatus, fieldConstraints);
+
+        // Add calculate button
+        JButton btnCalculate = new JButton("Calculate Total");
+        styleButton(btnCalculate);
+        GridBagConstraints calcButtonConstraints = new GridBagConstraints();
+        calcButtonConstraints.gridx = 1;
+        calcButtonConstraints.gridy = labelConstraints.gridy + 1;
+        calcButtonConstraints.anchor = GridBagConstraints.EAST;
+        calcButtonConstraints.insets = new Insets(10, 0, 10, 10);
+        contentPanel.add(btnCalculate, calcButtonConstraints);
+
+        // Add calculate action
+        btnCalculate.addActionListener(e -> {
+            try {
+                double shippingCost = parseDoubleOrZero(txtShippingCost.getText());
+                double insuranceCost = parseDoubleOrZero(txtInsuranceCost.getText());
+                double customsDuties = parseDoubleOrZero(txtCustomsDuties.getText());
+                double taxes = parseDoubleOrZero(txtTaxes.getText());
+                double otherCharges = parseDoubleOrZero(txtOtherCharges.getText());
+
+                double total = shippingCost + insuranceCost + customsDuties + taxes + otherCharges;
+                txtTotalCost.setText(String.format("%.2f", total));
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(panel,
+                        "Please enter valid numeric values for all costs",
+                        "Invalid Input", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        // Add spacing filler to push content to top
         GridBagConstraints fillerConstraints = new GridBagConstraints();
         fillerConstraints.gridx = 0;
-        fillerConstraints.gridy = labelConstraints.gridy + 1;
+        fillerConstraints.gridy = labelConstraints.gridy + 2;
         fillerConstraints.weighty = 1.0;
         fillerConstraints.fill = GridBagConstraints.BOTH;
         fillerConstraints.gridwidth = 2;
         contentPanel.add(Box.createVerticalGlue(), fillerConstraints);
 
-        // 将内容面板添加到主面板
-        panel.add(contentPanel, BorderLayout.NORTH);
+        // Load financial data if a shipment is selected
+        int selectedRow = tblShipment.getSelectedRow();
+        if (selectedRow >= 0) {
+            String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
+            Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+            if (shipment != null) {
+                loadFinancialInfo(shipment, txtShippingCost, txtInsuranceCost, txtCustomsDuties,
+                        txtTaxes, txtOtherCharges, txtTotalCost, cmbPaymentStatus);
+            }
+        }
+
+        // Add save button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnSaveFinancial = new JButton("Save");
+        btnSaveFinancial.setBackground(new Color(26, 79, 156));
+        btnSaveFinancial.setForeground(Color.WHITE);
+        buttonPanel.add(btnSaveFinancial);
+
+        // Add save action
+        btnSaveFinancial.addActionListener(e -> {
+            saveFinancialInfo(txtShippingCost, txtInsuranceCost, txtCustomsDuties,
+                    txtTaxes, txtOtherCharges, txtTotalCost, cmbPaymentStatus);
+        });
+
+        // Add components to main panel
+        panel.add(contentPanel, BorderLayout.CENTER);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
 
         return panel;
+    }
+
+    private void loadFinancialInfo(Shipment shipment, JTextField txtShippingCost,
+            JTextField txtInsuranceCost, JTextField txtCustomsDuties,
+            JTextField txtTaxes, JTextField txtOtherCharges,
+            JTextField txtTotalCost, JComboBox<String> cmbPaymentStatus) {
+        // Ensure the shipment has financial info
+        if (shipment.getFinancialInfo() == null) {
+            shipment.initializeFinancialInfo();
+        }
+
+        // Load existing values
+        txtShippingCost.setText(shipment.getFinancialInfo().getShippingCost() > 0
+                ? String.format("%.2f", shipment.getFinancialInfo().getShippingCost()) : "");
+        txtInsuranceCost.setText(shipment.getFinancialInfo().getInsuranceCost() > 0
+                ? String.format("%.2f", shipment.getFinancialInfo().getInsuranceCost()) : "");
+        txtCustomsDuties.setText(shipment.getFinancialInfo().getCustomsDuties() > 0
+                ? String.format("%.2f", shipment.getFinancialInfo().getCustomsDuties()) : "");
+        txtTaxes.setText(shipment.getFinancialInfo().getTaxes() > 0
+                ? String.format("%.2f", shipment.getFinancialInfo().getTaxes()) : "");
+        txtOtherCharges.setText(shipment.getFinancialInfo().getOtherCharges() > 0
+                ? String.format("%.2f", shipment.getFinancialInfo().getOtherCharges()) : "");
+        txtTotalCost.setText(shipment.getFinancialInfo().getTotalCost() > 0
+                ? String.format("%.2f", shipment.getFinancialInfo().getTotalCost()) : "");
+
+        // Set payment status in combo box
+        String paymentStatus = shipment.getFinancialInfo().getPaymentStatus();
+        if (paymentStatus != null && !paymentStatus.isEmpty()) {
+            for (int i = 0; i < cmbPaymentStatus.getItemCount(); i++) {
+                if (cmbPaymentStatus.getItemAt(i).equals(paymentStatus)) {
+                    cmbPaymentStatus.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void saveFinancialInfo(JTextField txtShippingCost, JTextField txtInsuranceCost,
+            JTextField txtCustomsDuties, JTextField txtTaxes,
+            JTextField txtOtherCharges, JTextField txtTotalCost,
+            JComboBox<String> cmbPaymentStatus) {
+        int selectedRow = tblShipment.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a shipment first",
+                    "No Selection", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String trackingNumber = tblShipment.getValueAt(selectedRow, 0).toString();
+        Shipment shipment = findShipmentByTrackingNumber(trackingNumber);
+
+        if (shipment == null) {
+            JOptionPane.showMessageDialog(this, "Cannot find shipment details",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Initialize financial info if needed
+        if (shipment.getFinancialInfo() == null) {
+            shipment.initializeFinancialInfo();
+        }
+
+        try {
+            // Parse and set costs
+            shipment.getFinancialInfo().setShippingCost(parseDoubleOrZero(txtShippingCost.getText()));
+            shipment.getFinancialInfo().setInsuranceCost(parseDoubleOrZero(txtInsuranceCost.getText()));
+            shipment.getFinancialInfo().setCustomsDuties(parseDoubleOrZero(txtCustomsDuties.getText()));
+            shipment.getFinancialInfo().setTaxes(parseDoubleOrZero(txtTaxes.getText()));
+            shipment.getFinancialInfo().setOtherCharges(parseDoubleOrZero(txtOtherCharges.getText()));
+
+            // Calculate and set total
+            double total = shipment.getFinancialInfo().getShippingCost()
+                    + shipment.getFinancialInfo().getInsuranceCost()
+                    + shipment.getFinancialInfo().getCustomsDuties()
+                    + shipment.getFinancialInfo().getTaxes()
+                    + shipment.getFinancialInfo().getOtherCharges();
+
+            shipment.getFinancialInfo().setTotalCost(total);
+            txtTotalCost.setText(String.format("%.2f", total));
+
+            // Set payment status
+            shipment.getFinancialInfo().setPaymentStatus(cmbPaymentStatus.getSelectedItem().toString());
+
+            // Save to system
+            EcoSystem system = EcoSystem.getInstance();
+            DB4OUtil.getInstance().storeSystem(system);
+
+            JOptionPane.showMessageDialog(this, "Financial information saved successfully",
+                    "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Please enter valid numeric values for all costs",
+                    "Invalid Input", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error saving financial information: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private double parseDoubleOrZero(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return 0.0;
+        }
+        try {
+            return Double.parseDouble(value.trim());
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
     }
 
     private void processNewShipment(Shipment shipment) {
@@ -3128,5 +4049,180 @@ public class ShipmentPanel extends javax.swing.JPanel {
         trackPathJPanel.add(errorLabel, BorderLayout.CENTER);
         trackPathJPanel.revalidate();
         trackPathJPanel.repaint();
+    }
+
+    // Add this method near other UI-related methods
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+
+        // Style all buttons
+        styleAllButtons();
+
+        // Style table
+        styleTable(tblShipment);
+
+        // Style text fields
+        styleAllTextFields();
+
+        // Style labels
+        styleAllLabels();
+    }
+
+    /**
+     * Style all buttons in the panel
+     */
+    private void styleAllButtons() {
+        styleButton(btnBack);
+        styleButton(btnRefresh);
+        styleButton(btnSearch);
+        styleButton(btnViewDetails);
+        styleButton(btnAddNewShip);
+        styleButton(btnUpdateStatus);
+        styleButton(btnUpdate);
+        styleButton(btnShip);
+        styleButton(btnDelete);
+        styleButton(btnBasicInfo);
+        styleButton(btnCustomsInfo);
+        styleButton(btnPackageInfo);
+        styleButton(btnFinancialInfo);
+    }
+
+    /**
+     * Apply consistent styling to a button
+     *
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(35, 100, 190)); // Lighter blue on hover
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(26, 79, 156)); // Back to normal
+            }
+
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(13, 60, 130)); // Darker when pressed
+            }
+
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(35, 100, 190)); // Back to hover
+            }
+        });
+    }
+
+    /**
+     * Style all text fields in the panel
+     */
+    private void styleAllTextFields() {
+        styleTextField(txtSearchBox);
+        styleTextField(txtTrcNo);
+        styleTextField(txtShippingDate);
+        styleTextField(txtShippingMethod);
+        styleTextField(txtDestination);
+        styleTextField(txtStatus);
+    }
+
+    /**
+     * Apply consistent styling to a text field
+     *
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51));    // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156));   // Medium blue cursor
+        textField.setBorder(javax.swing.BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+    }
+
+    /**
+     * Style all labels in the panel
+     */
+    private void styleAllLabels() {
+        styleTitleLabel(lblLogisticsTracking);
+        styleTitleLabel(lblTrackPath);
+        styleTitleLabel(lblTrackDetails);
+        styleLabel(lblTraNo);
+        styleLabel(lblShippingDate);
+        styleLabel(lblShippingMethod);
+        styleLabel(lblDestination);
+        styleLabel(lblStatus);
+        styleLabel(lblTrackingNo);
+    }
+
+    /**
+     * Apply title label styling
+     *
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 18));
+        label.setForeground(new Color(13, 25, 51)); // Dark blue text
+    }
+
+    /**
+     * Apply regular label styling
+     *
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        label.setForeground(new Color(13, 25, 51)); // Dark blue text
+    }
+
+    /**
+     * Style the table with consistent formatting
+     *
+     * @param table Table to style
+     */
+    private void styleTable(JTable table) {
+        // Style the header
+        if (table.getTableHeader() != null) {
+            table.getTableHeader().setBackground(new Color(26, 79, 156)); // Medium blue
+            table.getTableHeader().setForeground(Color.WHITE);
+            table.getTableHeader().setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        }
+
+        // Style the table
+        table.setBackground(Color.WHITE);
+        table.setForeground(new Color(13, 25, 51)); // Dark blue text
+        table.setGridColor(new Color(230, 230, 230));
+        table.setRowHeight(25);
+        table.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        table.setSelectionBackground(new Color(232, 242, 254)); // Very light blue
+        table.setSelectionForeground(new Color(13, 25, 51)); // Keep text dark
+
+        // Add custom cell renderer for alternating row colors
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 245, 250));
+                }
+
+                return c;
+            }
+        });
     }
 }

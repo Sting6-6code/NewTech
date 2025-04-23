@@ -39,6 +39,7 @@ public class ReturnTax extends javax.swing.JPanel {
         // Initialize
         setupTable();
         populateTable();
+        setupTheme();
 
     }
 
@@ -83,7 +84,6 @@ public class ReturnTax extends javax.swing.JPanel {
         txtOriginalTaxAmount.setText("");
         txtReturnAmount.setText("");
         txtReturnReason.setText("");
-        txtBankInfo.setText("");
         txtNotes.setText("");
     }
 
@@ -121,11 +121,6 @@ public class ReturnTax extends javax.swing.JPanel {
             return false;
         }
 
-        if (txtBankInfo.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter bank information");
-            return false;
-        }
-
         return true;
     }
 
@@ -149,12 +144,10 @@ public class ReturnTax extends javax.swing.JPanel {
         lblOriginalTaxAmount = new javax.swing.JLabel();
         lbTaxID = new javax.swing.JLabel();
         lblReturnAmount = new javax.swing.JLabel();
-        lblBankInfo = new javax.swing.JLabel();
         lblReturnReason = new javax.swing.JLabel();
         lblNotes = new javax.swing.JLabel();
         txtRelatedDeclaration = new javax.swing.JTextField();
         txtTaxID = new javax.swing.JTextField();
-        txtBankInfo = new javax.swing.JTextField();
         txtOriginalTaxAmount = new javax.swing.JTextField();
         txtReturnAmount = new javax.swing.JTextField();
         txtReturnReason = new javax.swing.JTextField();
@@ -207,18 +200,9 @@ public class ReturnTax extends javax.swing.JPanel {
 
         lblReturnAmount.setText("Return Amount:");
 
-        lblBankInfo.setText("Bank Account Information:");
-
         lblReturnReason.setText("Return Reason");
 
         lblNotes.setText("Notes:");
-
-        txtBankInfo.setText("需要讨论");
-        txtBankInfo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtBankInfoActionPerformed(evt);
-            }
-        });
 
         txtReturnAmount.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -261,18 +245,10 @@ public class ReturnTax extends javax.swing.JPanel {
                         .addGap(33, 33, 33)
                         .addGroup(taxReturnAppJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(taxReturnAppJPanelLayout.createSequentialGroup()
-                                .addGroup(taxReturnAppJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lblNotes, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(lblBankInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, 18)
-                                .addGroup(taxReturnAppJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(txtBankInfo)
-                                    .addComponent(txtNotes, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)))
-                            .addGroup(taxReturnAppJPanelLayout.createSequentialGroup()
                                 .addGroup(taxReturnAppJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                     .addComponent(lblReturnAmount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(lblOriginalTaxAmount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 194, Short.MAX_VALUE)
-                                    .addComponent(lbTaxID, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(lblOriginalTaxAmount, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(lbTaxID, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 194, Short.MAX_VALUE)
                                     .addComponent(lblRelatedDeclaration, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(lblAppType, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(lblReturnReason, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -283,8 +259,12 @@ public class ReturnTax extends javax.swing.JPanel {
                                     .addComponent(comBoAppType, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(txtTaxID, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(txtOriginalTaxAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(txtReturnAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE))))))
-                .addContainerGap(54, Short.MAX_VALUE))
+                                    .addComponent(txtReturnAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(taxReturnAppJPanelLayout.createSequentialGroup()
+                                .addComponent(lblNotes, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(txtNotes, javax.swing.GroupLayout.PREFERRED_SIZE, 430, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(18, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, taxReturnAppJPanelLayout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(btnReset, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -325,15 +305,14 @@ public class ReturnTax extends javax.swing.JPanel {
                 .addGroup(taxReturnAppJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblReturnReason, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtReturnReason, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(taxReturnAppJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblBankInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtBankInfo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(taxReturnAppJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblNotes, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtNotes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(61, 61, 61)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(taxReturnAppJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(taxReturnAppJPanelLayout.createSequentialGroup()
+                        .addComponent(lblNotes, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(122, 122, 122))
+                    .addGroup(taxReturnAppJPanelLayout.createSequentialGroup()
+                        .addComponent(txtNotes)
+                        .addGap(58, 58, 58)))
                 .addGroup(taxReturnAppJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnReset)
                     .addComponent(btnSubmit))
@@ -444,7 +423,7 @@ public class ReturnTax extends javax.swing.JPanel {
                 .addComponent(taxReturnAppJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(taxReturnJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(42, Short.MAX_VALUE))
         );
         returnTaxJPanelLayout.setVerticalGroup(
             returnTaxJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -465,15 +444,15 @@ public class ReturnTax extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(btnBack)
+                .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -494,10 +473,6 @@ public class ReturnTax extends javax.swing.JPanel {
     private void txtNotesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNotesActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNotesActionPerformed
-
-    private void txtBankInfoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBankInfoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtBankInfoActionPerformed
 
     private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
         // TODO add your handling code here:
@@ -532,7 +507,6 @@ public class ReturnTax extends javax.swing.JPanel {
         taxReturn.setOriginalTaxAmount(Double.parseDouble(txtOriginalTaxAmount.getText().trim()));
         taxReturn.setReturnAmount(Double.parseDouble(txtReturnAmount.getText().trim()));
         taxReturn.setReturnReason(txtReturnReason.getText().trim());
-        taxReturn.setBankInfo(txtBankInfo.getText().trim());
         taxReturn.setNotes(txtNotes.getText().trim());
         taxReturn.setSubmissionDate(new Date());
         taxReturn.setStatus("Pending");
@@ -550,6 +524,117 @@ public class ReturnTax extends javax.swing.JPanel {
                 JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnSubmitActionPerformed
 
+    /**
+     * Sets up the UI theme with consistent styling across the application
+     */
+    private void setupTheme() {
+        // Set main panel background color
+        this.setBackground(new java.awt.Color(240, 240, 250));
+        
+        // Style the title
+        lblTitle.setFont(new java.awt.Font("SansSerif", 1, 24));
+        lblTitle.setForeground(new java.awt.Color(0, 102, 153));
+        
+        // Apply shadow border to panels
+        javax.swing.border.Border shadowBorder = javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 1),
+                javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        );
+        
+        returnTaxJPanel.setBorder(shadowBorder);
+        taxReturnAppJPanel.setBorder(shadowBorder);
+        taxReturnJPanel.setBorder(shadowBorder);
+        guideJPanel.setBorder(shadowBorder);
+        
+        // Style sub-panels with white background
+        returnTaxJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        taxReturnAppJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        taxReturnJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        guideJPanel.setBackground(new java.awt.Color(255, 255, 255));
+        
+        // Style section headers
+        lblTaxReturnApplication.setFont(new java.awt.Font("SansSerif", 1, 16));
+        lblReturnApp.setFont(new java.awt.Font("SansSerif", 1, 16));
+        lblGuide.setFont(new java.awt.Font("SansSerif", 1, 16));
+        
+        // Style buttons
+        styleButton(btnBack);
+        styleButton(btnReset);
+        styleButton(btnSubmit);
+        
+        // Style table
+        tblReturnApp.setRowHeight(25);
+        tblReturnApp.setSelectionBackground(new java.awt.Color(0, 102, 153));
+        tblReturnApp.setSelectionForeground(new java.awt.Color(255, 255, 255));
+        tblReturnApp.setGridColor(new java.awt.Color(230, 230, 230));
+        tblReturnApp.getTableHeader().setBackground(new java.awt.Color(240, 240, 250));
+        tblReturnApp.getTableHeader().setFont(new java.awt.Font("SansSerif", 1, 12));
+        
+        // Style text areas
+        jTextArea1.setBackground(new java.awt.Color(248, 248, 255));
+        jTextArea2.setBackground(new java.awt.Color(248, 248, 255));
+        jTextArea3.setBackground(new java.awt.Color(248, 248, 255));
+        
+        // Style labels and form fields
+        styleFormLabels();
+        styleTextFields();
+    }
+
+    /**
+     * Applies consistent styling to all form labels
+     */
+    private void styleFormLabels() {
+        java.awt.Font labelFont = new java.awt.Font("SansSerif", 0, 14);
+        java.awt.Color labelColor = new java.awt.Color(51, 51, 51);
+        
+        lblAppType.setFont(labelFont);
+        lblAppType.setForeground(labelColor);
+        lblRelatedDeclaration.setFont(labelFont);
+        lblRelatedDeclaration.setForeground(labelColor);
+        lblOriginalTaxAmount.setFont(labelFont);
+        lblOriginalTaxAmount.setForeground(labelColor);
+        lbTaxID.setFont(labelFont);
+        lbTaxID.setForeground(labelColor);
+        lblReturnAmount.setFont(labelFont);
+        lblReturnAmount.setForeground(labelColor);
+        lblReturnReason.setFont(labelFont);
+        lblReturnReason.setForeground(labelColor);
+        lblNotes.setFont(labelFont);
+        lblNotes.setForeground(labelColor);
+    }
+
+    /**
+     * Applies consistent styling to all text fields
+     */
+    private void styleTextFields() {
+        javax.swing.border.Border textFieldBorder = javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 1),
+                javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        );
+        
+        txtRelatedDeclaration.setBorder(textFieldBorder);
+        txtTaxID.setBorder(textFieldBorder);
+        txtOriginalTaxAmount.setBorder(textFieldBorder);
+        txtReturnAmount.setBorder(textFieldBorder);
+        txtReturnReason.setBorder(textFieldBorder);
+        txtNotes.setBorder(textFieldBorder);
+        
+        comBoAppType.setBorder(textFieldBorder);
+    }
+
+    /**
+     * Applies consistent styling to a button
+     * @param button The button to style
+     */
+    private void styleButton(javax.swing.JButton button) {
+        button.setBackground(new java.awt.Color(0, 102, 153));
+        button.setForeground(new java.awt.Color(255, 255, 255));
+        button.setFont(new java.awt.Font("SansSerif", 1, 14));
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        button.setMargin(new java.awt.Insets(8, 16, 8, 16));
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBack;
@@ -566,7 +651,6 @@ public class ReturnTax extends javax.swing.JPanel {
     private javax.swing.JTextArea jTextArea3;
     private javax.swing.JLabel lbTaxID;
     private javax.swing.JLabel lblAppType;
-    private javax.swing.JLabel lblBankInfo;
     private javax.swing.JLabel lblGuide;
     private javax.swing.JLabel lblNotes;
     private javax.swing.JLabel lblOriginalTaxAmount;
@@ -580,7 +664,6 @@ public class ReturnTax extends javax.swing.JPanel {
     private javax.swing.JPanel taxReturnAppJPanel;
     private javax.swing.JPanel taxReturnJPanel;
     private javax.swing.JTable tblReturnApp;
-    private javax.swing.JTextField txtBankInfo;
     private javax.swing.JTextField txtNotes;
     private javax.swing.JTextField txtOriginalTaxAmount;
     private javax.swing.JTextField txtRelatedDeclaration;

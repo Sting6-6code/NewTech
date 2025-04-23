@@ -4,13 +4,18 @@
  */
 package ui.ProcurementSpecialistRole;
 
-
-
 import Business.Enterprise.Enterprise;
 import Business.Supplier.Supplier;
 import Business.UserAccount.UserAccount;
 import java.awt.CardLayout;
+import java.awt.Color;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.awt.Component;
+import java.awt.Font;
 
 /**
  *
@@ -31,10 +36,13 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
         initComponents();
         this.username = username;
         
-        // 初始化面板布局
+        // Initialize panel layout
         ProcurementSpecialistWorkAreajPanel.setLayout(new CardLayout());
         jSplitPane2.setLeftComponent(ProcurementSpecialistPanel);
         jSplitPane2.setRightComponent(ProcurementSpecialistWorkAreajPanel);
+        
+        // Apply UI theme
+        setupTheme();
     }
     
     // Add constructor with user process container
@@ -43,10 +51,94 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
         this.userProcessContainer = userProcessContainer;
         this.username = username;
         
-        // 初始化面板布局
+        // Initialize panel layout
         ProcurementSpecialistWorkAreajPanel.setLayout(new CardLayout());
         jSplitPane2.setLeftComponent(ProcurementSpecialistPanel);
         jSplitPane2.setRightComponent(ProcurementSpecialistWorkAreajPanel);
+        
+        // Apply UI theme
+        setupTheme();
+    }
+    
+    /**
+     * Apply consistent UI theme to all components
+     */
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        ProcurementSpecialistPanel.setBackground(new Color(240, 245, 255));
+        ProcurementSpecialistWorkAreajPanel.setBackground(new Color(240, 245, 255));
+        
+        // Style all buttons
+        styleButton(btnMerchantRequest);
+        styleButton(btnProfile1);
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(35, 100, 190)); // Lighter blue on hover
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(26, 79, 156)); // Back to normal
+            }
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(13, 60, 130)); // Darker when pressed
+            }
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(35, 100, 190)); // Back to hover
+            }
+        });
+    }
+    
+    /**
+     * Apply consistent styling to a text field
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51)); // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156)); // Medium blue cursor
+        textField.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+    }
+    
+    /**
+     * Apply title label styling
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
     }
     
     public void setSupplier(Supplier supplier) {
@@ -204,11 +296,11 @@ public class ProcurementSpecialistHP extends javax.swing.JPanel {
             }
         }
         
-        // 创建ManageOwnProfile面板，传递工作区面板和用户账户
+        // Create ManageOwnProfile panel, pass work area panel and user account
         ManageOwnProfile manageOwnProfile = new ManageOwnProfile(ProcurementSpecialistWorkAreajPanel, account);
         ProcurementSpecialistWorkAreajPanel.add("ManageOwnProfile", manageOwnProfile);
         
-        // 使用CardLayout显示该面板
+        // Use CardLayout to display the panel
         CardLayout layout = (CardLayout) ProcurementSpecialistWorkAreajPanel.getLayout();
         layout.next(ProcurementSpecialistWorkAreajPanel);
     }//GEN-LAST:event_btnProfile1ActionPerformed
