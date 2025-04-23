@@ -5,11 +5,24 @@
 package ui.AdminRole;
 
 import Business.EcoSystem;
+import Business.Employee.Employee;
 import Business.Enterprise.Enterprise;
 import Business.Organization.AdminOrganization;
+import Business.Organization.Organization;
 import Business.UserAccount.UserAccount;
+import Business.Role.Role;
+import Business.Role.AdminRole;
+import Business.Role.MerchantRole;
+import Business.Role.CustomerServiceRepRole;
+import Business.Role.LogisticsCoordinatorRole;
+import Business.Role.CustomsAgentRole;
+import Business.Role.WarehouseManagerRole;
+import Business.Role.FintechRole;
+import Business.Role.ProcurementSpecialistRole;
+import Business.Role.SystemAdminRole;
 import java.awt.CardLayout;
 import javax.swing.JPanel;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -32,6 +45,8 @@ public class AddNewUser extends javax.swing.JPanel {
         enterprise = e;
         adminOrg = ao;
         business = b;
+        
+        populateComboBox();
     }
 
     /**
@@ -148,16 +163,87 @@ public class AddNewUser extends javax.swing.JPanel {
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
         // TODO add your handling code here:
         workArea.remove(this);
-        AdminHP ahp = new AdminHP(workArea, userAccount, enterprise, adminOrg, business);
-        workArea.add("AdminHP", ahp);
+//        AdminHP ahp = new AdminHP(workArea, userAccount, enterprise, adminOrg, business);
+//        workArea.add("AdminHP", ahp);
         CardLayout l = (CardLayout) workArea.getLayout();
-        l.show(workArea, "AdminHP");
+//        l.show(workArea, "AdminHP");
+        l.previous(workArea);
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        // TODO add your handling code here:
-        UserAccount newUser = new UserAccount();
-        business.getUserAccountDirectory().getUserAccountList().add(newUser);
+        // Validate input fields
+        if (txtEmpName.getText().isEmpty() || txtUN.getText().isEmpty() || txtPW.getText().isEmpty() || cmbRole.getSelectedItem() == null) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Validate password length
+        if (txtPW.getText().length() < 4) {
+            JOptionPane.showMessageDialog(this, "Password must be at least 4 characters long", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Check if username already exists
+        String username = txtUN.getText();
+        if (!business.checkIfUserIsUnique(username)) {
+            JOptionPane.showMessageDialog(this, "Username already exists. Please choose a different username.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        try {
+            // Create new employee
+            Employee e = new Employee();
+            e.setName(txtEmpName.getText());
+            
+            // Create new user account
+            UserAccount newUser = new UserAccount();
+            newUser.setUsername(username);
+            newUser.setPassword(txtPW.getText());
+            newUser.setEmployee(e);
+            
+            // Set role based on selection
+            String selectedRole = (String) cmbRole.getSelectedItem();
+            Role role = null;
+            
+            // Create appropriate role based on selection
+            if (selectedRole.equals(new AdminRole().toString())) {
+                role = new AdminRole();
+            } else if (selectedRole.equals(new MerchantRole().toString())) {
+                role = new MerchantRole();
+            } else if (selectedRole.equals(new CustomerServiceRepRole().toString())) {
+                role = new CustomerServiceRepRole();
+            } else if (selectedRole.equals(new LogisticsCoordinatorRole().toString())) {
+                role = new LogisticsCoordinatorRole();
+            } else if (selectedRole.equals(new CustomsAgentRole().toString())) {
+                role = new CustomsAgentRole();
+            } else if (selectedRole.equals(new WarehouseManagerRole().toString())) {
+                role = new WarehouseManagerRole();
+            } else if (selectedRole.equals(new FintechRole().toString())) {
+                role = new FintechRole();
+            } else if (selectedRole.equals(new ProcurementSpecialistRole().toString())) {
+                role = new ProcurementSpecialistRole();
+            } else if (selectedRole.equals(new SystemAdminRole().toString())) {
+                role = new SystemAdminRole();
+            }
+            
+            newUser.setRole(role);
+            
+            // Add to both directories
+            adminOrg.getUserAccountDirectory().getUserAccountList().add(newUser);
+            business.getUserAccountDirectory().getUserAccountList().add(newUser);
+            
+            // Show success message
+            JOptionPane.showMessageDialog(this, "User created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            
+            // Clear fields
+            txtEmpName.setText("");
+            txtUN.setText("");
+            txtPW.setText("");
+            cmbRole.setSelectedIndex(0);
+            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error creating user: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnSaveActionPerformed
 
 
@@ -174,4 +260,35 @@ public class AddNewUser extends javax.swing.JPanel {
     private javax.swing.JTextField txtPW;
     private javax.swing.JTextField txtUN;
     // End of variables declaration//GEN-END:variables
+
+    private void populateComboBox() {
+        cmbRole.removeAllItems();
+        
+        // Add Admin Role
+        cmbRole.addItem(new AdminRole().toString());
+        
+        // Add Merchant Role
+        cmbRole.addItem(new MerchantRole().toString());
+        
+        // Add Customer Service Rep Role
+        cmbRole.addItem(new CustomerServiceRepRole().toString());
+        
+        // Add Logistics Coordinator Role
+        cmbRole.addItem(new LogisticsCoordinatorRole().toString());
+        
+        // Add Customs Agent Role
+        cmbRole.addItem(new CustomsAgentRole().toString());
+        
+        // Add Warehouse Manager Role
+        cmbRole.addItem(new WarehouseManagerRole().toString());
+        
+        // Add Fintech Role
+        cmbRole.addItem(new FintechRole().toString());
+        
+        // Add Procurement Specialist Role
+        cmbRole.addItem(new ProcurementSpecialistRole().toString());
+        
+        // Add System Admin Role
+//        cmbRole.addItem(new SystemAdminRole().toString());
+    }
 }

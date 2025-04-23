@@ -9,6 +9,7 @@ import Business.Enterprise.Enterprise;
 import Business.Organization.AdminOrganization;
 import Business.Organization.Organization;
 import Business.UserAccount.UserAccount;
+import Business.Role.SystemAdminRole;
 import java.awt.CardLayout;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
@@ -24,6 +25,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.JTableHeader;
 import java.awt.Component;
 import java.awt.Font;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -57,7 +59,7 @@ public class AdminHP extends javax.swing.JPanel {
         adminOrg = o;
         business = b;
         
-        // Transfer user accounts from system to AdminOrganization
+//         Transfer user accounts from system to AdminOrganization
         if (adminOrg != null && business != null) {
             System.out.println("Transferring user accounts from system to AdminOrganization...");
             for (UserAccount systemUA : business.getUserAccountDirectory().getUserAccountList()) {
@@ -74,6 +76,8 @@ public class AdminHP extends javax.swing.JPanel {
         
         initComponents();
         populateTable();
+        setupTableSelectionListener();
+        setModifyPanelEnabled(false); // Disable modify panel initially
         
         // Apply unified UI theme
         setupTheme();
@@ -100,12 +104,19 @@ public class AdminHP extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         maintenanceCorner = new javax.swing.JPanel();
         lblMaintenance = new javax.swing.JLabel();
+        lblModifyMsg = new javax.swing.JLabel();
+        lblUN = new javax.swing.JLabel();
+        lblPW = new javax.swing.JLabel();
+        txtModUN = new javax.swing.JTextField();
+        txtModPW = new javax.swing.JTextField();
+        btnUpdate = new javax.swing.JButton();
         actionCorner = new javax.swing.JPanel();
         lblAction = new javax.swing.JLabel();
         viewSusScrollPane = new javax.swing.JScrollPane();
         tblSus = new javax.swing.JTable();
         btnAcc = new javax.swing.JButton();
         btnDeny = new javax.swing.JButton();
+        btnRefresh = new javax.swing.JButton();
 
         WelcomeMsg.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         WelcomeMsg.setText("Welcome Admin!");
@@ -138,10 +149,25 @@ public class AdminHP extends javax.swing.JPanel {
         });
 
         btnModify.setText("Modify User");
+        btnModify.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnModifyActionPerformed(evt);
+            }
+        });
 
         btnDelete.setText("Delete User");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         btnSearch.setText("Search User");
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel1.setText("User List");
@@ -149,23 +175,64 @@ public class AdminHP extends javax.swing.JPanel {
         maintenanceCorner.setBackground(new java.awt.Color(255, 255, 255));
 
         lblMaintenance.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        lblMaintenance.setText("Maintenance");
+        lblMaintenance.setText("Modify User Work Space");
+
+        lblModifyMsg.setText(" ");
+
+        lblUN.setText("Username:");
+
+        lblPW.setText("Password:");
+
+        btnUpdate.setText("Update");
 
         javax.swing.GroupLayout maintenanceCornerLayout = new javax.swing.GroupLayout(maintenanceCorner);
         maintenanceCorner.setLayout(maintenanceCornerLayout);
         maintenanceCornerLayout.setHorizontalGroup(
             maintenanceCornerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(maintenanceCornerLayout.createSequentialGroup()
-                .addGap(159, 159, 159)
+                .addGap(94, 94, 94)
+                .addGroup(maintenanceCornerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(maintenanceCornerLayout.createSequentialGroup()
+                        .addComponent(lblUN)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtModUN, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(maintenanceCornerLayout.createSequentialGroup()
+                        .addComponent(lblPW)
+                        .addGap(18, 18, 18)
+                        .addGroup(maintenanceCornerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnUpdate)
+                            .addComponent(txtModPW, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(87, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, maintenanceCornerLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(lblMaintenance)
-                .addContainerGap(174, Short.MAX_VALUE))
+                .addGap(118, 118, 118))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, maintenanceCornerLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblModifyMsg)
+                .addGap(197, 197, 197))
         );
+
+        maintenanceCornerLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {txtModPW, txtModUN});
+
         maintenanceCornerLayout.setVerticalGroup(
             maintenanceCornerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(maintenanceCornerLayout.createSequentialGroup()
-                .addGap(24, 24, 24)
+                .addGap(32, 32, 32)
                 .addComponent(lblMaintenance)
-                .addContainerGap(282, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(lblModifyMsg)
+                .addGap(31, 31, 31)
+                .addGroup(maintenanceCornerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblUN)
+                    .addComponent(txtModUN, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(36, 36, 36)
+                .addGroup(maintenanceCornerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblPW)
+                    .addComponent(txtModPW, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(51, 51, 51)
+                .addComponent(btnUpdate)
+                .addContainerGap(55, Short.MAX_VALUE))
         );
 
         actionCorner.setBackground(new java.awt.Color(255, 255, 255));
@@ -224,18 +291,17 @@ public class AdminHP extends javax.swing.JPanel {
                 .addContainerGap(45, Short.MAX_VALUE))
         );
 
+        btnRefresh.setText("Refresh List");
+        btnRefresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRefreshActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(107, 107, 107)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnSearch)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnAddUser)
@@ -245,7 +311,7 @@ public class AdminHP extends javax.swing.JPanel {
                 .addComponent(btnDelete)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
-                .addGap(79, 79, 79)
+                .addGap(75, 75, 75)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(actionCorner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -253,10 +319,22 @@ public class AdminHP extends javax.swing.JPanel {
                         .addComponent(maintenanceCorner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(viewUsersScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 790, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(WelcomeMsg)
-                        .addGap(139, 139, 139)
-                        .addComponent(btnMngOwnProfile)))
-                .addContainerGap(407, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addGap(47, 47, 47)
+                                .addComponent(btnRefresh))
+                            .addComponent(WelcomeMsg))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(139, 139, 139)
+                                .addComponent(btnMngOwnProfile))
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnSearch)))))
+                .addContainerGap(417, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -278,7 +356,9 @@ public class AdminHP extends javax.swing.JPanel {
                                     .addComponent(btnSearch)))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel1)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel1)
+                                    .addComponent(btnRefresh))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(viewUsersScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(33, 33, 33)
@@ -309,6 +389,163 @@ public class AdminHP extends javax.swing.JPanel {
         l.show(workArea, "AddNewUser");
     }//GEN-LAST:event_btnAddUserActionPerformed
 
+    private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
+        updateUAD();
+        populateTable();
+        jTextField1.setText(""); // Clear search field
+        JOptionPane.showMessageDialog(this, "List refreshed successfully!", "Refresh", JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_btnRefreshActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        // Get the selected row
+        int selectedRow = tblUsers.getSelectedRow();
+        
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a user to delete", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Get the user account from the selected row
+        UserAccount userToDelete = (UserAccount) tblUsers.getValueAt(selectedRow, 0);
+        
+        // Check if user is System Admin
+        if (userToDelete.getRole() instanceof SystemAdminRole) {
+            JOptionPane.showMessageDialog(this, "You cannot delete System Admin", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Confirm deletion
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "Are you sure you want to delete user: " + userToDelete.getUsername() + "?",
+            "Confirm Deletion",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE);
+            
+        if (confirm == JOptionPane.YES_OPTION) {
+            // Remove from both directories
+            adminOrg.getUserAccountDirectory().getUserAccountList().remove(userToDelete);
+            business.getUserAccountDirectory().getUserAccountList().remove(userToDelete);
+            
+            // Update the table
+            populateTable();
+            
+            JOptionPane.showMessageDialog(this, "User deleted successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnModifyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModifyActionPerformed
+        // Get the selected row
+        int selectedRow = tblUsers.getSelectedRow();
+        
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a user to modify", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Get the user account from the selected row
+        UserAccount userToModify = (UserAccount) tblUsers.getValueAt(selectedRow, 0);
+        
+        // Check if user is System Admin
+        if (userToModify.getRole() instanceof SystemAdminRole) {
+            JOptionPane.showMessageDialog(this, "You cannot modify System Admin from here", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Enable modify panel and display current info
+        setModifyPanelEnabled(true);
+        txtModUN.setText(userToModify.getUsername());
+        txtModPW.setText(userToModify.getPassword());
+        lblModifyMsg.setText("Modifying user: " + userToModify.getUsername());
+        
+        // Add action listener to update button if not already added
+        if (btnUpdate.getActionListeners().length == 0) {
+            btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    updateUserInfo(userToModify);
+                    setModifyPanelEnabled(false); // Disable panel after update
+                }
+            });
+        }
+    }//GEN-LAST:event_btnModifyActionPerformed
+
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+        String searchText = jTextField1.getText().trim();
+        
+        if (searchText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a username to search", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        DefaultTableModel m = (DefaultTableModel) tblUsers.getModel();
+        m.setRowCount(0); // Clear the table
+        
+        boolean found = false;
+        for (UserAccount ua : adminOrg.getUserAccountDirectory().getUserAccountList()) {
+            if (ua.getUsername().toLowerCase().contains(searchText.toLowerCase())) {
+                Object[] row = new Object[5];
+                row[0] = ua;
+                row[1] = ua.getEmployee().getId();
+                row[2] = ua.getEmployee().toString();
+                row[3] = ua.getRole();
+                row[4] = ua.getPassword();
+                m.addRow(row);
+                found = true;
+            }
+        }
+        
+        if (!found) {
+            JOptionPane.showMessageDialog(this, "No users found matching: " + searchText, "Search Results", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "Search completed. Click Refresh to see all users.", "Search Results", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }//GEN-LAST:event_btnSearchActionPerformed
+    
+    private void updateUserInfo(UserAccount userToModify) {
+        String newUsername = txtModUN.getText().trim();
+        String newPassword = txtModPW.getText().trim();
+        
+        // Validate input
+        if (newUsername.isEmpty() || newPassword.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Username and password cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Check if password meets minimum length
+        if (newPassword.length() < 4) {
+            JOptionPane.showMessageDialog(this, "Password must be at least 4 characters long", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Check if username is being changed to an existing one
+        if (!newUsername.equals(userToModify.getUsername()) && !business.checkIfUserIsUnique(newUsername)) {
+            JOptionPane.showMessageDialog(this, "Username already exists. Please choose a different username.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Check if any changes were made
+        if (newUsername.equals(userToModify.getUsername()) && newPassword.equals(userToModify.getPassword())) {
+            JOptionPane.showMessageDialog(this, "No changes were made", "Info", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        try {
+            // Update user info
+            userToModify.setUsername(newUsername);
+            userToModify.setPassword(newPassword);
+            
+            // Update the table
+            populateTable();
+            
+            // Clear modify panel
+            txtModUN.setText("");
+            txtModPW.setText("");
+            lblModifyMsg.setText(" ");
+            
+            JOptionPane.showMessageDialog(this, "User information updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error updating user: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel WelcomeMsg;
@@ -319,14 +556,21 @@ public class AdminHP extends javax.swing.JPanel {
     private javax.swing.JButton btnDeny;
     private javax.swing.JButton btnMngOwnProfile;
     private javax.swing.JButton btnModify;
+    private javax.swing.JButton btnRefresh;
     private javax.swing.JButton btnSearch;
+    private javax.swing.JButton btnUpdate;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JLabel lblAction;
     private javax.swing.JLabel lblMaintenance;
+    private javax.swing.JLabel lblModifyMsg;
+    private javax.swing.JLabel lblPW;
+    private javax.swing.JLabel lblUN;
     private javax.swing.JPanel maintenanceCorner;
     private javax.swing.JTable tblSus;
     private javax.swing.JTable tblUsers;
+    private javax.swing.JTextField txtModPW;
+    private javax.swing.JTextField txtModUN;
     private javax.swing.JScrollPane viewSusScrollPane;
     private javax.swing.JScrollPane viewUsersScrollPane;
     // End of variables declaration//GEN-END:variables
@@ -360,8 +604,51 @@ public class AdminHP extends javax.swing.JPanel {
     }
     
     /**
-     * Apply consistent UI theme to all components
+     * Style the modify user workspace
      */
+    private void styleModifyWorkspace() {
+        // Style the maintenance corner panel
+        maintenanceCorner.setBackground(new Color(245, 245, 250));
+        maintenanceCorner.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(200, 200, 220), 1),
+            BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+        
+        // Style the title label
+        lblMaintenance.setForeground(new Color(26, 79, 156));
+        lblMaintenance.setFont(new Font("Helvetica Neue", Font.BOLD, 16));
+        
+        // Style the message label
+        lblModifyMsg.setForeground(new Color(100, 100, 100));
+        lblModifyMsg.setFont(new Font("Helvetica Neue", Font.ITALIC, 12));
+        
+        // Style the input labels
+        lblUN.setForeground(new Color(26, 79, 156));
+        lblPW.setForeground(new Color(26, 79, 156));
+        lblUN.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
+        lblPW.setFont(new Font("Helvetica Neue", Font.BOLD, 12));
+        
+        // Style the text fields
+        styleTextField(txtModUN);
+        styleTextField(txtModPW);
+        
+        // Style the update button
+        styleButton(btnUpdate);
+        btnUpdate.setBackground(new Color(52, 152, 219)); // Different color for update button
+        btnUpdate.setForeground(Color.WHITE);
+        
+        // Add hover effects
+        btnUpdate.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnUpdate.setBackground(new Color(41, 128, 185));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnUpdate.setBackground(new Color(52, 152, 219));
+            }
+        });
+    }
+    
+    // Update the setupTheme method to include modify workspace styling
     private void setupTheme() {
         // Set panel background color
         this.setBackground(new Color(240, 245, 255));
@@ -371,6 +658,9 @@ public class AdminHP extends javax.swing.JPanel {
         
         // Style all labels
         styleAllLabels();
+        
+        // Style the modify workspace
+        styleModifyWorkspace();
     }
     
     /**
@@ -542,5 +832,66 @@ public class AdminHP extends javax.swing.JPanel {
         } catch (Exception e) {
             System.out.println("Could not find scroll pane for table: " + e.getMessage());
         }
+    }
+    
+    private void updateUAD() {
+        adminOrg.setUad(business.getUserAccountDirectory());
+    }
+
+    // Add this method to control modify panel state
+    private void setModifyPanelEnabled(boolean enabled) {
+        txtModUN.setEnabled(enabled);
+        txtModPW.setEnabled(enabled);
+        btnUpdate.setEnabled(enabled);
+        
+        // Visual feedback for enabled/disabled state
+        if (enabled) {
+            maintenanceCorner.setBackground(new Color(245, 245, 250));
+            lblModifyMsg.setForeground(new Color(26, 79, 156));
+        } else {
+            maintenanceCorner.setBackground(new Color(235, 235, 240));
+            lblModifyMsg.setForeground(new Color(150, 150, 150));
+        }
+        
+        // Clear fields when disabled
+        if (!enabled) {
+            txtModUN.setText("");
+            txtModPW.setText("");
+            lblModifyMsg.setText(" ");
+        }
+    }
+
+    // Modify the table selection listener
+    private void setupTableSelectionListener() {
+        tblUsers.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = tblUsers.getSelectedRow();
+                if (selectedRow >= 0) {
+                    UserAccount selectedUser = (UserAccount) tblUsers.getValueAt(selectedRow, 0);
+                    boolean isSystemAdmin = selectedUser.getRole() instanceof SystemAdminRole;
+                    
+                    // Disable/enable buttons based on role
+                    btnModify.setEnabled(!isSystemAdmin);
+                    btnDelete.setEnabled(!isSystemAdmin);
+                    
+                    // Visual feedback for disabled buttons
+                    if (isSystemAdmin) {
+                        btnModify.setToolTipText("Cannot modify System Admin");
+                        btnDelete.setToolTipText("Cannot delete System Admin");
+                    } else {
+                        btnModify.setToolTipText(null);
+                        btnDelete.setToolTipText(null);
+                    }
+                    
+                    // Disable modify panel by default
+                    setModifyPanelEnabled(false);
+                } else {
+                    // No row selected, disable everything
+                    btnModify.setEnabled(false);
+                    btnDelete.setEnabled(false);
+                    setModifyPanelEnabled(false);
+                }
+            }
+        });
     }
 }

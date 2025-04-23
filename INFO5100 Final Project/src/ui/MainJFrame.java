@@ -253,7 +253,7 @@ public class MainJFrame extends javax.swing.JFrame {
         //
     }//GEN-LAST:event_loginJButtonActionPerformed
 
-    private void logoutJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutJButtonActionPerformed
+    private void logoutJButtonActionPerformed(java.awt.event.ActionEvent evt) {
         logoutJButton.setEnabled(false);
         userNameJTextField.setEnabled(true);
         passwordField.setEnabled(true);
@@ -268,8 +268,7 @@ public class MainJFrame extends javax.swing.JFrame {
         CardLayout crdLyt = (CardLayout) container.getLayout();
         crdLyt.next(container);
         dB4OUtil.storeSystem(system);
-
-    }//GEN-LAST:event_logoutJButtonActionPerformed
+    }
 
     /**
      * @param args the command line arguments
@@ -344,32 +343,32 @@ public class MainJFrame extends javax.swing.JFrame {
     }
     
     private void setupBackgroundImage() {
-    // Create a custom JPanel with the background image
-    JPanel backgroundPanel = new JPanel() {
-        private Image backgroundImage = new ImageIcon("src/NewTechLogo.png").getImage();
+        // Create a custom JPanel with the background image
+        JPanel backgroundPanel = new JPanel() {
+            private Image backgroundImage = new ImageIcon("src/NewTechLogo.png").getImage();
+            
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                // Draw the background image
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        };
         
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            // Draw the background image
-            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        // Set the layout for the background panel to be the same as container's current layout
+        backgroundPanel.setLayout(new java.awt.CardLayout());
+        
+        // Move all components from container to backgroundPanel
+        for (Component comp : container.getComponents()) {
+            backgroundPanel.add(comp);
         }
-    };
-    
-    // Set the layout for the background panel to be the same as container's current layout
-    backgroundPanel.setLayout(new java.awt.CardLayout());
-    
-    // Move all components from container to backgroundPanel
-    for (Component comp : container.getComponents()) {
-        backgroundPanel.add(comp);
+        
+        // Clear container and add backgroundPanel to it
+        container.removeAll();
+        container.add(backgroundPanel);
+        container.revalidate();
+        container.repaint();
     }
-    
-    // Clear container and add backgroundPanel to it
-    container.removeAll();
-    container.add(backgroundPanel);
-    container.revalidate();
-    container.repaint();
-}
     
     private void setupLoginPanel() {
     // 设置登录面板的背景色和透明度
