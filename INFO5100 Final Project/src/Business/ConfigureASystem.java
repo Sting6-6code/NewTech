@@ -40,7 +40,6 @@ import java.text.SimpleDateFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 import Business.Product.SalesRecord;
-import Business.Role.FintechRole;
 import Business.Role.LogisticsEnterpriseAdminRole;
 import Business.WorkQueue.LogisticsWorkRequest;
 import Business.WorkQueue.WorkRequest;
@@ -80,7 +79,6 @@ public class ConfigureASystem {
         UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("l", "****", employee5, new CustomsAgentRole());
         UserAccount logistics = system.getUserAccountDirectory().createUserAccount("t", "****", employee6, new LogisticsCoordinatorRole());
         UserAccount warehouse = system.getUserAccountDirectory().createUserAccount("w", "****", employee7, new WarehouseManagerRole());
-        UserAccount fintech = system.getUserAccountDirectory().createUserAccount("pay", "****", employee8, new FintechRole());
         UserAccount logisticsAdmin = system.getUserAccountDirectory().createUserAccount("la", "****", employee9, new LogisticsEnterpriseAdminRole());
 
         // 初始化仓库和商品
