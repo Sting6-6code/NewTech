@@ -4,17 +4,128 @@
  */
 package ui.fintech;
 
+import Business.EcoSystem;
+import Business.Enterprise.Enterprise;
+import Business.Order.Order;
+import Business.Order.OrderDirectory;
+import Business.Organization.Organization;
+import Business.Payment.Payment;
+import Business.Payment.PaymentDirectory;
+import Business.UserAccount.UserAccount;
+import java.text.SimpleDateFormat;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author yushe
  */
 public class FintechHomepage extends javax.swing.JPanel {
+    private EcoSystem business;
+    private UserAccount userAccount;
+    private Organization organization;
+    private Enterprise enterprise;
+    private OrderDirectory orderDirectory;
+    private PaymentDirectory paymentDirectory;
 
     /**
      * Creates new form FintechHomepage
      */
     public FintechHomepage() {
+        System.out.println("Debug: Default constructor called");
         initComponents();
+        orderDirectory = new OrderDirectory();
+        paymentDirectory = new PaymentDirectory();
+        setupPaymentTable();
+    }
+
+    public FintechHomepage(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
+        System.out.println("Debug: Parameterized constructor called");
+        System.out.println("Debug: business is " + (business == null ? "null" : "not null"));
+        System.out.println("Debug: account is " + (account == null ? "null" : "not null"));
+        System.out.println("Debug: organization is " + (organization == null ? "null" : "not null"));
+        System.out.println("Debug: enterprise is " + (enterprise == null ? "null" : "not null"));
+        
+        initComponents();
+        this.business = business;
+        this.userAccount = account;
+        this.organization = organization;
+        this.enterprise = enterprise;
+        this.orderDirectory = business.getOrderDirectory();
+        this.paymentDirectory = business.getPaymentDirectory();
+        
+        System.out.println("Debug: After initialization");
+        System.out.println("Debug: orderDirectory is " + (this.orderDirectory == null ? "null" : "not null"));
+        System.out.println("Debug: paymentDirectory is " + (this.paymentDirectory == null ? "null" : "not null"));
+        
+        setupPaymentTable();
+        populatePaymentTable();
+    }
+
+    private void setupPaymentTable() {
+        System.out.println("Debug: Setting up payment table");
+        DefaultTableModel model = (DefaultTableModel) tblPayments.getModel();
+        model.setRowCount(0);
+        String[] columnNames = {"Payment ID", "Order ID", "Amount", "Status", "Date"};
+        model.setColumnIdentifiers(columnNames);
+    }
+
+    private void populatePaymentTable() {
+        System.out.println("Debug: Starting populatePaymentTable");
+        DefaultTableModel model = (DefaultTableModel) tblPayments.getModel();
+        model.setRowCount(0);
+        
+        System.out.println("Debug: business is " + (business == null ? "null" : "not null"));
+        
+        // Get all orders and create payments for them
+        OrderDirectory orderDir = business.getOrderDirectory();
+        PaymentDirectory paymentDir = business.getPaymentDirectory();
+        
+        System.out.println("Debug: orderDir is " + (orderDir == null ? "null" : "not null"));
+        System.out.println("Debug: paymentDir is " + (paymentDir == null ? "null" : "not null"));
+        
+        if (orderDir != null && orderDir.getOrderList() != null) {
+            System.out.println("Debug: Number of orders found: " + orderDir.getOrderList().size());
+            
+            // Create payments for all orders if they don't exist
+            for (Order order : orderDir.getOrderList()) {
+                System.out.println("Debug: Processing order: " + order.getOrderId());
+                if (order != null) {
+                    // Check if payment already exists for this order
+                    boolean paymentExists = false;
+                    for (Payment payment : paymentDir.getPaymentList()) {
+                        if (payment.getOrder().equals(order)) {
+                            paymentExists = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!paymentExists) {
+                        paymentDir.createPayment(order);
+                        System.out.println("Debug: Created new payment for order: " + order.getOrderId());
+                    }
+                }
+            }
+            
+            // Display all payments
+            for (Payment payment : paymentDir.getPaymentList()) {
+                System.out.println("Debug: Processing payment: " + payment.getPaymentId());
+                if (payment != null && payment.getOrder() != null) {
+                    Object[] row = new Object[5];
+                    row[0] = payment.getPaymentId();
+                    row[1] = payment.getOrder().getOrderId();
+                    row[2] = String.format("$%.2f", payment.getAmount());
+                    row[3] = payment.getStatus();
+                    row[4] = new SimpleDateFormat("MM/dd/yyyy").format(payment.getPaymentDate());
+                    model.addRow(row);
+                    System.out.println("Debug: Added row for payment: " + payment.getPaymentId());
+                } else {
+                    System.out.println("Debug: Found null payment or order in list");
+                }
+            }
+        } else {
+            System.out.println("Debug: orderDir or orderList is null");
+        }
     }
 
     /**
