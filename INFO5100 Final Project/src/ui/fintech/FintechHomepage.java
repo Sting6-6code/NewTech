@@ -82,16 +82,48 @@ public class FintechHomepage extends javax.swing.JPanel {
                 if (selectedRow >= 0) {
                     String paymentId = (String) tblPayments.getValueAt(selectedRow, 0);
                     selectedPayment = paymentDirectory.findPaymentById(paymentId);
-                    if (selectedPayment != null) {
-                        btnViewDetail.setEnabled(true);
-                    } else {
-                        btnViewDetail.setEnabled(false);
-                    }
+                    updateButtonStates();
                 } else {
-                    btnViewDetail.setEnabled(false);
+                    selectedPayment = null;
+                    updateButtonStates();
                 }
             }
         });
+    }
+
+    private void updateButtonStates() {
+        if (selectedPayment != null) {
+            String status = selectedPayment.getStatus();
+            boolean isRefunded = status.equals("Refunded");
+            boolean isUnderReview = status.equals("Under Review");
+            boolean isDenied = status.equals("Denied");
+            boolean isReportable = status.equals("Pending") || status.equals("Completed");
+            
+            btnRefund.setEnabled(isDenied && !isRefunded);
+            btnViewDetail.setEnabled(!isRefunded);
+            btnReport.setEnabled(isReportable && !isRefunded && !isUnderReview);
+            
+            if (isRefunded) {
+                btnRefund.setToolTipText("This payment has already been refunded");
+                btnViewDetail.setToolTipText("This payment has been refunded");
+                btnReport.setToolTipText("This payment has been refunded");
+            } else if (isUnderReview) {
+                btnRefund.setToolTipText("This payment is under review and cannot be refunded");
+                btnReport.setToolTipText("This payment is already under review");
+            } else if (!isDenied) {
+                btnRefund.setToolTipText("Only denied payments can be refunded");
+            } else if (!isReportable) {
+                btnReport.setToolTipText("Only pending or completed payments can be reported as suspicious");
+            } else {
+                btnRefund.setToolTipText(null);
+                btnViewDetail.setToolTipText(null);
+                btnReport.setToolTipText(null);
+            }
+        } else {
+            btnRefund.setEnabled(false);
+            btnViewDetail.setEnabled(false);
+            btnReport.setEnabled(false);
+        }
     }
 
     private void setViewDetailPanelEnabled(boolean enabled) {
@@ -228,6 +260,53 @@ public class FintechHomepage extends javax.swing.JPanel {
         }
     }
 
+    private void btnRevActionPerformed(java.awt.event.ActionEvent evt) {
+        double totalRevenue = 0.0;
+        
+        // Calculate revenue from allowed payments
+        for (Payment payment : business.getPaymentDirectory().getPaymentList()) {
+            if (payment.getStatus().equals("Allowed") || payment.getStatus().equals("Completed")) {
+                totalRevenue += payment.getAmount();
+            }
+        }
+        
+        // Display the revenue in a message dialog
+        JOptionPane.showMessageDialog(this, 
+            String.format("The revenue is $%.2f", totalRevenue),
+            "Revenue Summary",
+            JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void btnRefundActionPerformed(java.awt.event.ActionEvent evt) {
+        if (selectedPayment != null) {
+            // Confirm refund
+            int confirm = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to refund this payment?",
+                "Confirm Refund",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+            
+            if (confirm == JOptionPane.YES_OPTION) {
+                // Update payment status
+                selectedPayment.setStatus("Refunded");
+                
+                // Refresh the table and update button states
+                populatePaymentTable();
+                updateButtonStates();
+                
+                JOptionPane.showMessageDialog(this,
+                    "Payment has been refunded successfully",
+                    "Refund Complete",
+                    JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this,
+                "Please select a payment to refund",
+                "No Payment Selected",
+                JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
 //    public void dispose() {
 //        // Clear all payments when the application exits
 //        if (paymentDirectory != null) {
@@ -248,9 +327,9 @@ public class FintechHomepage extends javax.swing.JPanel {
         lblTitle = new javax.swing.JLabel();
         viewPaymentsScrollPane = new javax.swing.JScrollPane();
         tblPayments = new javax.swing.JTable();
-        btnReceive = new javax.swing.JButton();
-        btnReport = new javax.swing.JButton();
         btnRefund = new javax.swing.JButton();
+        btnReport = new javax.swing.JButton();
+        btnRev = new javax.swing.JButton();
         btnViewDetail = new javax.swing.JButton();
         viewDetailJP = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -278,7 +357,12 @@ public class FintechHomepage extends javax.swing.JPanel {
         ));
         viewPaymentsScrollPane.setViewportView(tblPayments);
 
-        btnReceive.setText("Receive");
+        btnRefund.setText("Refund");
+        btnRefund.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRefundActionPerformed(evt);
+            }
+        });
 
         btnReport.setText("Report Suspicious");
         btnReport.addActionListener(new java.awt.event.ActionListener() {
@@ -287,14 +371,14 @@ public class FintechHomepage extends javax.swing.JPanel {
             }
         });
 
-        btnRefund.setText("Refund");
-
-        btnViewDetail.setText("View Detail..");
-        btnViewDetail.addActionListener(new java.awt.event.ActionListener() {
+        btnRev.setText("View Revenue");
+        btnRev.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnViewDetailActionPerformed(evt);
+                btnRevActionPerformed(evt);
             }
         });
+
+        btnViewDetail.setText("View Detail..");
 
         viewDetailJP.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -364,13 +448,13 @@ public class FintechHomepage extends javax.swing.JPanel {
                         .addComponent(viewPaymentsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 716, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(232, 232, 232)
-                        .addComponent(btnReceive)
-                        .addGap(87, 87, 87)
-                        .addComponent(btnReport)
-                        .addGap(85, 85, 85)
                         .addComponent(btnRefund)
-                        .addGap(67, 67, 67)
-                        .addComponent(btnViewDetail))
+                        .addGap(73, 73, 73)
+                        .addComponent(btnReport)
+                        .addGap(75, 75, 75)
+                        .addComponent(btnViewDetail)
+                        .addGap(52, 52, 52)
+                        .addComponent(btnRev))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(266, 266, 266)
                         .addComponent(viewDetailJP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -385,10 +469,10 @@ public class FintechHomepage extends javax.swing.JPanel {
                 .addComponent(viewPaymentsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(67, 67, 67)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnReceive)
-                    .addComponent(btnReport)
                     .addComponent(btnRefund)
-                    .addComponent(btnViewDetail))
+                    .addComponent(btnReport)
+                    .addComponent(btnViewDetail)
+                    .addComponent(btnRev))
                 .addGap(70, 70, 70)
                 .addComponent(viewDetailJP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(19, Short.MAX_VALUE))
@@ -397,9 +481,9 @@ public class FintechHomepage extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnReceive;
     private javax.swing.JButton btnRefund;
     private javax.swing.JButton btnReport;
+    private javax.swing.JButton btnRev;
     private javax.swing.JButton btnViewDetail;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
