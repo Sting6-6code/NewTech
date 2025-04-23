@@ -3,19 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/fintech/FintechHomepage.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/AddNewUser.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Organization/Organization.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/AdminRole.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Organization/LogisticsOrganization.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/SystemAdminRole.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/MainJFrame.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Order/OrderDirectory.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/ConfigureASystem.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Organization/FintechOrganization.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/ui/AdminRole/AdminHP.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Role/FintechRole.java</file>
-            <file>file:/C:/Users/yushe/OneDrive/Desktop/INFO5100%20Final%20Project/src/Business/Organization/AdminOrganization.java</file>
+            <file>file:/Users/zhuchenyan/Documents/INFO5100/INFO5100%20Final%20Project/INFO5100%20Final%20Project/src/ui/CustomsAgentRole/DocumentReview.java</file>
+            <file>file:/Users/zhuchenyan/Documents/INFO5100/INFO5100%20Final%20Project/INFO5100%20Final%20Project/src/ui/LogisticsRole/LogisticsCoordinatorHP.java</file>
+            <file>file:/Users/zhuchenyan/Documents/INFO5100/INFO5100%20Final%20Project/INFO5100%20Final%20Project/src/Business/WorkQueue/</file>
+            <file>file:/Users/zhuchenyan/Documents/INFO5100/INFO5100%20Final%20Project/INFO5100%20Final%20Project/src/ui/LogisticsRole/DocumentationDetails.java</file>
+            <file>file:/Users/zhuchenyan/Documents/INFO5100/INFO5100%20Final%20Project/INFO5100%20Final%20Project/src/Business/Organization/LogisticsOrganization.java</file>
+            <file>file:/Users/zhuchenyan/Documents/INFO5100/INFO5100%20Final%20Project/INFO5100%20Final%20Project/src/ui/CustomsAgentRole/CustomsLiaisonOfficeHP.java</file>
         </group>
     </open-files>
 </project-private>
