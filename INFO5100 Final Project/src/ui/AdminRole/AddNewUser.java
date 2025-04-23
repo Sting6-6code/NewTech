@@ -23,6 +23,14 @@ import Business.Role.SystemAdminRole;
 import java.awt.CardLayout;
 import javax.swing.JPanel;
 import javax.swing.JOptionPane;
+import java.awt.Color;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import javax.swing.JComboBox;
+import java.awt.Component;
+import java.awt.Font;
 
 /**
  *
@@ -47,6 +55,7 @@ public class AddNewUser extends javax.swing.JPanel {
         business = b;
         
         populateComboBox();
+        setupTheme();
     }
 
     /**
@@ -290,5 +299,102 @@ public class AddNewUser extends javax.swing.JPanel {
         
         // Add System Admin Role
 //        cmbRole.addItem(new SystemAdminRole().toString());
+    }
+
+    private void setupTheme() {
+        // Set panel background color
+        this.setBackground(new Color(240, 245, 255));
+        
+        // Style buttons
+        styleButton(btnBack);
+        styleButton(btnSave);
+        
+        // Style text fields
+        styleTextField(txtEmpName);
+        styleTextField(txtUN);
+        styleTextField(txtPW);
+        
+        // Style combo box
+        styleComboBox(cmbRole);
+        
+        // Style labels
+        styleTitleLabel(lblTitle);
+        styleLabel(jLabel1);
+        styleLabel(jLabel2);
+        styleLabel(jLabel3);
+        styleLabel(jLabel4);
+    }
+    
+    /**
+     * Apply consistent styling to a button
+     * @param button Button to style
+     */
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(26, 79, 156)); // Medium blue
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        // Add a subtle border with rounded corners
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
+    }
+    
+    /**
+     * Apply consistent styling to a text field
+     * @param textField TextField to style
+     */
+    private void styleTextField(JTextField textField) {
+        textField.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        textField.setForeground(new Color(13, 25, 51)); // Dark blue text
+        textField.setCaretColor(new Color(26, 79, 156)); // Medium blue cursor
+        textField.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+    }
+    
+    /**
+     * Style a combo box to match the theme
+     * @param comboBox ComboBox to style
+     */
+    private void styleComboBox(JComboBox comboBox) {
+        comboBox.setBackground(new Color(245, 245, 250)); // Light gray-white background
+        comboBox.setForeground(new Color(13, 25, 51)); // Dark blue text
+        comboBox.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
+        comboBox.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
+        
+        // Style the UI if possible
+        try {
+            comboBox.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
+                @Override
+                protected JButton createArrowButton() {
+                    JButton button = super.createArrowButton();
+                    button.setBackground(new Color(26, 79, 156));
+                    button.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224)));
+                    return button;
+                }
+            });
+        } catch (Exception e) {
+            System.out.println("Could not fully style combo box: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Apply title label styling
+     * @param label Label to style
+     */
+    private void styleTitleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
+    }
+    
+    /**
+     * Apply regular label styling
+     * @param label Label to style
+     */
+    private void styleLabel(JLabel label) {
+        label.setForeground(new Color(26, 79, 156));
+        label.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
     }
 }
