@@ -78,6 +78,9 @@ public class FintechHomepage extends javax.swing.JPanel {
             business.setOrderDirectory(this.orderDirectory);
         }
         
+        // Create sample payments
+        createSamplePayments();
+        
         System.out.println("Debug: After initialization");
         System.out.println("Debug: orderDirectory is " + (this.orderDirectory == null ? "null" : "not null"));
         System.out.println("Debug: paymentDirectory is " + (this.paymentDirectory == null ? "null" : "not null"));
@@ -201,6 +204,25 @@ public class FintechHomepage extends javax.swing.JPanel {
             
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Please enter a valid amount");
+        }
+    }
+
+    private void createSamplePayments() {
+        // Create 10 sample payments with varying amounts and item counts
+        for (int i = 0; i < 10; i++) {
+            Order order = new Order();
+            int itemCount = (int) (Math.random() * 30) + 1; // Random item count between 1 and 30
+            double itemPrice = 500 + (Math.random() * 1500); // Random price between $500 and $2000
+            double totalAmount = itemCount * itemPrice;
+            
+            order.setTotalAmount(totalAmount);
+            order.setOrderId("ORD" + String.format("%04d", i + 1));
+            
+            Payment payment = new Payment(order);
+            payment.setStatus(Math.random() > 0.3 ? "Completed" : "Pending"); // 70% chance of being completed
+            payment.setPaymentDate(new Date(System.currentTimeMillis() - (long)(Math.random() * 30 * 24 * 60 * 60 * 1000))); // Random date within last 30 days
+            
+            paymentDirectory.getPaymentList().add(payment);
         }
     }
 
