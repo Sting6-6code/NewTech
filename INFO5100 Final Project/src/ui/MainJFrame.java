@@ -92,6 +92,10 @@ public class MainJFrame extends javax.swing.JFrame {
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                // Clear payment directory before storing system
+                if (system != null && system.getPaymentDirectory() != null) {
+                    system.getPaymentDirectory().removeAll();
+                }
                 dB4OUtil.storeSystem(system);
             }
         });

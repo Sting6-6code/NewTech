@@ -30,25 +30,21 @@ public class FintechHomepage extends javax.swing.JPanel {
     private EcoSystem business;
     private PaymentDirectory paymentDirectory;
     private OrderDirectory orderDirectory;
+    private Payment selectedPayment;
 
     /**
      * Creates new form FintechHomepage
      */
     public FintechHomepage() {
-        System.out.println("Debug: Default constructor called");
         initComponents();
         orderDirectory = new OrderDirectory();
         paymentDirectory = new PaymentDirectory();
         setupPaymentTable();
+        setupTableSelectionListener();
+        setViewDetailPanelEnabled(false);
     }
 
     public FintechHomepage(JPanel userProcessContainer, UserAccount account, Organization organization, Enterprise enterprise, EcoSystem business) {
-        System.out.println("Debug: Parameterized constructor called");
-        System.out.println("Debug: business is " + (business == null ? "null" : "not null"));
-        System.out.println("Debug: account is " + (account == null ? "null" : "not null"));
-        System.out.println("Debug: organization is " + (organization == null ? "null" : "not null"));
-        System.out.println("Debug: enterprise is " + (enterprise == null ? "null" : "not null"));
-        
         initComponents();
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
@@ -56,44 +52,75 @@ public class FintechHomepage extends javax.swing.JPanel {
         this.enterprise = enterprise;
         this.business = business;
         
-        // Ensure business is not null
         if (business == null) {
-            System.out.println("Error: Business is null");
             return;
         }
         
-        // Initialize payment directory
         this.paymentDirectory = business.getPaymentDirectory();
         if (this.paymentDirectory == null) {
-            System.out.println("Warning: Payment directory is null, creating new one");
             this.paymentDirectory = new PaymentDirectory();
             business.setPaymentDirectory(this.paymentDirectory);
         }
         
-        // Initialize order directory
         this.orderDirectory = business.getOrderDirectory();
         if (this.orderDirectory == null) {
-            System.out.println("Warning: Order directory is null, creating new one");
             this.orderDirectory = new OrderDirectory();
             business.setOrderDirectory(this.orderDirectory);
         }
         
-        // Create sample payments
         createSamplePayments();
-        
-        System.out.println("Debug: After initialization");
-        System.out.println("Debug: orderDirectory is " + (this.orderDirectory == null ? "null" : "not null"));
-        System.out.println("Debug: paymentDirectory is " + (this.paymentDirectory == null ? "null" : "not null"));
-        
         setupPaymentTable();
         populatePaymentTable();
-        calculateTotalRevenue();
-        calculateDailyRevenue();
-        updatePaymentStatusSummary();
+        setupTableSelectionListener();
+        setViewDetailPanelEnabled(false);
+    }
+
+    private void setupTableSelectionListener() {
+        tblPayments.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = tblPayments.getSelectedRow();
+                if (selectedRow >= 0) {
+                    String paymentId = (String) tblPayments.getValueAt(selectedRow, 0);
+                    selectedPayment = paymentDirectory.findPaymentById(paymentId);
+                    if (selectedPayment != null) {
+                        btnViewDetail.setEnabled(true);
+                    } else {
+                        btnViewDetail.setEnabled(false);
+                    }
+                } else {
+                    btnViewDetail.setEnabled(false);
+                }
+            }
+        });
+    }
+
+    private void setViewDetailPanelEnabled(boolean enabled) {
+        viewDetailJP.setEnabled(enabled);
+        txtPaymentID.setEnabled(enabled);
+        txtSingleItemPrice.setEnabled(enabled);
+        txtAmount.setEnabled(enabled);
+        txtSubTotal.setEnabled(enabled);
+        
+        if (!enabled) {
+            clearViewDetailPanel();
+        }
+    }
+
+    private void clearViewDetailPanel() {
+        txtPaymentID.setText("");
+        txtSingleItemPrice.setText("");
+        txtAmount.setText("");
+        txtSubTotal.setText("");
+    }
+
+    private void populateViewDetailPanel(Payment payment) {
+        txtPaymentID.setText(payment.getPaymentId());
+        txtSingleItemPrice.setText(String.format("$%.2f", payment.getSingleItemPrice()));
+        txtAmount.setText(String.format("%d", payment.getOrderAmount()));
+        txtSubTotal.setText(String.format("$%.2f", payment.getAmount()));
     }
 
     private void setupPaymentTable() {
-        System.out.println("Debug: Setting up payment table");
         DefaultTableModel model = (DefaultTableModel) tblPayments.getModel();
         model.setRowCount(0);
         String[] columnNames = {"Payment ID", "Order ID", "Amount", "Status", "Date"};
@@ -101,13 +128,9 @@ public class FintechHomepage extends javax.swing.JPanel {
     }
 
     private void populatePaymentTable() {
-        System.out.println("Debug: Starting populatePaymentTable");
         DefaultTableModel model = (DefaultTableModel) tblPayments.getModel();
         model.setRowCount(0);
         
-        System.out.println("Debug: paymentDirectory is " + (paymentDirectory == null ? "null" : "not null"));
-        
-        // Get all payments from the payment directory
         for (Payment payment : paymentDirectory.getPaymentList()) {
             Object[] row = new Object[5];
             row[0] = payment.getPaymentId();
@@ -117,61 +140,11 @@ public class FintechHomepage extends javax.swing.JPanel {
             row[4] = new SimpleDateFormat("MM/dd/yyyy").format(payment.getPaymentDate());
             model.addRow(row);
         }
-        
-        System.out.println("Debug: Finished populatePaymentTable");
-    }
-
-    private void calculateTotalRevenue() {
-        double total = 0.0;
-        for (Payment payment : paymentDirectory.getPaymentList()) {
-            if (payment.getStatus().equals("Completed")) {
-                total += payment.getAmount();
-            }
-        }
-        lblTotalRevenue.setText(String.format("Total Revenue: $%.2f", total));
-    }
-
-    private void calculateDailyRevenue() {
-        double dailyTotal = 0.0;
-        Date today = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-        String todayStr = dateFormat.format(today);
-        
-        for (Payment payment : paymentDirectory.getPaymentList()) {
-            String paymentDate = dateFormat.format(payment.getPaymentDate());
-            if (paymentDate.equals(todayStr) && payment.getStatus().equals("Completed")) {
-                dailyTotal += payment.getAmount();
-            }
-        }
-        lblDailyRevenue.setText(String.format("Today's Revenue: $%.2f", dailyTotal));
-    }
-
-    private void updatePaymentStatusSummary() {
-        int completed = 0;
-        int pending = 0;
-        int refunded = 0;
-        
-        for (Payment payment : paymentDirectory.getPaymentList()) {
-            switch (payment.getStatus()) {
-                case "Completed":
-                    completed++;
-                    break;
-                case "Pending":
-                    pending++;
-                    break;
-                case "Refunded":
-                    refunded++;
-                    break;
-            }
-        }
-        
-        lblStatusSummary.setText(String.format("Payments: %d Completed, %d Pending, %d Refunded", 
-            completed, pending, refunded));
     }
 
     private void processPayment() {
-        String orderId = txtShipmentID.getText();
-        String amountStr = txtAmt.getText();
+        String orderId = txtPaymentID.getText();
+        String amountStr = txtSingleItemPrice.getText();
         
         if (orderId.isEmpty() || amountStr.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter both Order ID and Amount");
@@ -194,13 +167,9 @@ public class FintechHomepage extends javax.swing.JPanel {
             
             JOptionPane.showMessageDialog(this, "Payment processed successfully");
             populatePaymentTable();
-            calculateTotalRevenue();
-            calculateDailyRevenue();
-            updatePaymentStatusSummary();
             
-            // Clear input fields
-            txtShipmentID.setText("");
-            txtAmt.setText("");
+            txtPaymentID.setText("");
+            txtSingleItemPrice.setText("");
             
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Please enter a valid amount");
@@ -208,23 +177,64 @@ public class FintechHomepage extends javax.swing.JPanel {
     }
 
     private void createSamplePayments() {
-        // Create 10 sample payments with varying amounts and item counts
-        for (int i = 0; i < 10; i++) {
-            Order order = new Order();
-            int itemCount = (int) (Math.random() * 30) + 1; // Random item count between 1 and 30
-            double itemPrice = 500 + (Math.random() * 1500); // Random price between $500 and $2000
-            double totalAmount = itemCount * itemPrice;
-            
-            order.setTotalAmount(totalAmount);
-            order.setOrderId("ORD" + String.format("%04d", i + 1));
-            
-            Payment payment = new Payment(order);
-            payment.setStatus(Math.random() > 0.3 ? "Completed" : "Pending"); // 70% chance of being completed
-            payment.setPaymentDate(new Date(System.currentTimeMillis() - (long)(Math.random() * 30 * 24 * 60 * 60 * 1000))); // Random date within last 30 days
-            
-            paymentDirectory.getPaymentList().add(payment);
+        // Only create sample payments if the directory is empty
+        if (paymentDirectory.getPaymentList().isEmpty()) {
+            // Create new sample payments
+            for (int i = 0; i < 30; i++) {
+                Order order = new Order();
+                int itemCount = (int) (Math.random() * 30) + 1;
+                double itemPrice = 500 + (Math.random() * 1500);
+                double totalAmount = itemCount * itemPrice;
+                
+                order.setTotalAmount(totalAmount);
+                order.setOrderId("ORD" + String.format("%04d", i + 1));
+                
+                Payment payment = new Payment(order);
+                payment.setSingleItemPrice(itemPrice);
+                payment.setOrderAmount(itemCount);
+                // 30% chance of being Completed, 70% chance of being Pending
+                payment.setStatus(Math.random() < 0.3 ? "Completed" : "Pending");
+                payment.setPaymentDate(new Date(System.currentTimeMillis() - (long)(Math.random() * 30 * 24 * 60 * 60 * 1000)));
+                
+                paymentDirectory.getPaymentList().add(payment);
+            }
         }
     }
+
+    private void btnViewDetailActionPerformed(java.awt.event.ActionEvent evt) {
+        if (selectedPayment != null) {
+            setViewDetailPanelEnabled(true);
+            populateViewDetailPanel(selectedPayment);
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a payment from the table to view details.", 
+                "No Payment Selected", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void btnReportActionPerformed(java.awt.event.ActionEvent evt) {
+        if (selectedPayment != null) {
+            selectedPayment.setStatus("Under Review");
+            paymentDirectory.addSuspiciousPayment(selectedPayment);
+            JOptionPane.showMessageDialog(this, 
+                "This payment has been flagged and is now under review.",
+                "Payment Flagged", 
+                JOptionPane.INFORMATION_MESSAGE);
+            populatePaymentTable(); // Refresh the table to show updated status
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "Please select a payment from the table to report as suspicious.",
+                "No Payment Selected", 
+                JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+//    public void dispose() {
+//        // Clear all payments when the application exits
+//        if (paymentDirectory != null) {
+//            paymentDirectory.removeAll();
+//        }
+//        super.dispose();
+//    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -245,11 +255,12 @@ public class FintechHomepage extends javax.swing.JPanel {
         viewDetailJP = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        txtShipmentID = new javax.swing.JTextField();
-        txtAmt = new javax.swing.JTextField();
-        lblTotalRevenue = new javax.swing.JLabel();
-        lblDailyRevenue = new javax.swing.JLabel();
-        lblStatusSummary = new javax.swing.JLabel();
+        txtPaymentID = new javax.swing.JTextField();
+        txtSingleItemPrice = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        txtAmount = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        txtSubTotal = new javax.swing.JTextField();
 
         lblTitle.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblTitle.setText("Welcome to Payment Center!");
@@ -270,20 +281,30 @@ public class FintechHomepage extends javax.swing.JPanel {
         btnReceive.setText("Receive");
 
         btnReport.setText("Report Suspicious");
+        btnReport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReportActionPerformed(evt);
+            }
+        });
 
         btnRefund.setText("Refund");
 
         btnViewDetail.setText("View Detail..");
+        btnViewDetail.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnViewDetailActionPerformed(evt);
+            }
+        });
 
         viewDetailJP.setBackground(new java.awt.Color(255, 255, 255));
 
-        jLabel1.setText("Shipment ID:");
+        jLabel1.setText("Payment ID:");
 
-        jLabel2.setText("Amount:");
+        jLabel2.setText("Single Item Price:");
 
-        lblTotalRevenue.setText("Total Revenue: $0.00");
-        lblDailyRevenue.setText("Today's Revenue: $0.00");
-        lblStatusSummary.setText("Payments: 0 Completed, 0 Pending, 0 Refunded");
+        jLabel3.setText("Amount:");
+
+        jLabel4.setText("Subtotal:");
 
         javax.swing.GroupLayout viewDetailJPLayout = new javax.swing.GroupLayout(viewDetailJP);
         viewDetailJP.setLayout(viewDetailJPLayout);
@@ -293,15 +314,19 @@ public class FintechHomepage extends javax.swing.JPanel {
                 .addGap(130, 130, 130)
                 .addGroup(viewDetailJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
-                    .addComponent(jLabel2))
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel4))
                 .addGap(39, 39, 39)
                 .addGroup(viewDetailJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtAmt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtShipmentID, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtSubTotal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtAmount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtSingleItemPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtPaymentID, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(182, Short.MAX_VALUE))
         );
 
-        viewDetailJPLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {txtAmt, txtShipmentID});
+        viewDetailJPLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {txtAmount, txtPaymentID, txtSingleItemPrice, txtSubTotal});
 
         viewDetailJPLayout.setVerticalGroup(
             viewDetailJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -309,12 +334,20 @@ public class FintechHomepage extends javax.swing.JPanel {
                 .addGap(48, 48, 48)
                 .addGroup(viewDetailJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(txtShipmentID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtPaymentID, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(34, 34, 34)
                 .addGroup(viewDetailJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(txtAmt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(133, Short.MAX_VALUE))
+                    .addComponent(txtSingleItemPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26)
+                .addGroup(viewDetailJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3)
+                    .addComponent(txtAmount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(viewDetailJPLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4)
+                    .addComponent(txtSubTotal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(49, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -341,7 +374,7 @@ public class FintechHomepage extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(266, 266, 266)
                         .addComponent(viewDetailJP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(134, Short.MAX_VALUE))
+                .addContainerGap(117, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -358,7 +391,7 @@ public class FintechHomepage extends javax.swing.JPanel {
                     .addComponent(btnViewDetail))
                 .addGap(70, 70, 70)
                 .addComponent(viewDetailJP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -370,14 +403,15 @@ public class FintechHomepage extends javax.swing.JPanel {
     private javax.swing.JButton btnViewDetail;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel lblTitle;
     private javax.swing.JTable tblPayments;
-    private javax.swing.JTextField txtAmt;
-    private javax.swing.JTextField txtShipmentID;
+    private javax.swing.JTextField txtAmount;
+    private javax.swing.JTextField txtPaymentID;
+    private javax.swing.JTextField txtSingleItemPrice;
+    private javax.swing.JTextField txtSubTotal;
     private javax.swing.JPanel viewDetailJP;
     private javax.swing.JScrollPane viewPaymentsScrollPane;
-    private javax.swing.JLabel lblTotalRevenue;
-    private javax.swing.JLabel lblDailyRevenue;
-    private javax.swing.JLabel lblStatusSummary;
     // End of variables declaration//GEN-END:variables
 }

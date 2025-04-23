@@ -12,6 +12,10 @@ public class Payment {
     private String shipmentId;
     private String shippingAddress;
     private String trackingNumber;
+    
+    private double singleItemPrice;
+    private int orderAmount;
+    
     private static int counter = 0;
 
     public Payment() {
@@ -84,6 +88,22 @@ public class Payment {
 
     public void setTrackingNumber(String trackingNumber) {
         this.trackingNumber = trackingNumber;
+    }
+
+    public double getSingleItemPrice() {
+        return singleItemPrice;
+    }
+
+    public void setSingleItemPrice(double singleItemPrice) {
+        this.singleItemPrice = singleItemPrice;
+    }
+
+    public int getOrderAmount() {
+        return orderAmount;
+    }
+
+    public void setOrderAmount(int orderAmount) {
+        this.orderAmount = orderAmount;
     }
 
     @Override
