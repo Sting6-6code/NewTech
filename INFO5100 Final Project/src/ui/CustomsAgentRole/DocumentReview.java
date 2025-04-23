@@ -55,7 +55,7 @@ public class DocumentReview extends javax.swing.JPanel {
         try {
         this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
-        this.organization = organization;
+                this.organization = organization;
 
         // Initialize parent panel reference
         if (userProcessContainer.getParent() instanceof JPanel) {
@@ -181,16 +181,16 @@ public class DocumentReview extends javax.swing.JPanel {
 
                 // 如果筛选条件是"All"或者状态匹配当前筛选条件
                 if ("All".equals(filterStatus) || filterStatus.equals(status)) {
-                    Object[] row = new Object[4];
-                    row[0] = declaration.getDeclarationId();
-                    row[1] = declaration.getDeclarationType() != null
-                            ? declaration.getDeclarationType() : "Standard";
+                Object[] row = new Object[4];
+                row[0] = declaration.getDeclarationId();
+                row[1] = declaration.getDeclarationType() != null 
+                       ? declaration.getDeclarationType() : "Standard";
                     row[2] = status;
-                    row[3] = declaration.getSubmissionDate() != null
-                            ? dateFormat.format(declaration.getSubmissionDate())
-                            : dateFormat.format(declaration.getDeclarationDate());
+                row[3] = declaration.getSubmissionDate() != null 
+                       ? dateFormat.format(declaration.getSubmissionDate()) 
+                       : dateFormat.format(declaration.getDeclarationDate());
 
-                    model.addRow(row);
+                model.addRow(row);
                     matchCount++;
                 }
             }
@@ -200,11 +200,11 @@ public class DocumentReview extends javax.swing.JPanel {
                 model.addRow(row);
             }
         } else {
-            // 如果表格为空，添加一条信息
+        // 如果表格为空，添加一条信息
             Object[] row = {"No declarations found", "", "", ""};
             model.addRow(row);
         }
-
+    
     }
 
     private void displayDeclarationDetails(String declarationId) {
@@ -460,7 +460,7 @@ public class DocumentReview extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(docContenJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(docContenJPanelLayout.createSequentialGroup()
-                        .addComponent(lblDocContent)
+                .addComponent(lblDocContent)
                         .addContainerGap(828, Short.MAX_VALUE))
                     .addGroup(docContenJPanelLayout.createSequentialGroup()
                         .addComponent(jScrollPane3)
@@ -570,8 +570,8 @@ public class DocumentReview extends javax.swing.JPanel {
         reviewNotesJPanel.setLayout(reviewNotesJPanelLayout);
         reviewNotesJPanelLayout.setHorizontalGroup(
             reviewNotesJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(reviewNotesJPanelLayout.createSequentialGroup()
-                .addContainerGap()
+                    .addGroup(reviewNotesJPanelLayout.createSequentialGroup()
+                        .addContainerGap()
                 .addGroup(reviewNotesJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
                     .addComponent(txtReviewNotes, javax.swing.GroupLayout.PREFERRED_SIZE, 879, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -661,9 +661,9 @@ public class DocumentReview extends javax.swing.JPanel {
                 .addGap(22, 22, 22)
                 .addComponent(btnBack)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtSearchBox)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtSearchBox)
                     .addComponent(lblSearchID, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnSearch))
                 .addGap(18, 18, 18)
@@ -918,17 +918,17 @@ public class DocumentReview extends javax.swing.JPanel {
                 if (customsRequest.getDeclarationId().equals(declarationId)) {
                     customsRequest.setStatus(newStatus);
                     customsRequest.setResolveDate(new Date());
-                    
+
                     if (txtReviewNotes.getText() != null && !txtReviewNotes.getText().isEmpty()) {
                         customsRequest.setMessage(txtReviewNotes.getText());
                     }
-                    
+
                     workRequestUpdated = true;
                     break;
                 }
             }
         }
-        
+
         // If no work request was found, create one to maintain consistency
         if (!workRequestUpdated) {
             System.out.println("No work request found for declaration " + declarationId + ", creating one");
@@ -964,17 +964,17 @@ public class DocumentReview extends javax.swing.JPanel {
             e.printStackTrace();
         }
         
-        JOptionPane.showMessageDialog(this, "Declaration status updated to: " + newStatus);
-        
+            JOptionPane.showMessageDialog(this, "Declaration status updated to: " + newStatus);
+
         // Refresh UI
-        populateTable();
-        clearFields();
-        
-    } catch (Exception e) {
+            populateTable();
+            clearFields();
+
+                } catch (Exception e) {
         System.out.println("Error in updateRequestStatus: " + e.getMessage());
-        e.printStackTrace();
+                    e.printStackTrace();
         JOptionPane.showMessageDialog(this, "Error updating status: " + e.getMessage());
-    }
+        }
     }
 
     private void updateOriginalDeclaration(String declarationId, String newStatus) {

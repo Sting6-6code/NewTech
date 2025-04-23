@@ -311,6 +311,9 @@ public class ConfigureASystem {
                     + logisticsOrg.getShipmentDirectory().getShipments().size());
         }
 
+        // 在其他初始化方法之后添加
+        initializeProductsWithFaker();
+
         return system;
     }
 
@@ -1862,6 +1865,134 @@ public class ConfigureASystem {
         // Save to system
         EcoSystem system = EcoSystem.getInstance();
         DB4OUtil.getInstance().storeSystem(system);
+    }
+
+    public static void initializeProductsWithFaker() {
+        try {
+            com.github.javafaker.Faker faker = new com.github.javafaker.Faker();
+            Business.Supplier.Supplier supplier = Business.Role.MerchantRole.getDemoSupplier();
+            
+            if (supplier == null) {
+                System.out.println("无法获取供应商实例，初始化产品失败");
+                return;
+            }
+            
+            // 添加智能手机
+            for (int i = 0; i < 5; i++) {
+                String brand = faker.options().option("Apple", "Samsung", "Google", "Xiaomi", "Huawei");
+                String model = faker.options().option("iPhone 15", "Galaxy S23", "Pixel 7", "Mi 13", "P50 Pro");
+                String productId = "SP-" + String.format("%03d", i + 1);
+                String productName = brand + " " + model;
+                double price = 499.99 + faker.number().randomDouble(2, 100, 800);
+                int quantity = faker.number().numberBetween(20, 100);
+                int threshold = faker.number().numberBetween(10, 20);
+                
+                Business.Product.Product phone = new Business.Product.Product(
+                    productId,
+                    productName,
+                    price,
+                    quantity,
+                    threshold
+                );
+                phone.updateStockStatus();
+                phone.setLastUpdated(new java.util.Date());
+                supplier.addProduct(phone);
+            }
+            
+            // 添加笔记本电脑
+            for (int i = 0; i < 5; i++) {
+                String brand = faker.options().option("Apple", "Dell", "Lenovo", "HP", "Asus");
+                String model = faker.options().option("MacBook Pro", "XPS 15", "ThinkPad X1", "Spectre", "ZenBook");
+                String productId = "LP-" + String.format("%03d", i + 1);
+                String productName = brand + " " + model;
+                double price = 899.99 + faker.number().randomDouble(2, 200, 1200);
+                int quantity = faker.number().numberBetween(15, 50);
+                int threshold = faker.number().numberBetween(5, 15);
+                
+                Business.Product.Product laptop = new Business.Product.Product(
+                    productId,
+                    productName,
+                    price,
+                    quantity,
+                    threshold
+                );
+                laptop.updateStockStatus();
+                laptop.setLastUpdated(new java.util.Date());
+                supplier.addProduct(laptop);
+            }
+            
+            // 添加智能手表
+            for (int i = 0; i < 3; i++) {
+                String brand = faker.options().option("Apple", "Samsung", "Garmin", "Fitbit", "Huawei");
+                String model = faker.options().option("Watch Series 8", "Galaxy Watch 5", "Fenix 7", "Sense", "Watch GT");
+                String productId = "SW-" + String.format("%03d", i + 1);
+                String productName = brand + " " + model;
+                double price = 249.99 + faker.number().randomDouble(2, 50, 350);
+                int quantity = faker.number().numberBetween(25, 80);
+                int threshold = faker.number().numberBetween(10, 20);
+                
+                Business.Product.Product watch = new Business.Product.Product(
+                    productId,
+                    productName,
+                    price,
+                    quantity,
+                    threshold
+                );
+                watch.updateStockStatus();
+                watch.setLastUpdated(new java.util.Date());
+                supplier.addProduct(watch);
+            }
+            
+            // 添加耳机
+            for (int i = 0; i < 3; i++) {
+                String brand = faker.options().option("Apple", "Sony", "Bose", "Samsung", "Sennheiser");
+                String model = faker.options().option("AirPods Pro", "WH-1000XM5", "QuietComfort", "Galaxy Buds", "Momentum");
+                String productId = "HP-" + String.format("%03d", i + 1);
+                String productName = brand + " " + model;
+                double price = 149.99 + faker.number().randomDouble(2, 30, 250);
+                int quantity = faker.number().numberBetween(30, 100);
+                int threshold = faker.number().numberBetween(15, 25);
+                
+                Business.Product.Product headphone = new Business.Product.Product(
+                    productId,
+                    productName,
+                    price,
+                    quantity,
+                    threshold
+                );
+                headphone.updateStockStatus();
+                headphone.setLastUpdated(new java.util.Date());
+                supplier.addProduct(headphone);
+            }
+            
+            // 添加平板电脑
+            for (int i = 0; i < 3; i++) {
+                String brand = faker.options().option("Apple", "Samsung", "Microsoft", "Lenovo", "Huawei");
+                String model = faker.options().option("iPad Pro", "Galaxy Tab S8", "Surface Pro", "Tab M10", "MatePad Pro");
+                String productId = "TB-" + String.format("%03d", i + 1);
+                String productName = brand + " " + model;
+                double price = 349.99 + faker.number().randomDouble(2, 100, 600);
+                int quantity = faker.number().numberBetween(20, 60);
+                int threshold = faker.number().numberBetween(8, 18);
+                
+                Business.Product.Product tablet = new Business.Product.Product(
+                    productId,
+                    productName,
+                    price,
+                    quantity,
+                    threshold
+                );
+                tablet.updateStockStatus();
+                tablet.setLastUpdated(new java.util.Date());
+                supplier.addProduct(tablet);
+            }
+            
+            System.out.println("成功使用Faker初始化了" + supplier.getProductCatalog().size() + "个科技产品");
+            
+        } catch (Exception e) {
+            System.err.println("使用Faker初始化产品时发生错误: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
 }
