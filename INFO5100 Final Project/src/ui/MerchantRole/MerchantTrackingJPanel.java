@@ -54,7 +54,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
     private Enterprise enterprise;
     private LogisticsOrganization organization;
     private JPanel mapPanel;
-
+   
     private CardLayout detailsCardLayout;
     private final JPanel parentPanel;
 
@@ -66,7 +66,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
             Enterprise enterprise, LogisticsOrganization organization, JPanel parentPanel) {
 
         initComponents();
-
+        
         setupDetailsCards();
 
         this.organization = ConfigureASystem.logisticsOrg;
@@ -76,11 +76,11 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         this.parentPanel = parentPanel;
 
         populateTable();
-
+        
         // Apply unified UI style
         setupTheme();
     }
-
+    
     /**
      * Apply consistent UI theme to all components
      */
@@ -89,20 +89,20 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         this.setBackground(new Color(240, 245, 255));
         jPanel1.setBackground(new Color(240, 245, 255));
         basicInfoJPanel.setBackground(new Color(240, 245, 255));
-
+        
         // Style buttons
         styleAllButtons();
-
+        
         // Style text fields
         styleAllTextFields();
-
+        
         // Style labels
         styleAllLabels();
-
+        
         // Style table
         styleTable(tblShipment);
     }
-
+    
     /**
      * Apply consistent styling to all buttons
      */
@@ -115,7 +115,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         styleButton(btnUpdate);
         styleButton(btnSave3);
     }
-
+    
     /**
      * Apply consistent styling to a button
      *
@@ -128,12 +128,12 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         button.setBorderPainted(false);
         // Add a subtle border with rounded corners
         button.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)
+            BorderFactory.createLineBorder(new Color(13, 60, 130), 1),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
         button.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
     }
-
+    
     /**
      * Apply consistent styling to all text fields
      */
@@ -145,7 +145,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         styleTextField(txtDestination);
         styleTextField(txtStatus);
     }
-
+    
     /**
      * Apply consistent styling to a text field
      *
@@ -158,7 +158,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         textField.setBorder(BorderFactory.createLineBorder(new Color(90, 141, 224), 1));
         textField.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
     }
-
+    
     /**
      * Apply consistent styling to all labels
      */
@@ -166,7 +166,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         // Style title labels
         styleTitleLabel(lblLogisticsTracking);
         styleTitleLabel(lblTrackDetails);
-
+        
         // Style regular labels
         styleLabel(lblTrackingNo);
         styleLabel(lblTraNo);
@@ -175,7 +175,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         styleLabel(lblDestination);
         styleLabel(lblStatus);
     }
-
+    
     /**
      * Apply title label styling
      *
@@ -185,7 +185,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         label.setForeground(new Color(26, 79, 156));
         label.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
     }
-
+    
     /**
      * Apply regular label styling
      *
@@ -195,7 +195,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         label.setForeground(new Color(26, 79, 156));
         label.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
     }
-
+    
     /**
      * Style table with consistent theme
      *
@@ -208,7 +208,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         header.setForeground(Color.WHITE);
         header.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
         header.setBorder(new LineBorder(new Color(13, 60, 130)));
-
+        
         // Style table - using darker colors for better visibility
         table.setBackground(new Color(240, 240, 250)); // Slightly darker background
         table.setForeground(new Color(0, 0, 0)); // Black text for maximum contrast
@@ -217,7 +217,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         table.setSelectionForeground(Color.WHITE);
         table.setFont(new Font("Helvetica Neue", Font.BOLD, 14)); // Bold font for better visibility
         table.setRowHeight(30); // Increase row height for better readability
-
+        
         // Set alternating row colors with more contrast
         table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
             @Override
@@ -230,7 +230,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
                 return c;
             }
         });
-
+        
         // Style scroll pane
         jScrollPane1.setBorder(new LineBorder(new Color(26, 79, 156)));
     }
@@ -244,7 +244,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         // 设置标题样式
         lblTrackDetails.setFont(new Font("Helvetica Neue", Font.BOLD, 20));
         lblTrackDetails.setHorizontalAlignment(JLabel.CENTER);
-
+        
         // 设置标签和输入框样式
         Font labelFont = new Font("Helvetica Neue", Font.BOLD, 14);
         lblTraNo.setFont(labelFont);
@@ -252,54 +252,54 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         lblShippingMethod.setFont(labelFont);
         lblDestination.setFont(labelFont);
         lblStatus.setFont(labelFont);
-
+        
         // 美化按钮
         btnBasicInfo.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
         btnBasicInfo.setBackground(new java.awt.Color(51, 153, 255));
         btnBasicInfo.setForeground(java.awt.Color.WHITE);
         btnBasicInfo.setFocusPainted(false);
-
+        
         btnUpdate.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
         btnUpdate.setBackground(new java.awt.Color(0, 102, 204));
         btnUpdate.setForeground(java.awt.Color.WHITE);
         btnUpdate.setFocusPainted(false);
-
+        
         btnSave3.setFont(new Font("Helvetica Neue", Font.BOLD, 14));
         btnSave3.setBackground(new java.awt.Color(46, 139, 87));
         btnSave3.setForeground(java.awt.Color.WHITE);
         btnSave3.setFocusPainted(false);
-
+        
         // 直接在basicInfoJPanel中创建面板，不使用桌面设计器生成的布局
         basicInfoJPanel.removeAll();
         basicInfoJPanel.setLayout(new BorderLayout(10, 10));
         basicInfoJPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
+        
         // 顶部面板 - 标题和导航
         JPanel topPanel = new JPanel(new BorderLayout(0, 10));
         topPanel.add(lblTrackDetails, BorderLayout.NORTH);
-
+        
         JPanel navPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         navPanel.add(btnBasicInfo);
         topPanel.add(navPanel, BorderLayout.CENTER);
-
+        
         // 中间面板 - 字段信息
         JPanel fieldsPanel = new JPanel(new GridLayout(5, 2, 20, 15));
         fieldsPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
+        
         // 使所有文本框不可编辑
         txtTrcNo.setEditable(false);
         txtShippingDate.setEditable(false);
         txtShippingMethod.setEditable(false);
         txtDestination.setEditable(false);
         txtStatus.setEditable(false);
-
+        
         // 文本框样式
         txtTrcNo.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
         txtShippingDate.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
         txtShippingMethod.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
         txtDestination.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
         txtStatus.setFont(new Font("Helvetica Neue", Font.PLAIN, 14));
-
+        
         // 添加字段到面板
         fieldsPanel.add(lblTraNo);
         fieldsPanel.add(txtTrcNo);
@@ -311,21 +311,21 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         fieldsPanel.add(txtDestination);
         fieldsPanel.add(lblStatus);
         fieldsPanel.add(txtStatus);
-
+        
         // 底部面板 - 按钮
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
         buttonPanel.add(btnUpdate);
         buttonPanel.add(btnSave3);
-
+        
         // 将所有面板添加到主面板
         basicInfoJPanel.add(topPanel, BorderLayout.NORTH);
         basicInfoJPanel.add(fieldsPanel, BorderLayout.CENTER);
         basicInfoJPanel.add(buttonPanel, BorderLayout.SOUTH);
-
+        
         // 添加面板到卡片布局
         detailsCardsPanel.add(basicInfoJPanel, "BasicInfo");
         detailsCardLayout.show(detailsCardsPanel, "BasicInfo");
-
+        
         // 刷新面板
         basicInfoJPanel.revalidate();
         basicInfoJPanel.repaint();
@@ -660,29 +660,34 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Please select a shipment first", "Information", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-
+        
         if (organization != null && organization.getShipmentDirectory() != null) {
             Shipment shipment = organization.getShipmentDirectory().findShipmentByTrackingNumber(trackingNumber);
             if (shipment != null) {
                 String newStatus = txtStatus.getText();
                 if (newStatus != null && !newStatus.isEmpty()) {
                     shipment.setShipmentStatus(newStatus);
-
+                    
                     TrackingInfo trackingInfo = new TrackingInfo();
                     trackingInfo.setLocation("Merchant Update");
                     trackingInfo.setStatus(newStatus);
                     trackingInfo.setTimestamp(new java.util.Date());
                     trackingInfo.setDescription("Status updated by merchant: " + newStatus);
-
+                    
                     shipment.addTrackingInfo(trackingInfo);
-
+                    
+                    // 当状态为"Package Received"时，更新产品状态
+                    if ("Package Received".equals(newStatus)) {
+                        updateProductInventory(shipment);
+                    }
+                    
                     populateTable();
-
-                    JOptionPane.showMessageDialog(this,
-                            "Shipment status has been updated to: " + newStatus,
-                            "Status Updated",
-                            JOptionPane.INFORMATION_MESSAGE);
-
+                    
+                    JOptionPane.showMessageDialog(this, 
+                        "Shipment status has been updated to: " + newStatus,
+                        "Status Updated", 
+                        JOptionPane.INFORMATION_MESSAGE);
+                    
                     txtStatus.setEditable(false);
                     btnSave3.setEnabled(false);
                 }
@@ -699,7 +704,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
 
         txtStatus.setEditable(true);
         btnSave3.setEnabled(true);
-
+        
         String[] merchantStatusOptions = {
             "Package Received",
             "Package Not Received",
@@ -708,16 +713,16 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
             "Return Initiated",
             "Other Issue"
         };
-
+        
         String selectedStatus = (String) JOptionPane.showInputDialog(
-                this,
-                "Select shipment status to update:",
-                "Update Status",
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                merchantStatusOptions,
-                txtStatus.getText());
-
+            this,
+            "Select shipment status to update:",
+            "Update Status",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            merchantStatusOptions,
+            txtStatus.getText());
+        
         if (selectedStatus != null && !selectedStatus.isEmpty()) {
             txtStatus.setText(selectedStatus);
         }
@@ -778,15 +783,15 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
 
         LogisticsOrganization logisticsOrg = ConfigureASystem.getLogisticsOrganization();
         if (logisticsOrg == null) {
-            JOptionPane.showMessageDialog(this,
+            JOptionPane.showMessageDialog(this, 
                     "Unable to connect to logistics system.",
-                    "Error",
+                    "Error", 
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         System.out.println("Loading shipments from logistics organization...");
-
+        
         // Load existing shipments
         if (logisticsOrg.getShipmentDirectory() != null && logisticsOrg.getShipmentDirectory().getShipments() != null) {
             int count = 0;
@@ -794,17 +799,17 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
                 if (shipment == null) {
                     continue;
                 }
-
+                
                 Object[] row = new Object[6];
                 row[0] = shipment.getTrackingNumber();
                 row[1] = shipment.getShippingMethod() != null ? shipment.getShippingMethod() : "Standard";
                 row[2] = shipment.getDestination() != null ? shipment.getDestination() : "Not specified";
-
+                
                 String status = shipment.getShipmentStatus();
                 if (status == null || status.isEmpty()) {
                     status = "Processing";
                 }
-
+                
                 boolean merchantUpdated = false;
                 List<TrackingInfo> trackingInfoList = shipment.getTrackingHistory();
                 if (trackingInfoList != null) {
@@ -816,15 +821,15 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
                         }
                     }
                 }
-
+                
                 row[3] = status;
-
+                
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 row[4] = shipment.getShipDate() != null
                         ? dateFormat.format(shipment.getShipDate()) : "Not shipped yet";
                 row[5] = shipment.getEstimatedDeliveryDate() != null
                         ? dateFormat.format(shipment.getEstimatedDeliveryDate()) : "To be determined";
-
+                
                 model.addRow(row);
                 count++;
             }
@@ -848,11 +853,11 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
                         row[2] = warehouseRequest.getDestination() != null
                                 ? warehouseRequest.getDestination() : "To be assigned";
                         row[3] = "Pending Shipment";
-
+                        
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                         row[4] = dateFormat.format(warehouseRequest.getRequestDate());
                         row[5] = "To be determined";
-
+                        
                         model.addRow(row);
                         count++;
                     }
@@ -913,7 +918,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
                     }
                 }
                 System.out.println("Loaded " + count + " receiving notifications for " + currentOrg.getName());
-            } else {
+        } else {
                 System.out.println("Could not determine current user's organization");
             }
 
@@ -942,12 +947,12 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
             }
             System.out.println("Loaded " + count + " receiving notifications from user's personal work queue");
         }
-
+        
         if (model.getRowCount() == 0) {
             System.out.println("No shipments found");
-            JOptionPane.showMessageDialog(this,
+            JOptionPane.showMessageDialog(this, 
                     "No shipments found in the system.",
-                    "Information",
+                    "Information", 
                     JOptionPane.INFORMATION_MESSAGE);
         } else {
             System.out.println("Total shipments loaded: " + model.getRowCount());
@@ -994,7 +999,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
 
             txtTrcNo.setEditable(false);
             txtShippingDate.setEditable(false);
-            txtShippingMethod.setEditable(false);
+            txtShippingMethod.setEditable(false); 
             txtDestination.setEditable(false);
             txtStatus.setEditable(false);
             btnSave3.setEnabled(false);
@@ -1049,24 +1054,24 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
         if (trackingNumber == null || trackingNumber.isEmpty()) {
             return null;
         }
-
+        
         // Handle pending shipments (from warehouse work requests)
         if (trackingNumber.startsWith("Pending-")) {
             String shipmentId = trackingNumber.substring("Pending-".length());
-
+            
             if (organization != null && organization.getWorkQueue() != null) {
                 for (WorkRequest request : organization.getWorkQueue().getWorkRequestList()) {
                     if (request instanceof WarehouseWorkRequest) {
                         WarehouseWorkRequest warehouseRequest = (WarehouseWorkRequest) request;
                         if (warehouseRequest.getShipmentId() != null
                                 && warehouseRequest.getShipmentId().equals(shipmentId)) {
-
+                            
                             Shipment pendingShipment = new Shipment();
                             pendingShipment.setTrackingNumber(trackingNumber);
                             pendingShipment.setShipmentStatus("Pending");
                             pendingShipment.setDestination(warehouseRequest.getDestination());
                             pendingShipment.setShippingMethod(warehouseRequest.getShippingMethod());
-
+                            
                             return pendingShipment;
                         }
                     }
@@ -1074,7 +1079,7 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
             }
             return null;
         }
-
+        
         // Check shipment directory first
         if (organization != null && organization.getShipmentDirectory() != null) {
             Shipment shipment = organization.getShipmentDirectory().findShipmentByTrackingNumber(trackingNumber);
@@ -1178,6 +1183,46 @@ public class MerchantTrackingJPanel extends javax.swing.JPanel {
                         "Success",
                         JOptionPane.INFORMATION_MESSAGE);
             }
+        }
+    }
+
+    // 添加新方法用于更新产品库存和状态
+    private void updateProductInventory(Shipment shipment) {
+        try {
+            // 直接获取供应商实例
+            Business.Supplier.Supplier supplier = Business.Role.MerchantRole.getDemoSupplier();
+            
+            if (supplier == null) {
+                System.out.println("无法获取供应商实例");
+                return;
+            }
+            
+            System.out.println("找到供应商: " + supplier.getSupplyName());
+            
+            if (supplier.getProductCatalog() != null) {
+                for (Business.Product.Product product : supplier.getProductCatalog()) {
+                    // 检查是否匹配shipment中的产品名称
+                    if (shipment.getProductName() != null && shipment.getProductName().equals(product.getProductName())) {
+                        // 如果产品状态为"Requested"，则更新状态和数量
+                        if ("Requested".equals(product.getStockStatus())) {
+                            int currentQuantity = product.getQuantity();
+                            int receivedQuantity = shipment.getQuantity();
+                            
+                            // 更新库存并重置状态
+                            product.setQuantity(currentQuantity + receivedQuantity);
+                            product.updateStockStatus(); // 自动设置为"Normal"或其他适当状态
+                            product.setLastUpdated(new java.util.Date());
+                            
+                            System.out.println("产品状态已更新: " + product.getProductName() 
+                                + " 从 Requested 到 " + product.getStockStatus()
+                                + ", 数量从 " + currentQuantity + " 到 " + product.getQuantity());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("更新产品库存时发生错误: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
