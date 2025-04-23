@@ -42,8 +42,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 import Business.Product.SalesRecord;
 import Business.Role.LogisticsEnterpriseAdminRole;
+import Business.Role.RetailAdminRole;
 import Business.WorkQueue.LogisticsWorkRequest;
 import Business.WorkQueue.WorkRequest;
+import ui.MerchantRole.RetailAdminHP;
+import Business.Role.WarehouseSupplierAdminRole;
+
 
 /**
  *
@@ -69,9 +73,10 @@ public class ConfigureASystem {
         Employee employee5 = system.getEmployeeDirectory().createEmployee("customsagent");
         Employee employee6 = system.getEmployeeDirectory().createEmployee("logistics");
         Employee employee7 = system.getEmployeeDirectory().createEmployee("warehouse");
-        Employee employee8 = system.getEmployeeDirectory().createEmployee("fintech");
-        Employee employee9 = system.getEmployeeDirectory().createEmployee("logisticsadmin");
-
+        Employee employee8 = system.getEmployeeDirectory().createEmployee("FinTechManager");
+        Employee employee9 = system.getEmployeeDirectory().createEmployee("LogisticsAdmin");
+        Employee employee10 = system.getEmployeeDirectory().createEmployee("RetailAdmin");
+        Employee employee11 = system.getEmployeeDirectory().createEmployee("WarehouseAdmin");
         // Create user accounts
         UserAccount ua = system.getUserAccountDirectory().createUserAccount("sysadmin", "sysadmin", employee1, new SystemAdminRole());
         UserAccount customerservice = system.getUserAccountDirectory().createUserAccount("c", "****", employee2, new CustomerServiceRepRole());
@@ -82,6 +87,8 @@ public class ConfigureASystem {
         UserAccount warehouse = system.getUserAccountDirectory().createUserAccount("w", "****", employee7, new WarehouseManagerRole());
         UserAccount fintech = system.getUserAccountDirectory().createUserAccount("pay", "****", employee8, new FintechRole());
         UserAccount logisticsAdmin = system.getUserAccountDirectory().createUserAccount("la", "****", employee9, new LogisticsEnterpriseAdminRole());
+        UserAccount retailAdmin = system.getUserAccountDirectory().createUserAccount("ra", "****", employee10, new RetailAdminRole());
+        UserAccount warehouseAdmin = system.getUserAccountDirectory().createUserAccount("wa", "****", employee11, new WarehouseSupplierAdminRole());
 
         // 初始化仓库和商品
         initializeWarehouse();

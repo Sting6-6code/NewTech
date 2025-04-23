@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import Business.Role.Role;
 import Business.Role.WarehouseManagerRole;
+import Business.Role.WarehouseSupplierAdminRole;
 
 public class WarehouseSupplierEnterprise extends Enterprise {
     public WarehouseSupplierEnterprise(String name) {
@@ -15,6 +16,7 @@ public class WarehouseSupplierEnterprise extends Enterprise {
     public ArrayList<Role> getSupportedRole() {
         ArrayList<Role> roles = new ArrayList<>();
         roles.add(new WarehouseManagerRole());
+        roles.add(new WarehouseSupplierAdminRole());
         return roles;
     }
 }
