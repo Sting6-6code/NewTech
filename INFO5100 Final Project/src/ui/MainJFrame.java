@@ -36,6 +36,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import Business.Payment.PaymentDirectory;
 
 /**
  *
@@ -59,6 +60,11 @@ public class MainJFrame extends javax.swing.JFrame {
             system = ConfigureASystem.configure();
             dB4OUtil.storeSystem(system);
             System.out.println("系统重新配置完成，网络数量: " + system.getNetworkList().size());
+        }
+
+        // Ensure paymentDirectory is initialized
+        if (system.getPaymentDirectory() == null) {
+            system.setPaymentDirectory(new PaymentDirectory());
         }
 
         if (system != null && system.getNetworkList() != null && !system.getNetworkList().isEmpty()) {
@@ -86,11 +92,20 @@ public class MainJFrame extends javax.swing.JFrame {
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                // Clear payment directory before storing system
+                if (system != null && system.getPaymentDirectory() != null) {
+                    system.getPaymentDirectory().removeAll();
+                }
                 dB4OUtil.storeSystem(system);
             }
         });
         for (UserAccount ua : system.getUserAccountDirectory().getUserAccountList()) {
             System.out.println(ua.getUsername() + ua.getPassword());
+        }
+        
+        // Only refresh payment directory if it's properly initialized
+        if (system.getPaymentDirectory() != null) {
+            system.refreshPaymentDirectory();
         }
 
 //        demo();
@@ -339,6 +354,7 @@ public class MainJFrame extends javax.swing.JFrame {
         UserAccount customsagent = system.getUserAccountDirectory().createUserAccount("l", "****", employee5, new CustomsAgentRole());
         UserAccount logistics = system.getUserAccountDirectory().createUserAccount("t", "****", employee6, new LogisticsCoordinatorRole());
         UserAccount warehouse = system.getUserAccountDirectory().createUserAccount("w", "****", employee7, new WarehouseManagerRole());
+        
 
     }
     

@@ -26,7 +26,7 @@ public class FintechRole extends Role {
 //            AdminOrganization ao = new AdminOrganization();
 //            return new ui.AdminRole.AdminHP(userProcessContainer, account, enterprise, ao, business);
 //        }
-        FintechHomepage fhp = new FintechHomepage();
+        FintechHomepage fhp = new FintechHomepage(userProcessContainer, account, organization, enterprise, business);
         return fhp;
     }
     

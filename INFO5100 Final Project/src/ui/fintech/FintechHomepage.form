@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Form version="1.3" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+<Form version="1.5" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
@@ -28,20 +28,20 @@
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="232" max="-2" attributes="0"/>
-                      <Component id="btnReceive" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="87" max="-2" attributes="0"/>
-                      <Component id="btnReport" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="85" max="-2" attributes="0"/>
                       <Component id="btnRefund" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="67" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="73" max="-2" attributes="0"/>
+                      <Component id="btnReport" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="75" max="-2" attributes="0"/>
                       <Component id="btnViewDetail" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="52" max="-2" attributes="0"/>
+                      <Component id="btnRev" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="266" max="-2" attributes="0"/>
                       <Component id="viewDetailJP" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="134" max="32767" attributes="0"/>
+              <EmptySpace pref="117" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -54,14 +54,14 @@
               <Component id="viewPaymentsScrollPane" min="-2" pref="185" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="67" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="btnReceive" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="btnReport" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="btnRefund" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="btnReport" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="btnViewDetail" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="btnRev" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="70" max="-2" attributes="0"/>
               <Component id="viewDetailJP" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="25" max="32767" attributes="0"/>
+              <EmptySpace pref="19" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -114,9 +114,9 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JButton" name="btnReceive">
+    <Component class="javax.swing.JButton" name="btnRefund">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Receive"/>
+        <Property name="text" type="java.lang.String" value="Refund"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="btnReport">
@@ -124,9 +124,9 @@
         <Property name="text" type="java.lang.String" value="Report Suspicious"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="btnRefund">
+    <Component class="javax.swing.JButton" name="btnRev">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Refund"/>
+        <Property name="text" type="java.lang.String" value="Calculate Revenue"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="btnViewDetail">
@@ -149,11 +149,15 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="txtAmt" linkSize="1" min="-2" max="-2" attributes="0"/>
-                      <Component id="txtShipmentID" linkSize="1" min="-2" pref="184" max="-2" attributes="0"/>
+                      <Component id="txtSubTotal" linkSize="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtAmount" linkSize="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtSingleItemPrice" linkSize="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtPaymentID" linkSize="1" min="-2" pref="184" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="182" max="32767" attributes="0"/>
               </Group>
@@ -165,14 +169,24 @@
                   <EmptySpace min="-2" pref="48" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="txtShipmentID" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtPaymentID" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="txtAmt" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtSingleItemPrice" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="133" max="32767" attributes="0"/>
+                  <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtAmount" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtSubTotal" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace pref="49" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -180,17 +194,31 @@
       <SubComponents>
         <Component class="javax.swing.JLabel" name="jLabel1">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Shipment ID:"/>
+            <Property name="text" type="java.lang.String" value="Payment ID:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel2">
           <Properties>
+            <Property name="text" type="java.lang.String" value="Single Item Price:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtPaymentID">
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtSingleItemPrice">
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel3">
+          <Properties>
             <Property name="text" type="java.lang.String" value="Amount:"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JTextField" name="txtShipmentID">
+        <Component class="javax.swing.JTextField" name="txtAmount">
         </Component>
-        <Component class="javax.swing.JTextField" name="txtAmt">
+        <Component class="javax.swing.JLabel" name="jLabel4">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Subtotal:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtSubTotal">
         </Component>
       </SubComponents>
     </Container>
