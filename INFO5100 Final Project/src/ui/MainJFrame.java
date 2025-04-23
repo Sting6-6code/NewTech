@@ -36,6 +36,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import Business.Payment.PaymentDirectory;
 
 /**
  *
@@ -59,6 +60,11 @@ public class MainJFrame extends javax.swing.JFrame {
             system = ConfigureASystem.configure();
             dB4OUtil.storeSystem(system);
             System.out.println("系统重新配置完成，网络数量: " + system.getNetworkList().size());
+        }
+
+        // Ensure paymentDirectory is initialized
+        if (system.getPaymentDirectory() == null) {
+            system.setPaymentDirectory(new PaymentDirectory());
         }
 
         if (system != null && system.getNetworkList() != null && !system.getNetworkList().isEmpty()) {
@@ -91,6 +97,11 @@ public class MainJFrame extends javax.swing.JFrame {
         });
         for (UserAccount ua : system.getUserAccountDirectory().getUserAccountList()) {
             System.out.println(ua.getUsername() + ua.getPassword());
+        }
+        
+        // Only refresh payment directory if it's properly initialized
+        if (system.getPaymentDirectory() != null) {
+            system.refreshPaymentDirectory();
         }
 
 //        demo();

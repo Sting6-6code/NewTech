@@ -13,6 +13,8 @@ import Business.Payment.Payment;
 import Business.Payment.PaymentDirectory;
 import Business.UserAccount.UserAccount;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 
@@ -21,12 +23,13 @@ import javax.swing.table.DefaultTableModel;
  * @author yushe
  */
 public class FintechHomepage extends javax.swing.JPanel {
-    private EcoSystem business;
+    private JPanel userProcessContainer;
     private UserAccount userAccount;
     private Organization organization;
     private Enterprise enterprise;
-    private OrderDirectory orderDirectory;
+    private EcoSystem business;
     private PaymentDirectory paymentDirectory;
+    private OrderDirectory orderDirectory;
 
     /**
      * Creates new form FintechHomepage
@@ -47,12 +50,33 @@ public class FintechHomepage extends javax.swing.JPanel {
         System.out.println("Debug: enterprise is " + (enterprise == null ? "null" : "not null"));
         
         initComponents();
-        this.business = business;
+        this.userProcessContainer = userProcessContainer;
         this.userAccount = account;
         this.organization = organization;
         this.enterprise = enterprise;
-        this.orderDirectory = business.getOrderDirectory();
+        this.business = business;
+        
+        // Ensure business is not null
+        if (business == null) {
+            System.out.println("Error: Business is null");
+            return;
+        }
+        
+        // Initialize payment directory
         this.paymentDirectory = business.getPaymentDirectory();
+        if (this.paymentDirectory == null) {
+            System.out.println("Warning: Payment directory is null, creating new one");
+            this.paymentDirectory = new PaymentDirectory();
+            business.setPaymentDirectory(this.paymentDirectory);
+        }
+        
+        // Initialize order directory
+        this.orderDirectory = business.getOrderDirectory();
+        if (this.orderDirectory == null) {
+            System.out.println("Warning: Order directory is null, creating new one");
+            this.orderDirectory = new OrderDirectory();
+            business.setOrderDirectory(this.orderDirectory);
+        }
         
         System.out.println("Debug: After initialization");
         System.out.println("Debug: orderDirectory is " + (this.orderDirectory == null ? "null" : "not null"));
@@ -60,6 +84,9 @@ public class FintechHomepage extends javax.swing.JPanel {
         
         setupPaymentTable();
         populatePaymentTable();
+        calculateTotalRevenue();
+        calculateDailyRevenue();
+        updatePaymentStatusSummary();
     }
 
     private void setupPaymentTable() {
@@ -75,56 +102,105 @@ public class FintechHomepage extends javax.swing.JPanel {
         DefaultTableModel model = (DefaultTableModel) tblPayments.getModel();
         model.setRowCount(0);
         
-        System.out.println("Debug: business is " + (business == null ? "null" : "not null"));
+        System.out.println("Debug: paymentDirectory is " + (paymentDirectory == null ? "null" : "not null"));
         
-        // Get all orders and create payments for them
-        OrderDirectory orderDir = business.getOrderDirectory();
-        PaymentDirectory paymentDir = business.getPaymentDirectory();
+        // Get all payments from the payment directory
+        for (Payment payment : paymentDirectory.getPaymentList()) {
+            Object[] row = new Object[5];
+            row[0] = payment.getPaymentId();
+            row[1] = payment.getOrder().getOrderId();
+            row[2] = String.format("$%.2f", payment.getAmount());
+            row[3] = payment.getStatus();
+            row[4] = new SimpleDateFormat("MM/dd/yyyy").format(payment.getPaymentDate());
+            model.addRow(row);
+        }
         
-        System.out.println("Debug: orderDir is " + (orderDir == null ? "null" : "not null"));
-        System.out.println("Debug: paymentDir is " + (paymentDir == null ? "null" : "not null"));
+        System.out.println("Debug: Finished populatePaymentTable");
+    }
+
+    private void calculateTotalRevenue() {
+        double total = 0.0;
+        for (Payment payment : paymentDirectory.getPaymentList()) {
+            if (payment.getStatus().equals("Completed")) {
+                total += payment.getAmount();
+            }
+        }
+        lblTotalRevenue.setText(String.format("Total Revenue: $%.2f", total));
+    }
+
+    private void calculateDailyRevenue() {
+        double dailyTotal = 0.0;
+        Date today = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        String todayStr = dateFormat.format(today);
         
-        if (orderDir != null && orderDir.getOrderList() != null) {
-            System.out.println("Debug: Number of orders found: " + orderDir.getOrderList().size());
+        for (Payment payment : paymentDirectory.getPaymentList()) {
+            String paymentDate = dateFormat.format(payment.getPaymentDate());
+            if (paymentDate.equals(todayStr) && payment.getStatus().equals("Completed")) {
+                dailyTotal += payment.getAmount();
+            }
+        }
+        lblDailyRevenue.setText(String.format("Today's Revenue: $%.2f", dailyTotal));
+    }
+
+    private void updatePaymentStatusSummary() {
+        int completed = 0;
+        int pending = 0;
+        int refunded = 0;
+        
+        for (Payment payment : paymentDirectory.getPaymentList()) {
+            switch (payment.getStatus()) {
+                case "Completed":
+                    completed++;
+                    break;
+                case "Pending":
+                    pending++;
+                    break;
+                case "Refunded":
+                    refunded++;
+                    break;
+            }
+        }
+        
+        lblStatusSummary.setText(String.format("Payments: %d Completed, %d Pending, %d Refunded", 
+            completed, pending, refunded));
+    }
+
+    private void processPayment() {
+        String orderId = txtShipmentID.getText();
+        String amountStr = txtAmt.getText();
+        
+        if (orderId.isEmpty() || amountStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter both Order ID and Amount");
+            return;
+        }
+        
+        try {
+            double amount = Double.parseDouble(amountStr);
+            Order order = orderDirectory.findOrderByRequestId(orderId);
             
-            // Create payments for all orders if they don't exist
-            for (Order order : orderDir.getOrderList()) {
-                System.out.println("Debug: Processing order: " + order.getOrderId());
-                if (order != null) {
-                    // Check if payment already exists for this order
-                    boolean paymentExists = false;
-                    for (Payment payment : paymentDir.getPaymentList()) {
-                        if (payment.getOrder().equals(order)) {
-                            paymentExists = true;
-                            break;
-                        }
-                    }
-                    
-                    if (!paymentExists) {
-                        paymentDir.createPayment(order);
-                        System.out.println("Debug: Created new payment for order: " + order.getOrderId());
-                    }
-                }
+            if (order == null) {
+                JOptionPane.showMessageDialog(this, "Order not found");
+                return;
             }
             
-            // Display all payments
-            for (Payment payment : paymentDir.getPaymentList()) {
-                System.out.println("Debug: Processing payment: " + payment.getPaymentId());
-                if (payment != null && payment.getOrder() != null) {
-                    Object[] row = new Object[5];
-                    row[0] = payment.getPaymentId();
-                    row[1] = payment.getOrder().getOrderId();
-                    row[2] = String.format("$%.2f", payment.getAmount());
-                    row[3] = payment.getStatus();
-                    row[4] = new SimpleDateFormat("MM/dd/yyyy").format(payment.getPaymentDate());
-                    model.addRow(row);
-                    System.out.println("Debug: Added row for payment: " + payment.getPaymentId());
-                } else {
-                    System.out.println("Debug: Found null payment or order in list");
-                }
-            }
-        } else {
-            System.out.println("Debug: orderDir or orderList is null");
+            Payment payment = new Payment(order);
+            payment.setAmount(amount);
+            payment.setStatus("Completed");
+            paymentDirectory.getPaymentList().add(payment);
+            
+            JOptionPane.showMessageDialog(this, "Payment processed successfully");
+            populatePaymentTable();
+            calculateTotalRevenue();
+            calculateDailyRevenue();
+            updatePaymentStatusSummary();
+            
+            // Clear input fields
+            txtShipmentID.setText("");
+            txtAmt.setText("");
+            
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid amount");
         }
     }
 
@@ -149,6 +225,9 @@ public class FintechHomepage extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         txtShipmentID = new javax.swing.JTextField();
         txtAmt = new javax.swing.JTextField();
+        lblTotalRevenue = new javax.swing.JLabel();
+        lblDailyRevenue = new javax.swing.JLabel();
+        lblStatusSummary = new javax.swing.JLabel();
 
         lblTitle.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         lblTitle.setText("Welcome to Payment Center!");
@@ -179,6 +258,10 @@ public class FintechHomepage extends javax.swing.JPanel {
         jLabel1.setText("Shipment ID:");
 
         jLabel2.setText("Amount:");
+
+        lblTotalRevenue.setText("Total Revenue: $0.00");
+        lblDailyRevenue.setText("Today's Revenue: $0.00");
+        lblStatusSummary.setText("Payments: 0 Completed, 0 Pending, 0 Refunded");
 
         javax.swing.GroupLayout viewDetailJPLayout = new javax.swing.GroupLayout(viewDetailJP);
         viewDetailJP.setLayout(viewDetailJPLayout);
@@ -271,5 +354,8 @@ public class FintechHomepage extends javax.swing.JPanel {
     private javax.swing.JTextField txtShipmentID;
     private javax.swing.JPanel viewDetailJP;
     private javax.swing.JScrollPane viewPaymentsScrollPane;
+    private javax.swing.JLabel lblTotalRevenue;
+    private javax.swing.JLabel lblDailyRevenue;
+    private javax.swing.JLabel lblStatusSummary;
     // End of variables declaration//GEN-END:variables
 }
