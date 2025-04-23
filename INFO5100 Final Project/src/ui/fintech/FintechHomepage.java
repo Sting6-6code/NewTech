@@ -379,6 +379,11 @@ public class FintechHomepage extends javax.swing.JPanel {
         });
 
         btnViewDetail.setText("View Detail..");
+        btnViewDetail.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnViewDetailActionPerformed(evt);
+            }
+        });
 
         viewDetailJP.setBackground(new java.awt.Color(255, 255, 255));
 
